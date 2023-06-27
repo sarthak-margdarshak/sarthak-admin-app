@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import { m } from 'framer-motion';
 // @mui
 import { Box, Container, Typography, Stack } from '@mui/material';
@@ -49,7 +63,7 @@ export default function AboutVision() {
 
       <m.div variants={varFade().inUp}>
         <Typography variant="h3" sx={{ textAlign: 'center', maxWidth: 800, mx: 'auto' }}>
-          Our vision offering the best product nulla vehicula tortor scelerisque ultrices malesuada.
+          Our vision offering the best product to promote education to every part of this country.
         </Typography>
       </m.div>
     </Container>

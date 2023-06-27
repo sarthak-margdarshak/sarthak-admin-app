@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -15,6 +29,8 @@ import NavItem from './NavItem';
 NavList.propTypes = {
   item: PropTypes.object,
 };
+
+// ----------------------------------------------------------------------
 
 export default function NavList({ item }) {
   const { pathname } = useLocation();

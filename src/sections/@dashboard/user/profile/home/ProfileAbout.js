@@ -1,9 +1,24 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import PropTypes from 'prop-types';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Link, Card, Typography, CardHeader, Stack } from '@mui/material';
 // components
 import Iconify from '../../../../../components/iconify';
+// locales
 import { useLocales } from '../../../../../locales';
 
 // ----------------------------------------------------------------------
@@ -26,6 +41,8 @@ ProfileAbout.propTypes = {
   role: PropTypes.string,
   school: PropTypes.string,
 };
+
+// ----------------------------------------------------------------------
 
 export default function ProfileAbout({ quote, country, email, role, company, school }) {
 

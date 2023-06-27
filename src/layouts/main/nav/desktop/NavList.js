@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -15,6 +29,8 @@ NavList.propTypes = {
   item: PropTypes.object,
   isOffset: PropTypes.bool,
 };
+
+// ----------------------------------------------------------------------
 
 export default function NavList({ item, isOffset }) {
   const { pathname } = useLocation();
@@ -83,6 +99,8 @@ NavSubList.propTypes = {
   isDashboard: PropTypes.bool,
   subheader: PropTypes.string,
 };
+
+// ----------------------------------------------------------------------
 
 function NavSubList({ items, isDashboard, subheader, onClose }) {
   const { pathname } = useLocation();

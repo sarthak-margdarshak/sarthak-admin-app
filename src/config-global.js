@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 // routes
 import { PATH_DASHBOARD } from './routes/paths';
 
@@ -9,40 +23,25 @@ export const APPWRITE_API = {
   projectId: process.env.REACT_APP_APPWRITE_PROJECT_ID,
   databaseId: process.env.REACT_APP_APPWRITE_DATABASE,
   databases: {
+    // User Databases
     usersProfile: process.env.REACT_APP_APPWRITE_DATABASE_USERS_PROFILE,
     usersGeneral: process.env.REACT_APP_APPWRITE_DATABASE_USERS_GENERAL,
     usersSocialLinks: process.env.REACT_APP_APPWRITE_DATABASE_USERS_SOCIALLINKS,
     usersPermissions: process.env.REACT_APP_APPWRITE_DATABASE_USERS_PERMISSIONS,
-    questions: process.env.REACT_APP_APPWRITE_DATABASE_QUESTIONS,
+    // Team Databases
+    teams: process.env.REACT_APP_APPWRITE_DATABASE_TEAMS,
+    teamMembership: process.env.REACT_APP_APPWRITE_DATABASE_TEAM_MEMBERSHIP,
   },
   buckets: {
     userImage: process.env.REACT_APP_APPWRITE_BUCKET_USERIMAGE,
-  }
+    teamCover: process.env.REACT_APP_APPWRITE_BUCKET_TEAMCOVER,
+  },
+  functions: {
+    onboardWelcome: process.env.REACT_APP_APPWRITE_FUCTION_ONBOARD_WELCOME,
+    teamInvite: process.env.REACT_APP_APPWRITE_FUCTION_TEAM_INVITE,
+    contactInstitute: process.env.REACT_APP_APPWRITE_FUCTION_CONTACT_INSTITUTE,
+  },
 };
-
-export const HOST_API_KEY = process.env.REACT_APP_HOST_API_KEY || '';
-
-export const FIREBASE_API = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APPID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
-};
-
-export const COGNITO_API = {
-  userPoolId: process.env.REACT_APP_AWS_COGNITO_USER_POOL_ID,
-  clientId: process.env.REACT_APP_AWS_COGNITO_CLIENT_ID,
-};
-
-export const AUTH0_API = {
-  clientId: process.env.REACT_APP_AUTH0_CLIENT_ID,
-  domain: process.env.REACT_APP_AUTH0_DOMAIN,
-};
-
-export const MAP_API = process.env.REACT_APP_MAPBOX_API;
 
 // ROOT PATH AFTER LOGIN SUCCESSFUL
 export const PATH_AFTER_LOGIN = PATH_DASHBOARD.general.app; // as '/dashboard/app'

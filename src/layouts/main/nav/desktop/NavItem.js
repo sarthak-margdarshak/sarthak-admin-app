@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import PropTypes from 'prop-types';
 import { m } from 'framer-motion';
 import { forwardRef } from 'react';
@@ -55,6 +69,8 @@ export const NavItem = forwardRef(
   }
 );
 
+// ----------------------------------------------------------------------
+
 NavItem.propTypes = {
   open: PropTypes.bool,
   item: PropTypes.object,
@@ -70,6 +86,8 @@ NavItemDashboard.propTypes = {
   item: PropTypes.object,
   sx: PropTypes.object,
 };
+
+// ----------------------------------------------------------------------
 
 export function NavItemDashboard({ item, sx, ...other }) {
   return (

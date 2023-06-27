@@ -1,6 +1,21 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import * as Yup from 'yup';
 // form
 import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import { Stack, Card, InputAdornment } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -8,9 +23,10 @@ import { LoadingButton } from '@mui/lab';
 import Iconify from '../../../../components/iconify';
 import { useSnackbar } from '../../../../components/snackbar';
 import FormProvider, { RHFTextField } from '../../../../components/hook-form';
+// Auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
 import { getUserSocialLinksData } from '../../../../auth/AppwriteContext';
-import { yupResolver } from '@hookform/resolvers/yup';
+// locales
 import { useLocales } from '../../../../locales';
 
 // ----------------------------------------------------------------------
@@ -46,10 +62,10 @@ export default function AccountSocialLinks() {
   } = useAuthContext();
 
   const UpdateUserSchema = Yup.object().shape({
-    facebookId: Yup.string().matches(/^(http\:\/\/|https\:\/\/)?(?:www\.)?facebook\.com\/(?:(?:\w\.)*#!\/)?(?:pages\/)?(?:[\w\-\.]*\/)*([\w\-\.]*)|^$/, translate('invalid_fb')),
+    facebookId: Yup.string().matches(/^(http:\/\/|https:\/\/)?(?:www\.)?facebook\.com\/(?:(?:\w\.)*#!\/)?(?:pages\/)?(?:[\w\-.]*\/)*([\w\-.]*)|^$/, translate('invalid_fb')),
     instagramId: Yup.string().matches(/(?:(?:http|https):\/\/)?(?:www.)?(?:instagram.com|instagr.am|instagr.com)\/(\w+)|^$/, translate('invalid_insta')),
     linkedinId: Yup.string().matches(/^(http(s)?:\/\/)?([\w]+\.)?linkedin\.com\/(pub|in|profile)|^$/, translate('invalid_linked')),
-    twitterId: Yup.string().matches(/(?:https?:)?\/\/(?:www\.|m\.)?twitter\.com\/(\w{2,15})\/?(?:\?\S+)?(?:\#\S+)?$|^$/, translate('invalid_twit')),
+    twitterId: Yup.string().matches(/(?:https?:)?\/\/(?:www\.|m\.)?twitter\.com\/(\w{2,15})\/?(?:\?\S+)?(?:#\S+)?$|^$/, translate('invalid_twit')),
   });
 
   const methods = useForm({
@@ -75,7 +91,8 @@ export default function AccountSocialLinks() {
       await updateUserSocialLinks(data);
       enqueueSnackbar(translate('update_success')+' !!!', {variant: 'success'});
     } catch (error) {
-      enqueueSnackbar(translate('update_failed')+' !!!   '+error, {variant: 'error'});
+      console.error(error);
+      enqueueSnackbar(error.message, { variant: 'error' });
     }
   };
 

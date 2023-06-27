@@ -1,10 +1,22 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import { Helmet } from 'react-helmet-async';
 // @mui
 import { Container, Box } from '@mui/material';
-// _mock
-import { _mapContact } from '../_mock/arrays';
 // sections
-import { ContactHero, ContactForm, ContactMap } from '../sections/contact';
+import { ContactHero, ContactForm } from '../sections/contact';
 
 // ----------------------------------------------------------------------
 
@@ -12,7 +24,7 @@ export default function ContactPage() {
   return (
     <>
       <Helmet>
-        <title> Contact us | Minimal UI</title>
+        <title> Contact us | Sarthak Admin</title>
       </Helmet>
 
       <ContactHero />
@@ -26,9 +38,7 @@ export default function ContactPage() {
             md: 'repeat(2, 1fr)',
           }}
         >
-          <ContactForm />
-
-          <ContactMap contacts={_mapContact} />
+          <ContactForm title="Feel free to contact us.   We will be glad to hear from you, buddy." />
         </Box>
       </Container>
     </>

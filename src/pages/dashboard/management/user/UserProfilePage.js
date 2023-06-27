@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import { Helmet } from 'react-helmet-async';
 import { useEffect, useState } from 'react';
 // @mui
@@ -6,6 +20,12 @@ import { Tab, Card, Tabs, Container, Box } from '@mui/material';
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 // auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
+import {
+  getImageProfileLink,
+  getProfileData,
+  getUserGeneralData,
+  getUserSocialLinksData
+} from '../../../../auth/AppwriteContext';
 // components
 import Iconify from '../../../../components/iconify';
 import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
@@ -21,26 +41,33 @@ import { useLocales } from '../../../../locales';
 // ----------------------------------------------------------------------
 
 export default function UserProfilePage() {
+  var userId = window.location.pathname.split('/')[4];
+  const { user } = useAuthContext();
+  if(userId==='') {
+    userId = user.$id;
+  }
+
   const { themeStretch } = useSettingsContext();
 
   const { translate } = useLocales();
-
-  const {
-    user,
-    userProfile,
-    userGeneral,
-    userSocialLinks,
-    fetchSocialLinksData,
-    fetchGeneralData,
-  } = useAuthContext();
+  const [userProfile, setUserProfile] = useState(null);
+  const [userGeneral, setUserGeneral] = useState(null);
+  const [userSocialLinks, setUserSocialLinks] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
-      await fetchGeneralData(user.$id);
-      await fetchSocialLinksData(user.$id);
+      var data = await getProfileData(userId);
+      setUserProfile(data);
+      data = await getImageProfileLink(data?.photoUrl);
+      setProfileImage(data);
+      data = await getUserGeneralData(userId);
+      setUserGeneral(data);
+      data = await getUserSocialLinksData(userId);
+      setUserSocialLinks(data);
     }
     fetchData();
-  }, [])
+  }, [userId])
 
   const [currentTab, setCurrentTab] = useState('profile');
 
@@ -65,7 +92,7 @@ export default function UserProfilePage() {
           links={[
             { name: translate('dashboard'), href: PATH_DASHBOARD.root },
             { name: translate('user'), href: PATH_DASHBOARD.user.root },
-            { name: user?.name },
+            { name: userProfile?.name },
           ]}
         />
         <Card
@@ -75,7 +102,7 @@ export default function UserProfilePage() {
             position: 'relative',
           }}
         >
-          <ProfileCover name={user?.name} role={userProfile?.designation} />
+          <ProfileCover name={userProfile?.name} role={userProfile?.designation} profileImage={profileImage} />
 
           <Tabs
             value={currentTab}

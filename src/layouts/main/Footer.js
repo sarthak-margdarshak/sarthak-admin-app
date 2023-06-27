@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import { Link as RouterLink } from 'react-router-dom';
 // @mui
 import { Box, Grid, Link, Stack, Divider, Container, Typography, IconButton } from '@mui/material';
@@ -15,9 +29,11 @@ const LINKS = [
   {
     headline: 'Sarthak',
     children: [
+      { name: 'Student App', href: 'https://sarthakguidanceinstitute.ac.in', newTab: true },
       { name: 'About us', href: PATH_PAGE.about, newTab: false },
       { name: 'Contact us', href: PATH_PAGE.contact, newTab: false },
       { name: 'FAQs', href: PATH_PAGE.faqs, newTab: false },
+      { name: 'Change Log', href: PATH_PAGE.changelog, newTab: false },
     ],
   },
   {

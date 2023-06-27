@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import PropTypes from 'prop-types';
 import { m } from 'framer-motion';
 // @mui
@@ -16,6 +30,8 @@ RoleBasedGuard.propTypes = {
   hasContent: PropTypes.bool,
   roles: PropTypes.arrayOf(PropTypes.string),
 };
+
+// ----------------------------------------------------------------------
 
 export default function RoleBasedGuard({ hasContent, roles, children }) {
   // Logic here to get current user role

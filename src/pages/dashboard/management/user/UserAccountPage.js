@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import { Helmet } from 'react-helmet-async';
 import { useEffect, useState } from 'react';
 // @mui
@@ -17,15 +31,18 @@ import {
   AccountPermissions,
   AccountChangePassword,
 } from '../../../../sections/@dashboard/user/account';
-
+// locales
 import { useLocales } from '../../../../locales';
 
 // ----------------------------------------------------------------------
 
 export default function UserAccountPage() {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+
   const { themeStretch } = useSettingsContext();
 
-  const [currentTab, setCurrentTab] = useState('general');
+  const [currentTab, setCurrentTab] = useState(urlParams.has('tab')?urlParams.get('tab'):'general');
 
   const { translate } = useLocales();
 
@@ -40,7 +57,7 @@ export default function UserAccountPage() {
       await fetchPermissionData(user.$id);
     }
     fetchData();
-  }, [])
+  }, [fetchPermissionData, user])
 
   const TABS = [
     {
@@ -80,7 +97,7 @@ export default function UserAccountPage() {
           heading={translate("account")}
           links={[
             { name: translate('dashboard'), href: PATH_DASHBOARD.root },
-            { name: user?.name, href: PATH_DASHBOARD.user.profile },
+            { name: user?.name, href: PATH_DASHBOARD.user.profile(user?.$id) },
             { name: translate('account_settings') },
           ]}
         />

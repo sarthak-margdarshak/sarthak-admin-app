@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import PropTypes from 'prop-types';
 import { Link as RouterLink } from 'react-router-dom';
 // @mui
@@ -17,6 +31,8 @@ import Logo from '../../components/logo';
 Header.propTypes = {
   isOffset: PropTypes.bool,
 };
+
+// ----------------------------------------------------------------------
 
 export default function Header({ isOffset }) {
   const theme = useTheme();
@@ -59,6 +75,8 @@ export default function Header({ isOffset }) {
 Shadow.propTypes = {
   sx: PropTypes.object,
 };
+
+// ----------------------------------------------------------------------
 
 function Shadow({ sx, ...other }) {
   return (

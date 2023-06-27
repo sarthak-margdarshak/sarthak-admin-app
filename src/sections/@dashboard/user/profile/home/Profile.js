@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import PropTypes from 'prop-types';
 // @mui
 import { Stack } from '@mui/material';
@@ -5,6 +19,7 @@ import { Stack } from '@mui/material';
 import ProfileAbout from './ProfileAbout';
 import ProfileTaskInfo from './ProfileTaskInfo';
 import ProfileSocialInfo from './ProfileSocialInfo';
+// locales
 import { useLocales } from '../../../../../locales';
 
 // ----------------------------------------------------------------------
@@ -14,6 +29,8 @@ Profile.propTypes = {
   infoProfile: PropTypes.object,
   infoSocialLinks: PropTypes.object,
 };
+
+// ----------------------------------------------------------------------
 
 export default function Profile({ infoGeneral, infoProfile, infoSocialLinks }) {
 

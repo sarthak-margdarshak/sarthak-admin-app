@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import PropTypes from 'prop-types';
 // @mui
 import { Box } from '@mui/material';
@@ -12,10 +26,14 @@ import { useSettingsContext } from '../../components/settings';
 
 const SPACING = 8;
 
+// ----------------------------------------------------------------------
+
 Main.propTypes = {
   sx: PropTypes.object,
   children: PropTypes.node,
 };
+
+// ----------------------------------------------------------------------
 
 export default function Main({ children, sx, ...other }) {
   const { themeLayout } = useSettingsContext();

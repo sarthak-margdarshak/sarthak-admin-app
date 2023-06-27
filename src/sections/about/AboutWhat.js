@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import PropTypes from 'prop-types';
 import { m } from 'framer-motion';
 // @mui
@@ -7,8 +21,6 @@ import { Box, Grid, Container, Typography, LinearProgress } from '@mui/material'
 import useResponsive from '../../hooks/useResponsive';
 // utils
 import { fPercent } from '../../utils/formatNumber';
-// _mock_
-import { _skills } from '../../_mock/arrays';
 // components
 import Image from '../../components/image';
 import { MotionViewport, varFade } from '../../components/animate';
@@ -85,22 +97,12 @@ export default function AboutWhat() {
                   color: theme.palette.mode === 'light' ? 'text.secondary' : 'common.white',
                 }}
               >
-                Our theme is the most advanced and user-friendly theme you will find on the market,
-                we have documentation and video to help set your site really easily, pre-installed
-                demos you can import in one click and everything from the theme options to page
-                content can be edited from the front-end. This is the theme you are looking for.
+                At Sarthak Guidance Institute, we are dedicated to providing a transformative educational experience that empowers students to excel academically and personally. We strive to create a vibrant learning community where knowledge, innovation, and critical thinking thrive.
+                <br />
+                <br />
+                Our institute is committed to nurturing well-rounded individuals who possess the skills, knowledge, and values necessary to make a positive impact in the world. With a team of experienced faculty and state-of-the-art facilities, we offer a wide range of academic programs designed to meet the needs and aspirations of our students.
               </Typography>
             </m.div>
-
-            <Box sx={{ my: 5 }}>
-              {_skills.map((progress) => (
-                <m.div key={progress.label} variants={varFade().inRight}>
-                  <ProgressItem progress={progress} />
-                </m.div>
-              ))}
-            </Box>
-
-            
           </Grid>
         </Grid>
       </Container>
@@ -116,6 +118,8 @@ ProgressItem.propTypes = {
     value: PropTypes.number,
   }),
 };
+
+// ----------------------------------------------------------------------
 
 function ProgressItem({ progress }) {
   const { label, value } = progress;

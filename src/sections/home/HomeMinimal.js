@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import { m } from 'framer-motion';
 // @mui
 import { alpha, styled } from '@mui/material/styles';
@@ -11,21 +25,38 @@ import { MotionViewport, varFade } from '../../components/animate';
 const CARDS = [
   {
     icon: ' /assets/icons/home/ic_make_brand.svg',
-    title: 'Branding',
-    description: 'Consistent design makes it easy to brand your own.',
+    title: 'Academic Excellence',
+    description: 'We are committed to provide high-quality education and a to focus on academic rigor. These include well-designed curriculum, qualified faculty members, research opportunities, and a strong emphasis on teaching and learning.',
   },
   {
     icon: ' /assets/icons/home/ic_design.svg',
-    title: 'UI & UX Design',
+    title: 'Innovative Programs',
     description:
-      'The kit is built on the principles of the atomic design system. It helps you to create projects fastest and easily customized packages for your projects.',
+      'We offer a diverse range of academic programs, which allows students to explore different fields and pursue their interests. We offer 10th and 12th board exams, Navodaya School, Sainik School, Simultala School and Netarhat School Competitive exams. We also offer cources on other government competitive exams.',
   },
   {
     icon: ' /assets/icons/home/ic_development.svg',
-    title: 'Development',
-    description: 'Easy to customize and extend, saving you time and money.',
+    title: 'Distinguished Faculty',
+    description: 'We often highlight the expertise and qualifications of our faculty members. Distinguished faculty members bring credibility, experience, and knowledge to the learning process and contribute to the institute\'s academic reputation.',
+  },
+  {
+    icon: ' /assets/icons/home/ic_service.svg',
+    title: 'Student Support Services',
+    description: 'We have a strong support system. We offer services such as academic advising, counseling, career guidance, mentoring programs, tutoring, and opportunities for extracurricular involvement.',
+  },
+  {
+    icon: ' /assets/icons/home/ic_technology.svg',
+    title: 'Technological Integration',
+    description: 'We embraces technology in education which enhances teaching and learning experiences. We emphasize the integration of technology in classrooms, online learning platforms and digital resources.',
+  },
+  {
+    icon: ' /assets/icons/home/ic_diversity.svg',
+    title: 'Commitment to Diversity, Equity, and Inclusion',
+    description: 'We promotes diversity, equity, and inclusion which creates an inclusive and supportive environment for all students.',
   },
 ];
+
+// ----------------------------------------------------------------------
 
 const StyledRoot = styled('div')(({ theme }) => ({
   padding: theme.spacing(10, 0),
@@ -33,6 +64,8 @@ const StyledRoot = styled('div')(({ theme }) => ({
     padding: theme.spacing(15, 0),
   },
 }));
+
+// ----------------------------------------------------------------------
 
 const StyledCard = styled(Card)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
@@ -58,7 +91,7 @@ export default function HomeMinimal() {
         >
           <m.div variants={varFade().inUp}>
             <Typography component="div" variant="overline" sx={{ color: 'text.disabled' }}>
-              Minimal UI
+              Sarthak Margdarshan
             </Typography>
           </m.div>
 
@@ -82,7 +115,7 @@ export default function HomeMinimal() {
             <m.div variants={varFade().inUp} key={card.title}>
               <StyledCard
                 sx={{
-                  ...(index === 1 && {
+                  ...( {
                     boxShadow: (theme) => ({
                       md: `-40px 40px 80px ${
                         theme.palette.mode === 'light'

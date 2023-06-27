@@ -1,16 +1,53 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import PropTypes from 'prop-types';
 import { m } from 'framer-motion';
 import { useRef } from 'react';
 // @mui
 import { useTheme, alpha } from '@mui/material/styles';
-import { Box, Stack, Card, Button, Container, Typography, IconButton } from '@mui/material';
+import { Box, Stack, Card, Container, Typography, IconButton } from '@mui/material';
 // _mock_
-import { _carouselsMembers, _socials } from '../../_mock/arrays';
+import { _socials } from '../../_mock/arrays';
 // components
 import Image from '../../components/image';
 import Iconify from '../../components/iconify';
 import Carousel, { CarouselArrows } from '../../components/carousel';
 import { MotionViewport, varFade } from '../../components/animate';
+
+// ----------------------------------------------------------------------
+
+const teamMembers = [
+  {
+    name: 'Suryamani Kumar',
+    role: 'Chief Executive Officer',
+    avatar: '/assets/images/portraits/portrait_2.jpg',
+    facebookId: '#',
+    instagramId: '#',
+    linkedinId: '#',
+    twitterId: '#',
+  },
+  {
+    name: 'Ritesh Ranjan',
+    role: 'Chief Technology Officer',
+    avatar: '/assets/images/portraits/portrait_1.jpg',
+    facebookId: 'https://www.facebook.com/sagittariusk2/',
+    instagramId: 'https://www.instagram.com/sagittarius_k2/',
+    linkedinId: 'https://www.linkedin.com/in/sagittariusk2/',
+    twitterId: 'https://twitter.com/rrk2ritesh',
+  }
+]
 
 // ----------------------------------------------------------------------
 
@@ -70,8 +107,7 @@ export default function AboutTeam() {
             color: 'text.secondary',
           }}
         >
-          Minimal will provide you support if you have any problems, our support team will reply
-          within a day and we also have detailed documentation.
+          Teamwork is the ability to work together toward a common vision. The ability to direct individual accomplishments toward organizational objectives. It is the fuel that allows common people to attain uncommon results.
         </Typography>
       </m.div>
 
@@ -84,18 +120,18 @@ export default function AboutTeam() {
           leftButtonProps={{
             sx: {
               left: 24,
-              ...(_carouselsMembers.length < 5 && { display: 'none' }),
+              ...(teamMembers.length < 5 && { display: 'none' }),
             },
           }}
           rightButtonProps={{
             sx: {
               right: 24,
-              ...(_carouselsMembers.length < 5 && { display: 'none' }),
+              ...(teamMembers.length < 5 && { display: 'none' }),
             },
           }}
         >
           <Carousel ref={carouselRef} {...carouselSettings}>
-            {_carouselsMembers.map((member) => (
+            {teamMembers.map((member) => (
               <Box
                 key={member.id}
                 component={m.div}
@@ -108,16 +144,6 @@ export default function AboutTeam() {
           </Carousel>
         </CarouselArrows>
       </Box>
-
-      <Button
-        variant="outlined"
-        color="inherit"
-        size="large"
-        endIcon={<Iconify icon="ic:round-arrow-right-alt" width={24} />}
-        sx={{ mx: 'auto' }}
-      >
-        View all team members
-      </Button>
     </Container>
   );
 }
@@ -129,11 +155,15 @@ MemberCard.propTypes = {
     avatar: PropTypes.string,
     name: PropTypes.string,
     role: PropTypes.string,
+    facebookId: PropTypes.string,
+    instagramId: PropTypes.string,
+    linkedinId: PropTypes.string,
+    twitterId: PropTypes.string,
   }),
 };
 
 function MemberCard({ member }) {
-  const { name, role, avatar } = member;
+  const { name, role, avatar, facebookId, instagramId, linkedinId, twitterId } = member;
 
   return (
     <Card key={name}>
@@ -153,6 +183,11 @@ function MemberCard({ member }) {
         {_socials.map((social) => (
           <IconButton
             key={social.name}
+            href={social.name==='FaceBook'?facebookId:(
+              social.name==='Instagram'?instagramId:(
+                social.name==='Linkedin'?linkedinId:twitterId
+              )
+            )}
             sx={{
               color: social.color,
               '&:hover': {

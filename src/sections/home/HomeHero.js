@@ -1,11 +1,23 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import { m, useScroll } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 // @mui
-import { styled, alpha, useTheme } from '@mui/material/styles';
-import { Button, Box, Link, Container, Typography, Stack, Grid, Rating } from '@mui/material';
-// routes
-import { PATH_DASHBOARD } from '../../routes/paths';
+import { styled, alpha } from '@mui/material/styles';
+import { Button, Box, Container, Typography, Stack, Grid, Rating } from '@mui/material';
 // hooks
 import useResponsive from '../../hooks/useResponsive';
 // utils
@@ -13,7 +25,6 @@ import { textGradient, bgGradient } from '../../utils/cssStyles';
 // config
 import { HEADER } from '../../config-global';
 // components
-import SvgColor from '../../components/svg-color';
 import Iconify from '../../components/iconify';
 import { MotionContainer, varFade } from '../../components/animate';
 
@@ -34,6 +45,8 @@ const StyledRoot = styled('div')(({ theme }) => ({
   },
 }));
 
+// ----------------------------------------------------------------------
+
 const StyledDescription = styled('div')(({ theme }) => ({
   maxWidth: 480,
   margin: 'auto',
@@ -44,6 +57,8 @@ const StyledDescription = styled('div')(({ theme }) => ({
   padding: theme.spacing(15, 0),
   height: '100%',
 }));
+
+// ----------------------------------------------------------------------
 
 const StyledGradientText = styled(m.h1)(({ theme }) => ({
   ...textGradient(
@@ -63,6 +78,8 @@ const StyledGradientText = styled(m.h1)(({ theme }) => ({
   },
 }));
 
+// ----------------------------------------------------------------------
+
 const StyledEllipseTop = styled('div')(({ theme }) => ({
   position: 'absolute',
   width: 480,
@@ -74,6 +91,8 @@ const StyledEllipseTop = styled('div')(({ theme }) => ({
   WebkitFilter: 'blur(100px)',
   backgroundColor: alpha(theme.palette.primary.darker, 0.12),
 }));
+
+// ----------------------------------------------------------------------
 
 const StyledEllipseBottom = styled('div')(({ theme }) => ({
   position: 'absolute',
@@ -142,8 +161,8 @@ function Description() {
     <StyledDescription>
       <m.div variants={varFade().in}>
         <Typography variant="h2" sx={{ textAlign: 'center' }}>
-          Start a <br />
-          new project with
+          Leading the Way <br />
+          with Education
         </Typography>
       </m.div>
 
@@ -157,14 +176,13 @@ function Description() {
             repeat: Infinity,
           }}
         >
-          Minimal
+          SARTHAK
         </StyledGradientText>
       </m.div>
 
       <m.div variants={varFade().in}>
         <Typography variant="body2" sx={{ textAlign: 'center' }}>
-          The starting point for your next project is based on MUI.Easy customization Helps you
-          build apps faster and better.
+          We are dedicated to providing a transformative educational experience that empowers students to excel academically and personally. We strive to create a vibrant learning community where knowledge, innovation, and critical thinking thrive.
         </Typography>
       </m.div>
 
@@ -188,14 +206,13 @@ function Description() {
 
       <m.div variants={varFade().in}>
         <Stack spacing={1.5} direction={{ xs: 'column-reverse', sm: 'row' }} sx={{ mb: 5 }}>
-          <Stack alignItems="center" spacing={2}>
-            <Button
+          <Button
               component={RouterLink}
-              to={PATH_DASHBOARD.root}
+              to='https://sarthakguidanceinstitute.ac.in/'
               color="inherit"
               size="large"
               variant="contained"
-              startIcon={<Iconify icon="eva:flash-fill" width={24} />}
+              startIcon={<Iconify icon="ic:twotone-touch-app" width={24} />}
               sx={{
                 bgcolor: 'text.primary',
                 color: (theme) => (theme.palette.mode === 'light' ? 'common.white' : 'grey.800'),
@@ -204,59 +221,17 @@ function Description() {
                 },
               }}
             >
-              Live Preview
+              Student Web App
             </Button>
-
-            <Link
-              color="inherit"
-              variant="caption"
-              target="_blank"
-              rel="noopener"
-              href="#"
-              sx={{ textDecoration: 'underline', display: 'inline-flex', alignItems: 'center' }}
-            >
-              <Iconify icon="eva:external-link-fill" width={16} sx={{ mr: 0.5 }} />
-              Get Free Version
-            </Link>
-          </Stack>
-
-          <Button
-            color="inherit"
-            size="large"
-            variant="outlined"
-            startIcon={<Iconify icon="eva:external-link-fill" width={24} />}
-            target="_blank"
-            rel="noopener"
-            href="#"
-            sx={{ borderColor: 'text.primary' }}
-          >
-            Design Preview
-          </Button>
         </Stack>
       </m.div>
 
-      <Stack spacing={3} sx={{ textAlign: 'center', opacity: 0.48 }}>
-        <m.div variants={varFade().in}>
-          <Typography variant="overline">Available For</Typography>
-        </m.div>
-
-        <Stack spacing={2} direction="row" justifyContent="center">
-          {['sketch', 'figma', 'js', 'ts', 'nextjs'].map((platform) => (
-            <m.div key={platform} variants={varFade().in}>
-              <SvgColor src={`/assets/icons/platforms/ic_${platform}.svg`} />
-            </m.div>
-          ))}
-        </Stack>
-      </Stack>
     </StyledDescription>
   );
 }
 // ----------------------------------------------------------------------
 
 function Content() {
-  const theme = useTheme();
-
-  const isLight = theme.palette.mode === 'light';
 
   const transition = {
     repeatType: 'loop',
@@ -281,16 +256,16 @@ function Content() {
           component={m.img}
           animate={{ y: ['0%', '100%'] }}
           transition={transition}
-          alt={`hero_${isLight ? 'light' : 'dark'}_1`}
-          src={`/assets/images/home/hero_${isLight ? 'light' : 'dark'}_1.png`}
+          alt={`hero_1`}
+          src={`/assets/images/home/hero_1.png`}
           sx={{ position: 'absolute' }}
         />
         <Box
           component={m.img}
           animate={{ y: ['-100%', '0%'] }}
           transition={transition}
-          alt={`hero_${isLight ? 'light' : 'dark'}_1`}
-          src={`/assets/images/home/hero_${isLight ? 'light' : 'dark'}_1.png`}
+          alt={`hero_1`}
+          src={`/assets/images/home/hero_1.png`}
           sx={{ position: 'absolute' }}
         />
       </Stack>
@@ -304,16 +279,16 @@ function Content() {
           component={m.img}
           animate={{ y: ['100%', '0%'] }}
           transition={transition}
-          alt={`hero_${isLight ? 'light' : 'dark'}_2`}
-          src={`/assets/images/home/hero_${isLight ? 'light' : 'dark'}_2.png`}
+          alt={`hero_2`}
+          src={`/assets/images/home/hero_2.png`}
           sx={{ position: 'absolute' }}
         />
         <Box
           component={m.img}
           animate={{ y: ['0%', '-100%'] }}
           transition={transition}
-          alt={`hero_${isLight ? 'light' : 'dark'}_2`}
-          src={`/assets/images/home/hero_${isLight ? 'light' : 'dark'}_2.png`}
+          alt={`hero_2`}
+          src={`/assets/images/home/hero_2.png`}
           sx={{ position: 'absolute' }}
         />
       </Stack>

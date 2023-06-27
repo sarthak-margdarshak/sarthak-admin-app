@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import * as Yup from 'yup';
 import { useCallback, useState } from 'react';
 // form
@@ -8,6 +22,7 @@ import { Box, Grid, Card, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
+import { getUserGeneralData } from '../../../../auth/AppwriteContext';
 // utils
 import { fData } from '../../../../utils/formatNumber';
 // assets
@@ -19,7 +34,7 @@ import FormProvider, {
   RHFTextField,
   RHFUploadAvatar,
 } from '../../../../components/hook-form';
-import { getUserGeneralData } from '../../../../auth/AppwriteContext';
+// locales
 import { useLocales } from '../../../../locales';
 
 // ----------------------------------------------------------------------
@@ -85,7 +100,8 @@ export default function AccountGeneral({ userGeneral }) {
       }
       enqueueSnackbar(translate('update_success')+' !!!', {variant: 'success'});
     } catch (error) {
-      enqueueSnackbar(translate('update_failed')+' !!!   '+error, {variant: 'error'});
+      console.error(error);
+      enqueueSnackbar(error.message, { variant: 'error' });
     }
   };
 

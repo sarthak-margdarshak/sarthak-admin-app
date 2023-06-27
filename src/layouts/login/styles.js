@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 // @mui
 import { styled, alpha } from '@mui/material/styles';
 // utils
@@ -11,6 +25,8 @@ export const StyledRoot = styled('main')(() => ({
   position: 'relative',
 }));
 
+// ----------------------------------------------------------------------
+
 export const StyledSection = styled('div')(({ theme }) => ({
   display: 'none',
   position: 'relative',
@@ -22,6 +38,8 @@ export const StyledSection = styled('div')(({ theme }) => ({
     flexDirection: 'column',
   },
 }));
+
+// ----------------------------------------------------------------------
 
 export const StyledSectionBg = styled('div')(({ theme }) => ({
   ...bgGradient({
@@ -36,6 +54,8 @@ export const StyledSectionBg = styled('div')(({ theme }) => ({
   position: 'absolute',
   transform: 'scaleX(-1)',
 }));
+
+// ----------------------------------------------------------------------
 
 export const StyledContent = styled('div')(({ theme }) => ({
   width: 480,

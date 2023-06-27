@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 const en = {
   about: 'About',
   account: 'Account',
@@ -5,6 +19,7 @@ const en = {
   activity: 'Activity',
   address: `Address`,
   allowed: 'Allowed',
+  all_team: `All Teams`,
   app: `App`,
   avatar: 'Avatar',
   calendar: `Calendar`,
@@ -60,6 +75,7 @@ const en = {
   upload_photo: 'Upload Photo',
   user: `User`,
   valid_email: 'Email must be a valid email address.',
+  your_team: `Your Team`,
   zip: 'Zip',
 };
 

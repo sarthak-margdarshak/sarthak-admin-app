@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import { Navigate, useRoutes } from 'react-router-dom';
 // auth
 import AuthGuard from '../auth/AuthGuard';
@@ -24,27 +38,15 @@ import {
   TeamListPage,
   TeamCreatePage,
   TeamDetailsPage,
-  TeamAddUserPage,
-  // Dashboard: Task
-  TaskListPage,
-  TaskCreatePage,
-  TaskDetailsPage,
+  TeamUserPermissionPage,
   // Dashboard: Question
   QuestionListPage,
   QuestionCreatePage,
   QuestionDetailsPage,
   QuestionEditPage,
-  // Dashboard: Invoice
-  InvoiceListPage,
-  InvoiceDetailsPage,
-  InvoiceCreatePage,
-  InvoiceEditPage,
-  // Dashboard: App
-  ChatPage,
-  CalendarPage,
-  KanbanPage,
-  //
-  PermissionDeniedPage,
+  // Dashboard: Notification
+  NotificationListPage,
+  NotificationViewPage,
   //
   Page500,
   Page403,
@@ -100,8 +102,9 @@ export default function Router() {
         {
           path: 'user',
           children: [
-            { element: <Navigate to="/dashboard/user/profile" replace />, index: true },
-            { path: 'profile', element: <UserProfilePage /> },
+            { element: <Navigate to="/dashboard/user/account" replace />, index: true },
+            { path: 'profile/', element: <UserProfilePage /> },
+            { path: 'profile/:id', element: <UserProfilePage /> },
             { path: 'account', element: <UserAccountPage /> },
           ],
         },
@@ -112,18 +115,8 @@ export default function Router() {
             { element: <Navigate to="/dashboard/team/list" replace />, index: true },
             { path: 'list', element: <TeamListPage /> },
             { path: 'new', element: <TeamCreatePage /> },
-            { path: ':id', element: <TeamDetailsPage /> },
-            { path: ':id/addUser', element: <TeamAddUserPage /> },
-          ],
-        },
-        // Dashboard: Task
-        {
-          path: 'task',
-          children: [
-            { element: <Navigate to="/dashboard/task/list" replace />, index: true },
-            { path: 'list', element: <TaskListPage /> },
-            { path: 'new', element: <TaskCreatePage /> },
-            { path: ':id', element: <TaskDetailsPage /> },
+            { path: ':id/view', element: <TeamDetailsPage /> },
+            { path: ':teamId/user/:userId/permissions', element: <TeamUserPermissionPage /> }
           ],
         },
         // Dashboard: Question
@@ -137,32 +130,15 @@ export default function Router() {
             { path: ':id/edit', element: <QuestionEditPage /> },
           ],
         },
-        // Dashboard: Invoice
+        // Dashboard: Notification
         {
-          path: 'invoice',
+          path: 'notifications',
           children: [
-            { element: <Navigate to="/dashboard/invoice/list" replace />, index: true },
-            { path: 'list', element: <InvoiceListPage /> },
-            { path: ':id', element: <InvoiceDetailsPage /> },
-            { path: ':id/edit', element: <InvoiceEditPage /> },
-            { path: 'new', element: <InvoiceCreatePage /> },
-          ],
+            { element: <Navigate to="/dashboard/notifications/list" replace />, index: true },
+            { path: 'list', element: <NotificationListPage /> },
+            { path: ':id', element: <NotificationViewPage /> },
+          ]
         },
-        // Dashboard: Chat
-        {
-          path: 'chat',
-          children: [
-            { element: <ChatPage />, index: true },
-            { path: 'new', element: <ChatPage /> },
-            { path: ':conversationKey', element: <ChatPage /> },
-          ],
-        },
-        //
-        { path: 'calendar', element: <CalendarPage /> },
-        //
-        { path: 'kanban', element: <KanbanPage /> },
-        //
-        { path: 'permission-denied', element: <PermissionDeniedPage /> },
       ],
     },
 

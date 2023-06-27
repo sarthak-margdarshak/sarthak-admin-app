@@ -1,9 +1,21 @@
-import { m } from 'framer-motion';
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 // @mui
-import { styled, alpha } from '@mui/material/styles';
-import { Container, InputAdornment, Stack, TextField } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { Container, Stack } from '@mui/material';
 // components
-import Iconify from '../../components/iconify';
 import { MotionContainer, TextAnimate, varFade } from '../../components/animate';
 
 // ----------------------------------------------------------------------
@@ -19,6 +31,8 @@ const StyledRoot = styled('div')(({ theme }) => ({
     padding: 0,
   },
 }));
+
+// ----------------------------------------------------------------------
 
 const StyledContent = styled('div')(({ theme }) => ({
   textAlign: 'center',
@@ -47,39 +61,6 @@ export default function FaqsHero() {
               <TextAnimate text="you?" />
             </Stack>
           </div>
-
-          <m.div variants={varFade().inUp}>
-            <TextField
-              placeholder="Search support..."
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                mt: 5,
-                '& fieldset': { display: 'none' },
-                '& .MuiOutlinedInput-root': {
-                  width: 280,
-                  color: 'common.white',
-                  typography: 'subtitle1',
-                  border: (theme) => `solid 1px ${alpha(theme.palette.common.white, 0.24)}`,
-                  transition: (theme) =>
-                    theme.transitions.create(['box-shadow', 'width', 'background-color'], {
-                      duration: theme.transitions.duration.shorter,
-                    }),
-                  '&.Mui-focused': {
-                    color: 'grey.800',
-                    bgcolor: 'common.white',
-                    width: { sm: 320 },
-                    boxShadow: (theme) => theme.customShadows.z20,
-                  },
-                },
-              }}
-            />
-          </m.div>
         </StyledContent>
       </Container>
     </StyledRoot>

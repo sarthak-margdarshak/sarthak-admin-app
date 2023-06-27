@@ -1,8 +1,27 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import { Helmet } from 'react-helmet-async';
 // @mui
 import { Divider } from '@mui/material';
 // sections
-import { AboutHero, AboutWhat, AboutTeam, AboutVision, AboutTestimonials } from '../sections/about';
+import {
+  AboutHero,
+  AboutWhat,
+  AboutTeam,
+  AboutVision
+} from '../sections/about';
 
 // ----------------------------------------------------------------------
 
@@ -10,7 +29,7 @@ export default function AboutPage() {
   return (
     <>
       <Helmet>
-        <title> About us | Sarthsk Admin</title>
+        <title> About us | Sarthak Admin</title>
       </Helmet>
 
       <AboutHero />
@@ -19,11 +38,12 @@ export default function AboutPage() {
 
       <AboutVision />
 
-      <Divider orientation="vertical" sx={{ my: 10, mx: 'auto', width: 2, height: 40 }} />
+      <Divider
+        orientation="vertical"
+        sx={{ my: 10, mx: 'auto', width: 2, height: 40 }}
+      />
 
       <AboutTeam />
-
-      <AboutTestimonials />
     </>
   );
 }

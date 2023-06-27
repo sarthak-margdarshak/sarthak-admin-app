@@ -1,11 +1,23 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import PropTypes from 'prop-types';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Box, Typography } from '@mui/material';
 // utils
 import { bgBlur } from '../../../../utils/cssStyles';
-// auth
-import { useAuthContext } from '../../../../auth/useAuthContext';
 // components
 import Image from '../../../../components/image';
 import { CustomAvatar } from '../../../../components/custom-avatar';
@@ -25,6 +37,8 @@ const StyledRoot = styled('div')(({ theme }) => ({
     position: 'absolute',
   },
 }));
+
+// ----------------------------------------------------------------------
 
 const StyledInfo = styled('div')(({ theme }) => ({
   left: 0,
@@ -49,16 +63,16 @@ ProfileCover.propTypes = {
   role: PropTypes.string,
 };
 
-export default function ProfileCover({ name, role, cover }) {
-  const { user, profileImage } = useAuthContext();
+// ----------------------------------------------------------------------
 
+export default function ProfileCover({ name, role, cover, profileImage }) {
   return (
     <StyledRoot>
       <StyledInfo>
         <CustomAvatar
           src={profileImage}
-          alt={user?.name}
-          name={user?.name}
+          alt={name}
+          name={name}
           sx={{
             mx: 'auto',
             borderWidth: 2,

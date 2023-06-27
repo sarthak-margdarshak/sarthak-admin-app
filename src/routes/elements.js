@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import { Suspense, lazy } from 'react';
 // components
 import LoadingScreen from '../components/loading-screen';
@@ -11,7 +25,7 @@ const Loadable = (Component) => (props) =>
     </Suspense>
   );
 
-// ----------------------------------------------------------------------
+// EXPORT ---------------------------------------------------------------
 
 // AUTH
 export const LoginPage = Loadable(lazy(() => import('../pages/auth/LoginPage')));
@@ -22,16 +36,6 @@ export const ResetPasswordPage = Loadable(lazy(() => import('../pages/auth/Reset
 // DASHBOARD: GENERAL
 export const GeneralAppPage = Loadable(lazy(() => import('../pages/dashboard/general/GeneralAppPage')));
 
-// DASHBOARD: INVOICE
-export const InvoiceListPage = Loadable(lazy(() => import('../pages/dashboard/InvoiceListPage')));
-export const InvoiceDetailsPage = Loadable(
-  lazy(() => import('../pages/dashboard/InvoiceDetailsPage'))
-);
-export const InvoiceCreatePage = Loadable(
-  lazy(() => import('../pages/dashboard/InvoiceCreatePage'))
-);
-export const InvoiceEditPage = Loadable(lazy(() => import('../pages/dashboard/InvoiceEditPage')));
-
 // DASHBOARD: USER
 export const UserProfilePage = Loadable(lazy(() => import('../pages/dashboard/management/user/UserProfilePage')));
 export const UserAccountPage = Loadable(lazy(() => import('../pages/dashboard/management/user/UserAccountPage')));
@@ -40,12 +44,7 @@ export const UserAccountPage = Loadable(lazy(() => import('../pages/dashboard/ma
 export const TeamListPage = Loadable(lazy(() => import('../pages/dashboard/management/team/TeamListPage')));
 export const TeamCreatePage = Loadable(lazy(() => import('../pages/dashboard/management/team/TeamCreatePage')));
 export const TeamDetailsPage = Loadable(lazy(() => import('../pages/dashboard/management/team/TeamDetailsPage')));
-export const TeamAddUserPage = Loadable(lazy(() => import('../pages/dashboard/management/team/TeamAddUserPage')));
-
-// DASHBOARD: TASK
-export const TaskListPage = Loadable(lazy(() => import('../pages/dashboard/management/task/TaskListPage')));
-export const TaskCreatePage = Loadable(lazy(() => import('../pages/dashboard/management/task/TaskCreatePage')));
-export const TaskDetailsPage = Loadable(lazy(() => import('../pages/dashboard/management/task/TaskDetailsPage')));
+export const TeamUserPermissionPage = Loadable(lazy(() => import('../pages/dashboard/management/team/UserUpdatePermissionPage')));
 
 // DASHBOARD: QUESTION
 export const QuestionListPage = Loadable(lazy(() => import('../pages/dashboard/management/question/QuestionListPage')));
@@ -53,15 +52,9 @@ export const QuestionCreatePage = Loadable(lazy(() => import('../pages/dashboard
 export const QuestionDetailsPage = Loadable(lazy(() => import('../pages/dashboard/management/question/QuestionDetailsPage')));
 export const QuestionEditPage = Loadable(lazy(() => import('../pages/dashboard/management/question/QuestionEditPage')));
 
-// DASHBOARD: APP
-export const ChatPage = Loadable(lazy(() => import('../pages/dashboard/app/chat/ChatPage')));
-export const CalendarPage = Loadable(lazy(() => import('../pages/dashboard/app/calender/CalendarPage')));
-export const KanbanPage = Loadable(lazy(() => import('../pages/dashboard/KanbanPage')));
-
-// TEST RENDER PAGE BY ROLE
-export const PermissionDeniedPage = Loadable(
-  lazy(() => import('../pages/dashboard/PermissionDeniedPage'))
-);
+// NOTIFICATION
+export const NotificationListPage = Loadable(lazy(() => import('../pages/dashboard/notifications/NotificationListPage')));
+export const NotificationViewPage = Loadable(lazy(() => import('../pages/dashboard/notifications/NotificationViewPage')));
 
 // MAIN
 export const Page500 = Loadable(lazy(() => import('../pages/Page500')));

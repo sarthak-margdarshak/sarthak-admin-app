@@ -1,9 +1,27 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import { m } from 'framer-motion';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Stack, Container, Typography } from '@mui/material';
 // components
-import { MotionContainer, TextAnimate, varFade } from '../../components/animate';
+import {
+  MotionContainer,
+  TextAnimate,
+  varFade
+} from '../../components/animate';
 
 // ----------------------------------------------------------------------
 
@@ -18,6 +36,8 @@ const StyledRoot = styled('div')(({ theme }) => ({
     padding: 0,
   },
 }));
+
+// ----------------------------------------------------------------------
 
 const StyledContent = styled('div')(({ theme }) => ({
   textAlign: 'center',
@@ -59,8 +79,8 @@ export default function AboutHero() {
                 fontWeight: 'fontWeightMedium',
               }}
             >
-              Let&apos;s work together and
-              <br /> change the future of the country
+              Let&apos;s work together 
+              <br /> and educate the world
             </Typography>
           </m.div>
         </StyledContent>

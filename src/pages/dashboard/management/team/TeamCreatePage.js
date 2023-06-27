@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import { Helmet } from 'react-helmet-async';
 // @mui
 import { Container } from '@mui/material';
@@ -7,35 +21,39 @@ import { PATH_DASHBOARD } from '../../../../routes/paths';
 import { useSettingsContext } from '../../../../components/settings';
 import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
 // sections
-import UserNewEditForm from '../../../../sections/@dashboard/user/UserNewEditForm';
+import TeamNewForm from '../../../../sections/@dashboard/team/newTeam/TeamNewForm';
+// locales
+import { useLocales } from '../../../../locales';
 
 // ----------------------------------------------------------------------
 
 export default function TeamCreatePage() {
   const { themeStretch } = useSettingsContext();
 
+  const { translate } = useLocales();
+
   return (
     <>
       <Helmet>
-        <title> User: Create a new user | Minimal UI</title>
+        <title> Team: Create | Sarthak Admin</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="Create a new user"
+          heading="Create a new Team"
           links={[
             {
-              name: 'Dashboard',
+              name: translate('dashboard'),
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'User',
-              href: PATH_DASHBOARD.user.list,
+              name: 'Team',
+              href: PATH_DASHBOARD.team.list,
             },
-            { name: 'New user' },
+            { name: 'New Team' },
           ]}
         />
-        <UserNewEditForm />
+        <TeamNewForm />
       </Container>
     </>
   );

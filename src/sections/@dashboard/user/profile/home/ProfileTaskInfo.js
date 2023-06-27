@@ -1,8 +1,23 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import PropTypes from 'prop-types';
 // @mui
 import { Card, Stack, Typography, Divider } from '@mui/material';
 // utils
 import { fNumber } from '../../../../../utils/formatNumber';
+// locales
 import { useLocales } from '../../../../../locales';
 
 // ----------------------------------------------------------------------
@@ -11,6 +26,8 @@ ProfileTaskInfo.propTypes = {
   task: PropTypes.number,
   question: PropTypes.number,
 };
+
+// ----------------------------------------------------------------------
 
 export default function ProfileTaskInfo({ task, question }) {
 

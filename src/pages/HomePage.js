@@ -1,3 +1,17 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ * 
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ * 
+ */
+
+// IMPORT ---------------------------------------------------------------
+
 import { Helmet } from 'react-helmet-async';
 import { m, useScroll, useSpring } from 'framer-motion';
 // @mui
@@ -7,8 +21,6 @@ import { Box } from '@mui/material';
 import {
   HomeHero,
   HomeMinimal,
-  HomeDarkMode,
-  HomePricingPlans,
 } from '../sections/home';
 
 // ----------------------------------------------------------------------
@@ -43,7 +55,7 @@ export default function HomePage() {
   return (
     <>
       <Helmet>
-        <title> The starting point for your next project | Minimal UI</title>
+        <title> Home | Sarthak Admin</title>
       </Helmet>
 
       {progress}
@@ -58,10 +70,6 @@ export default function HomePage() {
         }}
       >
         <HomeMinimal />
-
-        <HomeDarkMode />
-
-        <HomePricingPlans />
 
       </Box>
     </>
