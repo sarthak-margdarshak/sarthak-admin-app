@@ -24,10 +24,6 @@ import 'yet-another-react-lightbox/styles.css';
 import 'yet-another-react-lightbox/plugins/captions.css';
 import 'yet-another-react-lightbox/plugins/thumbnails.css';
 
-// map
-import './utils/mapboxgl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-
 // editor
 import 'react-quill/dist/quill.snow.css';
 
@@ -37,6 +33,12 @@ import 'slick-carousel/slick/slick-theme.css';
 
 // lazy image
 import 'react-lazy-load-image-component/src/effects/blur.css';
+
+// Load Froala Editor scripts and styles.
+import 'froala-editor/css/froala_style.min.css';
+import 'froala-editor/css/froala_editor.pkgd.min.css';
+import 'froala-editor/js/plugins.pkgd.min.js';
+import 'froala-editor/css/themes/dark.min.css';
 
 // -------------------------------------------------------------------------
 
@@ -59,6 +61,23 @@ import { MotionLazyContainer } from './components/animate';
 import { ThemeSettings, SettingsProvider } from './components/settings';
 
 import { AuthProvider } from './auth/AppwriteContext';
+
+// Import jQuery so we can expose Froala editor to the window.
+import $ from 'jquery';
+
+// Expose froala-editor to the window.
+window.$ = $;
+window.FroalaEditor = require('froala-editor');
+
+// Load wiris mathtype-froala plugin.
+require('@wiris/mathtype-froala');
+
+// Load WIRISplugins.js dynamically.
+const jsDemoImagesTransform = document.createElement('script');
+jsDemoImagesTransform.type = 'text/javascript';
+jsDemoImagesTransform.src = 'https://www.wiris.net/demo/plugins/app/WIRISplugins.js?viewer=image';
+// Load generated scripts.
+document.head.appendChild(jsDemoImagesTransform);
 
 function App() {
   return (

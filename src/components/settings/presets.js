@@ -63,7 +63,7 @@ export const presets = [
   },
 ];
 
-export const defaultPreset = presets[0];
+export const defaultPreset = presets[5];
 export const cyanPreset = presets[1];
 export const purplePreset = presets[2];
 export const bluePreset = presets[3];

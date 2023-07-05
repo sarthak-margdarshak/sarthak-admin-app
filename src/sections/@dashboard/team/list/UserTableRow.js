@@ -32,8 +32,7 @@ import { useSnackbar } from '../../../../components/snackbar';
 // Auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
 import {
-  getImageProfileLink,
-  getProfileData
+  User,
 } from '../../../../auth/AppwriteContext';
 
 // ----------------------------------------------------------------------
@@ -56,16 +55,13 @@ export default function UserTableRow({ index, row, onEditRow, onViewRow, userIsO
 
   const { user } = useAuthContext();
 
-  const [rowUser, setRowUser] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const tempRowUser = await getProfileData(row?.userId);
-        setRowUser(tempRowUser)
-        if (tempRowUser?.photoUrl) {
-          const tempAvatar = await getImageProfileLink(tempRowUser?.photoUrl);
+        if (row?.photoUrl) {
+          const tempAvatar = await User.getImageProfileLink(row?.photoUrl);
           setAvatarUrl(tempAvatar)
         }
       } catch (error) {
@@ -92,15 +88,15 @@ export default function UserTableRow({ index, row, onEditRow, onViewRow, userIsO
 
         <TableCell>
           <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar alt={rowUser?.name} src={avatarUrl} />
+            <Avatar alt={row?.name} src={avatarUrl} />
 
             <Typography variant="subtitle2" noWrap>
-              {rowUser?.name}
+              {row?.name}
             </Typography>
           </Stack>
         </TableCell>
 
-        <TableCell align="left">{rowUser?.designation}</TableCell>
+        <TableCell align="left">{row?.designation}</TableCell>
 
         <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
           {row?.role}
@@ -161,8 +157,9 @@ export default function UserTableRow({ index, row, onEditRow, onViewRow, userIsO
             <Iconify icon="fluent-mdl2:permissions" />
             Permissions
           </MenuItem>
-        } {userIsOwner && user?.$id !== row?.userId &&
+        } {userIsOwner && user?.$id !== row?.userId && row?.invitationAccepted &&
           <MenuItem
+            disabled
             onClick={() => {
               onBlockRow();
               handleClosePopover();

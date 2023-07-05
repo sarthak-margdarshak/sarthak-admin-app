@@ -25,7 +25,7 @@ import { useSnackbar } from '../../../../components/snackbar';
 import FormProvider, { RHFTextField } from '../../../../components/hook-form';
 import Iconify from '../../../../components/iconify';
 // auth
-import { onboardWelcome } from '../../../../auth/AppwriteContext';
+import { Team } from '../../../../auth/AppwriteContext';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 
 // ----------------------------------------------------------------------
@@ -68,7 +68,7 @@ export default function CreateUserDialog({ open, teamName, teamId, onClose, onUp
 
   const onSubmit = async (data) => {
     try {
-      await onboardWelcome(
+      await Team.onboardWelcome(
         data.name,
         data.email,
         data.password,

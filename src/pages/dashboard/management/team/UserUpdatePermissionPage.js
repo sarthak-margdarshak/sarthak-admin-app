@@ -30,10 +30,7 @@ import LoadingScreen from '../../../../components/loading-screen/LoadingScreen';
 import { useLocales } from '../../../../locales';
 // Auth
 import {
-  getProfileData,
-  getUserPermissionData,
-  isPermissionUpdatable,
-  updatePermissions
+  User,
 } from '../../../../auth/AppwriteContext';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 // sections
@@ -50,7 +47,10 @@ export default function UserUpdatePermissionPage() {
   const { translate } = useLocales();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { user } = useAuthContext();
+  const {
+    user,
+    notificationCount,
+  } = useAuthContext();
 
   const [currentUser, setCurrentUser] = useState(null);
   const [createTeam, setCreateTeam] = useState(false);
@@ -62,15 +62,14 @@ export default function UserUpdatePermissionPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        var data = await isPermissionUpdatable(userId, teamId, user?.$id);
+        var data = await User.isPermissionUpdatable(userId, teamId, user?.$id);
         setIsAccessible(data);
-        data = await getProfileData(userId);
+        data = await User.getProfileData(userId);
         setCurrentUser(data);
-        data = await getUserPermissionData(userId);
+        data = await User.getUserPermissionData(userId);
         setCreateTeam(data?.createTeam);
         setCreateTask(data?.createTask);
       } catch (error) {
-        console.log(error);
         enqueueSnackbar(error.message, { variant: 'error' });
       }
     }
@@ -80,11 +79,10 @@ export default function UserUpdatePermissionPage() {
   const updatePermission = async () => {
     try {
       setIsSubmitting(true);
-      await updatePermissions(userId, createTeam, createTask);
+      await User.updatePermissions(userId, createTeam, createTask);
       enqueueSnackbar('Updated Successfully');
       setIsSubmitting(false);
     } catch (error) {
-      console.log(error);
       enqueueSnackbar(error.message, { variant: 'error' });
     }
   }
@@ -94,7 +92,7 @@ export default function UserUpdatePermissionPage() {
   return (
     <>
       <Helmet>
-        <title>{currentUser?.name + " Permission: Update | Sarthak Admin"}</title>
+        <title>{(notificationCount!==0?'('+notificationCount+')':'')+' '+currentUser?.name + " Permission: Update | Sarthak Admin"}</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>

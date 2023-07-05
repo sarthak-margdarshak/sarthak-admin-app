@@ -31,6 +31,7 @@ import { useSettingsContext } from '../../../components/settings';
 import AccountPopover from './AccountPopover';
 import LanguagePopover from './LanguagePopover';
 import NotificationsPopover from './NotificationsPopover';
+import SvgColor from '../../../components/svg-color/SvgColor';
 
 // ----------------------------------------------------------------------
 
@@ -43,7 +44,7 @@ Header.propTypes = {
 export default function Header({ onOpenNav }) {
   const theme = useTheme();
 
-  const { themeLayout } = useSettingsContext();
+  const { themeLayout, themeMode, onToggleMode } = useSettingsContext();
 
   const isNavHorizontal = themeLayout === 'horizontal';
 
@@ -73,6 +74,12 @@ export default function Header({ onOpenNav }) {
         <LanguagePopover />
 
         <NotificationsPopover />
+
+        <IconButton color={themeMode === 'dark' ? 'warning' : 'default'} onClick={onToggleMode}>
+          <SvgColor
+            src={`/assets/icons/setting/ic_${themeMode === 'light' ? 'moon' : 'sun'}.svg`}
+          />
+        </IconButton>
 
         <AccountPopover />
       </Stack>

@@ -77,6 +77,5 @@ export const PATH_DASHBOARD = {
   notification: {
     root: path(ROOTS_DASHBOARD, '/notifications'),
     list: path(ROOTS_DASHBOARD, '/notifications/list'),
-    view: (id) => path(ROOTS_DASHBOARD, `/notifications/${id}`),
   }
 };

@@ -46,7 +46,6 @@ import {
   QuestionEditPage,
   // Dashboard: Notification
   NotificationListPage,
-  NotificationViewPage,
   //
   Page500,
   Page403,
@@ -57,6 +56,9 @@ import {
   Contact,
   ComingSoonPage,
   MaintenancePage,
+  ChangeLogPage,
+  PrivacyAndPolicyPage,
+  TermsAndConditionsPage,
 } from './elements';
 
 // ----------------------------------------------------------------------
@@ -136,7 +138,6 @@ export default function Router() {
           children: [
             { element: <Navigate to="/dashboard/notifications/list" replace />, index: true },
             { path: 'list', element: <NotificationListPage /> },
-            { path: ':id', element: <NotificationViewPage /> },
           ]
         },
       ],
@@ -150,9 +151,9 @@ export default function Router() {
         { path: 'about-us', element: <AboutPage /> },
         { path: 'contact-us', element: <Contact /> },  // ERROR
         { path: 'faqs', element: <FaqsPage /> },
-        // { path: 'changelog', element: },
-        // { path: 'terms-and-conditions', element: },
-        // { path: 'privacy-policy', element: },
+        { path: 'changelog', element: <ChangeLogPage /> },
+        { path: 'terms-and-conditions', element: <TermsAndConditionsPage /> },
+        { path: 'privacy-policy', element: <PrivacyAndPolicyPage /> },
       ],
     },
 

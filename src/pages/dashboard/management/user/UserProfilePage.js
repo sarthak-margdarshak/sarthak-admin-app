@@ -21,10 +21,7 @@ import { PATH_DASHBOARD } from '../../../../routes/paths';
 // auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
 import {
-  getImageProfileLink,
-  getProfileData,
-  getUserGeneralData,
-  getUserSocialLinksData
+  User,
 } from '../../../../auth/AppwriteContext';
 // components
 import Iconify from '../../../../components/iconify';
@@ -42,7 +39,10 @@ import { useLocales } from '../../../../locales';
 
 export default function UserProfilePage() {
   var userId = window.location.pathname.split('/')[4];
-  const { user } = useAuthContext();
+  const {
+    user,
+    notificationCount,
+  } = useAuthContext();
   if(userId==='') {
     userId = user.$id;
   }
@@ -57,13 +57,13 @@ export default function UserProfilePage() {
 
   useEffect(() => {
     async function fetchData() {
-      var data = await getProfileData(userId);
+      var data = await User.getProfileData(userId);
       setUserProfile(data);
-      data = await getImageProfileLink(data?.photoUrl);
+      data = await User.getImageProfileLink(data?.photoUrl);
       setProfileImage(data);
-      data = await getUserGeneralData(userId);
+      data = await User.getUserGeneralData(userId);
       setUserGeneral(data);
-      data = await getUserSocialLinksData(userId);
+      data = await User.getUserSocialLinksData(userId);
       setUserSocialLinks(data);
     }
     fetchData();
@@ -83,7 +83,7 @@ export default function UserProfilePage() {
   return (
     <>
       <Helmet>
-        <title> User: Profile | Sarthak Admin</title>
+        <title> {(notificationCount!==0?'('+notificationCount+')':'')+'User: Profile | Sarthak Admin'}</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>

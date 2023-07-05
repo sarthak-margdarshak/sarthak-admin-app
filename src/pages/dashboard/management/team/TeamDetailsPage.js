@@ -24,6 +24,7 @@ import {
   TableBody,
   Container,
   TableContainer,
+  LinearProgress,
 } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
@@ -34,6 +35,7 @@ import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
 import { useSettingsContext } from '../../../../components/settings';
 import {
   useTable,
+  getComparator,
   emptyRows,
   TableEmptyRows,
   TableHeadCustom,
@@ -47,19 +49,15 @@ import CreateUserDialog from '../../../../sections/@dashboard/team/teamMembervie
 import UserInviteDialoge from '../../../../sections/@dashboard/team/teamMemberview/UserInviteDialoge';
 // Auth
 import {
-  blockUser,
-  getImageProfileLink,
-  getProfileData,
-  getTeamCover,
-  getTeamData,
-  listTeamMembership
+  Team,
+  User,
 } from '../../../../auth/AppwriteContext';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: '' },
+  { id: 'sn', },
   { id: 'name', label: 'Name', align: 'left' },
   { id: 'designation', label: 'Designation', align: 'left' },
   { id: 'role', label: 'Role', align: 'left' },
@@ -76,14 +74,17 @@ export default function TeamDetailsPage() {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { themeStretch } = useSettingsContext();
-  const { user } = useAuthContext();
+  const {
+    user,
+    notificationCount,
+  } = useAuthContext();
 
   const [team, setTeam] = useState(null);
   const [cover, setCover] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [ownerName, setOwnerName] = useState(null);
   const [tableData, setTableData] = useState([]);
-  const [update, setUpdate] = useState(false);
+  const [update, setUpdate] = useState(true);
   const [openConfirm, setOpenConfirm] = useState(false);
   const [openInvite, setOpenInvite] = useState(false);
 
@@ -91,26 +92,42 @@ export default function TeamDetailsPage() {
     async function fetchData() {
       try {
         // Get Team Data
-        const tempTeam = await getTeamData(teamId);
+        const tempTeam = await Team.getTeamData(teamId);
         setTeam(tempTeam);
         // Get Owner Data of the team
-        const ownerData = await getProfileData(tempTeam?.teamOwner);
+        const ownerData = await User.getProfileData(tempTeam?.teamOwner);
         setOwnerName(ownerData?.name)
         if (tempTeam?.cover) {
-          const tempCover = await getTeamCover(tempTeam?.cover);
+          const tempCover = await Team.getTeamCover(tempTeam?.cover);
           setCover(tempCover);
         }
         if (ownerData?.photoUrl) {
-          const tempAvatarUrl = await getImageProfileLink(ownerData?.photoUrl);
+          const tempAvatarUrl = await User.getImageProfileLink(ownerData?.photoUrl);
           setAvatarUrl(tempAvatarUrl);
         }
         // Get Team members data
-        const data = await listTeamMembership(teamId);
-        setTableData(data.documents);
+        var data = await Team.listTeamMembership(teamId);
+        var f_data = [];
+        var count = 1;
+        for (let i in data.documents) {
+          const tempRowUser = await User.getProfileData(data.documents[i]?.userId);
+          f_data.push(
+            {
+              sn: count,
+              ...data.documents[i],
+              name: tempRowUser?.name,
+              photoUrl: tempRowUser?.photoUrl,
+              designation: tempRowUser?.designation,
+            }
+          );
+          count++;
+        }
+        setTableData(f_data);
       } catch (error) {
         console.error(error)
         enqueueSnackbar(error.message, { variant: 'error' });
       }
+      setUpdate(false)
     }
     fetchData();
   }, [update, enqueueSnackbar, teamId])
@@ -135,21 +152,26 @@ export default function TeamDetailsPage() {
   const handleEditPermissionRow = (id) => {
     navigate(PATH_DASHBOARD.team.permissionEdit(id?.teamId, id?.userId));
   };
+
   const handleBlockRow = async (id) => {
     try {
-      await blockUser(id);
+      await User.blockUser(id);
       setUpdate(true);
       enqueueSnackbar('Blocked');
     } catch (error) {
-      console.log(error);
       enqueueSnackbar(error.message, { variant: 'error' });
     }
   };
 
+  const dataFiltered = applyFilter({
+    inputData: tableData,
+    comparator: getComparator(order, orderBy),
+  });
+
   return (
     <>
       <Helmet>
-        <title> {"Team: " + team?.name + " | Sarthak Admin"}</title>
+        <title> {(notificationCount!==0?'('+notificationCount+')':'')+'Team: ' + team?.name + ' | Sarthak Admin'}</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>
@@ -196,42 +218,45 @@ export default function TeamDetailsPage() {
         <Card>
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <Scrollbar>
-              <Table size={'medium'} sx={{ minWidth: 800 }}>
-                <TableHeadCustom
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  onSort={onSort}
-                />
-
-                <TableBody>
-                  {tableData
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row, index) => {
-                      return (
-                        <UserTableRow
-                          key={row.$id}
-                          index={index+1}
-                          row={row}
-                          onViewRow={() => handleViewRow(row?.userId)}
-                          onEditRow={() => handleEditPermissionRow(row)}
-                          onBlockRow={() => handleBlockRow(row)}
-                          userIsOwner={user?.$id === team?.teamOwner}
-                        />
-                      )
-                    })}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(page, rowsPerPage, tableData.length)}
+              {update ?
+                <LinearProgress /> :
+                <Table size={'medium'} sx={{ minWidth: 800 }}>
+                  <TableHeadCustom
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={TABLE_HEAD}
+                    onSort={onSort}
                   />
-                </TableBody>
-              </Table>
+
+                  <TableBody>
+                    {dataFiltered
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((row) => {
+                        return (
+                          <UserTableRow
+                            key={row.$id}
+                            index={row?.sn}
+                            row={row}
+                            onViewRow={() => handleViewRow(row?.userId)}
+                            onEditRow={() => handleEditPermissionRow(row)}
+                            onBlockRow={() => handleBlockRow(row)}
+                            userIsOwner={user?.$id === team?.teamOwner}
+                          />
+                        )
+                      })}
+
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(page, rowsPerPage, dataFiltered.length)}
+                    />
+                  </TableBody>
+                </Table>
+              }
             </Scrollbar>
           </TableContainer>
 
           <TablePaginationCustom
-            count={tableData.length}
+            count={dataFiltered.length}
             page={page}
             rowsPerPage={rowsPerPage}
             onPageChange={onChangePage}
@@ -257,4 +282,30 @@ export default function TeamDetailsPage() {
       />
     </>
   );
+}
+
+// ----------------------------------------------------------------------
+
+function applyFilter({ inputData, comparator }) {
+  const stabilizedThis = inputData.map((el, index) => [el, index]);
+
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) return order;
+    return a[1] - b[1];
+  });
+
+  inputData = stabilizedThis.map((el) => el[0]);
+  var filtered = [];
+  var count = 1;
+  for (let i in inputData) {
+    filtered.push(
+      {
+        ...inputData[i],
+        sn: count,
+      }
+    );
+    count++;
+  }
+  return filtered;
 }

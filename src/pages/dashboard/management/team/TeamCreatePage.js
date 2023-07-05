@@ -24,6 +24,7 @@ import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
 import TeamNewForm from '../../../../sections/@dashboard/team/newTeam/TeamNewForm';
 // locales
 import { useLocales } from '../../../../locales';
+import { useAuthContext } from '../../../../auth/useAuthContext';
 
 // ----------------------------------------------------------------------
 
@@ -32,10 +33,14 @@ export default function TeamCreatePage() {
 
   const { translate } = useLocales();
 
+  const {
+    notificationCount,
+  } = useAuthContext();
+
   return (
     <>
       <Helmet>
-        <title> Team: Create | Sarthak Admin</title>
+        <title> {(notificationCount!==0?'('+notificationCount+')':'')+'Team: Create | Sarthak Admin'}</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>

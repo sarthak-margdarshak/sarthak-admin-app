@@ -25,7 +25,7 @@ import { useSnackbar } from '../../../../components/snackbar';
 import FormProvider, { RHFTextField } from '../../../../components/hook-form';
 // Auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
-import { getUserSocialLinksData } from '../../../../auth/AppwriteContext';
+import { User } from '../../../../auth/AppwriteContext';
 // locales
 import { useLocales } from '../../../../locales';
 
@@ -71,7 +71,7 @@ export default function AccountSocialLinks() {
   const methods = useForm({
     resolver: yupResolver(UpdateUserSchema),
     defaultValues: async() => {
-      const userSocialLinks = await getUserSocialLinksData(user.$id);
+      const userSocialLinks = await User.getUserSocialLinksData(user.$id);
       return {
         facebookId: userSocialLinks?.facebookId || '',
         instagramId: userSocialLinks?.instagramId || '',

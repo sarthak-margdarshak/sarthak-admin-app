@@ -15,34 +15,25 @@
 import { Helmet } from 'react-helmet-async';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Container, Grid, Stack, Button } from '@mui/material';
+import { Container, Grid, Button } from '@mui/material';
 // auth
-import { useAuthContext } from '../../../auth/useAuthContext';
+import { useAuthContext } from '../../../../auth/useAuthContext';
 // _mock_
 import {
   _appFeatured,
-  _appAuthors,
-  _appInstalled,
-  _appRelated,
-  _appInvoices,
-} from '../../../_mock/arrays';
+} from '../../../../_mock/arrays';
 // components
-import { useSettingsContext } from '../../../components/settings';
+import { useSettingsContext } from '../../../../components/settings';
 // sections
 import {
-  AppWidget,
   AppWelcome,
   AppFeatured,
-  AppNewInvoice,
-  AppTopAuthors,
-  AppTopRelated,
   AppAreaInstalled,
   AppWidgetSummary,
   AppCurrentDownload,
-  AppTopInstalledCountries,
-} from '../../../sections/@dashboard/general/app';
+} from '../../../../sections/@dashboard/general/app';
 // assets
-import { SeoIllustration } from '../../../assets/illustrations';
+import { SeoIllustration } from '../../../../assets/illustrations';
 
 // ----------------------------------------------------------------------
 
@@ -162,55 +153,6 @@ export default function GeneralAppPage() {
                 ],
               }}
             />
-          </Grid>
-
-          <Grid item xs={12} lg={8}>
-            <AppNewInvoice
-              title="New Invoice"
-              tableData={_appInvoices}
-              tableLabels={[
-                { id: 'id', label: 'Invoice ID' },
-                { id: 'category', label: 'Category' },
-                { id: 'price', label: 'Price' },
-                { id: 'status', label: 'Status' },
-                { id: '' },
-              ]}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <AppTopRelated title="Top Related Applications" list={_appRelated} />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <AppTopInstalledCountries title="Top Installed Countries" list={_appInstalled} />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <AppTopAuthors title="Top Authors" list={_appAuthors} />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <Stack spacing={3}>
-              <AppWidget
-                title="Conversion"
-                total={38566}
-                icon="eva:person-fill"
-                chart={{
-                  series: 48,
-                }}
-              />
-
-              <AppWidget
-                title="Applications"
-                total={55566}
-                icon="eva:email-fill"
-                color="info"
-                chart={{
-                  series: 75,
-                }}
-              />
-            </Stack>
           </Grid>
         </Grid>
       </Container>

@@ -22,7 +22,7 @@ import { Box, Grid, Card, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
-import { getUserGeneralData } from '../../../../auth/AppwriteContext';
+import { User } from '../../../../auth/AppwriteContext';
 // utils
 import { fData } from '../../../../utils/formatNumber';
 // assets
@@ -69,11 +69,11 @@ export default function AccountGeneral({ userGeneral }) {
   const methods = useForm({
     resolver: yupResolver(UpdateUserSchema),
     defaultValues: async() => {
-      const userGeneral = await getUserGeneralData(user.$id)
+      const userGeneral = await User.getUserGeneralData(user.$id)
       return {
         name: user?.name || '',
         email: user?.email || '',
-        photoURL: profileImage || null,
+        photoURL: profileImage || '',
         phoneNumber: user?.phone || '',
         country: userGeneral?.country || '',
         address: userGeneral?.address || '',

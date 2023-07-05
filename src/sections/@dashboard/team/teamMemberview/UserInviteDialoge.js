@@ -33,8 +33,8 @@ import Iconify from '../../../../components/iconify';
 import { useSnackbar } from '../../../../components/snackbar';
 // Auth
 import {
-  getUserInviteList,
-  sendTeamInvitationEmail
+  Team,
+  User,
 } from '../../../../auth/AppwriteContext';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 
@@ -62,7 +62,7 @@ export default function UserInviteDialoge({ open, onClose, onUpdate, teamName, t
 
   useEffect(() => {
     const fetchData = async () => {
-      const tempUsers = await getUserInviteList();
+      const tempUsers = await User.getUserInviteList();
       setUsers(tempUsers.documents);
     }
     fetchData();
@@ -72,7 +72,7 @@ export default function UserInviteDialoge({ open, onClose, onUpdate, teamName, t
     try {
       setIsSubmitting(true);
       selectedUsers.map(async (value) => {
-        await sendTeamInvitationEmail(
+        await Team.sendTeamInvitationEmail(
           value.email,
           value.$id,
           teamName,

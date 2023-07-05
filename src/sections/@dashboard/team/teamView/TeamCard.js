@@ -28,10 +28,8 @@ import { useSnackbar } from '../../../../components/snackbar';
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 // Auth
 import {
-  getImageProfileLink,
-  getProfileData,
-  getTeamCover,
-  getTeamData
+  Team,
+  User,
 } from '../../../../auth/AppwriteContext';
 
 // ----------------------------------------------------------------------
@@ -67,10 +65,10 @@ export default function TeamCard({ team }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const teamData = await getTeamData(team?.$id);
-        const ownerData = await getProfileData(teamData?.teamOwner);
-        const tempCover = await getTeamCover(teamData?.cover);
-        const tempAvatarUrl = await getImageProfileLink(ownerData?.photoUrl);
+        const teamData = await Team.getTeamData(team?.$id);
+        const ownerData = await User.getProfileData(teamData?.teamOwner);
+        const tempCover = await Team.getTeamCover(teamData?.cover);
+        const tempAvatarUrl = await User.getImageProfileLink(ownerData?.photoUrl);
         setCover(tempCover);
         setAvatarUrl(tempAvatarUrl);
         setOwnerName(ownerData?.name)

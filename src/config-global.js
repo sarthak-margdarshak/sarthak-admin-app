@@ -31,15 +31,27 @@ export const APPWRITE_API = {
     // Team Databases
     teams: process.env.REACT_APP_APPWRITE_DATABASE_TEAMS,
     teamMembership: process.env.REACT_APP_APPWRITE_DATABASE_TEAM_MEMBERSHIP,
+    // Notifications Database
+    notifications: process.env.REACT_APP_APPWRITE_DATABASE_NOTIFICATIONS,
+    // Question Databases
+    questions: process.env.REACT_APP_APPWRITE_DATABASE_QUESTIONS,
+    standards: process.env.REACT_APP_APPWRITE_DATABASE_STANDARDS,
+    subjects: process.env.REACT_APP_APPWRITE_DATABASE_SUBJECTS,
+    chapters: process.env.REACT_APP_APPWRITE_DATABASE_CHAPTERS,
+    concepts: process.env.REACT_APP_APPWRITE_DATABASE_CONCEPTS,
+    conceptMapped: process.env.REACT_APP_APPWRITE_DATABASE_CONCEPT_MAPPED,
   },
   buckets: {
     userImage: process.env.REACT_APP_APPWRITE_BUCKET_USERIMAGE,
     teamCover: process.env.REACT_APP_APPWRITE_BUCKET_TEAMCOVER,
+    questionFiles: process.env.REACT_APP_APPWRITE_BUCKET_QUESTIONFILES,
   },
   functions: {
     onboardWelcome: process.env.REACT_APP_APPWRITE_FUCTION_ONBOARD_WELCOME,
     teamInvite: process.env.REACT_APP_APPWRITE_FUCTION_TEAM_INVITE,
     contactInstitute: process.env.REACT_APP_APPWRITE_FUCTION_CONTACT_INSTITUTE,
+    createQuestion: process.env.REACT_APP_APPWRITE_FUCTION_CREATE_QUESTION,
+    acceptInvite: process.env.REACT_APP_APPWRITE_FUCTION_ACCEPT_INVITE,
   },
 };
 

@@ -34,7 +34,7 @@ export const NewPasswordPage = Loadable(lazy(() => import('../pages/auth/NewPass
 export const ResetPasswordPage = Loadable(lazy(() => import('../pages/auth/ResetPasswordPage')));
 
 // DASHBOARD: GENERAL
-export const GeneralAppPage = Loadable(lazy(() => import('../pages/dashboard/general/GeneralAppPage')));
+export const GeneralAppPage = Loadable(lazy(() => import('../pages/dashboard/general/app/GeneralAppPage')));
 
 // DASHBOARD: USER
 export const UserProfilePage = Loadable(lazy(() => import('../pages/dashboard/management/user/UserProfilePage')));
@@ -54,7 +54,6 @@ export const QuestionEditPage = Loadable(lazy(() => import('../pages/dashboard/m
 
 // NOTIFICATION
 export const NotificationListPage = Loadable(lazy(() => import('../pages/dashboard/notifications/NotificationListPage')));
-export const NotificationViewPage = Loadable(lazy(() => import('../pages/dashboard/notifications/NotificationViewPage')));
 
 // MAIN
 export const Page500 = Loadable(lazy(() => import('../pages/Page500')));
@@ -66,3 +65,6 @@ export const AboutPage = Loadable(lazy(() => import('../pages/AboutPage')));
 export const Contact = Loadable(lazy(() => import('../pages/ContactPage')));
 export const ComingSoonPage = Loadable(lazy(() => import('../pages/ComingSoonPage')));
 export const MaintenancePage = Loadable(lazy(() => import('../pages/MaintenancePage')));
+export const ChangeLogPage = Loadable(lazy(() => import('../pages/ChangeLogPage')));
+export const PrivacyAndPolicyPage = Loadable(lazy(() => import('../pages/PrivacyAndPolicyPage')));
+export const TermsAndConditionsPage = Loadable(lazy(() => import('../pages/TermsAndConditionsPage')));

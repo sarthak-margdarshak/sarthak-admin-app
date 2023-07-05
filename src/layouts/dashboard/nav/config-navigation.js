@@ -67,10 +67,6 @@ const navConfig = [
         title: 'team',
         path: PATH_DASHBOARD.team.root,
         icon: ICONS.team,
-        children: [
-          { title: 'list', path: PATH_DASHBOARD.team.list },
-          { title: 'create', path: PATH_DASHBOARD.team.new },
-        ],
       },
 
       // QUESTION
@@ -78,10 +74,6 @@ const navConfig = [
         title: 'question',
         path: PATH_DASHBOARD.question.root,
         icon: ICONS.question,
-        children: [
-          { title: 'list', path: PATH_DASHBOARD.question.list },
-          { title: 'create', path: PATH_DASHBOARD.question.new },
-        ],
       },
     ],
   },

@@ -31,9 +31,8 @@ import { useLocales } from '../../../../locales';
 import TeamListCard from '../../../../sections/@dashboard/team/teamView/TeamListCard';
 // auth
 import {
-  getAllTeamData,
-  getMyTeamData,
-  getUserPermissionData
+  Team,
+  User,
 } from '../../../../auth/AppwriteContext';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 
@@ -46,6 +45,7 @@ export default function TeamListPage() {
 
   const {
     user,
+    notificationCount,
   } = useAuthContext();
 
   const [currentTab, setCurrentTab] = useState('your_team');
@@ -62,13 +62,13 @@ export default function TeamListPage() {
       setLoading(true);
       try {
         // Check whether user has permission to create Team or not
-        const permission = await getUserPermissionData(user.$id);
+        const permission = await User.getUserPermissionData(user.$id);
         setCreateTeam(permission.createTeam);
         // Get My Team Data
-        const team = await getMyTeamData(user.$id);
+        const team = await Team.getMyTeamData(user.$id);
         setMyTeam(team.documents);
         // Get all data
-        const tempAllTeam = await getAllTeamData();
+        const tempAllTeam = await Team.getAllTeamData();
         setAllTeam(tempAllTeam.documents);
         if(team.total===2) {
           setCreateTeam(false);
@@ -79,7 +79,6 @@ export default function TeamListPage() {
         }
         setLoading(false);
       } catch (error) {
-        console.log(error)
         enqueueSnackbar(error.message, { variant: 'error' });
         setLoading(false);
       }
@@ -111,7 +110,7 @@ export default function TeamListPage() {
   return (
     <>
       <Helmet>
-        <title> Team: List | Sarthak Admin</title>
+        <title> {(notificationCount!==0?'('+notificationCount+')':'')+'Team: List | Sarthak Admin'}</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>
