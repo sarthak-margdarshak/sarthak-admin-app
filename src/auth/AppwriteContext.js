@@ -1456,7 +1456,7 @@ export class Question {
           standard: await this.getStandardName(data[i].standardId),
           subject: await this.getSubjectName(data[i].subjectId),
           createdBy: (await User.getProfileData(data[i].createdBy))?.name,
-          question: await (await fetch(await this.getQuestionContentForPreview(data[i].question))).text()
+          question: data[i].question,
         }
       )
     }
@@ -1543,8 +1543,8 @@ export class Notification {
       APPWRITE_API.databases.notifications,
       [
         Query.equal('seen', [false]),
-        Query.equal('userId', [user]),,
-        Query.orderDesc("$createdAt")
+        Query.equal('userId', [user]),
+        Query.orderDesc("$createdAt"),
       ],
     )).documents;
   }

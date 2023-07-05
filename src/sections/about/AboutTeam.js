@@ -31,7 +31,7 @@ import { MotionViewport, varFade } from '../../components/animate';
 const teamMembers = [
   {
     name: 'Suryamani Kumar',
-    role: 'Chief Executive Officer',
+    role: 'Co-Founder/ CEO',
     avatar: '/assets/images/portraits/portrait_2.jpg',
     facebookId: '#',
     instagramId: '#',
@@ -40,7 +40,7 @@ const teamMembers = [
   },
   {
     name: 'Ritesh Ranjan',
-    role: 'Chief Technology Officer',
+    role: 'Software Developer',
     avatar: '/assets/images/portraits/portrait_1.jpg',
     facebookId: 'https://www.facebook.com/sagittariusk2/',
     instagramId: 'https://www.instagram.com/sagittarius_k2/',

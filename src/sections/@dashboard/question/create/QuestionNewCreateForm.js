@@ -20,6 +20,7 @@ import {
   Typography,
   Autocomplete,
   TextField,
+  LinearProgress,
 } from '@mui/material';
 // components
 import Iconify from '../../../../components/iconify';
@@ -117,7 +118,7 @@ export default function QuestionNewCreateForm({ metaData }) {
   const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState(0);
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState('<p></p>');
 
   const [questionId, setquestionId] = useState(metaData?.id || '');
 
@@ -162,6 +163,7 @@ export default function QuestionNewCreateForm({ metaData }) {
 
   const [isOptionDSaving, setIsOptionDSaving] = useState(false);
   const [isOptionDUpdated, setIsOptionDUpdated] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const [canEdit] = useState(!metaData || ((metaData?.status === 'Initialize' && user?.$id === metaData?.editedBy) || (metaData?.status === 'ReviewedBack' || user?.$id === metaData?.reviewdBackTo)));
 
@@ -240,30 +242,35 @@ export default function QuestionNewCreateForm({ metaData }) {
         return false;
       }
       setContent(question);
+      setProgress(16)
     } else if (activeStep === 1) {
       if (formData?.question === null || formData?.question === '') {
         enqueueSnackbar('Question cannot be empty.', { variant: 'error' });
         return false;
       }
       setContent(optionA);
+      setProgress(32)
     } else if (activeStep === 2) {
       if (formData?.optionA === null || formData?.optionA === '') {
         enqueueSnackbar('Option A cannot be empty.', { variant: 'error' });
         return false;
       }
       setContent(optionB);
+      setProgress(48)
     } else if (activeStep === 3) {
       if (formData?.optionB === null || formData?.optionB === '') {
         enqueueSnackbar('Option B cannot be empty.', { variant: 'error' });
         return false;
       }
       setContent(optionC);
+      setProgress(65)
     } else if (activeStep === 4) {
       if (formData?.optionC === null || formData?.optionC === '') {
         enqueueSnackbar('Option C cannot be empty.', { variant: 'error' });
         return false;
       }
       setContent(optionD);
+      setProgress(82)
     }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
@@ -285,18 +292,27 @@ export default function QuestionNewCreateForm({ metaData }) {
     if (activeStep === 1) {
       setIsQuestionUpdated(true);
       setQuestion(updateMathContent(content));
+      setProgress(32)
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
     } else if (activeStep === 2) {
       setIsOptionAUpdated(true);
       setOptionA(updateMathContent(content));
+      setProgress(48)
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
     } else if (activeStep === 3) {
       setIsOptionBUpdated(true);
+      setProgress(65)
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
       setOptionB(updateMathContent(content));
     } else if (activeStep === 4) {
       setIsOptionCUpdated(true);
       setOptionC(updateMathContent(content));
-    } else {
+      setProgress(82)
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    } else if (activeStep === 5) {
       setIsOptionDUpdated(true);
       setOptionD(updateMathContent(content));
+      setProgress(100)
     }
   };
 
@@ -552,12 +568,13 @@ export default function QuestionNewCreateForm({ metaData }) {
               model={content}
               onModelChange={(event) => setContent(event)}
             />
+            <LinearProgress color='success' variant='determinate' value={progress} sx={{ mt: 2, p: 0.5}}/>
 
             <Box sx={{ textAlign: 'right', mt: 2, mb: 2 }}>
               <Button
                 disabled={content === ''}
                 sx={{ mr: 1 }}
-                onClick={() => setContent('')}
+                onClick={() => setContent('<p></p>')}
                 startIcon={<Iconify icon="mdi:clear-outline" />}
               >
                 Clear
@@ -986,68 +1003,77 @@ export default function QuestionNewCreateForm({ metaData }) {
   );
 }
 
-
+/**
+ * 
+ * @param {string} math 
+ */
 function updateMathContent(math) {
-  var mathArray = [];
-  var startIndex = 0;
-
-  for (let i in math) {
-    if (math.substr(i, 5) === '<math') {
-      mathArray.push(math.slice(startIndex, parseInt(i)));
-      startIndex = parseInt(i);
-    }
-    if (math.substr(i, 7) === '</math>') {
-      mathArray.push(math.slice(startIndex, parseInt(i) + 7));
-      startIndex = parseInt(i) + 7;
-    }
-  }
-  mathArray.push(math.substr(startIndex))
-
-  var output = '';
-
-  for (let i in mathArray) {
-    if (mathArray[i].substr(0, 5) === '<math') {
-      var s = '';
-      var temp_s = '';
-      var stack = [];
-      for (let j in mathArray[i]) {
-        if (mathArray[i].substr(j, 8) === '<mfenced') {
-          s = s + temp_s;
-          temp_s = '';
-          if (mathArray[i].substr(j, 9) === '<mfenced>') {
-            // '(' ')'
-            stack.push(')');
-            temp_s += '<mrow><mo>(</mo>';
-            j = parseInt(j) + 8;
-          } else {
-            let k = parseInt(j);
-            while (mathArray[i][k] !== '>') {
-              k++;
-            }
-            const separate = mathArray[i].slice(j, parseInt(k) + 1).split('"');
-            const open = separate[1];
-            const close = separate[3];
-            stack.push(close);
-            temp_s += '<mrow><mo>' + open + '</mo>';
-            j = parseInt(k);
-          }
-        } else if (mathArray[i].substr(j, 10) === '</mfenced>') {
-          temp_s += '<mo>' + stack.pop() + '</mo></mrow>'
-          s = s + temp_s;
-          temp_s = '';
-        } else {
-          temp_s += mathArray[i][j];
-        }
-      }
-      s += temp_s;
-      s = s.replaceAll('/mfenced>', '');
-      s = s.replaceAll('mfenced>', '');
-      s = s.replaceAll('function String() { [native code] }', '');
-      output += s;
-    } else {
-      output += mathArray[i];
-    }
-  }
-
-  return output;
+  math = math.replaceAll('<mfenced>', '<mrow><mo>(</mo>');
+  math = math.replaceAll('</mfenced>', '<mo>)</mo></mrow>');
+  return math;
 }
+
+// function updateMathContent(math) {
+//   var mathArray = [];
+//   var startIndex = 0;
+
+//   for (let i in math) {
+//     if (math.substr(i, 5) === '<math') {
+//       mathArray.push(math.slice(startIndex, parseInt(i)));
+//       startIndex = parseInt(i);
+//     }
+//     if (math.substr(i, 7) === '</math>') {
+//       mathArray.push(math.slice(startIndex, parseInt(i) + 7));
+//       startIndex = parseInt(i) + 7;
+//     }
+//   }
+//   mathArray.push(math.substr(startIndex))
+
+//   var output = '';
+
+//   for (let i in mathArray) {
+//     if (mathArray[i].substr(0, 5) === '<math') {
+//       var s = '';
+//       var temp_s = '';
+//       var stack = [];
+//       for (let j in mathArray[i]) {
+//         if (mathArray[i].substr(j, 8) === '<mfenced') {
+//           s = s + temp_s;
+//           temp_s = '';
+//           if (mathArray[i].substr(j, 9) === '<mfenced>') {
+//             // '(' ')'
+//             stack.push(')');
+//             temp_s += '<mrow><mo>(</mo>';
+//             j = parseInt(j) + 8;
+//           } else {
+//             let k = parseInt(j);
+//             while (mathArray[i][k] !== '>') {
+//               k++;
+//             }
+//             const separate = mathArray[i].slice(j, parseInt(k) + 1).split('"');
+//             const open = separate[1];
+//             const close = separate[3];
+//             stack.push(close);
+//             temp_s += '<mrow><mo>' + open + '</mo>';
+//             j = parseInt(k);
+//           }
+//         } else if (mathArray[i].substr(j, 10) === '</mfenced>') {
+//           temp_s += '<mo>' + stack.pop() + '</mo></mrow>'
+//           s = s + temp_s;
+//           temp_s = '';
+//         } else {
+//           temp_s += mathArray[i][j];
+//         }
+//       }
+//       s += temp_s;
+//       s = s.replaceAll('/mfenced>', '');
+//       s = s.replaceAll('mfenced>', '');
+//       s = s.replaceAll('function String() { [native code] }', '');
+//       output += s;
+//     } else {
+//       output += mathArray[i];
+//     }
+//   }
+
+//   return output;
+// }

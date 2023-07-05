@@ -29,17 +29,17 @@ import NavHorizontal from './nav/NavHorizontal';
 
 // ----------------------------------------------------------------------
 
-var editorLoaded = 0;
+// var editorLoaded = 0;
 
 export default function DashboardLayout() {
-  if (window.location.pathname === '/dashboard/question/new' ||
-      (window.location.pathname.match('question') &&
-      window.location.pathname.match('edit'))) {
-    editorLoaded++;
-    if (editorLoaded >= 2) {
-      window.location.reload();
-    }
-  }
+  // if (window.location.pathname === '/dashboard/question/new' ||
+  //     (window.location.pathname.match('question') &&
+  //     window.location.pathname.match('edit'))) {
+  //   editorLoaded++;
+  //   if (editorLoaded >= 2) {
+  //     window.location.reload();
+  //   }
+  // }
   // if(editorLoaded>1000) {
   //   window.location.reload();
   // }

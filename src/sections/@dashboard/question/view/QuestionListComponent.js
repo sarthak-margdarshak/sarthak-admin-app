@@ -16,7 +16,6 @@ import {
 } from '../../../../components/table';
 import QuestionTableRow from "./QuestionTableRow";
 import { LoadingButton } from "@mui/lab";
-import FroalaEditorView from "react-froala-wysiwyg/FroalaEditorView";
 import { useSnackbar } from '../../../../components/snackbar';
 import { PATH_DASHBOARD } from "../../../../routes/paths";
 
@@ -256,9 +255,6 @@ export default function QuestionListComponent() {
                 Apply
               </LoadingButton>
             </Box>
-            {dataFiltered.map((row) => {
-              return <FroalaEditorView key={row?.$id} model={row?.question} />
-            })}
           </Card>
         </Grid>
 

@@ -24,7 +24,7 @@ import { TextAnimate, MotionContainer, varFade } from '../../components/animate'
 const CONTACTS = [
   {
     country: 'Biharsharif',
-    address: 'Chandi Biharsharif Patna',
+    address: 'Jaitipur More, Chandi (Nalanda)',
     phoneNumber: '+918340378552',
   },
 ];

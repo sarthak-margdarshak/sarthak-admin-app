@@ -47,7 +47,7 @@ const LINKS = [
     headline: 'Contact',
     children: [
       { name: 'sarthakmargdarshak@gmail.com', href: 'mailto:sarthakmargdarshak@gmail.com', newTab: false },
-      { name: 'Biharsharif, Patna, Bihar, 803101', href: 'https://goo.gl/maps/oefsMwva4DLxXE4VA', newTab: true },
+      { name: 'Jaitipur More, Chandi (Nalanda) Biharsharif, Bihar, 803108', href: 'https://goo.gl/maps/7os23QnKn21KxH5N6', newTab: true },
     ],
   },
 ];
