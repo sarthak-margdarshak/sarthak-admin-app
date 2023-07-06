@@ -1,4 +1,4 @@
-import { Box, Grid, Paper, alpha } from "@mui/material";
+import { Grid, Paper, alpha } from "@mui/material";
 import PropTypes from 'prop-types';
 import { QuestionReviewReceivedNotification, QuestionReviewReturnedNotification, TeamInviteNotification } from "./notificationType";
 
@@ -25,7 +25,7 @@ export default function NotificationListComponent({ notifications }) {
           } else if (item?.type === 'QUESTION_REVIEW_RETURNED') {
             return <QuestionReviewReturnedNotification key={item?.$id} item={item} />
           } else {
-            <></>
+            return <></>
           }
         })}
       </Grid>
