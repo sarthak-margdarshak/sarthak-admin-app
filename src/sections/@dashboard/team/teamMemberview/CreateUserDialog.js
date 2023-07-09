@@ -22,11 +22,13 @@ import { LoadingButton } from '@mui/lab';
 import { Box, Card, Grid, Stack, Button, Dialog, DialogTitle } from '@mui/material';
 // components
 import { useSnackbar } from '../../../../components/snackbar';
-import FormProvider, { RHFTextField } from '../../../../components/hook-form';
+import FormProvider, { RHFTextField, RHFSelect } from '../../../../components/hook-form';
 import Iconify from '../../../../components/iconify';
 // auth
 import { Team } from '../../../../auth/AppwriteContext';
 import { useAuthContext } from '../../../../auth/useAuthContext';
+// assets
+import { countries } from '../../../../assets/data';
 
 // ----------------------------------------------------------------------
 
@@ -40,6 +42,20 @@ CreateUserDialog.propTypes = {
 
 // ----------------------------------------------------------------------
 
+function generatePassword(length, options = {}) {
+  const defaultCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\:;?><,./-=";
+  const excludedChars = options.exclude || "";
+  const customCharset = defaultCharset.replace(new RegExp(`[${excludedChars}]`, 'g'), '');
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * customCharset.length);
+    password += customCharset[randomIndex];
+  }
+  return password;
+}
+
+// ----------------------------------------------------------------------
+
 export default function CreateUserDialog({ open, teamName, teamId, onClose, onUpdate, ...other }) {
 
   const { enqueueSnackbar } = useSnackbar();
@@ -50,7 +66,7 @@ export default function CreateUserDialog({ open, teamName, teamId, onClose, onUp
     name: Yup.string().required('Name is required'),
     phoneNumber: Yup.string().required("Phone number is required"),
     email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-    password: Yup.string().required('Password is required'),
+    phoneCode: Yup.string().required('Phone Code is required'),
     role: Yup.string().required('Role is required'),
     designation: Yup.string().required('Designation is required'),
   });
@@ -65,15 +81,15 @@ export default function CreateUserDialog({ open, teamName, teamId, onClose, onUp
     formState: { isSubmitting },
   } = methods;
 
-
   const onSubmit = async (data) => {
+    const password = generatePassword(10, { exclude: 'abc123' });
     try {
       await Team.onboardWelcome(
         data.name,
         data.email,
-        data.password,
+        password,
         data.designation,
-        data.phoneNumber,
+        '+'+data.phoneCode+data.phoneNumber,
         userProfile.$id,
         userProfile.name,
         userProfile.designation,
@@ -114,19 +130,26 @@ export default function CreateUserDialog({ open, teamName, teamId, onClose, onUp
                 }}
               >
                 <RHFTextField name="name" label="Full Name" />
-                <RHFTextField name="phoneNumber" label="Phone Number" />
                 <RHFTextField name="email" label="Email Address" />
-                <RHFTextField name="password" label="Password" />
+                <RHFSelect native name="phoneCode" label='Phone Code' InputLabelProps={{ shrink: true }} >
+                  <option value="" />
+                  {countries.map((country) => (
+                    <option key={country.code} value={country.phone}>
+                      {country.label+'(+'+country.phone+')'}
+                    </option>
+                  ))}
+                </RHFSelect>
+                <RHFTextField name="phoneNumber" label="Phone Number" />
                 <RHFTextField name="role" label="Role" />
                 <RHFTextField name="designation" label="Designation" />
               </Box>
 
               <Stack direction={"row-reverse"} alignItems={"end"} sx={{ mt: 3 }}>
-              <Button
+                <Button
                   variant="outlined"
                   startIcon={<Iconify icon="zondicons:close-outline" />}
                   onClick={onClose}
-                  sx={{ml: 2}}
+                  sx={{ ml: 2 }}
                 >
                   Close
                 </Button>

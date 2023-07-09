@@ -20,7 +20,10 @@ import {
   Typography,
   Autocomplete,
   TextField,
-  LinearProgress,
+  Divider,
+  Alert,
+  Collapse,
+  IconButton,
 } from '@mui/material';
 // components
 import Iconify from '../../../../components/iconify';
@@ -37,6 +40,9 @@ import {
 import PermissionDeniedComponent from '../../../_examples/PermissionDeniedComponent';
 import { useNavigate } from 'react-router-dom';
 import { PATH_DASHBOARD } from '../../../../routes/paths';
+import CloseIcon from '@mui/icons-material/Close';
+import { MotionContainer, varFade, varZoom } from '../../../../components/animate';
+import { m } from 'framer-motion';
 
 // ----------------------------------------------------------------------
 
@@ -143,27 +149,12 @@ export default function QuestionNewCreateForm({ metaData }) {
   const [chapterList, setChapterList] = useState([]);
   const [conceptList, setConceptList] = useState([]);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [motionKey, setMotionKey] = useState(0);
+  const [motion, setMotion] = useState('fadeInRight');
 
-  const [isMetaDataSaving, setIsMetaDataSaving] = useState(false);
-  const [isMetaDataUpdated, setIsMetaDataUpdated] = useState(false);
-
-  const [isQuestionSaving, setIsQuestionSaving] = useState(false);
-  const [isQuestionUpdated, setIsQuestionUpdated] = useState(false);
-
-  const [isOptionASaving, setIsOptionASaving] = useState(false);
-  const [isOptionAUpdated, setIsOptionAUpdated] = useState(false);
-
-  const [isOptionBSaving, setIsOptionBSaving] = useState(false);
-  const [isOptionBUpdated, setIsOptionBUpdated] = useState(false);
-
-  const [isOptionCSaving, setIsOptionCSaving] = useState(false);
-  const [isOptionCUpdated, setIsOptionCUpdated] = useState(false);
-
-  const [isOptionDSaving, setIsOptionDSaving] = useState(false);
-  const [isOptionDUpdated, setIsOptionDUpdated] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState({ active: false, message: 'This is an error' })
 
   const [canEdit] = useState(!metaData || ((metaData?.status === 'Initialize' && user?.$id === metaData?.editedBy) || (metaData?.status === 'ReviewedBack' || user?.$id === metaData?.reviewdBackTo)));
 
@@ -225,57 +216,21 @@ export default function QuestionNewCreateForm({ metaData }) {
 
   const handleNext = () => {
     if (activeStep === 0) {
-      if (formData?.standard === null || formData?.standard === '') {
-        enqueueSnackbar('Standard cannot be empty.', { variant: 'error' });
-        return false;
-      }
-      if (formData?.subject === null || formData?.subject === '') {
-        enqueueSnackbar('Subject cannot be empty.', { variant: 'error' });
-        return false;
-      }
-      if (formData?.chapter === null || formData?.chapter === '') {
-        enqueueSnackbar('Chapter cannot be empty.', { variant: 'error' });
-        return false;
-      }
-      if (formData?.concept === null || formData?.concept === '') {
-        enqueueSnackbar('Concept cannot be empty.', { variant: 'error' });
-        return false;
-      }
-      setContent(question);
-      setProgress(16)
+      saveMetaData();
     } else if (activeStep === 1) {
-      if (formData?.question === null || formData?.question === '') {
-        enqueueSnackbar('Question cannot be empty.', { variant: 'error' });
-        return false;
-      }
-      setContent(optionA);
-      setProgress(32)
+      saveQuestion();
     } else if (activeStep === 2) {
-      if (formData?.optionA === null || formData?.optionA === '') {
-        enqueueSnackbar('Option A cannot be empty.', { variant: 'error' });
-        return false;
-      }
-      setContent(optionB);
-      setProgress(48)
+      saveOptionA();
     } else if (activeStep === 3) {
-      if (formData?.optionB === null || formData?.optionB === '') {
-        enqueueSnackbar('Option B cannot be empty.', { variant: 'error' });
-        return false;
-      }
-      setContent(optionC);
-      setProgress(65)
+      saveOptionB();
     } else if (activeStep === 4) {
-      if (formData?.optionC === null || formData?.optionC === '') {
-        enqueueSnackbar('Option C cannot be empty.', { variant: 'error' });
-        return false;
-      }
-      setContent(optionD);
-      setProgress(82)
+      saveOptionC();
     }
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
-  const handleBack = () => {
+  const handleBack = async () => {
+    setMotionKey(motionKey + 1)
+    setMotion('zoomOut')
     if (activeStep === 2) {
       setContent(question);
     } else if (activeStep === 3) {
@@ -286,177 +241,168 @@ export default function QuestionNewCreateForm({ metaData }) {
       setContent(optionC);
     }
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleInsert = () => {
-    if (activeStep === 1) {
-      setIsQuestionUpdated(true);
-      setQuestion(updateMathContent(content));
-      setProgress(32)
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    } else if (activeStep === 2) {
-      setIsOptionAUpdated(true);
-      setOptionA(updateMathContent(content));
-      setProgress(48)
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    } else if (activeStep === 3) {
-      setIsOptionBUpdated(true);
-      setProgress(65)
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-      setOptionB(updateMathContent(content));
-    } else if (activeStep === 4) {
-      setIsOptionCUpdated(true);
-      setOptionC(updateMathContent(content));
-      setProgress(82)
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    } else if (activeStep === 5) {
-      setIsOptionDUpdated(true);
-      setOptionD(updateMathContent(content));
-      setProgress(100)
-    }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setMotionKey(motionKey + 2)
+    setMotion('fadeInRight')
   };
 
   const saveMetaData = async () => {
-    setIsMetaDataSaving(true);
+    setIsSaving(true);
     if (formData?.standard === null || formData?.standard === '') {
-      enqueueSnackbar('Standard cannot be empty.', { variant: 'error' });
-      setIsMetaDataSaving(false);
+      setError({ active: true, message: 'Standard cannot be empty. — check it out!' });
+      setIsSaving(false);
       return false;
     }
     if (formData?.subject === null || formData?.subject === '') {
-      enqueueSnackbar('Subject cannot be empty.', { variant: 'error' });
-      setIsMetaDataSaving(false);
+      setError({ active: true, message: 'Subject cannot be empty. — check it out!' });
+      setIsSaving(false);
       return false;
     }
     if (formData?.chapter === null || formData?.chapter === '') {
-      enqueueSnackbar('Chapter cannot be empty.', { variant: 'error' });
-      setIsMetaDataSaving(false);
+      setError({ active: true, message: 'Chapter cannot be empty. — check it out!' });
+      setIsSaving(false);
       return false;
     }
     if (formData?.concept === null || formData?.concept === '') {
-      enqueueSnackbar('Concept cannot be empty.', { variant: 'error' });
-      setIsMetaDataSaving(false);
+      setError({ active: true, message: 'Concept cannot be empty. — check it out!' });
+      setIsSaving(false);
       return false;
     }
     try {
       const savedQuestion = await Question.uploadMetaDataQuestion(questionId, standard, subject, chapter, concept, user?.$id);
       setquestionId(savedQuestion?.$id);
-      setIsMetaDataSaving(false);
-      setIsMetaDataUpdated(false);
-      enqueueSnackbar('Meta data saved successfully.');
+      setContent(question);
+      setMotionKey(motionKey + 1)
+      setMotion('zoomOut')
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setMotionKey(motionKey + 2)
+      setMotion('fadeInRight');
     } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
-      setIsMetaDataSaving(false);
+      setError({ active: true, message: error.message });
     }
+    setIsSaving(false);
+    setMotionKey(motionKey + 1);
   }
 
   const saveQuestion = async () => {
-    setIsQuestionSaving(true);
-    if (formData?.question === null || formData?.question === '') {
-      enqueueSnackbar('Question cannot be empty.', { variant: 'error' });
-      setIsQuestionSaving(false);
+    setQuestion(updateMathContent(content));
+    setIsSaving(true);
+    if (content === null || content === '') {
+      setError({ active: true, message: 'Question cannot be empty. — check it out!' });
+      setIsSaving(false);
       return false;
     }
     try {
-      await Question.uploadQuestionContent(questionId, question, coverQuestion, user?.$id);
-      setIsQuestionUpdated(false);
-      enqueueSnackbar('Question Content saved successfully.');
+      await Question.uploadQuestionContent(questionId, content, coverQuestion, user?.$id);
+      setContent(optionA);
+      setMotionKey(motionKey + 1)
+      setMotion('zoomOut')
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setMotionKey(motionKey + 2)
+      setMotion('fadeInRight')
     } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
+      setError({ active: true, message: error.message });
     }
-    setIsQuestionSaving(false);
+    setIsSaving(false);
   }
 
   const saveOptionA = async () => {
-    setIsOptionASaving(true);
-    if (formData?.optionA === null || formData?.optionA === '') {
-      enqueueSnackbar('Option A cannot be empty.', { variant: 'error' });
-      setIsOptionAUpdated(false);
+    setIsSaving(true);
+    setOptionA(updateMathContent(content));
+    if (content === null || content === '') {
+      setError({ active: true, message: 'Option A cannot be empty. — check it out!' });
+      setIsSaving(false);
       return false;
     }
     try {
-      await Question.uploadOptionAContent(questionId, optionA, coverOptionA, user?.$id);
-      setIsOptionAUpdated(false);
-      enqueueSnackbar('Option A saved successfully.');
+      await Question.uploadOptionAContent(questionId, content, coverOptionA, user?.$id);
+      setContent(optionB);
+      setMotionKey(motionKey + 1)
+      setMotion('zoomOut')
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setMotionKey(motionKey + 2)
+      setMotion('fadeInRight')
     } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
+      setError({ active: true, message: error.message });
     }
-    setIsOptionASaving(false);
+    setIsSaving(false);
   }
 
   const saveOptionB = async () => {
-    setIsOptionBSaving(true);
-    if (formData?.optionB === null || formData?.optionB === '') {
-      enqueueSnackbar('Option B cannot be empty.', { variant: 'error' });
-      setIsOptionBSaving(false);
+    setIsSaving(true);
+    setOptionB(updateMathContent(content));
+    if (content === null || content === '') {
+      setError({ active: true, message: 'Option B cannot be empty. — check it out!' });
+      setIsSaving(false);
       return false;
     }
     try {
-      await Question.uploadOptionBContent(questionId, optionB, coverOptionB, user?.$id);
-      setIsOptionBUpdated(false);
-      enqueueSnackbar('Option B saved successfully.');
+      await Question.uploadOptionBContent(questionId, content, coverOptionB, user?.$id);
+      setContent(optionC);
+      setMotionKey(motionKey + 1)
+      setMotion('zoomOut')
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setMotionKey(motionKey + 2)
+      setMotion('fadeInRight')
     } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
+      setError({ active: true, message: error.message });
     }
-    setIsOptionBSaving(false);
+    setIsSaving(false);
   }
 
   const saveOptionC = async () => {
-    setIsOptionCSaving(true);
-    if (formData?.optionC === null || formData?.optionC === '') {
-      enqueueSnackbar('Option C cannot be empty.', { variant: 'error' });
-      setIsOptionCSaving(false);
+    setIsSaving(true);
+    setOptionC(updateMathContent(content));
+    if (content === null || content === '') {
+      setError({ active: true, message: 'Option C cannot be empty. — check it out!' });
+      setIsSaving(false);
       return false;
     }
     try {
-      await Question.uploadOptionCContent(questionId, optionC, coverOptionC, user?.$id);
-      setIsOptionCUpdated(false);
-      enqueueSnackbar('Option C saved successfully.');
+      await Question.uploadOptionCContent(questionId, content, coverOptionC, user?.$id);
+      setContent(optionD);
+      setMotionKey(motionKey + 1)
+      setMotion('zoomOut')
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setMotionKey(motionKey + 2)
+      setMotion('fadeInRight')
     } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
+      setError({ active: true, message: error.message });
     }
-    setIsOptionCSaving(false);
+    setIsSaving(false);
   }
 
   const saveOptionD = async () => {
-    setIsOptionDSaving(true);
-    if (formData?.optionD === null || formData?.optionD === '') {
-      enqueueSnackbar('Option D cannot be empty.', { variant: 'error' });
-      setIsOptionDSaving(false);
+    setIsSaving(true);
+    setOptionD(updateMathContent(content));
+    if (content === null || content === '') {
+      setError({ active: true, message: 'Option D cannot be empty. — check it out!' });
+      setIsSaving(false);
       return false;
     }
     try {
-      await Question.uploadOptionDContent(questionId, optionD, coverOptionD, user?.$id);
-      setIsOptionDUpdated(false);
-      enqueueSnackbar('Option D saved successfully.');
-    } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
-    }
-    setIsOptionDSaving(false);
-  }
-
-  const onSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      if (isMetaDataUpdated) await saveMetaData();
-      if (isQuestionUpdated) await saveQuestion();
-      if (isOptionAUpdated) await saveOptionA();
-      if (isOptionBUpdated) await saveOptionB();
-      if (isOptionCUpdated) await saveOptionC();
-      if (isOptionDUpdated) await saveOptionD();
+      await Question.uploadOptionDContent(questionId, content, coverOptionD, user?.$id);
       await Question.sendForApproval(questionId, user?.$id);
       enqueueSnackbar('Successfully Sent for Approval');
       navigate(PATH_DASHBOARD.question.view(questionId))
-      setIsSubmitting(false);
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
     } catch (error) {
-      setIsSubmitting(false);
-      enqueueSnackbar(error.message, { variant: 'error' });
+      setError({ active: true, message: error.message });
     }
+    setIsSaving(false);
+  }
+
+  const onSubmit = async () => {
+    saveOptionD();
   };
 
   const handleDropQuestion = useCallback(
     (acceptedFiles) => {
-      setIsQuestionUpdated(true);
       const file = acceptedFiles[0];
 
       const newFile = Object.assign(file, {
@@ -467,12 +413,11 @@ export default function QuestionNewCreateForm({ metaData }) {
         setCoverQuestion(newFile)
       }
     },
-    [setCoverQuestion, setIsQuestionUpdated]
+    [setCoverQuestion]
   );
 
   const handleDropOptionA = useCallback(
     (acceptedFiles) => {
-      setIsOptionAUpdated(true);
       const file = acceptedFiles[0];
 
       const newFile = Object.assign(file, {
@@ -483,12 +428,11 @@ export default function QuestionNewCreateForm({ metaData }) {
         setCoverOptionA(newFile)
       }
     },
-    [setCoverOptionA, setIsOptionAUpdated]
+    [setCoverOptionA]
   );
 
   const handleDropOptionB = useCallback(
     (acceptedFiles) => {
-      setIsOptionBUpdated(true);
       const file = acceptedFiles[0];
 
       const newFile = Object.assign(file, {
@@ -499,12 +443,11 @@ export default function QuestionNewCreateForm({ metaData }) {
         setCoverOptionB(newFile);
       }
     },
-    [setCoverOptionB, setIsOptionBUpdated]
+    [setCoverOptionB]
   );
 
   const handleDropOptionC = useCallback(
     (acceptedFiles) => {
-      setIsOptionCUpdated(true);
       const file = acceptedFiles[0];
 
       const newFile = Object.assign(file, {
@@ -515,12 +458,11 @@ export default function QuestionNewCreateForm({ metaData }) {
         setCoverOptionC(newFile);
       }
     },
-    [setCoverOptionC, setIsOptionCUpdated]
+    [setCoverOptionC]
   );
 
   const handleDropOptionD = useCallback(
     (acceptedFiles) => {
-      setIsOptionDUpdated(true);
       const file = acceptedFiles[0];
 
       const newFile = Object.assign(file, {
@@ -531,7 +473,7 @@ export default function QuestionNewCreateForm({ metaData }) {
         setCoverOptionD(newFile);
       }
     },
-    [setCoverOptionD, setIsOptionDUpdated]
+    [setCoverOptionD]
   );
 
   if (!canEdit) {
@@ -539,467 +481,427 @@ export default function QuestionNewCreateForm({ metaData }) {
   }
 
   return (
-    <>
-      <Stepper alternativeLabel activeStep={activeStep} connector={<QontoConnector />} >
-        {STEPS.map((label) => (
-          <Step key={label}>
-            <StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
+    <Paper
+      sx={{
+        p: 1,
+        my: 1,
+        minHeight: 120,
+        bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+      }}
+    >
 
-      <Box sx={{ mb: 5 }} />
-      <Paper
-        sx={{
-          p: 1,
-          my: 3,
-          minHeight: 120,
-          bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
-        }}
-      >
+      <Grid container spacing={4}>
+        <Grid item xs={12} md={6}>
 
-        <Grid container spacing={4} sx={{ mt: 2, mb: 2 }}>
-          <Grid item xs={12} md={6}>
-            <Typography variant='h6' sx={{m: 2}}>Math Playground</Typography>
-            <Typography variant='subtitle2' sx={{m: 2}}>Use this editor to insert in the box of question and options</Typography>
-            <FroalaEditorComponent
-              tag='textarea'
-              config={froalaConfig}
-              model={content}
-              onModelChange={(event) => setContent(event)}
-            />
-            <LinearProgress color='success' variant='determinate' value={progress} sx={{ mt: 2, p: 0.5}}/>
+          <Stepper alternativeLabel activeStep={activeStep} connector={<QontoConnector />} >
+            {STEPS.map((label) => (
+              <Step key={label}>
+                <StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
 
-            <Box sx={{ textAlign: 'right', mt: 2, mb: 2 }}>
-              <Button
-                disabled={content === ''}
-                sx={{ mr: 1 }}
-                onClick={() => setContent('<p></p>')}
-                startIcon={<Iconify icon="mdi:clear-outline" />}
-              >
-                Clear
-              </Button>
+          <Divider sx={{ m: 1 }} />
 
-              <Button
-                disabled={activeStep === 0 || activeStep === 6}
-                variant="contained"
-                sx={{ mr: 1 }}
-                onClick={handleInsert}
-                endIcon={<Iconify icon="codicon:insert" />}
-              >
-                Insert
-              </Button>
-            </Box>
+          <Typography variant='h6' sx={{ m: 1 }}>
+            Math Playground
+          </Typography>
+
+          <Typography variant='subtitle2' sx={{ m: 1 }}>
+            Use this editor to insert in the box of question and options
+          </Typography>
+
+          <FroalaEditorComponent
+            tag='textarea'
+            config={froalaConfig}
+            model={content}
+            onModelChange={(event) => setContent(event)}
+          />
+
+          <Box sx={{ textAlign: 'right', mt: 2, mb: 2 }}>
+            <Button
+              disabled={content === ''}
+              sx={{ mr: 1 }}
+              onClick={() => setContent('<p></p>')}
+              startIcon={<Iconify icon="mdi:clear-outline" />}
+            >
+              Clear
+            </Button>
+          </Box>
+
+          <Divider />
+
+          <Grid container>
+            <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
+
+              <Box sx={{ textAlign: 'left', mt: 1 }}>
+                <Button
+                  disabled={activeStep === 0}
+                  variant="contained"
+                  onClick={handleBack}
+                  sx={{ mr: 1 }}
+                  startIcon={<Iconify icon="mingcute:back-fill" />}
+                >
+                  Back
+                </Button>
+              </Box>
+
+            </Grid>
+
+            <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
+              <Box sx={{ textAlign: 'right', mt: 1 }}>
+                {activeStep === STEPS.length - 1 ?
+                  <LoadingButton
+                    variant="contained"
+                    sx={{ mr: 1 }}
+                    endIcon={<Iconify icon="iconoir:submit-document" />}
+                    loading={isSaving}
+                    onClick={onSubmit}
+                  >
+                    Submit For Approval
+                  </LoadingButton>
+                  :
+                  <LoadingButton
+                    variant="contained"
+                    onClick={handleNext}
+                    sx={{ mr: 1 }}
+                    endIcon={<Iconify icon="carbon:next-outline" />}
+                    color='success'
+                    loading={isSaving}
+                  >
+                    Proceed to Next Step
+                  </LoadingButton>
+                }
+              </Box>
+            </Grid>
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardHeader title={STEPS[activeStep]} />
+          <Collapse in={error?.active}>
+            <Divider sx={{ m: 1 }} />
 
-              <CardContent>
-                <Grid container spacing={3}>
-                  {activeStep === 0 ?
-                    <>
-                      <Grid item xs={12} md={12}>
-                        <TextField
-                          fullWidth
-                          disabled
-                          value={questionId}
-                          label='ID'
-                          helperText='ID is automatically generated by the system.'
-                        />
-                      </Grid>
+            <Alert
+              severity="error"
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setError({ active: false });
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
+            >
+              {error?.message}
+            </Alert>
+          </Collapse>
+        </Grid>
 
-                      <Grid item xs={12} md={12}>
-                        <Autocomplete
-                          fullWidth
-                          freeSolo
-                          autoSelect
-                          autoComplete
-                          value={standard}
-                          loading={isLoadingData}
-                          options={standardList}
-                          onChange={(event, value) => {
-                            setStandard(value?.$id ? value?.name : value);
-                            setIsMetaDataUpdated(true);
-                          }}
-                          getOptionLabel={(option) => option?.name || option}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              {option?.name}
-                            </li>
-                          )}
-                          renderInput={(params) => (
-                            <TextField {...params} label="Standard" />
-                          )}
-                        />
-                      </Grid>
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardHeader title={STEPS[activeStep]} />
 
-                      <Grid item xs={12} md={12}>
-                        <Autocomplete
-                          fullWidth
-                          freeSolo
-                          autoSelect
-                          autoComplete
-                          value={subject}
-                          loading={isLoadingData}
-                          options={subjectList}
-                          onChange={(event, value) => {
-                            setSubject(value?.$id ? value?.name : value);
-                            setIsMetaDataUpdated(true);
-                          }}
-                          getOptionLabel={(option) => option?.name || option}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              {option?.name}
-                            </li>
-                          )}
-                          renderInput={(params) => (
-                            <TextField {...params} label="Subject" />
-                          )}
-                        />
-                      </Grid>
+            <CardContent>
+              <MotionContainer component={m.body} variants={getVariant(motion)}>
+                <Grid container spacing={3} key={motionKey} sx={{ display: activeStep === 0 ? 'block' : 'none' }}>
 
-                      <Grid item xs={12} md={12}>
-                        <Autocomplete
-                          fullWidth
-                          freeSolo
-                          autoSelect
-                          autoComplete
-                          value={chapter}
-                          loading={isLoadingData}
-                          options={chapterList}
-                          onChange={(event, value) => {
-                            setChapter(value?.$id ? value?.name : value);
-                            setIsMetaDataUpdated(true);
-                          }}
-                          getOptionLabel={(option) => option?.name || option}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              {option?.name}
-                            </li>
-                          )}
-                          renderInput={(params) => (
-                            <TextField {...params} label="Chapter" />
-                          )}
-                        />
-                      </Grid>
+                  <Grid item xs={12} md={12}>
+                    <TextField
+                      fullWidth
+                      disabled
+                      value={questionId}
+                      label='ID'
+                      helperText='ID is automatically generated by the system.'
+                    />
+                  </Grid>
 
-                      <Grid item xs={12} md={12}>
-                        <Autocomplete
-                          fullWidth
-                          freeSolo
-                          autoSelect
-                          autoComplete
-                          value={concept}
-                          loading={isLoadingData}
-                          filterSelectedOptions
-                          options={conceptList}
-                          onChange={(event, value) => {
-                            setConcept(value?.$id ? value?.name : value);
-                            setIsMetaDataUpdated(true);
-                          }}
-                          getOptionLabel={(option) => option?.name || option}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              {option?.name}
-                            </li>
-                          )}
-                          renderInput={(params) => (
-                            <TextField {...params} label="Concept" />
-                          )}
-                        />
-                      </Grid>
+                  <Grid item xs={12} md={12}>
+                    <Autocomplete
+                      fullWidth
+                      freeSolo
+                      autoSelect
+                      autoComplete
+                      value={standard}
+                      loading={isLoadingData}
+                      options={standardList}
+                      onChange={(event, value) => {
+                        setStandard(value?.$id ? value?.name : value);
+                      }}
+                      getOptionLabel={(option) => option?.name || option}
+                      renderOption={(props, option, { selected }) => (
+                        <li {...props}>
+                          {option?.name}
+                        </li>
+                      )}
+                      renderInput={(params) => (
+                        <TextField {...params} label="Standard" />
+                      )}
+                    />
+                  </Grid>
 
-                      <Grid item xs={12} md={12}>
-                        <LoadingButton
-                          onClick={saveMetaData}
-                          variant="contained"
-                          startIcon={<Iconify icon="material-symbols:save-outline" />}
-                          loading={isMetaDataSaving}
-                          disabled={!isMetaDataUpdated}
-                        >
-                          Save
-                        </LoadingButton>
-                      </Grid>
-                    </>
-                    : (
-                      activeStep === 1 ?
-                        <>
-                          <Grid item xs={12} md={12}>
-                            <Paper
-                              sx={{
-                                p: 1,
-                                my: 1,
-                                minHeight: 200,
-                                bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
-                              }}
-                            >
-                              <FroalaEditorView model={question} />
-                            </Paper>
-                          </Grid>
+                  <Grid item xs={12} md={12}>
+                    <Autocomplete
+                      fullWidth
+                      freeSolo
+                      autoSelect
+                      autoComplete
+                      value={subject}
+                      loading={isLoadingData}
+                      options={subjectList}
+                      onChange={(event, value) => {
+                        setSubject(value?.$id ? value?.name : value);
+                      }}
+                      getOptionLabel={(option) => option?.name || option}
+                      renderOption={(props, option, { selected }) => (
+                        <li {...props}>
+                          {option?.name}
+                        </li>
+                      )}
+                      renderInput={(params) => (
+                        <TextField {...params} label="Subject" />
+                      )}
+                    />
+                  </Grid>
 
-                          <Grid item xs={12} md={12}>
-                            <Stack spacing={1}>
-                              <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                                Upload Image If Required
-                              </Typography>
+                  <Grid item xs={12} md={12}>
+                    <Autocomplete
+                      fullWidth
+                      freeSolo
+                      autoSelect
+                      autoComplete
+                      value={chapter}
+                      loading={isLoadingData}
+                      options={chapterList}
+                      onChange={(event, value) => {
+                        setChapter(value?.$id ? value?.name : value);
+                      }}
+                      getOptionLabel={(option) => option?.name || option}
+                      renderOption={(props, option, { selected }) => (
+                        <li {...props}>
+                          {option?.name}
+                        </li>
+                      )}
+                      renderInput={(params) => (
+                        <TextField {...params} label="Chapter" />
+                      )}
+                    />
+                  </Grid>
 
-                              <Upload
-                                accept={{ 'image/*': [] }}
-                                file={coverQuestion}
-                                maxSize={15360}
-                                onDrop={handleDropQuestion}
-                                onDelete={() => {
-                                  setCoverQuestion(null);
-                                  setIsQuestionUpdated(true);
-                                }}
-                              />
-                            </Stack>
-                          </Grid>
-
-                          <Grid item xs={12} md={12}>
-                            <LoadingButton
-                              onClick={saveQuestion}
-                              variant="contained"
-                              startIcon={<Iconify icon="material-symbols:save-outline" />}
-                              loading={isQuestionSaving}
-                              disabled={!isQuestionUpdated}
-                            >
-                              Save
-                            </LoadingButton>
-                          </Grid>
-                        </>
-                        : (
-                          activeStep === 2 ?
-                            <>
-                              <Grid item xs={12} md={12}>
-                                <Paper
-                                  sx={{
-                                    p: 1,
-                                    my: 1,
-                                    minHeight: 200,
-                                    bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
-                                  }}
-                                >
-                                  <FroalaEditorView model={optionA} />
-                                </Paper>
-                              </Grid>
-
-                              <Grid item xs={12} md={12}>
-                                <Stack spacing={1}>
-                                  <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                                    Upload Image If Required
-                                  </Typography>
-
-                                  <Upload
-                                    accept={{ 'image/*': [] }}
-                                    file={coverOptionA}
-                                    maxSize={15360}
-                                    onDrop={handleDropOptionA}
-                                    onDelete={() => {
-                                      setCoverOptionA(null);
-                                      setIsOptionAUpdated(true);
-                                    }}
-                                  />
-                                </Stack>
-                              </Grid>
-
-                              <Grid item xs={12} md={12}>
-                                <LoadingButton
-                                  onClick={saveOptionA}
-                                  variant="contained"
-                                  startIcon={<Iconify icon="material-symbols:save-outline" />}
-                                  loading={isOptionASaving}
-                                  disabled={!isOptionAUpdated}
-                                >
-                                  Save
-                                </LoadingButton>
-                              </Grid>
-                            </>
-                            : (
-                              activeStep === 3 ?
-                                <>
-                                  <Grid item xs={12} md={12}>
-                                    <Paper
-                                      sx={{
-                                        p: 1,
-                                        my: 1,
-                                        minHeight: 200,
-                                        bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
-                                      }}
-                                    >
-                                      <FroalaEditorView model={optionB} />
-                                    </Paper>
-                                  </Grid>
-
-                                  <Grid item xs={12} md={12}>
-                                    <Stack spacing={1}>
-                                      <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                                        Upload Image If Required
-                                      </Typography>
-
-                                      <Upload
-                                        accept={{ 'image/*': [] }}
-                                        file={coverOptionB}
-                                        maxSize={15360}
-                                        onDrop={handleDropOptionB}
-                                        onDelete={() => {
-                                          setCoverOptionB(null)
-                                          setIsOptionBUpdated(true)
-                                        }}
-                                      />
-                                    </Stack>
-                                  </Grid>
-
-                                  <Grid item xs={12} md={12}>
-                                    <LoadingButton
-                                      onClick={saveOptionB}
-                                      variant="contained"
-                                      startIcon={<Iconify icon="material-symbols:save-outline" />}
-                                      loading={isOptionBSaving}
-                                      disabled={!isOptionBUpdated}
-                                    >
-                                      Save
-                                    </LoadingButton>
-                                  </Grid>
-                                </>
-                                : (
-                                  activeStep === 4 ?
-                                    <>
-                                      <Grid item xs={12} md={12}>
-                                        <Paper
-                                          sx={{
-                                            p: 1,
-                                            my: 1,
-                                            minHeight: 200,
-                                            bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
-                                          }}
-                                        >
-                                          <FroalaEditorView model={optionC} />
-                                        </Paper>
-                                      </Grid>
-
-                                      <Grid item xs={12} md={12}>
-                                        <Stack spacing={1}>
-                                          <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                                            Upload Image If Required
-                                          </Typography>
-
-                                          <Upload
-                                            accept={{ 'image/*': [] }}
-                                            file={coverOptionC}
-                                            maxSize={15360}
-                                            onDrop={handleDropOptionC}
-                                            onDelete={() => {
-                                              setCoverOptionC(null)
-                                              setIsOptionCUpdated(true);
-                                            }}
-                                          />
-                                        </Stack>
-                                      </Grid>
-
-                                      <Grid item xs={12} md={12}>
-                                        <LoadingButton
-                                          onClick={saveOptionC}
-                                          variant="contained"
-                                          startIcon={<Iconify icon="material-symbols:save-outline" />}
-                                          loading={isOptionCSaving}
-                                          disabled={!isOptionCUpdated}
-                                        >
-                                          Save
-                                        </LoadingButton>
-                                      </Grid>
-                                    </>
-                                    :
-                                    <>
-                                      <Grid item xs={12} md={12}>
-                                        <Paper
-                                          sx={{
-                                            p: 1,
-                                            my: 1,
-                                            minHeight: 200,
-                                            bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
-                                          }}
-                                        >
-                                          <FroalaEditorView model={optionD} />
-                                        </Paper>
-                                      </Grid>
-
-                                      <Grid item xs={12} md={12}>
-                                        <Stack spacing={1}>
-                                          <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                                            Upload Image If Required
-                                          </Typography>
-
-                                          <Upload
-                                            accept={{ 'image/*': [] }}
-                                            file={coverOptionD}
-                                            maxSize={15360}
-                                            onDrop={handleDropOptionD}
-                                            onDelete={() => {
-                                              setCoverOptionD(null)
-                                              setIsOptionDUpdated(true);
-                                            }}
-                                          />
-                                        </Stack>
-                                      </Grid>
-
-                                      <Grid item xs={12} md={12}>
-                                        <LoadingButton
-                                          onClick={saveOptionD}
-                                          variant="contained"
-                                          startIcon={<Iconify icon="material-symbols:save-outline" />}
-                                          loading={isOptionDSaving}
-                                          disabled={!isOptionDUpdated}
-                                        >
-                                          Save
-                                        </LoadingButton>
-                                      </Grid>
-                                    </>
-                                )
-                            )
-                        )
-                    )}
+                  <Grid item xs={12} md={12}>
+                    <Autocomplete
+                      fullWidth
+                      freeSolo
+                      autoSelect
+                      autoComplete
+                      value={concept}
+                      loading={isLoadingData}
+                      filterSelectedOptions
+                      options={conceptList}
+                      onChange={(event, value) => {
+                        setConcept(value?.$id ? value?.name : value);
+                      }}
+                      getOptionLabel={(option) => option?.name || option}
+                      renderOption={(props, option, { selected }) => (
+                        <li {...props}>
+                          {option?.name}
+                        </li>
+                      )}
+                      renderInput={(params) => (
+                        <TextField {...params} label="Concept" />
+                      )}
+                    />
+                  </Grid>
                 </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid >
-      </Paper >
-      <Box sx={{ textAlign: 'right', mt: 3 }}>
-        <Button
-          disabled={activeStep === 0}
-          onClick={handleBack}
-          sx={{ mr: 1 }}
-          startIcon={<Iconify icon="mingcute:back-fill" />}
-        >
-          Back
-        </Button>
-        {activeStep === STEPS.length - 1 ?
-          <LoadingButton
-            variant="contained"
-            sx={{ mr: 1 }}
-            endIcon={<Iconify icon="iconoir:submit-document" />}
-            loading={isSubmitting}
-            onClick={onSubmit}
-          >
-            Submit For Approval
-          </LoadingButton>
-          :
-          <Button
-            variant="contained"
-            onClick={handleNext}
-            sx={{ mr: 1 }}
-            endIcon={<Iconify icon="carbon:next-outline" />}
-            color='success'
-            disabled={questionId===''}
-          >
-            Proceed to Next Step
-          </Button>
-        }
-      </Box>
-    </>
+              </MotionContainer>
+
+              <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 1 ? 'block' : 'none' }}>
+                <Grid container spacing={3} key={motionKey}>
+                  <Grid item xs={12} md={12}>
+                    <Paper
+                      sx={{
+                        p: 1,
+                        my: 1,
+                        minHeight: 100,
+                        bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+                      }}
+                    >
+                      <FroalaEditorView model={content} />
+                    </Paper>
+                  </Grid>
+
+                  <Grid item xs={12} md={12}>
+                    <Stack spacing={1}>
+                      <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                        Upload Image If Required
+                      </Typography>
+
+                      <Upload
+                        accept={{ 'image/*': [] }}
+                        file={coverQuestion}
+                        maxSize={15360}
+                        onDrop={handleDropQuestion}
+                        onDelete={() => {
+                          setCoverQuestion(null);
+                        }}
+                      />
+                    </Stack>
+                  </Grid>
+                </Grid>
+              </MotionContainer>
+
+              <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 2 ? 'block' : 'none' }}>
+                <Grid container spacing={3} key={motionKey}>
+                  <Grid item xs={12} md={12}>
+                    <Paper
+                      sx={{
+                        p: 1,
+                        my: 1,
+                        minHeight: 100,
+                        bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+                      }}
+                    >
+                      <FroalaEditorView model={content} />
+                    </Paper>
+                  </Grid>
+
+                  <Grid item xs={12} md={12}>
+                    <Stack spacing={1}>
+                      <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                        Upload Image If Required
+                      </Typography>
+
+                      <Upload
+                        accept={{ 'image/*': [] }}
+                        file={coverOptionA}
+                        maxSize={15360}
+                        onDrop={handleDropOptionA}
+                        onDelete={() => {
+                          setCoverOptionA(null);
+                        }}
+                      />
+                    </Stack>
+                  </Grid>
+                </Grid>
+              </MotionContainer>
+
+              <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 3 ? 'block' : 'none' }}>
+                <Grid container spacing={3} key={motionKey}>
+
+                  <Grid item xs={12} md={12}>
+                    <Paper
+                      sx={{
+                        p: 1,
+                        my: 1,
+                        minHeight: 100,
+                        bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+                      }}
+                    >
+                      <FroalaEditorView model={content} />
+                    </Paper>
+                  </Grid>
+
+                  <Grid item xs={12} md={12}>
+                    <Stack spacing={1}>
+                      <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                        Upload Image If Required
+                      </Typography>
+
+                      <Upload
+                        accept={{ 'image/*': [] }}
+                        file={coverOptionB}
+                        maxSize={15360}
+                        onDrop={handleDropOptionB}
+                        onDelete={() => {
+                          setCoverOptionB(null)
+                        }}
+                      />
+                    </Stack>
+                  </Grid>
+
+                </Grid>
+              </MotionContainer>
+
+              <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 4 ? 'block' : 'none' }}>
+                <Grid container spacing={3} key={motionKey}>
+
+                  <Grid item xs={12} md={12}>
+                    <Paper
+                      sx={{
+                        p: 1,
+                        my: 1,
+                        minHeight: 100,
+                        bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+                      }}
+                    >
+                      <FroalaEditorView model={content} />
+                    </Paper>
+                  </Grid>
+
+                  <Grid item xs={12} md={12}>
+                    <Stack spacing={1}>
+                      <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                        Upload Image If Required
+                      </Typography>
+
+                      <Upload
+                        accept={{ 'image/*': [] }}
+                        file={coverOptionC}
+                        maxSize={15360}
+                        onDrop={handleDropOptionC}
+                        onDelete={() => {
+                          setCoverOptionC(null)
+                        }}
+                      />
+                    </Stack>
+                  </Grid>
+
+                </Grid>
+              </MotionContainer>
+
+              <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 5 ? 'block' : 'none' }}>
+                <Grid container spacing={3} key={motionKey}>
+
+                  <Grid item xs={12} md={12}>
+                    <Paper
+                      sx={{
+                        p: 1,
+                        my: 1,
+                        minHeight: 100,
+                        bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+                      }}
+                    >
+                      <FroalaEditorView model={content} />
+                    </Paper>
+                  </Grid>
+
+                  <Grid item xs={12} md={12}>
+                    <Stack spacing={1}>
+                      <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                        Upload Image If Required
+                      </Typography>
+
+                      <Upload
+                        accept={{ 'image/*': [] }}
+                        file={coverOptionD}
+                        maxSize={15360}
+                        onDrop={handleDropOptionD}
+                        onDelete={() => {
+                          setCoverOptionD(null)
+                        }}
+                      />
+                    </Stack>
+                  </Grid>
+
+                </Grid>
+              </MotionContainer>
+
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid >
+    </Paper >
   );
 }
 
@@ -1077,3 +979,11 @@ function updateMathContent(math) {
 
 //   return output;
 // }
+
+function getVariant(variant) {
+  return {
+    fadeInLeft: varFade().inLeft,
+    fadeInRight: varFade().inRight,
+    zoomOut: varZoom().out,
+  }[variant];
+}
