@@ -1448,6 +1448,7 @@ const reducer = (state, action) => {
       userPermissions: action.payload.userPermissions,
       userSocialLinks: action.payload.userSocialLinks,
       notificationCount: action.payload.notificationCount,
+      underMaintenance: action.payload.underMaintenance,
     };
   }
   if (action.type === 'LOGOUT') {
@@ -1670,6 +1671,17 @@ export function AuthProvider({ children }) {
 
   // LOGIN
   const login = useCallback(async (email, password) => {
+    const sarthakInfoData = await databases.getDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.sarthakInfoData,
+      APPWRITE_API.databases.sarthakInfoDataCollection
+    );
+    dispatch({
+      type: 'LOGIN',
+      payload: {
+        underMaintenance: sarthakInfoData?.maintenance,
+      }
+    })
     await account.createEmailSession(email, password);
     const user = await account.get();
     const userProfile = await User.getProfileData(user.$id);
