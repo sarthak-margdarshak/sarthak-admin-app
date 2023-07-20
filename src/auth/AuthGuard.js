@@ -30,11 +30,17 @@ AuthGuard.propTypes = {
 // ----------------------------------------------------------------------
 
 export default function AuthGuard({ children }) {
-  const { isAuthenticated, isInitialized } = useAuthContext();
+  const { isAuthenticated, isInitialized, underMaintenance } = useAuthContext();
 
   const { pathname } = useLocation();
 
   const [requestedLocation, setRequestedLocation] = useState(null);
+
+  if (underMaintenance) {
+    return (
+      <Navigate to={'/maintenance'} />
+    );
+  }
 
   if (!isInitialized) {
     return <LoadingScreen />;

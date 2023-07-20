@@ -698,45 +698,6 @@ export class Question {
   }
 
   /**
-   * Function to get Id of question content
-   * @param {string} questionId - Id of question
-   * @param {string} question - question Content
-   * @param {string} userId - Current User
-   * @returns Id of uploaded question content
-   */
-  static async uploadQuestionFile(questionId, question, userId) {
-    const questionFile = new File([question], questionId + '_question.txt', { type: 'text/plain' });
-
-    const currentQuestionFile = (await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      [
-        Query.select(['question'])
-      ]
-    ))?.question;
-
-    if (!(currentQuestionFile === null || currentQuestionFile === '')) {
-      await storage.deleteFile(
-        APPWRITE_API.buckets.questionFiles,
-        currentQuestionFile,
-      )
-    }
-
-    return (await storage.createFile(
-      APPWRITE_API.buckets.questionFiles,
-      ID.unique(),
-      questionFile,
-      [
-        Permission.read(Role.any()),
-        Permission.read(Role.user(userId)),
-        Permission.update(Role.user(userId)),
-        Permission.delete(Role.user(userId)),
-      ]
-    )).$id;
-  }
-
-  /**
    * Function to get Id of question cover
    * @param {string} questionId - Id of question
    * @param {file} coverQuestionFile - question cover file
@@ -787,7 +748,6 @@ export class Question {
       id = await this.createQuestionId(userId);
     }
 
-    const questionContentId = await this.uploadQuestionFile(id, question, userId);
     var coverQuestionId = null;
     if (coverQuestionFile) {
       coverQuestionId = await this.uploadQuestionCover(id, coverQuestionFile, userId);
@@ -798,50 +758,11 @@ export class Question {
       APPWRITE_API.databases.questions,
       id,
       {
-        question: questionContentId,
+        contentQuestion: question,
         coverQuestion: coverQuestionId,
         updatedBy: userId,
       }
     )
-  }
-
-  /**
-   * Function to get Id of option A
-   * @param {string} questionId - Id of question
-   * @param {string} optionA - option A content
-   * @param {string} userId - current user
-   * @returns - Id of the uploaded option A
-   */
-  static async uploadOptionAFile(questionId, optionA, userId) {
-    const optionAFile = new File([optionA], questionId + '_option_A.txt', { type: 'text/plain' });
-
-    const currentOptionAFile = (await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      [
-        Query.select(['optionA'])
-      ]
-    ))?.optionA;
-
-    if (!(currentOptionAFile === null || currentOptionAFile === '')) {
-      await storage.deleteFile(
-        APPWRITE_API.buckets.questionFiles,
-        currentOptionAFile,
-      )
-    }
-
-    return (await storage.createFile(
-      APPWRITE_API.buckets.questionFiles,
-      ID.unique(),
-      optionAFile,
-      [
-        Permission.read(Role.any()),
-        Permission.read(Role.user(userId)),
-        Permission.update(Role.user(userId)),
-        Permission.delete(Role.user(userId)),
-      ]
-    )).$id;
   }
 
   /**
@@ -895,7 +816,6 @@ export class Question {
       id = await this.createQuestionId(userId);
     }
 
-    const optionAContentId = await this.uploadOptionAFile(id, optionA, userId);
     var coverOptionAId = null;
     if (coverOptionAFile) {
       coverOptionAId = await this.uploadOptionACover(id, coverOptionAFile, userId);
@@ -906,50 +826,11 @@ export class Question {
       APPWRITE_API.databases.questions,
       id,
       {
-        optionA: optionAContentId,
+        contentOptionA: optionA,
         coverOptionA: coverOptionAId,
         updatedBy: userId,
       }
     )
-  }
-
-  /**
-   * Function to get Id of option B
-   * @param {string} questionId - Id of question
-   * @param {string} optionB - option B content
-   * @param {string} userId - current user
-   * @returns - Id of the uploaded option B
-   */
-  static async uploadOptionBFile(questionId, optionB, userId) {
-    const optionBFile = new File([optionB], questionId + '_option_B.txt', { type: 'text/plain' });
-
-    const currentOptionBFile = (await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      [
-        Query.select(['optionB'])
-      ]
-    ))?.optionB;
-
-    if (!(currentOptionBFile === null || currentOptionBFile === '')) {
-      await storage.deleteFile(
-        APPWRITE_API.buckets.questionFiles,
-        currentOptionBFile,
-      )
-    }
-
-    return (await storage.createFile(
-      APPWRITE_API.buckets.questionFiles,
-      ID.unique(),
-      optionBFile,
-      [
-        Permission.read(Role.any()),
-        Permission.read(Role.user(userId)),
-        Permission.update(Role.user(userId)),
-        Permission.delete(Role.user(userId)),
-      ]
-    )).$id;
   }
 
   /**
@@ -1003,7 +884,6 @@ export class Question {
       id = await this.createQuestionId(userId);
     }
 
-    const optionBContentId = await this.uploadOptionBFile(id, optionB, userId);
     var coverOptionBId = null;
     if (coverOptionBFile) {
       coverOptionBId = await this.uploadOptionBCover(id, coverOptionBFile, userId);
@@ -1014,50 +894,11 @@ export class Question {
       APPWRITE_API.databases.questions,
       id,
       {
-        optionB: optionBContentId,
+        contentOptionB: optionB,
         coverOptionB: coverOptionBId,
         updatedBy: userId,
       }
     )
-  }
-
-  /**
-   * Function to get Id of option C
-   * @param {string} questionId - Id of question
-   * @param {string} optionC - option C content
-   * @param {string} userId - current user
-   * @returns - Id of the uploaded option C
-   */
-  static async uploadOptionCFile(questionId, optionC, userId) {
-    const optionCFile = new File([optionC], questionId + '_option_C.txt', { type: 'text/plain' });
-
-    const currentOptionCFile = (await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      [
-        Query.select(['optionC'])
-      ]
-    ))?.optionC;
-
-    if (!(currentOptionCFile === null || currentOptionCFile === '')) {
-      await storage.deleteFile(
-        APPWRITE_API.buckets.questionFiles,
-        currentOptionCFile,
-      )
-    }
-
-    return (await storage.createFile(
-      APPWRITE_API.buckets.questionFiles,
-      ID.unique(),
-      optionCFile,
-      [
-        Permission.read(Role.any()),
-        Permission.read(Role.user(userId)),
-        Permission.update(Role.user(userId)),
-        Permission.delete(Role.user(userId)),
-      ]
-    )).$id;
   }
 
   /**
@@ -1111,7 +952,6 @@ export class Question {
       id = await this.createQuestionId(userId);
     }
 
-    const optionCContentId = await this.uploadOptionCFile(id, optionC, userId);
     var coverOptionCId = null;
     if (coverOptionCFile) {
       coverOptionCId = await this.uploadOptionCCover(id, coverOptionCFile, userId);
@@ -1122,50 +962,11 @@ export class Question {
       APPWRITE_API.databases.questions,
       id,
       {
-        optionC: optionCContentId,
+        contentOptionC: optionC,
         coverOptionC: coverOptionCId,
         updatedBy: userId,
       }
     )
-  }
-
-  /**
-   * Function to get Id of option D
-   * @param {string} questionId - Id of question
-   * @param {string} optionD - option D content
-   * @param {string} userId - current user
-   * @returns - Id of the uploaded option D
-   */
-  static async uploadOptionDFile(questionId, optionD, userId) {
-    const optionDFile = new File([optionD], questionId + '_option_D.txt', { type: 'text/plain' });
-
-    const currentOptionDFile = (await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      [
-        Query.select(['optionD'])
-      ]
-    ))?.optionD;
-
-    if (!(currentOptionDFile === null || currentOptionDFile === '')) {
-      await storage.deleteFile(
-        APPWRITE_API.buckets.questionFiles,
-        currentOptionDFile,
-      )
-    }
-
-    return (await storage.createFile(
-      APPWRITE_API.buckets.questionFiles,
-      ID.unique(),
-      optionDFile,
-      [
-        Permission.read(Role.any()),
-        Permission.read(Role.user(userId)),
-        Permission.update(Role.user(userId)),
-        Permission.delete(Role.user(userId)),
-      ]
-    )).$id;
   }
 
   /**
@@ -1219,7 +1020,6 @@ export class Question {
       id = await this.createQuestionId(userId);
     }
 
-    const optionDContentId = await this.uploadOptionDFile(id, optionD, userId);
     var coverOptionDId = null;
     if (coverOptionDFile) {
       coverOptionDId = await this.uploadOptionDCover(id, coverOptionDFile, userId);
@@ -1230,7 +1030,7 @@ export class Question {
       APPWRITE_API.databases.questions,
       id,
       {
-        optionD: optionDContentId,
+        contentOptionD: optionD,
         coverOptionD: coverOptionDId,
         updatedBy: userId,
       }
@@ -1614,6 +1414,7 @@ const initialState = {
   userPermissions: null,
   userSocialLinks: null,
   notificationCount: 0,
+  underMaintenance: false,
 };
 
 const reducer = (state, action) => {
@@ -1631,6 +1432,7 @@ const reducer = (state, action) => {
       userPermissions: action.payload.userPermissions,
       userSocialLinks: action.payload.userSocialLinks,
       notificationCount: action.payload.notificationCount,
+      underMaintenance: action.payload.underMaintenance,
     };
   }
   if (action.type === 'LOGIN') {
@@ -1787,6 +1589,17 @@ export function AuthProvider({ children }) {
   const initialize = useCallback(() => {
     try {
       account.get().then(async function (response) {
+        const sarthakInfoData = await databases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.databases.sarthakInfoData,
+          APPWRITE_API.databases.sarthakInfoDataCollection
+        );
+        dispatch({
+          type: 'INITIAL',
+          payload: {
+            underMaintenance: sarthakInfoData?.maintenance,
+          }
+        })
         const user = response;
         const userProfile = await User.getProfileData(user.$id);
         var profileImage = null;
@@ -1845,6 +1658,7 @@ export function AuthProvider({ children }) {
           userPermissions: null,
           userSocialLinks: null,
           notificationCount: 0,
+          underMaintenance: true,
         },
       });
     }
@@ -2040,6 +1854,7 @@ export function AuthProvider({ children }) {
       userPermissions: state.userPermissions,
       userSocialLinks: state.userSocialLinks,
       notificationCount: state.notificationCount,
+      underMaintenance: state.underMaintenance,
       // auth functions
       login,
       logout,
@@ -2055,7 +1870,7 @@ export function AuthProvider({ children }) {
       // team variables
       // team functions
     }),
-    [state.isInitialized, state.isAuthenticated, state.user, state.errorMessage, state.profileImage, state.userProfile, state.userGeneral, state.userPermissions, state.userSocialLinks, state.notificationCount, login, logout, updatePassword, updateProfileImage, updateUserGeneral, updateUserSocialLinks, fetchGeneralData, fetchPermissionData, fetchSocialLinksData]
+    [state.isInitialized, state.isAuthenticated, state.user, state.errorMessage, state.profileImage, state.userProfile, state.userGeneral, state.userPermissions, state.userSocialLinks, state.notificationCount, state.underMaintenance, login, logout, updatePassword, updateProfileImage, updateUserGeneral, updateUserSocialLinks, fetchGeneralData, fetchPermissionData, fetchSocialLinksData]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
