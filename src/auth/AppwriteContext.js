@@ -1253,9 +1253,6 @@ export class Question {
       ans.push(
         {
           ...data[i],
-          standard: await this.getStandardName(data[i].standardId),
-          subject: await this.getSubjectName(data[i].subjectId),
-          createdBy: (await User.getProfileData(data[i].createdBy))?.name,
           question: data[i].question,
         }
       )
@@ -1277,7 +1274,7 @@ export class Question {
     )
   }
 
-  static async reviewBackQuestion(questionId, userId, createdBy) {
+  static async reviewBackQuestion(questionId, userId, createdBy, comment) {
     await databases.createDocument(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.notifications,
@@ -1290,7 +1287,8 @@ export class Question {
         data: JSON.stringify(
           {
             questionId: questionId,
-            sentBy: (await User.getProfileData(userId)).name
+            sentBy: (await User.getProfileData(userId)).name,
+            comment: comment
           }
         )
       },
@@ -1308,6 +1306,7 @@ export class Question {
         status: 'ReviewedBack',
         reviewdBackTo: createdBy,
         updatedBy: userId,
+        reviewComment: comment,
       }
     )
   }

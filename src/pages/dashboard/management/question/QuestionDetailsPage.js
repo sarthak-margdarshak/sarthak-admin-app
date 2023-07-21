@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 // @mui
-import { Container } from '@mui/material';
+import { Button, Container } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 // components
@@ -9,6 +9,7 @@ import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
 // sections
 import QuestionEditForm from '../../../../sections/@dashboard/question/edit/QuestionEditForm';
 import { useAuthContext } from '../../../../auth/useAuthContext';
+import Iconify from '../../../../components/iconify/Iconify';
 
 // ----------------------------------------------------------------------
 
@@ -43,6 +44,15 @@ export default function QuestionDetailsPage() {
               name: questionId,
             },
           ]}
+          action={
+            <Button
+              onClick={() => window.open(PATH_DASHBOARD.question.new,'_blank', 'rel=noopener noreferrer')}
+              variant="contained"
+              startIcon={<Iconify icon="eva:plus-fill" />}
+            >
+              New Question
+            </Button>
+          }
         />
 
         <QuestionEditForm questionId={questionId} purpose='view' />

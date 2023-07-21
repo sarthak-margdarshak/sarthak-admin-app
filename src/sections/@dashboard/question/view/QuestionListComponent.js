@@ -1,52 +1,50 @@
-import { Autocomplete, Box, Card, CardContent, CardHeader, Checkbox, Grid, TextField, Divider, LinearProgress, Tab, Table, TableBody, TableContainer, Tabs } from "@mui/material";
-import Iconify from "../../../../components/iconify/Iconify";
 import { useEffect, useState } from "react";
+// @mui
+import {
+  Autocomplete,
+  Box,
+  Card,
+  CardContent,
+  CardHeader,
+  Checkbox,
+  Grid,
+  TextField,
+  Divider,
+  Tab,
+  Tabs,
+  Typography
+} from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+// Components
+import Iconify from "../../../../components/iconify/Iconify";
 import DateRangePicker, { useDateRangePicker } from '../../../../components/date-range-picker';
-// utils
-import { fDate } from '../../../../utils/formatTime';
-import { Question, User } from "../../../../auth/AppwriteContext";
-import Scrollbar from "../../../../components/scrollbar/Scrollbar";
 import {
   useTable,
   getComparator,
-  emptyRows,
-  TableEmptyRows,
-  TableHeadCustom,
-  TablePaginationCustom,
 } from '../../../../components/table';
-import QuestionTableRow from "./QuestionTableRow";
-import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from '../../../../components/snackbar';
-import { PATH_DASHBOARD } from "../../../../routes/paths";
+// utils
+import { fDate } from '../../../../utils/formatTime';
+// Auth
+import { Question, User } from "../../../../auth/AppwriteContext";
+
+import QuestionRowComponent from "./QuestionRowComponent";
+
+// ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = ['All', 'Initialize', 'SentForReview', 'ReviewedBack', 'Approved', 'Active'];
 
-const TABLE_HEAD = [
-  { id: 'sn', },
-  { id: 'question', label: 'Question', align: 'left' },
-  { id: 'standard', label: 'Standard', align: 'left' },
-  { id: 'subject', label: 'Subject', align: 'left' },
-  { id: 'createdDate', label: 'Created Date', align: 'left' },
-  { id: 'createdBy', label: 'Created By', align: 'left' },
-];
+// ----------------------------------------------------------------------
 
 export default function QuestionListComponent() {
 
-  const pickerInput = useDateRangePicker(new Date(), new Date());
+  const pickerInput = useDateRangePicker();
   const { enqueueSnackbar } = useSnackbar();
 
   const {
-    page,
     order,
     orderBy,
-    rowsPerPage,
-    //
-    onSort,
-    onChangePage,
-    onChangeRowsPerPage,
   } = useTable();
-
-  const denseHeight = 72;
 
   const [standard, setStandard] = useState([]);
   const [standardList, setStandardList] = useState([]);
@@ -117,11 +115,12 @@ export default function QuestionListComponent() {
 
   return (
     <>
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6} md={4} lg={2} xl={3}>
-          <Card>
-            <CardHeader title='Filter' />
-            <CardContent>
+      <Card sx={{ mb: 2 }}>
+        <CardHeader title='Filter' />
+        <CardContent>
+          <Grid container spacing={1}>
+
+            <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
               <Autocomplete
                 fullWidth
                 autoComplete
@@ -144,7 +143,9 @@ export default function QuestionListComponent() {
                 )}
                 sx={{ mb: 2 }}
               />
+            </Grid>
 
+            <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
               <Autocomplete
                 fullWidth
                 autoComplete
@@ -167,7 +168,9 @@ export default function QuestionListComponent() {
                 )}
                 sx={{ mb: 2 }}
               />
+            </Grid>
 
+            <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
               <Autocomplete
                 fullWidth
                 autoComplete
@@ -190,7 +193,9 @@ export default function QuestionListComponent() {
                 )}
                 sx={{ mb: 2 }}
               />
+            </Grid>
 
+            <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
               <Autocomplete
                 fullWidth
                 autoComplete
@@ -213,15 +218,20 @@ export default function QuestionListComponent() {
                 )}
                 sx={{ mb: 2 }}
               />
+            </Grid>
 
+            <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
               <TextField
                 fullWidth
                 label='Created date'
-                value={fDate(pickerInput.startDate) + '-' + fDate(pickerInput.endDate)}
+                placeholder="DD MMM YYYY-DD MMM YYYY"
+                value={pickerInput.startDate && fDate(pickerInput.startDate) + '-' + fDate(pickerInput.endDate)}
                 onClick={pickerInput.onOpen}
                 sx={{ mb: 2 }}
               />
+            </Grid>
 
+            <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
               <Autocomplete
                 fullWidth
                 autoComplete
@@ -244,83 +254,45 @@ export default function QuestionListComponent() {
                 )}
                 sx={{ mb: 2 }}
               />
-            </CardContent>
-            <Box sx={{ textAlign: 'right', mb: 2, mr: 2 }}>
-              <LoadingButton
-                variant="contained"
-                endIcon={<Iconify icon="majesticons:filter" />}
-                onClick={applyFilter}
-                loading={isFetchingData}
-              >
-                Apply
-              </LoadingButton>
-            </Box>
-          </Card>
-        </Grid>
+            </Grid>
+          </Grid>
+        </CardContent>
+        <Box sx={{ textAlign: 'right', mb: 2, mr: 2 }}>
+          <LoadingButton
+            variant="contained"
+            endIcon={<Iconify icon="majesticons:filter" />}
+            onClick={applyFilter}
+            loading={isFetchingData}
+          >
+            Apply
+          </LoadingButton>
+        </Box>
+      </Card>
 
-        <Grid item xs={12} sm={6} md={8} lg={10} xl={9}>
-          <Card>
-            <Tabs
-              value={filterStatus}
-              onChange={handleFilterStatus}
-              sx={{
-                px: 2,
-                bgcolor: 'background.neutral',
-              }}
-            >
-              {STATUS_OPTIONS.map((tab) => {
-                return <Tab key={tab} label={tab} value={tab} />
-              })}
-            </Tabs>
+      <Divider />
 
-            <Divider />
+      <Card sx={{ mt: 2 }}>
+        <Tabs
+          value={filterStatus}
+          onChange={handleFilterStatus}
+          sx={{
+            mb: 2,
+            px: 2,
+            bgcolor: 'background.neutral',
+          }}
+        >
+          {STATUS_OPTIONS.map((tab) => {
+            return <Tab key={tab} label={tab} value={tab} />
+          })}
+        </Tabs>
 
-            <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-              <Scrollbar>
-                {isFetchingData ?
-                  <LinearProgress /> :
-                  <Table size={'medium'} sx={{ minWidth: 800 }}>
-                    <TableHeadCustom
-                      order={order}
-                      orderBy={orderBy}
-                      headLabel={TABLE_HEAD}
-                      onSort={onSort}
-                    />
+        <Box sx={{ minHeight: 400 }}>
+          {dataFiltered.length === 0 && <Box sx={{ textAlign: 'center' }}><Typography variant="caption" color={"gray"}>Apply Filter to see some Question</Typography></Box>}
+          {dataFiltered.map((item) => <QuestionRowComponent onSave={applyFilter} question={item} key={item?.$id} />)}
+        </Box>
 
-                    <TableBody>
-                      {dataFiltered
-                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                        .map((row) => {
-                          return (
-                            <QuestionTableRow
-                              key={row.$id}
-                              index={row?.sn}
-                              row={row}
-                              onClickRow={PATH_DASHBOARD.question.view(row?.$id)}
-                            />
-                          )
-                        })}
+      </Card>
 
-                      <TableEmptyRows
-                        height={denseHeight}
-                        emptyRows={emptyRows(page, rowsPerPage, dataFiltered.length)}
-                      />
-                    </TableBody>
-                  </Table>
-                }
-              </Scrollbar>
-            </TableContainer>
-
-            <TablePaginationCustom
-              count={dataFiltered.length}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              onPageChange={onChangePage}
-              onRowsPerPageChange={onChangeRowsPerPage}
-            />
-          </Card>
-        </Grid>
-      </Grid>
       <DateRangePicker
         open={pickerInput.open}
         startDate={pickerInput.startDate}

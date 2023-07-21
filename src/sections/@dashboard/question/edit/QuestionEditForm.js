@@ -4,13 +4,16 @@ import { QuestionNewCreateForm } from '../../../../sections/@dashboard/question/
 // Auth
 import { Question, User } from '../../../../auth/AppwriteContext';
 // @mui
-import { Box, Card, CardActions, CardContent, CardHeader, FormControlLabel, Grid, LinearProgress, Paper, Switch, Typography } from '@mui/material';
+import { Box, Card, CardActions, CardContent, CardHeader, FormControlLabel, Grid, LinearProgress, Paper, Switch, TextField, Typography } from '@mui/material';
+import { LoadingButton, Timeline, TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineSeparator } from '@mui/lab';
 // components
 import { useSnackbar } from '../../../../components/snackbar';
-import QuestionViewComponent from '../view/QuestionViewComponent';
-import { LoadingButton, Timeline, TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineSeparator } from '@mui/lab';
 import Iconify from '../../../../components/iconify/Iconify';
+// View
+import QuestionViewComponent from '../view/QuestionViewComponent';
+// Utils
 import { fDate } from '../../../../utils/formatTime';
+// Auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
 
 // ----------------------------------------------------------------------
@@ -56,8 +59,9 @@ export default function QuestionEditForm({ questionId, purpose }) {
   const [canApprove, setCanApprove] = useState(false);
   const [canActivate, setCanActivate] = useState(false);
   const [status, setStatus] = useState('');
+  const [comment, setComment] = useState('');
+  const [OriginalComment, setOriginalComment] = useState('');
 
-  const [loadStatus, setLoadStatus] = useState({ value: 0, status: 'Editor is starting...' })
   const [error, setError] = useState(null);
 
   const [isApproving, setIsApproving] = useState(false);
@@ -67,7 +71,6 @@ export default function QuestionEditForm({ questionId, purpose }) {
     const fetchData = async () => {
       try {
         const tempQuestion = await Question.getQuestion(questionId);
-        setLoadStatus({ value: 5, status: 'Question Metadata loading...' })
 
         var tempStatus = [];
         if (tempQuestion?.status === 'Initialize') {
@@ -117,7 +120,8 @@ export default function QuestionEditForm({ questionId, purpose }) {
 
         var data = await Question.getStandardName(tempQuestion?.standardId);
         setStandard(data);
-        setLoadStatus({ value: 10, status: 'Question Metadata loading...' })
+
+        setOriginalComment(tempQuestion?.reviewComment);
 
         setCreatedByID(tempQuestion?.createdBy);
         data = (await User.getProfileData(tempQuestion?.createdBy)).name;
@@ -130,65 +134,32 @@ export default function QuestionEditForm({ questionId, purpose }) {
 
         data = await Question.getSubjectName(tempQuestion?.subjectId);
         setSubject(data);
-        setLoadStatus({ value: 15, status: 'Question Metadata loading...' })
 
         data = await Question.getChapterName(tempQuestion?.chapterId);
         setChapter(data);
-        setLoadStatus({ value: 20, status: 'Question Metadata loading...' })
 
         data = await Question.getConceptName(tempQuestion?.conceptId);
         setConcept(data);
-        setLoadStatus({ value: 25, status: 'Question content loading...' })
 
-        data = await Question.getQuestionContent(tempQuestion?.question);
-        setLoadStatus({ value: 30, status: 'Reading Question content...' })
-        data = await (await fetch(data)).text();
-        setQuestion(data);
-        setLoadStatus({ value: 35, status: 'Question content image loading...' })
-
+        setQuestion(tempQuestion?.contentQuestion);
         data = await Question.getQuestionContentForPreview(tempQuestion?.coverQuestion);
         setCoverQuestion(data);
-        setLoadStatus({ value: 40, status: 'Option A content loading...' })
 
-        data = await Question.getQuestionContent(tempQuestion?.optionA);
-        setLoadStatus({ value: 45, status: 'Option A content reading...' })
-        data = await (await fetch(data)).text();
-        setOptionA(data);
-        setLoadStatus({ value: 50, status: 'Option A image loading...' })
-
+        setOptionA(tempQuestion?.contentOptionA);
         data = await Question.getQuestionContentForPreview(tempQuestion?.coverOptionA);
         setCoverOptionA(data);
-        setLoadStatus({ value: 55, status: 'Option B content loading...' })
 
-        data = await Question.getQuestionContent(tempQuestion?.optionB);
-        setLoadStatus({ value: 60, status: 'Option B content reading...' })
-        data = await (await fetch(data)).text();
-        setOptionB(data);
-        setLoadStatus({ value: 65, status: 'Option B image loading...' })
-
+        setOptionB(tempQuestion?.contentOptionB);
         data = await Question.getQuestionContentForPreview(tempQuestion?.coverOptionB);
         setCoverOptionB(data);
-        setLoadStatus({ value: 70, status: 'Option C content loading...' })
 
-        data = await Question.getQuestionContent(tempQuestion?.optionC);
-        setLoadStatus({ value: 75, status: 'Option C content reading...' })
-        data = await (await fetch(data)).text();
-        setOptionC(data);
-        setLoadStatus({ value: 80, status: 'Option C image loading...' })
-
+        setOptionC(tempQuestion?.contentOptionC);
         data = await Question.getQuestionContentForPreview(tempQuestion?.coverOptionC);
         setCoverOptionC(data);
-        setLoadStatus({ value: 85, status: 'Option D content loading...' })
 
-        data = await Question.getQuestionContent(tempQuestion?.optionD);
-        setLoadStatus({ value: 90, status: 'Option D content reading...' })
-        data = await (await fetch(data)).text();
-        setOptionD(data);
-        setLoadStatus({ value: 95, status: 'Option D image loading...' })
-
+        setOptionD(tempQuestion?.contentOptionD);
         data = await Question.getQuestionContentForPreview(tempQuestion?.coverOptionD);
         setCoverOptionD(data);
-        setLoadStatus({ value: 100, status: 'Finished...' })
       } catch (error) {
         enqueueSnackbar(error.message, { variant: 'error' });
         setError(error.message)
@@ -223,7 +194,8 @@ export default function QuestionEditForm({ questionId, purpose }) {
   const reviewBack = async () => {
     setIsApproving(true);
     try {
-      await Question.reviewBackQuestion(questionId, user?.$id, createdByID);
+      await Question.reviewBackQuestion(questionId, user?.$id, createdByID, comment);
+      setOriginalComment(comment)
       setCanApprove(false);
     } catch (error) {
       enqueueSnackbar(error.message, { variant: 'error' });
@@ -281,23 +253,7 @@ export default function QuestionEditForm({ questionId, purpose }) {
   }
 
   if (isLoading) return (
-    <>
-      <Typography
-        variant='subtitle1'
-        sx={{ mb: 3 }}
-      >
-        Editor is being started. This may take a while. Please Wait.
-      </Typography>
-
-      <Typography
-        variant='subtitle2'
-        sx={{ mb: 3 }}
-      >
-        {loadStatus?.status}
-      </Typography>
-
-      <LinearProgress variant='determinate' value={loadStatus?.value} />
-    </>
+    <LinearProgress />
   )
 
   if (error) {
@@ -337,6 +293,21 @@ export default function QuestionEditForm({ questionId, purpose }) {
                         <OrderItem key={item.id} item={item} isLast={index === statusList.length - 1} />
                       ))}
                     </Timeline>
+
+                    {!canApprove && <Typography>{'Review Comment - '+OriginalComment}</Typography>}
+
+                    {canApprove &&
+                      <TextField
+                        multiline
+                        sx={{ m: 2 }}
+                        maxRows={5}
+                        minRows={5}
+                        value={comment}
+                        onChange={(event) => setComment(event.target.value)}
+                        placeholder="Add your Comment ...."
+                        label='Comment' />
+                    }
+
                   </CardContent>
                   <CardActions>
                     {canActivate &&
@@ -468,6 +439,8 @@ export default function QuestionEditForm({ questionId, purpose }) {
     </>
   );
 }
+
+// ----------------------------------------------------------------------
 
 function OrderItem({ item, isLast }) {
   const { type, title, active } = item;

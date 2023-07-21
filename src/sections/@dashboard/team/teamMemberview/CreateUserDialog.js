@@ -43,7 +43,7 @@ CreateUserDialog.propTypes = {
 // ----------------------------------------------------------------------
 
 function generatePassword(length, options = {}) {
-  const defaultCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\:;?><,./-=";
+  const defaultCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\\:;?><,./-=";
   const excludedChars = options.exclude || "";
   const customCharset = defaultCharset.replace(new RegExp(`[${excludedChars}]`, 'g'), '');
   let password = "";

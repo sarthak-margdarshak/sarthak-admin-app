@@ -34,12 +34,6 @@ import 'slick-carousel/slick/slick-theme.css';
 // lazy image
 import 'react-lazy-load-image-component/src/effects/blur.css';
 
-// Load Froala Editor scripts and styles.
-import 'froala-editor/css/froala_style.min.css';
-import 'froala-editor/css/froala_editor.pkgd.min.css';
-import 'froala-editor/js/plugins.pkgd.min.js';
-import 'froala-editor/css/themes/dark.min.css';
-
 // -------------------------------------------------------------------------
 
 import { BrowserRouter } from 'react-router-dom';
@@ -62,17 +56,7 @@ import { ThemeSettings, SettingsProvider } from './components/settings';
 
 import { AuthProvider } from './auth/AppwriteContext';
 
-// Import jQuery so we can expose Froala editor to the window.
-import $ from 'jquery';
-
 function App() {
-  // Expose froala-editor to the window.
-  window.$ = $;
-  window.FroalaEditor = require('froala-editor');
-
-  // Load wiris mathtype-froala plugin.
-  // require('@wiris/mathtype-froala');
-
   return (
     <AuthProvider>
       <HelmetProvider>

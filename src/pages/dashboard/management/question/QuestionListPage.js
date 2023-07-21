@@ -6,17 +6,16 @@ import { PATH_DASHBOARD } from '../../../../routes/paths';
 // components
 import { useSettingsContext } from '../../../../components/settings';
 import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
-import { useNavigate } from 'react-router-dom';
 import Iconify from '../../../../components/iconify/Iconify';
+// Sections
 import QuestionListComponent from '../../../../sections/@dashboard/question/view/QuestionListComponent';
+// Auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
 
 // ----------------------------------------------------------------------
 
 export default function QuestionEditPage() {
   const { themeStretch } = useSettingsContext();
-
-  const navigate = useNavigate();
 
   const {
     notificationCount,
@@ -42,8 +41,7 @@ export default function QuestionEditPage() {
           ]}
           action={
             <Button
-              // component={RouterLink}
-              onClick={() => navigate(PATH_DASHBOARD.question.new)}
+              onClick={() => window.open(PATH_DASHBOARD.question.new,'_blank', 'rel=noopener noreferrer')}
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
             >

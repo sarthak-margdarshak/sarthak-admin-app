@@ -1,11 +1,11 @@
 // @mui
 import { Box, Button, Divider, Grid, Paper, Stack, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
-import FroalaEditorView from 'react-froala-wysiwyg/FroalaEditorView';
 import Image from '../../../../components/image/Image';
 import Iconify from '../../../../components/iconify/Iconify';
 import { useNavigate } from 'react-router-dom';
 import { PATH_DASHBOARD } from '../../../../routes/paths';
+import ReactKatex from '@pkasila/react-katex';
 
 export default function QuestionViewComponent({ metaData }) {
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ export default function QuestionViewComponent({ metaData }) {
                 bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
               }}
             >
-              <FroalaEditorView model={metaData?.question} />
+              <ReactKatex model={metaData?.question} />
               {metaData?.coverQuestion &&
                 <Image
                   disabledEffect
@@ -54,7 +54,7 @@ export default function QuestionViewComponent({ metaData }) {
             >
               <Stack direction={'row'}>
                 <Typography variant='subtitle2' sx={{ mt: 2, mr: 1 }}>{'(A)'}</Typography>
-                <FroalaEditorView model={metaData?.optionA} />
+                <ReactKatex>{metaData?.optionA}</ReactKatex>
               </Stack>
               {metaData?.coverOptionA &&
                 <Image
@@ -68,7 +68,7 @@ export default function QuestionViewComponent({ metaData }) {
 
               <Stack direction={'row'} >
                 <Typography variant='subtitle2' sx={{ mt: 2, mr: 1 }}>{'(B)'}</Typography>
-                <FroalaEditorView model={metaData?.optionB} />
+                <ReactKatex>{metaData?.optionB}</ReactKatex>
               </Stack>
               {metaData?.coverOptionB &&
                 <Image
@@ -82,7 +82,7 @@ export default function QuestionViewComponent({ metaData }) {
 
               <Stack direction={'row'} >
                 <Typography variant='subtitle2' sx={{ mt: 2, mr: 1 }}>{'(C)'}</Typography>
-                <FroalaEditorView model={metaData?.optionC} />
+                <ReactKatex>{metaData?.optionC}</ReactKatex>
               </Stack>
               {metaData?.coverOptionC &&
                 <Image
@@ -96,7 +96,7 @@ export default function QuestionViewComponent({ metaData }) {
 
               <Stack direction={'row'}>
                 <Typography variant='subtitle2' sx={{ mt: 2, mr: 1 }}>{'(D)'}</Typography>
-                <FroalaEditorView sx={{ ml: 2 }} model={metaData?.optionD} />
+                <ReactKatex sx={{ ml: 2 }}>{metaData?.optionD}</ReactKatex>
               </Stack>
               {metaData?.coverOptionD &&
                 <Image
