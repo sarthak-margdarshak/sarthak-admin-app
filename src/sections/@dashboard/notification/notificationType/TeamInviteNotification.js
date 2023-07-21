@@ -1,5 +1,5 @@
 import { LoadingButton } from "@mui/lab";
-import { Box, Badge, Card, CardContent, Grid, Stack, Typography } from "@mui/material";
+import { Box, Badge, Card, CardContent, Grid, Stack, Typography, CardHeader } from "@mui/material";
 // utils
 import { fToNow } from '../../../../utils/formatTime';
 import { useState } from "react";
@@ -51,22 +51,15 @@ export default function TeamInviteNotification({ item }) {
     <Grid item xs={12} sm={12} md={6} xl={6} lg={6}>
       {item?.seen ?
         <Card sx={{ mb: 2 }}>
+          <CardHeader title='Team Invitation' subheader={fToNow(item?.$createdAt)} />
           <CardContent>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={8} md={9} lg={10}>
                 <Stack direction="row" alignItems="center">
-
                   <Box sx={{ minWidth: 240 }}>
                     <Typography color="inherit" variant="subtitle2">
                       {'You have been invited to join team ' + data?.teamName + ' by ' + data?.managerName}
                     </Typography>
-
-                    <Box sx={{ textAlign: 'right' }}>
-                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                        {fToNow(item?.$createdAt)}
-                      </Typography>
-                    </Box>
-
                   </Box>
                 </Stack>
               </Grid>
@@ -91,22 +84,15 @@ export default function TeamInviteNotification({ item }) {
         </Card> :
         <Badge badgeContent='New' color="error">
           <Card sx={{ mb: 2 }}>
+            <CardHeader title='Team Invitation' subheader={fToNow(item?.$createdAt)} />
             <CardContent>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={8} md={9} lg={10}>
                   <Stack direction="row" alignItems="center">
-
                     <Box sx={{ minWidth: 240 }}>
                       <Typography color="inherit" variant="subtitle2">
                         {'You have been invited to join team ' + data?.teamName + ' by ' + data?.managerName}
                       </Typography>
-
-                      <Box sx={{ textAlign: 'right' }}>
-                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                          {fToNow(item?.$createdAt)}
-                        </Typography>
-                      </Box>
-
                     </Box>
                   </Stack>
                 </Grid>

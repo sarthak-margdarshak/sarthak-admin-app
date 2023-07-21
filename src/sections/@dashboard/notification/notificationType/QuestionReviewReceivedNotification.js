@@ -1,4 +1,4 @@
-import { Badge, Box, Card, CardContent, Grid, Stack, Typography } from "@mui/material";
+import { Badge, Box, Card, CardContent, CardHeader, Grid, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../../../routes/paths";
 // utils
@@ -30,22 +30,15 @@ export default function QuestionReviewReceivedNotification({ item }) {
             updateNotification();
             navigate(PATH_DASHBOARD.question.view(data?.questionId));
           }}>
+          <CardHeader title='Review Question' subheader={fToNow(item?.$createdAt)} />
           <CardContent>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={8} md={9} lg={10}>
-
                 <Stack direction="row" alignItems="center">
                   <Box sx={{ minWidth: 240 }}>
                     <Typography color="inherit" variant="subtitle2">
                       {data?.createdBy + ' has sent you to review a question ' + data?.questionId}
                     </Typography>
-
-                    <Box sx={{ textAlign: 'right' }}>
-                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                        {fToNow(item?.$createdAt)}
-                      </Typography>
-                    </Box>
-
                   </Box>
                 </Stack>
               </Grid>
@@ -59,22 +52,15 @@ export default function QuestionReviewReceivedNotification({ item }) {
               updateNotification();
               navigate(PATH_DASHBOARD.question.view(data?.questionId));
             }}>
+            <CardHeader title='Review Question' subheader={fToNow(item?.$createdAt)} />
             <CardContent>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={8} md={9} lg={10}>
-
                   <Stack direction="row" alignItems="center">
                     <Box sx={{ minWidth: 240 }}>
                       <Typography color="inherit" variant="subtitle2">
                         {data?.createdBy + ' has sent you to review a question ' + data?.questionId}
                       </Typography>
-
-                      <Box sx={{ textAlign: 'right' }}>
-                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                          {fToNow(item?.$createdAt)}
-                        </Typography>
-                      </Box>
-
                     </Box>
                   </Stack>
                 </Grid>

@@ -1,8 +1,10 @@
 import PropTypes from 'prop-types';
-import { useCallback, useEffect, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 // @mui
 import { styled, alpha } from '@mui/material/styles';
 import { LoadingButton } from '@mui/lab';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
   Step,
@@ -24,29 +26,37 @@ import {
   Alert,
   Collapse,
   IconButton,
+  Dialog,
+  Slide,
+  Toolbar,
+  AppBar,
 } from '@mui/material';
 // components
 import Iconify from '../../../../components/iconify';
 import { useSnackbar } from '../../../../components/snackbar';
 import { Upload } from '../../../../components/upload';
-// Froala Editor
-import FroalaEditorComponent from 'react-froala-wysiwyg';
-import FroalaEditorView from 'react-froala-wysiwyg/FroalaEditorView';
 // Auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
 import {
   Question,
 } from '../../../../auth/AppwriteContext';
-import PermissionDeniedComponent from '../../../_examples/PermissionDeniedComponent';
-import { useNavigate } from 'react-router-dom';
+// Routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
-import CloseIcon from '@mui/icons-material/Close';
+// Animation
 import { MotionContainer, varFade, varZoom } from '../../../../components/animate';
 import { m } from 'framer-motion';
+// Latex
+import MathInput from "react-math-keyboard";
+import 'katex/dist/katex.min.css';
+import ReactKatex from '@pkasila/react-katex';
+
+import PermissionDeniedComponent from '../../../_examples/PermissionDeniedComponent';
 
 // ----------------------------------------------------------------------
 
 const STEPS = ['Meta data', 'Question', 'Option A', 'Option B', 'Option C', 'Option D'];
+
+// ----------------------------------------------------------------------
 
 const QontoConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -71,6 +81,8 @@ const QontoConnector = styled(StepConnector)(({ theme }) => ({
   },
 }));
 
+// ----------------------------------------------------------------------
+
 const QontoStepIconRoot = styled('div')(({ theme, ownerState }) => ({
   height: 22,
   display: 'flex',
@@ -92,11 +104,15 @@ const QontoStepIconRoot = styled('div')(({ theme, ownerState }) => ({
   },
 }));
 
+// ----------------------------------------------------------------------
+
 QontoStepIcon.propTypes = {
   active: PropTypes.bool,
   completed: PropTypes.bool,
   className: PropTypes.string,
 };
+
+// ----------------------------------------------------------------------
 
 function QontoStepIcon(props) {
   const { active, completed, className } = props;
@@ -117,6 +133,14 @@ function QontoStepIcon(props) {
   );
 }
 
+// ----------------------------------------------------------------------
+
+const Transition = forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+// ----------------------------------------------------------------------
+
 export default function QuestionNewCreateForm({ metaData }) {
 
   const { enqueueSnackbar } = useSnackbar();
@@ -124,7 +148,7 @@ export default function QuestionNewCreateForm({ metaData }) {
   const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState(0);
-  const [content, setContent] = useState('<p></p>');
+  const [content, setContent] = useState('');
 
   const [questionId, setquestionId] = useState(metaData?.id || '');
 
@@ -152,6 +176,9 @@ export default function QuestionNewCreateForm({ metaData }) {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [motionKey, setMotionKey] = useState(0);
   const [motion, setMotion] = useState('fadeInRight');
+
+  const [mathDialogOpen, setMathDialogOpen] = useState(false);
+  const [latex, setLatex] = useState("")
 
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState({ active: false, message: 'This is an error' })
@@ -195,24 +222,6 @@ export default function QuestionNewCreateForm({ metaData }) {
     }
     fetchData();
   }, [metaData, enqueueSnackbar])
-
-  const froalaConfig = {
-    placeholderText: 'Type  Something',
-    toolbarButtons: [
-      ['undo', 'redo'], '|',
-      ['fullscreen'], '|',
-      ['bold', 'italic', 'underline'], '|',
-      ['alignLeft', 'alignCenter', 'alignRight'], '|',
-      ['wirisEditor', 'wirisChemistry']
-    ],
-    imageEditButtons: ['wirisEditor', 'wirisChemistry', 'imageDisplay', 'imageAlign', 'imageInfo', 'imageRemove'],
-    quickInsertButtons: ['embedly', 'table', 'ul', 'ol', 'hr'],
-    htmlAllowedTags: ['.*'],
-    htmlAllowedAttrs: ['.*'],
-    htmlAllowedEmptyTags: ['mprescripts', 'none'],
-    theme: 'dark',
-    attribution: false,
-  };
 
   const handleNext = () => {
     if (activeStep === 0) {
@@ -286,7 +295,7 @@ export default function QuestionNewCreateForm({ metaData }) {
   }
 
   const saveQuestion = async () => {
-    setQuestion(updateMathContent(content));
+    setQuestion(content);
     setIsSaving(true);
     if (content === null || content === '') {
       setError({ active: true, message: 'Question cannot be empty. — check it out!' });
@@ -310,7 +319,7 @@ export default function QuestionNewCreateForm({ metaData }) {
 
   const saveOptionA = async () => {
     setIsSaving(true);
-    setOptionA(updateMathContent(content));
+    setOptionA(content);
     if (content === null || content === '') {
       setError({ active: true, message: 'Option A cannot be empty. — check it out!' });
       setIsSaving(false);
@@ -333,7 +342,7 @@ export default function QuestionNewCreateForm({ metaData }) {
 
   const saveOptionB = async () => {
     setIsSaving(true);
-    setOptionB(updateMathContent(content));
+    setOptionB(content);
     if (content === null || content === '') {
       setError({ active: true, message: 'Option B cannot be empty. — check it out!' });
       setIsSaving(false);
@@ -356,7 +365,7 @@ export default function QuestionNewCreateForm({ metaData }) {
 
   const saveOptionC = async () => {
     setIsSaving(true);
-    setOptionC(updateMathContent(content));
+    setOptionC(content);
     if (content === null || content === '') {
       setError({ active: true, message: 'Option C cannot be empty. — check it out!' });
       setIsSaving(false);
@@ -379,7 +388,7 @@ export default function QuestionNewCreateForm({ metaData }) {
 
   const saveOptionD = async () => {
     setIsSaving(true);
-    setOptionD(updateMathContent(content));
+    setOptionD(content);
     if (content === null || content === '') {
       setError({ active: true, message: 'Option D cannot be empty. — check it out!' });
       setIsSaving(false);
@@ -504,19 +513,74 @@ export default function QuestionNewCreateForm({ metaData }) {
           <Divider sx={{ m: 1 }} />
 
           <Typography variant='h6' sx={{ m: 1 }}>
-            Math Playground
+            Editor Playground
           </Typography>
 
           <Typography variant='subtitle2' sx={{ m: 1 }}>
             Use this editor to insert in the box of question and options
           </Typography>
 
-          <FroalaEditorComponent
-            tag='textarea'
-            config={froalaConfig}
-            model={content}
-            onModelChange={(event) => setContent(event)}
+          <Box sx={{ textAlign: 'right', mt: 2, mb: 2 }}>
+            <Button
+              sx={{ mr: 1 }}
+              onClick={() => setMathDialogOpen(true)}
+              color='info'
+              variant='outlined'
+              startIcon={<Iconify icon="tabler:math" />}
+            >
+              Math
+            </Button>
+          </Box>
+
+          <TextField
+            id="outlined-textarea"
+            placeholder="Type here......."
+            multiline
+            fullWidth
+            rows={5}
+            maxRows={10}
+            variant="filled"
+            disabled={activeStep===0}
+            value={content}
+            onChange={(event) => setContent(event.target.value)}
           />
+
+          <Dialog
+            fullScreen
+            open={mathDialogOpen}
+            onClose={() => setMathDialogOpen(false)}
+            TransitionComponent={Transition}
+          >
+            <AppBar sx={{ position: 'relative' }}>
+              <Toolbar>
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  onClick={() => setMathDialogOpen(false)}
+                  aria-label="close"
+                >
+                  <CloseIcon />
+                </IconButton>
+                <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+                  Math Editor
+                </Typography>
+                <Button 
+                  autoFocus
+                  color="inherit"
+                  onClick={() => {
+                    if(latex!=='') {
+                      setContent(content+' $'+latex+'$');
+                    }
+                    setLatex('');
+                    setMathDialogOpen(false);
+
+                  }}>
+                  save
+                </Button>
+              </Toolbar>
+            </AppBar>
+            <MathInput setValue={setLatex} />
+          </Dialog>
 
           <Box sx={{ textAlign: 'right', mt: 2, mb: 2 }}>
             <Button
@@ -605,7 +669,7 @@ export default function QuestionNewCreateForm({ metaData }) {
 
             <CardContent>
               <MotionContainer component={m.body} variants={getVariant(motion)}>
-                <Grid container spacing={3} key={motionKey} sx={{ display: activeStep === 0 ? 'block' : 'none' }}>
+                <Grid container spacing={3} key={motionKey} sx={{ p: 1, display: activeStep === 0 ? 'block' : 'none' }}>
 
                   <Grid item xs={12} md={12}>
                     <TextField
@@ -717,7 +781,7 @@ export default function QuestionNewCreateForm({ metaData }) {
               </MotionContainer>
 
               <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 1 ? 'block' : 'none' }}>
-                <Grid container spacing={3} key={motionKey}>
+                <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
                   <Grid item xs={12} md={12}>
                     <Paper
                       sx={{
@@ -727,7 +791,7 @@ export default function QuestionNewCreateForm({ metaData }) {
                         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
                       }}
                     >
-                      <FroalaEditorView model={content} />
+                      <ReactKatex>{content}</ReactKatex>
                     </Paper>
                   </Grid>
 
@@ -752,7 +816,7 @@ export default function QuestionNewCreateForm({ metaData }) {
               </MotionContainer>
 
               <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 2 ? 'block' : 'none' }}>
-                <Grid container spacing={3} key={motionKey}>
+                <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
                   <Grid item xs={12} md={12}>
                     <Paper
                       sx={{
@@ -762,7 +826,7 @@ export default function QuestionNewCreateForm({ metaData }) {
                         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
                       }}
                     >
-                      <FroalaEditorView model={content} />
+                      <ReactKatex>{content}</ReactKatex>
                     </Paper>
                   </Grid>
 
@@ -787,7 +851,7 @@ export default function QuestionNewCreateForm({ metaData }) {
               </MotionContainer>
 
               <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 3 ? 'block' : 'none' }}>
-                <Grid container spacing={3} key={motionKey}>
+                <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
 
                   <Grid item xs={12} md={12}>
                     <Paper
@@ -798,7 +862,7 @@ export default function QuestionNewCreateForm({ metaData }) {
                         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
                       }}
                     >
-                      <FroalaEditorView model={content} />
+                      <ReactKatex>{content}</ReactKatex>
                     </Paper>
                   </Grid>
 
@@ -824,7 +888,7 @@ export default function QuestionNewCreateForm({ metaData }) {
               </MotionContainer>
 
               <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 4 ? 'block' : 'none' }}>
-                <Grid container spacing={3} key={motionKey}>
+                <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
 
                   <Grid item xs={12} md={12}>
                     <Paper
@@ -835,7 +899,7 @@ export default function QuestionNewCreateForm({ metaData }) {
                         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
                       }}
                     >
-                      <FroalaEditorView model={content} />
+                      <ReactKatex>{content}</ReactKatex>
                     </Paper>
                   </Grid>
 
@@ -861,7 +925,7 @@ export default function QuestionNewCreateForm({ metaData }) {
               </MotionContainer>
 
               <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 5 ? 'block' : 'none' }}>
-                <Grid container spacing={3} key={motionKey}>
+                <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
 
                   <Grid item xs={12} md={12}>
                     <Paper
@@ -872,7 +936,7 @@ export default function QuestionNewCreateForm({ metaData }) {
                         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
                       }}
                     >
-                      <FroalaEditorView model={content} />
+                      <ReactKatex>{content}</ReactKatex>
                     </Paper>
                   </Grid>
 
@@ -905,80 +969,7 @@ export default function QuestionNewCreateForm({ metaData }) {
   );
 }
 
-/**
- * 
- * @param {string} math 
- */
-function updateMathContent(math) {
-  math = math.replaceAll('<mfenced>', '<mrow><mo>(</mo>');
-  math = math.replaceAll('</mfenced>', '<mo>)</mo></mrow>');
-  return math;
-}
-
-// function updateMathContent(math) {
-//   var mathArray = [];
-//   var startIndex = 0;
-
-//   for (let i in math) {
-//     if (math.substr(i, 5) === '<math') {
-//       mathArray.push(math.slice(startIndex, parseInt(i)));
-//       startIndex = parseInt(i);
-//     }
-//     if (math.substr(i, 7) === '</math>') {
-//       mathArray.push(math.slice(startIndex, parseInt(i) + 7));
-//       startIndex = parseInt(i) + 7;
-//     }
-//   }
-//   mathArray.push(math.substr(startIndex))
-
-//   var output = '';
-
-//   for (let i in mathArray) {
-//     if (mathArray[i].substr(0, 5) === '<math') {
-//       var s = '';
-//       var temp_s = '';
-//       var stack = [];
-//       for (let j in mathArray[i]) {
-//         if (mathArray[i].substr(j, 8) === '<mfenced') {
-//           s = s + temp_s;
-//           temp_s = '';
-//           if (mathArray[i].substr(j, 9) === '<mfenced>') {
-//             // '(' ')'
-//             stack.push(')');
-//             temp_s += '<mrow><mo>(</mo>';
-//             j = parseInt(j) + 8;
-//           } else {
-//             let k = parseInt(j);
-//             while (mathArray[i][k] !== '>') {
-//               k++;
-//             }
-//             const separate = mathArray[i].slice(j, parseInt(k) + 1).split('"');
-//             const open = separate[1];
-//             const close = separate[3];
-//             stack.push(close);
-//             temp_s += '<mrow><mo>' + open + '</mo>';
-//             j = parseInt(k);
-//           }
-//         } else if (mathArray[i].substr(j, 10) === '</mfenced>') {
-//           temp_s += '<mo>' + stack.pop() + '</mo></mrow>'
-//           s = s + temp_s;
-//           temp_s = '';
-//         } else {
-//           temp_s += mathArray[i][j];
-//         }
-//       }
-//       s += temp_s;
-//       s = s.replaceAll('/mfenced>', '');
-//       s = s.replaceAll('mfenced>', '');
-//       s = s.replaceAll('function String() { [native code] }', '');
-//       output += s;
-//     } else {
-//       output += mathArray[i];
-//     }
-//   }
-
-//   return output;
-// }
+// ----------------------------------------------------------------------
 
 function getVariant(variant) {
   return {
