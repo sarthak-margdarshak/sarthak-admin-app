@@ -14,8 +14,6 @@ import { QuestionNewCreateForm } from '../../../../sections/@dashboard/question/
 export default function QuestionCreatePage() {
   const { themeStretch } = useSettingsContext();
 
-  // window.location.reload();
-
   return (
     <>
       <Helmet>

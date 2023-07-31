@@ -7,7 +7,7 @@ import { PATH_DASHBOARD } from '../../../../routes/paths';
 import { useSettingsContext } from '../../../../components/settings';
 import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
 // sections
-import QuestionEditForm from '../../../../sections/@dashboard/question/edit/QuestionEditForm';
+import { QuestionNewCreateForm } from '../../../../sections/@dashboard/question/create';
 
 // ----------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ export default function QuestionEditPage() {
           ]}
         />
 
-        <QuestionEditForm questionId={questionId} purpose='edit' />
+        <QuestionNewCreateForm inComingQuestionId={questionId} />
       </Container>
     </>
   );
