@@ -37,15 +37,6 @@ const teamMembers = [
     instagramId: '#',
     linkedinId: '#',
     twitterId: '#',
-  },
-  {
-    name: 'Ritesh Ranjan',
-    role: 'Software Developer',
-    avatar: '/assets/images/portraits/portrait_1.jpg',
-    facebookId: 'https://www.facebook.com/sagittariusk2/',
-    instagramId: 'https://www.instagram.com/sagittarius_k2/',
-    linkedinId: 'https://www.linkedin.com/in/sagittariusk2/',
-    twitterId: 'https://twitter.com/rrk2ritesh',
   }
 ]
 
