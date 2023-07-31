@@ -30,6 +30,7 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "add-subtract-date": "^1.0.15",
     "apexcharts": "^3.40.0",
     "appwrite": "^11.0.0",
     "autosuggest-highlight": "^3.3.4",

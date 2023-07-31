@@ -7,7 +7,7 @@ import { PATH_DASHBOARD } from '../../../../routes/paths';
 import { useSettingsContext } from '../../../../components/settings';
 import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
 // sections
-import QuestionEditForm from '../../../../sections/@dashboard/question/edit/QuestionEditForm';
+import QuestionDetails from '../../../../sections/@dashboard/question/edit/QuestionDetails';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 import Iconify from '../../../../components/iconify/Iconify';
 
@@ -46,7 +46,7 @@ export default function QuestionDetailsPage() {
           ]}
           action={
             <Button
-              onClick={() => window.open(PATH_DASHBOARD.question.new,'_blank', 'rel=noopener noreferrer')}
+              onClick={() => window.open(PATH_DASHBOARD.question.new,'_blank')}
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
             >
@@ -55,7 +55,7 @@ export default function QuestionDetailsPage() {
           }
         />
 
-        <QuestionEditForm questionId={questionId} purpose='view' />
+        <QuestionDetails inComingQuestionId={questionId} />
 
       </Container>
     </>

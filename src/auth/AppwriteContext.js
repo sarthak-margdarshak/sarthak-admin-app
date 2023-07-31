@@ -705,6 +705,21 @@ export class Question {
    * @returns Id of uploaded question cover
    */
   static async uploadQuestionCover(questionId, coverQuestionFile, userId) {
+    var coverId = '';
+    if (typeof (coverQuestionFile) !== 'string' && coverQuestionFile) {
+      coverId = (await storage.createFile(
+        APPWRITE_API.buckets.questionFiles,
+        ID.unique(),
+        coverQuestionFile,
+        [
+          Permission.read(Role.any()),
+          Permission.read(Role.user(userId)),
+          Permission.update(Role.user(userId)),
+          Permission.delete(Role.user(userId)),
+        ]
+      )).$id;
+    }
+
     const currentCoverQuestionFile = (await databases.getDocument(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.questions,
@@ -714,24 +729,18 @@ export class Question {
       ]
     ))?.coverQuestion;
 
-    if (!(currentCoverQuestionFile === null || currentCoverQuestionFile === '')) {
-      await storage.deleteFile(
-        APPWRITE_API.buckets.questionFiles,
-        currentCoverQuestionFile,
-      )
+    if (typeof (coverQuestionFile) !== 'string') {
+      if (!(currentCoverQuestionFile === null || currentCoverQuestionFile === '')) {
+        await storage.deleteFile(
+          APPWRITE_API.buckets.questionFiles,
+          currentCoverQuestionFile,
+        )
+      }
+    } else {
+      coverId = currentCoverQuestionFile;
     }
 
-    return (await storage.createFile(
-      APPWRITE_API.buckets.questionFiles,
-      ID.unique(),
-      coverQuestionFile,
-      [
-        Permission.read(Role.any()),
-        Permission.read(Role.user(userId)),
-        Permission.update(Role.user(userId)),
-        Permission.delete(Role.user(userId)),
-      ]
-    )).$id;
+    return coverId;
   }
 
   /**
@@ -748,10 +757,7 @@ export class Question {
       id = await this.createQuestionId(userId);
     }
 
-    var coverQuestionId = null;
-    if (coverQuestionFile) {
-      coverQuestionId = await this.uploadQuestionCover(id, coverQuestionFile, userId);
-    }
+    const coverQuestionId = await this.uploadQuestionCover(id, coverQuestionFile, userId);
 
     return await databases.updateDocument(
       APPWRITE_API.databaseId,
@@ -773,6 +779,21 @@ export class Question {
    * @returns Id of uploaded Option A cover
    */
   static async uploadOptionACover(questionId, coverOptionAFile, userId) {
+    var coverId = '';
+    if (typeof (coverOptionAFile) !== 'string' && coverOptionAFile) {
+      coverId = (await storage.createFile(
+        APPWRITE_API.buckets.questionFiles,
+        ID.unique(),
+        coverOptionAFile,
+        [
+          Permission.read(Role.any()),
+          Permission.read(Role.user(userId)),
+          Permission.update(Role.user(userId)),
+          Permission.delete(Role.user(userId)),
+        ]
+      )).$id;
+    }
+
     const currentCoverOptionAFile = (await databases.getDocument(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.questions,
@@ -782,24 +803,18 @@ export class Question {
       ]
     ))?.coverOptionA;
 
-    if (!(currentCoverOptionAFile === null || currentCoverOptionAFile === '')) {
-      await storage.deleteFile(
-        APPWRITE_API.buckets.questionFiles,
-        currentCoverOptionAFile,
-      )
+    if (typeof (coverOptionAFile) !== 'string') {
+      if (!(currentCoverOptionAFile === null || currentCoverOptionAFile === '')) {
+        await storage.deleteFile(
+          APPWRITE_API.buckets.questionFiles,
+          currentCoverOptionAFile,
+        )
+      }
+    } else {
+      coverId = currentCoverOptionAFile;
     }
 
-    return (await storage.createFile(
-      APPWRITE_API.buckets.questionFiles,
-      ID.unique(),
-      coverOptionAFile,
-      [
-        Permission.read(Role.any()),
-        Permission.read(Role.user(userId)),
-        Permission.update(Role.user(userId)),
-        Permission.delete(Role.user(userId)),
-      ]
-    )).$id;
+    return coverId;
   }
 
   /**
@@ -816,10 +831,7 @@ export class Question {
       id = await this.createQuestionId(userId);
     }
 
-    var coverOptionAId = null;
-    if (coverOptionAFile) {
-      coverOptionAId = await this.uploadOptionACover(id, coverOptionAFile, userId);
-    }
+    const coverOptionAId = await this.uploadOptionACover(id, coverOptionAFile, userId);
 
     return await databases.updateDocument(
       APPWRITE_API.databaseId,
@@ -841,6 +853,20 @@ export class Question {
    * @returns Id of uploaded Option B cover
    */
   static async uploadOptionBCover(questionId, coverOptionBFile, userId) {
+    var coverId = '';
+    if (typeof (coverOptionBFile) !== 'string' && coverOptionBFile) {
+      coverId = (await storage.createFile(
+        APPWRITE_API.buckets.questionFiles,
+        ID.unique(),
+        coverOptionBFile,
+        [
+          Permission.read(Role.any()),
+          Permission.read(Role.user(userId)),
+          Permission.update(Role.user(userId)),
+          Permission.delete(Role.user(userId)),
+        ]
+      )).$id;
+    }
     const currentCoverOptionBFile = (await databases.getDocument(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.questions,
@@ -850,24 +876,18 @@ export class Question {
       ]
     ))?.coverOptionB;
 
-    if (!(currentCoverOptionBFile === null || currentCoverOptionBFile === '')) {
-      await storage.deleteFile(
-        APPWRITE_API.buckets.questionFiles,
-        currentCoverOptionBFile,
-      )
+    if (typeof (coverOptionBFile) !== 'string') {
+      if (!(currentCoverOptionBFile === null || currentCoverOptionBFile === '')) {
+        await storage.deleteFile(
+          APPWRITE_API.buckets.questionFiles,
+          currentCoverOptionBFile,
+        )
+      }
+    } else {
+      coverId = currentCoverOptionBFile;
     }
 
-    return (await storage.createFile(
-      APPWRITE_API.buckets.questionFiles,
-      ID.unique(),
-      coverOptionBFile,
-      [
-        Permission.read(Role.any()),
-        Permission.read(Role.user(userId)),
-        Permission.update(Role.user(userId)),
-        Permission.delete(Role.user(userId)),
-      ]
-    )).$id;
+    return coverId;
   }
 
   /**
@@ -884,10 +904,7 @@ export class Question {
       id = await this.createQuestionId(userId);
     }
 
-    var coverOptionBId = null;
-    if (coverOptionBFile) {
-      coverOptionBId = await this.uploadOptionBCover(id, coverOptionBFile, userId);
-    }
+    const coverOptionBId = await this.uploadOptionBCover(id, coverOptionBFile, userId);
 
     return await databases.updateDocument(
       APPWRITE_API.databaseId,
@@ -909,6 +926,20 @@ export class Question {
    * @returns Id of uploaded Option C cover
    */
   static async uploadOptionCCover(questionId, coverOptionCFile, userId) {
+    var coverId = '';
+    if (typeof (coverOptionCFile) !== 'string' && coverOptionCFile) {
+      coverId = (await storage.createFile(
+        APPWRITE_API.buckets.questionFiles,
+        ID.unique(),
+        coverOptionCFile,
+        [
+          Permission.read(Role.any()),
+          Permission.read(Role.user(userId)),
+          Permission.update(Role.user(userId)),
+          Permission.delete(Role.user(userId)),
+        ]
+      )).$id;
+    }
     const currentCoverOptionCFile = (await databases.getDocument(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.questions,
@@ -918,24 +949,18 @@ export class Question {
       ]
     ))?.coverOptionC;
 
-    if (!(currentCoverOptionCFile === null || currentCoverOptionCFile === '')) {
-      await storage.deleteFile(
-        APPWRITE_API.buckets.questionFiles,
-        currentCoverOptionCFile,
-      )
+    if (typeof (coverOptionCFile) !== 'string') {
+      if (!(currentCoverOptionCFile === null || currentCoverOptionCFile === '')) {
+        await storage.deleteFile(
+          APPWRITE_API.buckets.questionFiles,
+          currentCoverOptionCFile,
+        )
+      }
+    } else {
+      coverId = currentCoverOptionCFile;
     }
 
-    return (await storage.createFile(
-      APPWRITE_API.buckets.questionFiles,
-      ID.unique(),
-      coverOptionCFile,
-      [
-        Permission.read(Role.any()),
-        Permission.read(Role.user(userId)),
-        Permission.update(Role.user(userId)),
-        Permission.delete(Role.user(userId)),
-      ]
-    )).$id;
+    return coverId;
   }
 
   /**
@@ -952,10 +977,7 @@ export class Question {
       id = await this.createQuestionId(userId);
     }
 
-    var coverOptionCId = null;
-    if (coverOptionCFile) {
-      coverOptionCId = await this.uploadOptionCCover(id, coverOptionCFile, userId);
-    }
+    const coverOptionCId = await this.uploadOptionCCover(id, coverOptionCFile, userId);
 
     return await databases.updateDocument(
       APPWRITE_API.databaseId,
@@ -977,6 +999,20 @@ export class Question {
    * @returns Id of uploaded Option D cover
    */
   static async uploadOptionDCover(questionId, coverOptionDFile, userId) {
+    var coverId = '';
+    if (typeof (coverOptionDFile) !== 'string' && coverOptionDFile) {
+      coverId = (await storage.createFile(
+        APPWRITE_API.buckets.questionFiles,
+        ID.unique(),
+        coverOptionDFile,
+        [
+          Permission.read(Role.any()),
+          Permission.read(Role.user(userId)),
+          Permission.update(Role.user(userId)),
+          Permission.delete(Role.user(userId)),
+        ]
+      )).$id;
+    }
     const currentCoverOptionDFile = (await databases.getDocument(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.questions,
@@ -986,24 +1022,18 @@ export class Question {
       ]
     ))?.coverOptionD;
 
-    if (!(currentCoverOptionDFile === null || currentCoverOptionDFile === '')) {
-      await storage.deleteFile(
-        APPWRITE_API.buckets.questionFiles,
-        currentCoverOptionDFile,
-      )
+    if (typeof (coverOptionDFile) !== 'string') {
+      if (!(currentCoverOptionDFile === null || currentCoverOptionDFile === '')) {
+        await storage.deleteFile(
+          APPWRITE_API.buckets.questionFiles,
+          currentCoverOptionDFile,
+        )
+      }
+    } else {
+      coverId = currentCoverOptionDFile;
     }
 
-    return (await storage.createFile(
-      APPWRITE_API.buckets.questionFiles,
-      ID.unique(),
-      coverOptionDFile,
-      [
-        Permission.read(Role.any()),
-        Permission.read(Role.user(userId)),
-        Permission.update(Role.user(userId)),
-        Permission.delete(Role.user(userId)),
-      ]
-    )).$id;
+    return coverId;
   }
 
   /**
@@ -1020,10 +1050,7 @@ export class Question {
       id = await this.createQuestionId(userId);
     }
 
-    var coverOptionDId = null;
-    if (coverOptionDFile) {
-      coverOptionDId = await this.uploadOptionDCover(id, coverOptionDFile, userId);
-    }
+    const coverOptionDId = await this.uploadOptionDCover(id, coverOptionDFile, userId);
 
     return await databases.updateDocument(
       APPWRITE_API.databaseId,
@@ -1032,6 +1059,82 @@ export class Question {
       {
         contentOptionD: optionD,
         coverOptionD: coverOptionDId,
+        updatedBy: userId,
+      }
+    )
+  }
+
+  /**
+   * Function to get Id of option D cover
+   * @param {string} questionId - Id of question
+   * @param {file} coverAnswerFile - Answer cover file
+   * @param {string} userId - Current User
+   * @returns Id of uploaded Option D cover
+   */
+  static async uploadAnswerCover(questionId, coverAnswerFile, userId) {
+    var coverId = '';
+    if (typeof (coverAnswerFile) !== 'string' && coverAnswerFile) {
+      coverId = (await storage.createFile(
+        APPWRITE_API.buckets.questionFiles,
+        ID.unique(),
+        coverAnswerFile,
+        [
+          Permission.read(Role.any()),
+          Permission.read(Role.user(userId)),
+          Permission.update(Role.user(userId)),
+          Permission.delete(Role.user(userId)),
+        ]
+      )).$id;
+    }
+
+    const currentCoverAnswerFile = (await databases.getDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.questions,
+      questionId,
+      [
+        Query.select(['coverAnswer'])
+      ]
+    ))?.coverAnswer;
+
+    if (typeof (coverAnswerFile) !== 'string') {
+      if (!(currentCoverAnswerFile === null || currentCoverAnswerFile === '')) {
+        await storage.deleteFile(
+          APPWRITE_API.buckets.questionFiles,
+          currentCoverAnswerFile,
+        )
+      }
+    } else {
+      coverId = currentCoverAnswerFile;
+    }
+
+    return coverId;
+  }
+
+  /**
+   * Function to Upload Option D
+   * @param {string} questionId - Id of question
+   * @param {string} answerOption - Answer Options
+   * @param {string} answer - content of answer
+   * @param {file} coverAnswerFile - File of Answer cover
+   * @param {string} userId - Current user
+   * @returns - Question Object
+   */
+  static async uploadAnswerContent(questionId, answerOption, answer, coverAnswerFile, userId) {
+    var id = questionId;
+    if (questionId === null || questionId === '') {
+      id = await this.createQuestionId(userId);
+    }
+
+    const coverAnswerId = await this.uploadAnswerCover(id, coverAnswerFile, userId);
+
+    return await databases.updateDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.questions,
+      id,
+      {
+        answerOption: answerOption,
+        contentAnswer: answer,
+        coverAnswer: coverAnswerId,
         updatedBy: userId,
       }
     )
@@ -1127,6 +1230,7 @@ export class Question {
       {
         status: 'SentForReview',
         sentForReviewTo: approverId,
+        sentForReviewAt: new Date(),
       }
     )
   }
@@ -1270,6 +1374,7 @@ export class Question {
         status: 'Approved',
         approvedBy: userId,
         updatedBy: userId,
+        approvedAt: new Date(),
       }
     )
   }
@@ -1297,7 +1402,7 @@ export class Question {
         Permission.update(Role.any()),
       ]
     )
-    
+
     return await databases.updateDocument(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.questions,
@@ -1307,6 +1412,7 @@ export class Question {
         reviewdBackTo: createdBy,
         updatedBy: userId,
         reviewComment: comment,
+        reviewBackAt: new Date(),
       }
     )
   }

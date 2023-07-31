@@ -12,7 +12,10 @@ import {
   Divider,
   Tab,
   Tabs,
-  Typography
+  Typography,
+  Skeleton,
+  Chip,
+  useTheme
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 // Components
@@ -35,10 +38,15 @@ import QuestionRowComponent from "./QuestionRowComponent";
 const STATUS_OPTIONS = ['All', 'Initialize', 'SentForReview', 'ReviewedBack', 'Approved', 'Active'];
 
 // ----------------------------------------------------------------------
-
+const addSubtractDate = require("add-subtract-date");
 export default function QuestionListComponent() {
 
-  const pickerInput = useDateRangePicker();
+
+  const d1 = new Date();
+  addSubtractDate.subtract(d1, 7, "day");
+  const d2 = new Date();
+
+  const pickerInput = useDateRangePicker(d1, d2);
   const { enqueueSnackbar } = useSnackbar();
 
   const {
@@ -67,6 +75,10 @@ export default function QuestionListComponent() {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isFetchingData, setIsFetchingData] = useState(false);
 
+  const [allPerson, setAllPerson] = useState([]);
+
+  const theme = useTheme();
+
   const handleFilterStatus = (event, newValue) => {
     setFilterStatus(newValue);
   };
@@ -88,6 +100,9 @@ export default function QuestionListComponent() {
 
         data = await User.getUserList();
         setUserList(data);
+
+        data = await User.getUserList();
+        setAllPerson(data);
       } catch (error) {
         enqueueSnackbar(error.message, { variant: 'error' });
       }
@@ -271,7 +286,7 @@ export default function QuestionListComponent() {
 
       <Divider />
 
-      <Card sx={{ mt: 2 }}>
+      <Card sx={{ mt: 2, bgcolor: theme?.palette.mode==='dark'?'ActiveBorder':'#DCDCDC' }}>
         <Tabs
           value={filterStatus}
           onChange={handleFilterStatus}
@@ -287,8 +302,137 @@ export default function QuestionListComponent() {
         </Tabs>
 
         <Box sx={{ minHeight: 400 }}>
+          {isFetchingData &&
+            <>
+              <Divider />
+              <>
+                <Divider>
+                  <Chip label='--------------------' />
+                </Divider>
+
+                <Grid container>
+                  <Grid item xs>
+                    <Skeleton sx={{ m: 2 }} variant="rounded" height={40} />
+                    <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                    <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                    <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                    <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                  </Grid>
+                  <Grid item xs>
+                    <Grid container>
+                      <Grid item xs>
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                      </Grid>
+                      <Grid item xs>
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                      </Grid>
+                    </Grid>
+
+                  </Grid>
+                </Grid>
+              </>
+
+              <Divider />
+              <>
+                <Divider>
+                  <Chip label='--------------------' />
+                </Divider>
+
+                <Grid container>
+                  <Grid item xs>
+                    <Skeleton sx={{ m: 2 }} variant="rounded" height={40} />
+                    <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                    <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                    <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                    <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                  </Grid>
+                  <Grid item xs>
+                    <Grid container>
+                      <Grid item xs>
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                      </Grid>
+                      <Grid item xs>
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                      </Grid>
+                    </Grid>
+
+                  </Grid>
+                </Grid>
+              </>
+
+              <Divider />
+              <>
+                <Divider>
+                  <Chip label='--------------------' />
+                </Divider>
+
+                <Grid container>
+                  <Grid item xs>
+                    <Skeleton sx={{ m: 2 }} variant="rounded" height={40} />
+                    <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                    <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                    <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                    <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                  </Grid>
+                  <Grid item xs>
+                    <Grid container>
+                      <Grid item xs>
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                      </Grid>
+                      <Grid item xs>
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                        <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={20} />
+                      </Grid>
+                    </Grid>
+
+                  </Grid>
+                </Grid>
+              </>
+            </>
+          }
           {dataFiltered.length === 0 && <Box sx={{ textAlign: 'center' }}><Typography variant="caption" color={"gray"}>Apply Filter to see some Question</Typography></Box>}
-          {dataFiltered.map((item) => <QuestionRowComponent onSave={applyFilter} question={item} key={item?.$id} />)}
+          {!isFetchingData && dataFiltered.map((item) => <QuestionRowComponent onSave={applyFilter} question={item} key={item?.$id} allPerson={allPerson} />)}
         </Box>
 
       </Card>
