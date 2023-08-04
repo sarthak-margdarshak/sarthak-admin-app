@@ -849,7 +849,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                 <Stack direction='row' sx={{ m: 2 }}>
                   <Typography sx={{ mr: 1 }} variant="subtitle2">Sent For Review To -</Typography>
                   <Link sx={{ cursor: 'pointer' }} onClick={() => window.open('/dashboard/user/profile/' + sentForReviewTo?.$id)}>
-                    <Typography variant="body2">{updatedBy?.name}</Typography>
+                    <Typography variant="body2">{sentForReviewTo?.name}</Typography>
                   </Link>
                 </Stack>
 

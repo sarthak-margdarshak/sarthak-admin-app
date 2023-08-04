@@ -212,7 +212,7 @@ export default function TeamDetailsPage() {
             position: 'relative',
           }}
         >
-          <TeamCover cover={cover} name={team?.name} ownerName={ownerName} ownerCover={avatarUrl} />
+          <TeamCover id={team?.$id} cover={cover} name={team?.name} ownerName={ownerName} ownerCover={avatarUrl} />
         </Card>
 
         <Card>
