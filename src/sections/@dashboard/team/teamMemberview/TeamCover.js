@@ -12,13 +12,16 @@
 
 // IMPORT ---------------------------------------------------------------
 
+import { Link as RouterLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 // @mui
 import { styled } from '@mui/material/styles';
-import { Box, Typography } from '@mui/material';
+import { Box, IconButton, Typography } from '@mui/material';
 // components
 import Image from '../../../../components/image';
 import { CustomAvatar } from '../../../../components/custom-avatar';
+import Iconify from '../../../../components/iconify/Iconify';
+import { PATH_DASHBOARD } from '../../../../routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -61,7 +64,7 @@ TeamCover.propTypes = {
 
 // ----------------------------------------------------------------------
 
-export default function TeamCover({ cover, name, ownerName, ownerCover }) {
+export default function TeamCover({ id, cover, name, ownerName, ownerCover }) {
 
   return (
     <StyledRoot>
@@ -88,9 +91,13 @@ export default function TeamCover({ cover, name, ownerName, ownerCover }) {
             textAlign: { xs: 'center', md: 'left' },
           }}
         >
-          <Typography variant="h4">{name}</Typography>
+          <Typography variant="h4">{name}
+            <IconButton component={RouterLink} to={PATH_DASHBOARD.team.edit(id)}>
+              <Iconify icon='ic:baseline-edit'></Iconify>
+            </IconButton>
+          </Typography>
 
-          <Typography sx={{ opacity: 0.72 }}>{"Owner :- "+ownerName}</Typography>
+          <Typography sx={{ opacity: 0.72 }}>{"Owner :- " + ownerName}</Typography>
         </Box>
       </StyledInfo>
 

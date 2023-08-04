@@ -29,6 +29,12 @@ import { useAuthContext } from '../../../../auth/useAuthContext';
 // ----------------------------------------------------------------------
 
 export default function TeamCreatePage() {
+  const arr = window.location.pathname.split('/');
+  var teamId = null;
+  if (arr.length === 5) {
+    teamId = arr[3];
+  }
+
   const { themeStretch } = useSettingsContext();
 
   const { translate } = useLocales();
@@ -40,10 +46,32 @@ export default function TeamCreatePage() {
   return (
     <>
       <Helmet>
+      {teamId ?
+        <title> {(notificationCount!==0?'('+notificationCount+')':'')+'Team: Edit | Sarthak Admin'}</title>:
         <title> {(notificationCount!==0?'('+notificationCount+')':'')+'Team: Create | Sarthak Admin'}</title>
+      }
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>
+        {teamId ?
+        <CustomBreadcrumbs
+        heading="Edit Team"
+        links={[
+          {
+            name: translate('dashboard'),
+            href: PATH_DASHBOARD.root,
+          },
+          {
+            name: 'Team',
+            href: PATH_DASHBOARD.team.list,
+          },
+          {
+            name: teamId,
+            href: PATH_DASHBOARD.team.view(teamId),
+          },
+          { name: 'edit'}
+        ]}
+      />:
         <CustomBreadcrumbs
           heading="Create a new Team"
           links={[
@@ -57,8 +85,8 @@ export default function TeamCreatePage() {
             },
             { name: 'New Team' },
           ]}
-        />
-        <TeamNewForm />
+        />}
+        <TeamNewForm teamId={teamId} />
       </Container>
     </>
   );

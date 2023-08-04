@@ -64,6 +64,7 @@ export const PATH_DASHBOARD = {
     root: path(ROOTS_DASHBOARD, '/team'),
     list: path(ROOTS_DASHBOARD, '/team/list'),
     new: path(ROOTS_DASHBOARD, '/team/new'),
+    edit: (id) => path(ROOTS_DASHBOARD, `/team/${id}/edit`),
     view: (id) => path(ROOTS_DASHBOARD, `/team/${id}/view`),
     permissionEdit: (teamId, userId) => path(ROOTS_DASHBOARD, `/team/${teamId}/user/${userId}/permissions`),
   },

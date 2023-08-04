@@ -198,23 +198,6 @@ export class User {
       }
     )
   }
-
-  /**
-   * Function to update profile team owner
-   * @param {string} userId 
-   * @param {string} teamOwner Id of team where user will be a owner
-   * @returns Profile Document
-   */
-  static async updateProfileTeamOwner(userId, teamOwner) {
-    return await databases.updateDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.usersProfile,
-      userId,
-      {
-        teamOwner: teamOwner,
-      }
-    )
-  }
 }
 
 // TEAM FUNCTIONS -------------------------------------------------------
@@ -227,19 +210,23 @@ export class Team {
    * @returns - List of all team documents from table `teams`
    */
   static async getMyTeamData(userId) {
-    const profileData = await databases.getDocument(
+    const myteams = await databases.listDocuments(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.usersProfile,
-      userId,
+      APPWRITE_API.databases.teamMembership,
+      [
+        Query.equal("userId", [userId])
+      ]
     );
+
+    const ans = myteams.documents.map((value) => value?.teamId);
 
     return await databases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.teams,
       [
-        Query.equal("$id", [profileData?.teamOwner, profileData?.teamMember]),
+        Query.equal("$id", ans)
       ]
-    );
+    )
   }
 
   /**
@@ -272,23 +259,34 @@ export class Team {
    * @param {string} teamOwner - teamOwner ID
    * @returns - Team
    */
-  static async addTeamToDatabase(name, teamOwner) {
-    return await databases.createDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.teams,
-      ID.unique(),
-      {
-        teamOwner: teamOwner,
-        name: name,
-        member: 1,
-      },
-      [
-        Permission.update(Role.user(teamOwner)),
-        Permission.read(Role.user(teamOwner)),
-        Permission.delete(Role.user(teamOwner)),
-        Permission.read(Role.any()),
-      ]
-    )
+  static async addTeamToDatabase(name, teamOwner, id) {
+    if (id) {
+      return await databases.updateDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.teams,
+        id,
+        {
+          name: name
+        }
+      )
+    } else {
+      return await databases.createDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.teams,
+        ID.unique(),
+        {
+          teamOwner: teamOwner,
+          name: name,
+          member: 1,
+        },
+        [
+          Permission.update(Role.user(teamOwner)),
+          Permission.read(Role.user(teamOwner)),
+          Permission.delete(Role.user(teamOwner)),
+          Permission.read(Role.any()),
+        ]
+      )
+    }
   }
 
   /**
@@ -297,7 +295,7 @@ export class Team {
    * @param {string} teamId - team id
    * @param {string} teamOwner - team owner id
    */
-  static async uploadTeamCover(file, teamId, teamOwner) {
+  static async uploadTeamCover(file, teamId, teamOwner, actionUpload) {
     // Get Team Data to check existing Cover
     const team = await databases.getDocument(
       APPWRITE_API.databaseId,
@@ -314,27 +312,39 @@ export class Team {
     }
 
     // Upload file and give permissions
-    const coverData = await storage.createFile(
-      APPWRITE_API.buckets.teamCover,
-      ID.unique(),
-      file,
-      [
-        Permission.update(Role.user(teamOwner)),
-        Permission.read(Role.user(teamOwner)),
-        Permission.delete(Role.user(teamOwner)),
-        Permission.read(Role.any()),
-      ]
-    );
+    if (actionUpload) {
+      const coverData = await storage.createFile(
+        APPWRITE_API.buckets.teamCover,
+        ID.unique(),
+        file,
+        [
+          Permission.update(Role.user(teamOwner)),
+          Permission.read(Role.user(teamOwner)),
+          Permission.delete(Role.user(teamOwner)),
+          Permission.read(Role.any()),
+        ]
+      );
 
-    // Update database
-    await databases.updateDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.teams,
-      teamId,
-      {
-        cover: coverData.$id,
-      },
-    );
+      // Update database
+      await databases.updateDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.teams,
+        teamId,
+        {
+          cover: coverData.$id,
+        },
+      );
+    } else {
+      // Update database
+      await databases.updateDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.teams,
+        teamId,
+        {
+          cover: null,
+        },
+      );
+    }
   }
 
   /**

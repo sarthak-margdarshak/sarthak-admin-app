@@ -61,22 +61,15 @@ export default function TeamListPage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Check whether user has permission to create Team or not
-        const permission = await User.getUserPermissionData(user.$id);
-        setCreateTeam(permission.createTeam);
         // Get My Team Data
         const team = await Team.getMyTeamData(user.$id);
         setMyTeam(team.documents);
         // Get all data
         const tempAllTeam = await Team.getAllTeamData();
         setAllTeam(tempAllTeam.documents);
-        if(team.total===2) {
-          setCreateTeam(false);
-        } else if(team.total===1) {
-          if(team.documents[0].teamOwner===user.$id) {
-            setCreateTeam(false);
-          }
-        }
+        // Check whether user has permission to create Team or not
+        const permission = await User.getUserPermissionData(user.$id);
+        setCreateTeam(permission.createTeam);
         setLoading(false);
       } catch (error) {
         enqueueSnackbar(error.message, { variant: 'error' });
