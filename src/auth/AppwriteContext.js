@@ -494,10 +494,23 @@ export class Question {
  * Function to get List of  Standards
  * @returns List of standards
  */
-  static async getStandardList() {
+  static async getStandardList(name) {
+    if (!name || name === '') {
+      return (await databases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.standards,
+        [
+          Query.limit(100)
+        ]
+      )).documents;
+    }
     return (await databases.listDocuments(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.standards
+      APPWRITE_API.databases.standards,
+      [
+        Query.search("name", name),
+        Query.limit(100)
+      ]
     )).documents;
   }
 
@@ -505,10 +518,23 @@ export class Question {
    * Function to get List of  Subjects
    * @returns List of Subjects
    */
-  static async getSubjectList() {
+  static async getSubjectList(name) {
+    if (!name || name === '') {
+      return (await databases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.subjects,
+        [
+          Query.limit(100)
+        ]
+      )).documents;
+    }
     return (await databases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.subjects,
+      [
+        Query.search("name", name),
+        Query.limit(100)
+      ]
     )).documents;
   }
 
@@ -516,10 +542,23 @@ export class Question {
    * Function to get List of  Chapters
    * @returns List of Chapters
    */
-  static async getChapterList() {
+  static async getChapterList(name) {
+    if (!name || name === '') {
+      return (await databases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.chapters,
+        [
+          Query.limit(100)
+        ]
+      )).documents;
+    }
     return (await databases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.chapters,
+      [
+        Query.search("name", name),
+        Query.limit(100)
+      ]
     )).documents;
   }
 
@@ -527,10 +566,23 @@ export class Question {
    * Function to get List of  Concepts
    * @returns List of Concepts
    */
-  static async getConceptList() {
+  static async getConceptList(name) {
+    if (!name || name === '') {
+      return (await databases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.concepts,
+        [
+          Query.limit(100)
+        ]
+      )).documents;
+    }
     return (await databases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.concepts,
+      [
+        Query.search("name", name),
+        Query.limit(100)
+      ]
     )).documents;
   }
 

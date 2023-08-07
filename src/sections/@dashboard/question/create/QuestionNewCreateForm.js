@@ -297,9 +297,6 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
           setReviewComment(data?.reviewComment);
         }
         var dt = await Question.getStandardList();
-        setStandardList(dt);
-        dt = await Question.getSubjectList()
-        setSubjectList(dt);
         dt = await Question.getChapterList()
         setChapterList(dt);
         dt = await Question.getConceptList()
@@ -675,6 +672,11 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
     },
     [setCoverAnswer]
   );
+
+  const [isStandardListLoading, setIsStandardListLoading] = useState(false);
+  const [isSubjectListLoading, setIsSubjectListLoading] = useState(false);
+  const [isChapterListLoading, setIsChapterListLoading] = useState(false);
+  const [isConceptListLoading, setIsConceptListLoading] = useState(false);
 
   if (isLoadingData) {
     return (
@@ -1084,9 +1086,21 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                         autoSelect
                         autoComplete
                         value={standard}
-                        loading={isLoadingData}
+                        loading={isStandardListLoading}
                         options={standardList}
-                        onChange={(event, value) => {
+                        onFocus={async (event, value) => {
+                          setIsStandardListLoading(true);
+                          const tem = await Question.getStandardList(value?.$id ? value?.name : value);
+                          setStandardList(tem);
+                          setIsStandardListLoading(false);
+                        }}
+                        onInputChange={async (event, value) => {
+                          setIsStandardListLoading(true);
+                          const tem = await Question.getStandardList(value?.$id ? value?.name : value);
+                          setStandardList(tem);
+                          setIsStandardListLoading(false);
+                        }}
+                        onChange={async (event, value) => {
                           setStandard(value?.$id ? value?.name : value);
                         }}
                         getOptionLabel={(option) => option?.name || option}
@@ -1108,8 +1122,20 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                         autoSelect
                         autoComplete
                         value={subject}
-                        loading={isLoadingData}
+                        loading={isSubjectListLoading}
                         options={subjectList}
+                        onFocus={async (event, value) => {
+                          setIsSubjectListLoading(true);
+                          const tem = await Question.getSubjectList(value?.$id ? value?.name : value);
+                          setSubjectList(tem);
+                          setIsSubjectListLoading(false);
+                        }}
+                        onInputChange={async (event, value) => {
+                          setIsSubjectListLoading(true);
+                          const tem = await Question.getSubjectList(value?.$id ? value?.name : value);
+                          setSubjectList(tem);
+                          setIsSubjectListLoading(false);
+                        }}
                         onChange={(event, value) => {
                           setSubject(value?.$id ? value?.name : value);
                         }}
@@ -1132,8 +1158,20 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                         autoSelect
                         autoComplete
                         value={chapter}
-                        loading={isLoadingData}
+                        loading={isChapterListLoading}
                         options={chapterList}
+                        onFocus={async (event, value) => {
+                          setIsChapterListLoading(true);
+                          const tem = await Question.getChapterList(value?.$id ? value?.name : value);
+                          setChapterList(tem);
+                          setIsChapterListLoading(false);
+                        }}
+                        onInputChange={async (event, value) => {
+                          setIsChapterListLoading(true);
+                          const tem = await Question.getChapterList(value?.$id ? value?.name : value);
+                          setChapterList(tem);
+                          setIsChapterListLoading(false);
+                        }}
                         onChange={(event, value) => {
                           setChapter(value?.$id ? value?.name : value);
                         }}
@@ -1156,9 +1194,21 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                         autoSelect
                         autoComplete
                         value={concept}
-                        loading={isLoadingData}
+                        loading={isConceptListLoading}
                         filterSelectedOptions
                         options={conceptList}
+                        onFocus={async (event, value) => {
+                          setIsConceptListLoading(true);
+                          const tem = await Question.getConceptList(value?.$id ? value?.name : value);
+                          setConceptList(tem);
+                          setIsConceptListLoading(false);
+                        }}
+                        onInputChange={async (event, value) => {
+                          setIsConceptListLoading(true);
+                          const tem = await Question.getConceptList(value?.$id ? value?.name : value);
+                          setConceptList(tem);
+                          setIsConceptListLoading(false);
+                        }}
                         onChange={(event, value) => {
                           setConcept(value?.$id ? value?.name : value);
                         }}
