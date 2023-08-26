@@ -45,7 +45,6 @@ export default function TeamListPage() {
 
   const {
     user,
-    notificationCount,
   } = useAuthContext();
 
   const [currentTab, setCurrentTab] = useState('your_team');
@@ -103,7 +102,7 @@ export default function TeamListPage() {
   return (
     <>
       <Helmet>
-        <title> {(notificationCount!==0?'('+notificationCount+')':'')+'Team: List | Sarthak Admin'}</title>
+        <title>Team: List | Sarthak Admin</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>

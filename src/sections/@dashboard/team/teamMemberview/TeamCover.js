@@ -56,7 +56,7 @@ const StyledInfo = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 TeamCover.propTypes = {
-  cover: PropTypes.object,
+  cover: PropTypes.string,
   name: PropTypes.string,
   ownerName: PropTypes.string,
   ownerCover: PropTypes.object,

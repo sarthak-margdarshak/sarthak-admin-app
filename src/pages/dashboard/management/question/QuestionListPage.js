@@ -9,22 +9,16 @@ import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
 import Iconify from '../../../../components/iconify/Iconify';
 // Sections
 import QuestionListComponent from '../../../../sections/@dashboard/question/view/QuestionListComponent';
-// Auth
-import { useAuthContext } from '../../../../auth/useAuthContext';
 
 // ----------------------------------------------------------------------
 
 export default function QuestionEditPage() {
   const { themeStretch } = useSettingsContext();
 
-  const {
-    notificationCount,
-  } = useAuthContext();
-
   return (
     <>
       <Helmet>
-        <title> {(notificationCount!==0?'('+notificationCount+')':'')+'Question: List | Sarthak Admin'}</title>
+        <title>Question: List | Sarthak Admin</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>
@@ -41,7 +35,7 @@ export default function QuestionEditPage() {
           ]}
           action={
             <Button
-              onClick={() => window.open(PATH_DASHBOARD.question.new,'_blank', 'rel=noopener noreferrer')}
+              onClick={() => window.open(PATH_DASHBOARD.question.new, '_self')}
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
             >

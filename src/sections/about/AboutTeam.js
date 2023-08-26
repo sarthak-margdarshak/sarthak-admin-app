@@ -30,6 +30,7 @@ import { MotionViewport, varFade } from '../../components/animate';
 
 const teamMembers = [
   {
+    id: 'EMP0001',
     name: 'Suryamani Kumar',
     role: 'Co-Founder/ CEO',
     avatar: '/assets/images/portraits/portrait_2.jpg',

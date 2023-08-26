@@ -58,19 +58,23 @@ export default function TeamCard({ team }) {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const [ cover, setCover ] = useState(null);
-  const [ avatarUrl, setAvatarUrl ] = useState(null);
-  const [ ownerName, setOwnerName ] = useState(null);
+  const [cover, setCover] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [ownerName, setOwnerName] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const teamData = await Team.getTeamData(team?.$id);
         const ownerData = await User.getProfileData(teamData?.teamOwner);
-        const tempCover = await Team.getTeamCover(teamData?.cover);
-        const tempAvatarUrl = await User.getImageProfileLink(ownerData?.photoUrl);
-        setCover(tempCover);
-        setAvatarUrl(tempAvatarUrl);
+        if (teamData?.cover && teamData?.cover !== '') {
+          const tempCover = await Team.getTeamCover(teamData?.cover);
+          setCover(tempCover);
+        }
+        if (ownerData?.photoUrl && ownerData?.photoUrl !== '') {
+          const tempAvatarUrl = await User.getImageProfileLink(ownerData?.photoUrl);
+          setAvatarUrl(tempAvatarUrl);
+        }
         setOwnerName(ownerData?.name)
       } catch (error) {
         console.error(error);
@@ -99,7 +103,7 @@ export default function TeamCard({ team }) {
         />
 
         <Avatar
-          alt={team?.name}
+          alt={ownerName}
           src={avatarUrl}
           sx={{
             width: 64,
@@ -119,12 +123,12 @@ export default function TeamCard({ team }) {
       </Box>
 
       <Typography variant="subtitle1" sx={{ mt: 6, mb: 0.5 }}>
-        <Link 
+        <Link
           noWrap
           color="inherit"
           onClick={() => navigate(PATH_DASHBOARD.team.view(team?.$id))}
           sx={{ cursor: 'pointer' }}>
-        {team?.name}
+          {team?.name}
         </Link>
       </Typography>
 

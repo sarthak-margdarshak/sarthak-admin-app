@@ -26,7 +26,7 @@ import { useSnackbar } from '../../../components/snackbar';
 
 export default function NotificationListPage() {
   const { themeStretch } = useSettingsContext();
-  const { user, notificationCount } = useAuthContext();
+  const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
 
   const [allNotification, setAllNotification] = useState([]);
@@ -65,7 +65,7 @@ export default function NotificationListPage() {
   return (
     <>
       <Helmet>
-        <title> {(notificationCount!==0?'('+notificationCount+')':'')+'Notifications | Sarthak Admin'}</title>
+        <title>Notifications | Sarthak Admin</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>

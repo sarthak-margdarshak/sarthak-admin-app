@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 // Auth
 import { Question, User } from '../../../../auth/AppwriteContext';
 // @mui
-import { Autocomplete, Box, Button, Card, CardContent, CardHeader, Checkbox, Divider, Drawer, FormControl, Grid, IconButton, InputLabel, Link, MenuItem, Paper, Select, Skeleton, Stack, TextField, Typography, alpha } from '@mui/material';
+import { Autocomplete, Box, Button, Card, CardContent, CardHeader, Checkbox, Divider, Drawer, FormControl, Grid, IconButton, InputLabel, MenuItem, Paper, Select, Skeleton, Stack, TextField, Typography, alpha } from '@mui/material';
 import { LoadingButton, Timeline, TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineSeparator } from '@mui/lab';
 // components
 import { useSnackbar } from '../../../../components/snackbar';
@@ -15,6 +15,7 @@ import ReactKatex from '@pkasila/react-katex';
 import Image from '../../../../components/image/Image';
 import { useNavigate } from 'react-router-dom';
 import { PATH_DASHBOARD } from '../../../../routes/paths';
+import { SarthakUserDisplayUI } from '../../user/profile';
 
 // ----------------------------------------------------------------------
 
@@ -46,15 +47,15 @@ export default function QuestionDetails({ inComingQuestionId }) {
   const [concept, setConcept] = useState('');
 
   const [status, setStatus] = useState('');
-  const [createdBy, setCreatedBy] = useState({});
+  const [createdBy, setCreatedBy] = useState();
   const [createdAt, setCreatedAt] = useState();
-  const [updatedBy, setUpdatedBy] = useState({});
+  const [updatedBy, setUpdatedBy] = useState();
   const [updatedAt, setUpdatedAt] = useState();
-  const [approvedBy, setApprovedBy] = useState({});
+  const [approvedBy, setApprovedBy] = useState();
   const [approvedAt, setApprovedAt] = useState();
-  const [sentForReviewTo, setSentForReviewTo] = useState({});
+  const [sentForReviewTo, setSentForReviewTo] = useState();
   const [sentForReviewAt, setSentForReviewAt] = useState();
-  const [reviewBackTo, setReviewBackTo] = useState({});
+  const [reviewBackTo, setReviewBackTo] = useState();
   const [reviewBackAt, setReviewBackAt] = useState();
   const [reviewComment, setReviewComment] = useState('');
 
@@ -64,6 +65,7 @@ export default function QuestionDetails({ inComingQuestionId }) {
   const [comment, setComment] = useState('');
   const [allPerson, setAllPerson] = useState([]);
   const [updating, setUpdating] = useState(false);
+  const [canDoAction, setCanDoAction] = useState(false);
 
   const [statusList, setStatusList] = useState([
     { id: 0, type: 'error', title: 'Initialize', active: false },
@@ -79,6 +81,7 @@ export default function QuestionDetails({ inComingQuestionId }) {
     const fetchData = async () => {
       try {
         const data = await Question.getQuestion(inComingQuestionId);
+        setCanDoAction(inComingQuestionId, user?.$id);
 
         setQuestion(data?.contentQuestion);
         var fileData = await Question.getQuestionContentForPreview(data?.coverQuestion);
@@ -158,31 +161,20 @@ export default function QuestionDetails({ inComingQuestionId }) {
           ])
         }
         if (data?.createdBy) {
-          tmpData = await User.getProfileData(data?.createdBy);
-          setCreatedBy(tmpData);
-          setNewSentReviewBack(tmpData);
+          setNewSentReviewBack(data?.createdBy);
         }
+        setCreatedBy(data?.createdBy);
         setCreatedAt(data?.$createdAt);
-        if (data?.updatedBy) {
-          tmpData = await User.getProfileData(data?.updatedBy);
-          setUpdatedBy(tmpData);
-        }
+        setUpdatedBy(data?.updatedBy);
         setUpdatedAt(data?.$updatedAt);
-        if (data?.approvedBy) {
-          tmpData = await User.getProfileData(data?.approvedBy);
-          setApprovedBy(tmpData);
-        }
+        setApprovedBy(data?.approvedBy);
         setApprovedAt(data?.approvedAt);
-        if (data?.sentForReviewTo) {
-          tmpData = await User.getProfileData(data?.sentForReviewTo);
-          setSentForReviewTo(tmpData);
-        }
+        setSentForReviewTo(data?.sentForReviewTo)
         setSentForReviewAt(data?.sentForReviewAt);
         if (data?.reviewdBackTo) {
-          tmpData = await User.getProfileData(data?.reviewdBackTo);
-          setReviewBackTo(tmpData);
-          setNewSentReviewBack(tmpData);
+          setNewSentReviewBack(data?.reviewdBackTo);
         }
+        setReviewBackTo(data?.reviewdBackTo);
         setReviewBackAt(data?.reviewBackAt);
         setReviewComment(data?.reviewComment);
 
@@ -204,23 +196,20 @@ export default function QuestionDetails({ inComingQuestionId }) {
     try {
       if (newStatus === 'Approved') {
         await Question.approveQuestion(inComingQuestionId, user?.$id);
-        const approv = await User.getProfileData(user?.$id);
-        setApprovedBy(approv);
+        setApprovedBy(user?.$id);
         setApprovedAt(new Date());
-        setUpdatedBy(approv);
+        setUpdatedBy(user?.$id);
         setUpdatedAt(new Date());
       } else if (newStatus === 'ReviewedBack') {
         await Question.reviewBackQuestion(inComingQuestionId, user?.$id, newSentReviewBack?.$id, comment);
         setReviewComment(comment);
-        setReviewBackTo(newSentReviewBack);
+        setReviewBackTo(newSentReviewBack?.$id);
         setReviewBackAt(new Date());
-        const approv = await User.getProfileData(user?.$id);
-        setUpdatedBy(approv);
+        setUpdatedBy(user?.$id);
         setUpdatedAt(new Date());
       } else if (newStatus === 'Active') {
         await Question.activateQuestion(inComingQuestionId, user?.$id, 'Active');
-        const approv = await User.getProfileData(user?.$id);
-        setUpdatedBy(approv);
+        setUpdatedBy(user?.$id);
         setUpdatedAt(new Date());
       } else {
         enqueueSnackbar('Cannot Update Status', { variant: 'error' });
@@ -587,9 +576,7 @@ export default function QuestionDetails({ inComingQuestionId }) {
 
                 <Stack direction='row' sx={{ m: 2 }}>
                   <Typography sx={{ mr: 1 }} variant="subtitle2">Created By -</Typography>
-                  <Link sx={{ cursor: 'pointer' }} onClick={() => window.open('/dashboard/user/profile/' + createdBy?.$id)}>
-                    <Typography variant="body2">{createdBy?.name}</Typography>
-                  </Link>
+                  <SarthakUserDisplayUI userId={createdBy} />
                 </Stack>
 
                 <Stack direction='row' sx={{ m: 2 }}>
@@ -599,9 +586,7 @@ export default function QuestionDetails({ inComingQuestionId }) {
 
                 <Stack direction='row' sx={{ m: 2 }}>
                   <Typography sx={{ mr: 1 }} variant="subtitle2">Updated By -</Typography>
-                  <Link sx={{ cursor: 'pointer' }} onClick={() => window.open('/dashboard/user/profile/' + updatedBy?.$id)}>
-                    <Typography variant="body2">{updatedBy?.name}</Typography>
-                  </Link>
+                  <SarthakUserDisplayUI userId={updatedBy} />
                 </Stack>
 
                 <Stack direction='row' sx={{ m: 2 }}>
@@ -611,9 +596,7 @@ export default function QuestionDetails({ inComingQuestionId }) {
 
                 <Stack direction='row' sx={{ m: 2 }}>
                   <Typography sx={{ mr: 1 }} variant="subtitle2">Approved By -</Typography>
-                  <Link sx={{ cursor: 'pointer' }} onClick={() => window.open('/dashboard/user/profile/' + approvedBy?.$id)}>
-                    <Typography variant="body2">{approvedBy?.name}</Typography>
-                  </Link>
+                  <SarthakUserDisplayUI userId={approvedBy} />
                 </Stack>
               </Grid>
 
@@ -637,9 +620,7 @@ export default function QuestionDetails({ inComingQuestionId }) {
 
                 <Stack direction='row' sx={{ m: 2 }}>
                   <Typography sx={{ mr: 1 }} variant="subtitle2">Sent For Review To -</Typography>
-                  <Link sx={{ cursor: 'pointer' }} onClick={() => window.open('/dashboard/user/profile/' + sentForReviewTo?.$id)}>
-                    <Typography variant="body2">{sentForReviewTo?.name}</Typography>
-                  </Link>
+                  <SarthakUserDisplayUI userId={sentForReviewTo} />
                 </Stack>
 
                 <Stack direction='row' sx={{ m: 2 }}>
@@ -649,9 +630,7 @@ export default function QuestionDetails({ inComingQuestionId }) {
 
                 <Stack direction='row' sx={{ m: 2 }}>
                   <Typography sx={{ mr: 1 }} variant="subtitle2">Review Back To -</Typography>
-                  <Link sx={{ cursor: 'pointer' }} onClick={() => window.open('/dashboard/user/profile/' + reviewBackTo?.$id)}>
-                    <Typography variant="body2">{reviewBackTo?.name}</Typography>
-                  </Link>
+                  <SarthakUserDisplayUI userId={reviewBackTo} />
                 </Stack>
 
                 <Stack direction='row' sx={{ m: 2 }}>
@@ -672,7 +651,7 @@ export default function QuestionDetails({ inComingQuestionId }) {
           <Card>
             <CardHeader
               title='Status'
-              action={<IconButton aria-label="Action" disabled={user?.$id !== sentForReviewTo?.$id}
+              action={<IconButton aria-label="Action" disabled={!canDoAction}
                 onClick={() => setOpenDrawer(true)}>
                 <Iconify icon="fluent-mdl2:set-action" />
               </IconButton>

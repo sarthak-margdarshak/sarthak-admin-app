@@ -21,6 +21,8 @@ import { PATH_DASHBOARD } from '../../../../routes/paths';
 // auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
 import {
+  Question,
+  Team,
   User,
 } from '../../../../auth/AppwriteContext';
 // components
@@ -41,9 +43,8 @@ export default function UserProfilePage() {
   var userId = window.location.pathname.split('/')[4];
   const {
     user,
-    notificationCount,
   } = useAuthContext();
-  if(userId==='') {
+  if (userId === '') {
     userId = user.$id;
   }
 
@@ -54,17 +55,26 @@ export default function UserProfilePage() {
   const [userGeneral, setUserGeneral] = useState(null);
   const [userSocialLinks, setUserSocialLinks] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
+  const [teamCount, setTeamCount] = useState(0);
+  const [questionCount, setQuestionCount] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
       var data = await User.getProfileData(userId);
       setUserProfile(data);
-      data = await User.getImageProfileLink(data?.photoUrl);
-      setProfileImage(data);
+      const user = data;
+      if (data?.photoUrl && data?.photoUrl!=='') {
+        data = await User.getImageProfileLink(data?.photoUrl);
+        setProfileImage(data);
+      }
       data = await User.getUserGeneralData(userId);
       setUserGeneral(data);
       data = await User.getUserSocialLinksData(userId);
       setUserSocialLinks(data);
+      data = await Question.getQuestionList({ createdBy: user?.$id }, 1, 1);
+      setQuestionCount(data?.total)
+      data = await Team.getMyTeamData(user?.$id);
+      setTeamCount(data?.total)
     }
     fetchData();
   }, [userId])
@@ -76,14 +86,14 @@ export default function UserProfilePage() {
       value: 'profile',
       label: translate("profile"),
       icon: <Iconify icon="ic:round-account-box" />,
-      component: <Profile infoGeneral={userGeneral} infoProfile={userProfile} infoSocialLinks={userSocialLinks} />,
+      component: <Profile userId={userId} team={teamCount} question={questionCount} infoGeneral={userGeneral} infoProfile={userProfile} infoSocialLinks={userSocialLinks} />,
     },
   ];
 
   return (
     <>
       <Helmet>
-        <title> {(notificationCount!==0?'('+notificationCount+')':'')+'User: Profile | Sarthak Admin'}</title>
+        <title>User: Profile | Sarthak Admin</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>
@@ -102,7 +112,7 @@ export default function UserProfilePage() {
             position: 'relative',
           }}
         >
-          <ProfileCover name={userProfile?.name} role={userProfile?.designation} profileImage={profileImage} />
+          <ProfileCover name={userProfile?.name} role={userProfile?.designation} profileImage={profileImage} empId={userProfile?.empId} />
 
           <Tabs
             value={currentTab}

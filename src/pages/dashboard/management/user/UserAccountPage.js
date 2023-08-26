@@ -50,7 +50,6 @@ export default function UserAccountPage() {
     user,
     userPermissions,
     fetchPermissionData,
-    notificationCount
   } = useAuthContext();
 
   useEffect(() => {
@@ -90,7 +89,7 @@ export default function UserAccountPage() {
   return (
     <>
       <Helmet>
-        <title> {(notificationCount!==0?'('+notificationCount+')':'')+'User: Account Settings | Sarthak Admin'}</title>
+        <title>User: Account Settings | Sarthak Admin</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>
