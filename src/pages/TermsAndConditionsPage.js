@@ -48,13 +48,6 @@ const TYPOGRAPHYS = [
     ],
   },
   {
-    title: 'Intellectual Property',
-    desc: [
-      'Students retain the rights to their own intellectual property, including research work and creative projects, subject to any agreements or policies specific to individual programs or funding sources.',
-      'Students are expected to respect and comply with copyright laws and intellectual property rights of others.',
-    ],
-  },
-  {
     title: 'Privacy and Data Protection',
     desc: [
       'The institute collects and stores personal information in accordance with applicable privacy laws and regulations.',
@@ -115,7 +108,7 @@ export default function TermsAndConditionsPage() {
         <Block title="Terms and Conditions for Sarthak Guidance Institute">
           <Stack spacing={3}>
             {TYPOGRAPHYS.map((font) => (
-              <BlockVariant key={font.variant} font={font} />
+              <BlockVariant key={font.title} font={font} />
             ))}
           </Stack>
         </Block>

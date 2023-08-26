@@ -76,7 +76,6 @@ export default function TeamDetailsPage() {
   const { themeStretch } = useSettingsContext();
   const {
     user,
-    notificationCount,
   } = useAuthContext();
 
   const [team, setTeam] = useState(null);
@@ -171,7 +170,7 @@ export default function TeamDetailsPage() {
   return (
     <>
       <Helmet>
-        <title> {(notificationCount!==0?'('+notificationCount+')':'')+'Team: ' + team?.name + ' | Sarthak Admin'}</title>
+        <title>{'Team: ' + team?.name + ' | Sarthak Admin'}</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>

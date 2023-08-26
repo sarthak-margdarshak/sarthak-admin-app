@@ -14,11 +14,10 @@
 
 import PropTypes from 'prop-types';
 // React
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 // @mui
 import { LoadingButton } from '@mui/lab';
 import {
-  Checkbox,
   TextField,
   Autocomplete,
   Dialog,
@@ -54,47 +53,38 @@ export default function UserInviteDialoge({ open, onClose, onUpdate, teamName, t
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const [users, setUsers] = useState([]);
-  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState({});
   const { userProfile } = useAuthContext();
   const [role, setRole] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const tempUsers = await User.getUserInviteList();
-      setUsers(tempUsers.documents);
-    }
-    fetchData();
-  }, [userProfile]);
+  const [userList, setUserList] = useState([]);
+  const [isUserListLoading, setIsUserListLoading] = useState(false);
 
   const sendInvite = async () => {
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
-      selectedUsers.map(async (value) => {
-        await Team.sendTeamInvitationEmail(
-          value.email,
-          value.$id,
-          teamName,
-          value.name,
-          userProfile.name,
-          userProfile.designation,
-          userProfile.email,
-          userProfile.phoneNumber,
-          role,
-          teamId,
-          userProfile.$id,
-        );
-      });
+      await Team.sendTeamInvitationEmail(
+        selectedUser.email,
+        selectedUser.$id,
+        teamName,
+        selectedUser.name,
+        userProfile.name,
+        userProfile.designation,
+        userProfile.email,
+        userProfile.phoneNumber,
+        role,
+        teamId,
+        userProfile.$id,
+      );
       await new Promise((resolve) => setTimeout(resolve, 5000));
       onClose();
       onUpdate();
-      enqueueSnackbar('Data sent successfully');
-      setIsSubmitting(false);
+      enqueueSnackbar('Invite sent successfully');
     } catch (error) {
       console.error(error);
       enqueueSnackbar(error.message, { variant: 'error' });
     }
+    setIsSubmitting(false);
   }
 
   return (
@@ -103,28 +93,51 @@ export default function UserInviteDialoge({ open, onClose, onUpdate, teamName, t
       <Block>
         <Autocomplete
           fullWidth
-          multiple
-          options={users}
-          disableCloseOnSelect
-          onChange={(event, value) => { setSelectedUsers(value) }}
-          getOptionLabel={(option) => option?.name + ' (' + option?.$id + ')'}
+          autoComplete
+          value={selectedUser?.name}
+          loading={isUserListLoading}
+          options={userList}
+          onFocus={async (event, value) => {
+            try {
+              setIsUserListLoading(true);
+              const tem = await User.getUserList(value?.$id ? value?.name : value);
+              setUserList(tem);
+              setIsUserListLoading(false);
+            } catch (error) {
+              console.log(error);
+            }
+          }}
+          onInputChange={async (event, value) => {
+            try {
+              setIsUserListLoading(true);
+              const tem = await User.getUserList(value?.$id ? value?.name : value);
+              setUserList(tem);
+              setIsUserListLoading(false);
+            } catch (error) {
+              console.log(error);
+            }
+          }}
+          onChange={async (event, value) => {
+            setSelectedUser(value);
+          }}
+          getOptionLabel={(option) => option?.name ? option?.name + ' (' + option?.empId + ')' : option}
           renderOption={(props, option, { selected }) => (
             <li {...props}>
-              <Checkbox checked={selected} />
-              {option?.name + ' (' + option?.$id + ')'}
+              {option?.name + ' (' + option?.empId + ')'}
             </li>
           )}
           renderInput={(params) => (
-            <TextField {...params} label="Select Users" placeholder="Select" />
+            <TextField {...params} label="Value" />
           )}
+          sx={{ mt: 2 }}
         />
 
         <TextField
           fullWidth
           onChange={(event) => setRole(event.target.value)}
           placeholder='Role'
-          label='Role of all Selecte Users'
-          sx={{mt: 3}}
+          label='Role of Selected User'
+          sx={{ mt: 3 }}
         />
 
         <DialogActions>

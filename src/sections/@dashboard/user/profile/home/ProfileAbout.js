@@ -15,11 +15,13 @@
 import PropTypes from 'prop-types';
 // @mui
 import { styled } from '@mui/material/styles';
-import { Link, Card, Typography, CardHeader, Stack } from '@mui/material';
+import { Link, Card, Typography, CardHeader, Stack, IconButton } from '@mui/material';
 // components
 import Iconify from '../../../../../components/iconify';
 // locales
 import { useLocales } from '../../../../../locales';
+import { useAuthContext } from '../../../../../auth/useAuthContext';
+import { PATH_DASHBOARD } from '../../../../../routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +36,7 @@ const StyledIcon = styled(Iconify)(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 ProfileAbout.propTypes = {
+  userId: PropTypes.string,
   company: PropTypes.string,
   country: PropTypes.string,
   email: PropTypes.string,
@@ -44,12 +47,22 @@ ProfileAbout.propTypes = {
 
 // ----------------------------------------------------------------------
 
-export default function ProfileAbout({ quote, country, email, role, company, school }) {
+export default function ProfileAbout({ userId, quote, country, email, role, company, school }) {
 
   const { translate } = useLocales();
+  const { user } = useAuthContext();
+
   return (
     <Card>
-      <CardHeader title={translate("about")} />
+      <CardHeader
+        title={translate("about")}
+        action={
+          userId === user?.$id ?
+            <IconButton aria-label="Edit" onClick={() => window.open(PATH_DASHBOARD.user.account, '_self')}>
+              <Iconify icon="ic:baseline-edit" />
+            </IconButton> : <></>
+        }
+      />
 
       <Stack spacing={2} sx={{ p: 3 }}>
         <Typography variant="body2">{quote}</Typography>
@@ -58,7 +71,7 @@ export default function ProfileAbout({ quote, country, email, role, company, sch
           <StyledIcon icon="eva:pin-fill" />
 
           <Typography variant="body2">
-            {translate('live_at')+" : "} &nbsp;
+            {translate('live_at') + " : "} &nbsp;
             <Link component="span" variant="subtitle2" color="text.primary">
               {country}
             </Link>
@@ -85,7 +98,7 @@ export default function ProfileAbout({ quote, country, email, role, company, sch
           <StyledIcon icon="material-symbols:school" />
 
           <Typography variant="body2">
-            {translate('studied_at')+' : '} &nbsp;
+            {translate('studied_at') + ' : '} &nbsp;
             <Link component="span" variant="subtitle2" color="text.primary">
               {school}
             </Link>

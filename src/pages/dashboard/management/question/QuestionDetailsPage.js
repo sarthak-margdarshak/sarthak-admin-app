@@ -8,7 +8,6 @@ import { useSettingsContext } from '../../../../components/settings';
 import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
 // sections
 import QuestionDetails from '../../../../sections/@dashboard/question/edit/QuestionDetails';
-import { useAuthContext } from '../../../../auth/useAuthContext';
 import Iconify from '../../../../components/iconify/Iconify';
 
 // ----------------------------------------------------------------------
@@ -18,14 +17,10 @@ export default function QuestionDetailsPage() {
 
   const questionId = window.location.pathname.split('/')[3];
 
-  const {
-    notificationCount,
-  } = useAuthContext();
-
   return (
     <>
       <Helmet>
-        <title> {(notificationCount!==0?'('+notificationCount+')':'')+'Question: View | Sarthak Admin'}</title>
+        <title>Question: View | Sarthak Admin</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>
@@ -46,7 +41,7 @@ export default function QuestionDetailsPage() {
           ]}
           action={
             <Button
-              onClick={() => window.open(PATH_DASHBOARD.question.new,'_blank')}
+              onClick={() => window.open(PATH_DASHBOARD.question.new,'_self')}
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
             >

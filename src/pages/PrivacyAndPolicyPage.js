@@ -80,7 +80,7 @@ export default function PrivacyAndPolicyPage() {
         <Block title="Privacy and policy for Sarthak Guidance Institute">
           <Stack spacing={3}>
             {TYPOGRAPHYS.map((font) => (
-              <BlockVariant key={font.variant} font={font} />
+              <BlockVariant key={font.title} font={font} />
             ))}
           </Stack>
         </Block>

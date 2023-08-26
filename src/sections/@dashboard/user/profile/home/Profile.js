@@ -32,16 +32,17 @@ Profile.propTypes = {
 
 // ----------------------------------------------------------------------
 
-export default function Profile({ infoGeneral, infoProfile, infoSocialLinks }) {
+export default function Profile({ userId, infoGeneral, infoProfile, infoSocialLinks, team, question }) {
 
   const { translate } = useLocales();
 
   return (
     <Stack spacing={3}>
-      <ProfileTaskInfo task="50" question="1000" />
+      <ProfileTaskInfo team={team} question={question} />
 
       <ProfileAbout
         quote={infoGeneral?.about}
+        userId={userId}
         country={infoGeneral?.city+', '+infoGeneral?.state+', '+infoGeneral?.country}
         email={infoProfile?.email}
         role={infoProfile?.designation}
@@ -49,7 +50,7 @@ export default function Profile({ infoGeneral, infoProfile, infoSocialLinks }) {
         school={infoGeneral?.schoolCollege}
       />
 
-      <ProfileSocialInfo socialLinks={infoSocialLinks} />
+      <ProfileSocialInfo userId={userId} socialLinks={infoSocialLinks} />
     </Stack>
   );
 }

@@ -31,10 +31,16 @@ import {
   Toolbar,
   AppBar,
   Chip,
-  Link,
   Skeleton,
   FormControlLabel,
   Checkbox,
+  DialogTitle,
+  DialogContent,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  DialogActions,
+  Radio,
 } from '@mui/material';
 // components
 import Iconify from '../../../../components/iconify';
@@ -43,7 +49,7 @@ import { Upload } from '../../../../components/upload';
 // Auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
 import {
-  Question, User,
+  Question, Team,
 } from '../../../../auth/AppwriteContext';
 // Routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
@@ -58,6 +64,8 @@ import ReactKatex from '@pkasila/react-katex';
 import PermissionDeniedComponent from '../../../_examples/PermissionDeniedComponent';
 import { fDate } from '../../../../utils/formatTime';
 import Image from '../../../../components/image/Image';
+import { SarthakUserDisplayUI } from '../../user/profile';
+import SarthakTeamDisplayUI from '../../team/teamView/SarthakTeamDisplayUI';
 
 // ----------------------------------------------------------------------
 
@@ -183,15 +191,15 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
   const [concept, setConcept] = useState('');
 
   const [status, setStatus] = useState('');
-  const [createdBy, setCreatedBy] = useState({});
+  const [createdBy, setCreatedBy] = useState();
   const [createdAt, setCreatedAt] = useState();
-  const [updatedBy, setUpdatedBy] = useState({});
+  const [updatedBy, setUpdatedBy] = useState();
   const [updatedAt, setUpdatedAt] = useState();
-  const [approvedBy, setApprovedBy] = useState({});
+  const [approvedBy, setApprovedBy] = useState();
   const [approvedAt, setApprovedAt] = useState();
-  const [sentForReviewTo, setSentForReviewTo] = useState({});
+  const [sentForReviewTo, setSentForReviewTo] = useState();
   const [sentForReviewAt, setSentForReviewAt] = useState();
-  const [reviewBackTo, setReviewBackTo] = useState({});
+  const [reviewBackTo, setReviewBackTo] = useState();
   const [reviewBackAt, setReviewBackAt] = useState();
   const [reviewComment, setReviewComment] = useState('');
 
@@ -211,6 +219,9 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
   const [error, setError] = useState({ active: false, message: 'This is an error' })
 
   const [canEdit, setCanEdit] = useState(true);
+  const [openOwernsDialogue, setOpenOwnersDialogue] = useState(false);
+  const [ownTeams, setOwnTeams] = useState([]);
+  const [approvingTeam, setApprovingTeam] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -219,7 +230,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
           const data = await Question.getQuestion(inComingQuestionId);
           setQuestionId(data?.$id);
 
-          setCanEdit(data?.sentForReviewTo===user?.$id || (data?.status==='Initialize' && data?.createdBy===user?.$id) || ((data?.status==='SentForReview' || data?.status==='ReviewedBack') && data?.reviewdBackTo===user?.$id));
+          setCanEdit(await Question.canAction(data?.$id, user?.$id));
 
           setQuestion(data?.contentQuestion);
           var fileData = await Question.getQuestionContentForPreview(data?.coverQuestion);
@@ -269,31 +280,16 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
           setConcept(tmpData);
 
           setStatus(data?.status);
-          if (data?.createdBy) {
-            tmpData = await User.getProfileData(data?.createdBy);
-            setCreatedBy(tmpData);
-          }
           setCreatedAt(data?.$createdAt);
-          if (data?.updatedBy) {
-            tmpData = await User.getProfileData(data?.updatedBy);
-            setUpdatedBy(tmpData);
-          }
+          setCreatedBy(data?.createdBy)
           setUpdatedAt(data?.$updatedAt);
-          if (data?.approvedBy) {
-            tmpData = await User.getProfileData(data?.approvedBy);
-            setApprovedBy(tmpData);
-          }
+          setUpdatedBy(data?.updatedBy);
           setApprovedAt(data?.approvedAt);
-          if (data?.sentForReviewTo) {
-            tmpData = await User.getProfileData(data?.sentForReviewTo);
-            setSentForReviewTo(tmpData);
-          }
+          setApprovedBy(data?.approvedBy);
           setSentForReviewAt(data?.sentForReviewAt);
-          if (data?.reviewdBackTo) {
-            tmpData = await User.getProfileData(data?.reviewdBackTo);
-            setReviewBackTo(tmpData);
-          }
+          setSentForReviewTo(data?.sentForReviewTo);
           setReviewBackAt(data?.reviewBackAt);
+          setReviewBackTo(data?.reviewdBackTo);
           setReviewComment(data?.reviewComment);
         }
         var dt = await Question.getStandardList();
@@ -301,6 +297,8 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
         setChapterList(dt);
         dt = await Question.getConceptList()
         setConceptList(dt);
+        const data = await Team.getMyTeamData(user?.$id);
+        setOwnTeams(data.documents);
       } catch (error) {
         enqueueSnackbar(error.message, { variant: 'error' });
       }
@@ -572,16 +570,20 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
   }
 
   const onSubmit = async () => {
+    setOpenOwnersDialogue(true);
+  };
+
+  const onFinalSubmit = async () => {
     setIsSaving(true);
     try {
-      await Question.sendForApproval(questionId, user?.$id);
+      await Question.sendForApproval(questionId, user?.$id, approvingTeam);
       enqueueSnackbar('Successfully Sent for Approval');
       navigate(PATH_DASHBOARD.question.view(questionId))
     } catch (error) {
       setError({ active: true, message: error.message });
     }
     setIsSaving(false);
-  };
+  }
 
   const handleDropQuestion = useCallback(
     (acceptedFiles) => {
@@ -810,9 +812,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
                 <Stack direction='row' sx={{ m: 2 }}>
                   <Typography sx={{ mr: 1 }} variant="subtitle2">Created By -</Typography>
-                  <Link sx={{ cursor: 'pointer' }} onClick={() => window.open('/dashboard/user/profile/' + createdBy?.$id)}>
-                    <Typography variant="body2">{createdBy?.name}</Typography>
-                  </Link>
+                  <SarthakUserDisplayUI userId={createdBy} />
                 </Stack>
 
                 <Stack direction='row' sx={{ m: 2 }}>
@@ -822,9 +822,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
                 <Stack direction='row' sx={{ m: 2 }}>
                   <Typography sx={{ mr: 1 }} variant="subtitle2">Updated By -</Typography>
-                  <Link sx={{ cursor: 'pointer' }} onClick={() => window.open('/dashboard/user/profile/' + updatedBy?.$id)}>
-                    <Typography variant="body2">{updatedBy?.name}</Typography>
-                  </Link>
+                  <SarthakUserDisplayUI userId={updatedBy} />
                 </Stack>
 
                 <Stack direction='row' sx={{ m: 2 }}>
@@ -834,9 +832,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
                 <Stack direction='row' sx={{ m: 2 }}>
                   <Typography sx={{ mr: 1 }} variant="subtitle2">Approved By -</Typography>
-                  <Link sx={{ cursor: 'pointer' }} onClick={() => window.open('/dashboard/user/profile/' + approvedBy?.$id)}>
-                    <Typography variant="body2">{approvedBy?.name}</Typography>
-                  </Link>
+                  <SarthakUserDisplayUI userId={approvedBy} />
                 </Stack>
               </Grid>
 
@@ -850,9 +846,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
                 <Stack direction='row' sx={{ m: 2 }}>
                   <Typography sx={{ mr: 1 }} variant="subtitle2">Sent For Review To -</Typography>
-                  <Link sx={{ cursor: 'pointer' }} onClick={() => window.open('/dashboard/user/profile/' + sentForReviewTo?.$id)}>
-                    <Typography variant="body2">{sentForReviewTo?.name}</Typography>
-                  </Link>
+                  <SarthakUserDisplayUI userId={sentForReviewTo} />
                 </Stack>
 
                 <Stack direction='row' sx={{ m: 2 }}>
@@ -862,9 +856,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
                 <Stack direction='row' sx={{ m: 2 }}>
                   <Typography sx={{ mr: 1 }} variant="subtitle2">Review Back To -</Typography>
-                  <Link sx={{ cursor: 'pointer' }} onClick={() => window.open('/dashboard/user/profile/' + reviewBackTo?.$id)}>
-                    <Typography variant="body2">{reviewBackTo?.name}</Typography>
-                  </Link>
+                  <SarthakUserDisplayUI userId={reviewBackTo} />
                 </Stack>
 
                 <Stack direction='row' sx={{ m: 2 }}>
@@ -933,9 +925,9 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
               placeholder="Type here......."
               multiline
               fullWidth
-              rows={5}
+              variant="outlined"
+              minRows={5}
               maxRows={10}
-              variant="filled"
               disabled={activeStep === 0 || activeStep === 7}
               value={content}
               onChange={(event) => setContent(event.target.value)}
@@ -1065,8 +1057,8 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
             <Card>
               <CardHeader title={activeStep === 7 ? 'Preview' : STEPS[activeStep]} />
 
-              <CardContent sx={{mt: 2}}>
-                <MotionContainer component={m.body} variants={getVariant(motion)}>
+              <CardContent sx={{ mt: 2 }}>
+                <MotionContainer component={m.div} variants={getVariant(motion)}>
                   <Grid container spacing={3} key={motionKey} sx={{ p: 1, display: activeStep === 0 ? 'block' : 'none' }}>
 
                     <Grid item xs={12} md={12}>
@@ -1226,7 +1218,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   </Grid>
                 </MotionContainer>
 
-                <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 1 ? 'block' : 'none' }}>
+                <MotionContainer component={m.div} variants={getVariant(motion)} sx={{ display: activeStep === 1 ? 'block' : 'none' }}>
                   <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
                     <Grid item xs={12} md={12}>
                       <Paper
@@ -1261,7 +1253,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   </Grid>
                 </MotionContainer>
 
-                <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 2 ? 'block' : 'none' }}>
+                <MotionContainer component={m.div} variants={getVariant(motion)} sx={{ display: activeStep === 2 ? 'block' : 'none' }}>
                   <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
                     <Grid item xs={12} md={12}>
                       <Paper
@@ -1296,7 +1288,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   </Grid>
                 </MotionContainer>
 
-                <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 3 ? 'block' : 'none' }}>
+                <MotionContainer component={m.div} variants={getVariant(motion)} sx={{ display: activeStep === 3 ? 'block' : 'none' }}>
                   <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
 
                     <Grid item xs={12} md={12}>
@@ -1333,7 +1325,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   </Grid>
                 </MotionContainer>
 
-                <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 4 ? 'block' : 'none' }}>
+                <MotionContainer component={m.div} variants={getVariant(motion)} sx={{ display: activeStep === 4 ? 'block' : 'none' }}>
                   <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
 
                     <Grid item xs={12} md={12}>
@@ -1370,7 +1362,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   </Grid>
                 </MotionContainer>
 
-                <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 5 ? 'block' : 'none' }}>
+                <MotionContainer component={m.div} variants={getVariant(motion)} sx={{ display: activeStep === 5 ? 'block' : 'none' }}>
                   <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
                     <Grid item xs={12} md={12}>
                       <Paper
@@ -1405,7 +1397,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   </Grid>
                 </MotionContainer>
 
-                <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 6 ? 'block' : 'none' }}>
+                <MotionContainer component={m.div} variants={getVariant(motion)} sx={{ display: activeStep === 6 ? 'block' : 'none' }}>
                   <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
                     <Grid item xs={12} md={12}>
                       <Stack spacing={1}>
@@ -1466,7 +1458,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   </Grid>
                 </MotionContainer>
 
-                <MotionContainer component={m.body} variants={getVariant(motion)} sx={{ display: activeStep === 7 ? 'block' : 'none' }}>
+                <MotionContainer component={m.div} variants={getVariant(motion)} sx={{ display: activeStep === 7 ? 'block' : 'none' }}>
                   <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
                     <Grid item xs={12} md={12}>
                       <Stack direction='row'>
@@ -1577,6 +1569,50 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
           </Grid>
         </Grid >
       </Paper >
+
+      <Dialog
+        open={openOwernsDialogue}
+        aria-labelledby="responsive-dialog-title"
+      >
+        <DialogTitle id="responsive-dialog-title">
+          {"Select one team and owner for approval"}
+        </DialogTitle>
+        <DialogContent>
+          <FormControl>
+            <FormLabel id="demo-radio-buttons-group-label">Select Approver</FormLabel>
+            <RadioGroup
+              aria-labelledby="demo-radio-buttons-group-label"
+              name="radio-buttons-group"
+            >
+              {
+                ownTeams.map((value, i) => 
+                  <FormControlLabel
+                    key={value?.$id}
+                    value={value?.$id}
+                    control={<Radio />}
+                    sx={{mt: 2, mb: 2}}
+                    onClick={(event) => setApprovingTeam(event.target.value)}
+                    label={
+                      <Stack direction='row' spacing={8}>
+                        <SarthakUserDisplayUI userId={value?.teamOwner} />
+                        <SarthakTeamDisplayUI teamId={value?.$id} />
+                      </Stack>
+                    }
+                  />
+                )
+              }
+            </RadioGroup>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <LoadingButton loading={isSaving} onClick={() => setOpenOwnersDialogue(false)}>
+            Close
+          </LoadingButton>
+          <LoadingButton variant='contained' loading={isSaving} onClick={onFinalSubmit} disabled={ownTeams.length===0 || !approvingTeam}>
+            Submit
+          </LoadingButton>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

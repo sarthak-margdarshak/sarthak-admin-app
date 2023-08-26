@@ -21,7 +21,7 @@ import TeamCard from "./TeamCard";
 // -------------------------------------------------------------------
 
 TeamListCard.propTypes = {
-  teams: PropTypes.object,
+  teams: PropTypes.array,
 };
 
 // -------------------------------------------------------------------

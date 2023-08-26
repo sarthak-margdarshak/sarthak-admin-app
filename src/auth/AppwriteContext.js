@@ -90,25 +90,24 @@ export class User {
    * Function to fetch user list
    * @returns User List
    */
-  static async getUserList() {
+  static async getUserList(name) {
+    if (!name || name === '') {
+      return (await databases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.usersProfile,
+        [
+          Query.limit(100)
+        ]
+      )).documents;
+    }
     return (await databases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.usersProfile,
-    )).documents;
-  }
-
-  /**
-   * Function to fetch users who can be invited
-   * @returns List of users who can be invited to a team
-   */
-  static async getUserInviteList() {
-    return await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.usersProfile,
       [
-        Query.equal('teamMember', ['']),
+        Query.search("name", name),
+        Query.limit(100)
       ]
-    );
+    )).documents;
   }
 
   /**
@@ -181,23 +180,6 @@ export class User {
     if (data2?.teamOwner === currentUser) return 2;
     return 1;
   }
-
-  /**
-   * Function to update profile team member
-   * @param {string} userId User Id
-   * @param {string} teamMember Id of team where user will be a member
-   * @returns profile document
-   */
-  static async updateProfileTeamMember(userId, teamMember) {
-    return await databases.updateDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.usersProfile,
-      userId,
-      {
-        teamMember: teamMember,
-      }
-    )
-  }
 }
 
 // TEAM FUNCTIONS -------------------------------------------------------
@@ -214,7 +196,8 @@ export class Team {
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.teamMembership,
       [
-        Query.equal("userId", [userId])
+        Query.equal("userId", [userId]),
+        Query.limit(100)
       ]
     );
 
@@ -224,7 +207,8 @@ export class Team {
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.teams,
       [
-        Query.equal("$id", ans)
+        Query.equal("$id", ans),
+        Query.limit(100)
       ]
     )
   }
@@ -237,6 +221,9 @@ export class Team {
     return await databases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.teams,
+      [
+        Query.limit(100)
+      ]
     );
   }
 
@@ -394,6 +381,7 @@ export class Team {
       APPWRITE_API.databases.teamMembership,
       [
         Query.equal("teamId", [id]),
+        Query.limit(100)
       ],
     );
   }
@@ -465,6 +453,17 @@ export class Team {
    * @returns - Confirmation of mail sent
    */
   static async sendTeamInvitationEmail(email, userId, teamName, name, managerName, managerDesignation, manageremail, managerPhone, role, teamId, managerId) {
+    const checkMembership = await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.teamMembership,
+      [
+        Query.equal('teamId', [teamId]),
+        Query.equal('userId', [userId]),
+      ]
+    );
+    if(checkMembership.total !== 0) {
+      throw new Error('User already a member of the team.');
+    }
     return await functions.createExecution(
       APPWRITE_API.functions.teamInvite,
       JSON.stringify(
@@ -1208,59 +1207,8 @@ export class Question {
    * @param {string} userId - current user
    * @returns Question object
    */
-  static async sendForApproval(questionId, userId) {
-    // Get Approver ID
-    const tempTeam = (await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.usersProfile,
-      userId,
-      [
-        Query.select(['teamMember']),
-      ]
-    )).teamMember;
-    if (tempTeam === null || tempTeam === '') {
-      throw new Error("You have not joined any team. Please join a team to create Question.");
-    }
-    if (tempTeam === 'initial') {
-
-      // Send Notification
-      await databases.createDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.notifications,
-        ID.unique(),
-        {
-          userId: userId,
-          type: 'QUESTION_REVIEW_RECIEVED',
-          seen: false,
-          completed: false,
-          data: JSON.stringify(
-            {
-              questionId: questionId,
-              createdBy: (await User.getProfileData(userId)).name
-            }
-          )
-        },
-        [
-          Permission.read(Role.any()),
-          Permission.update(Role.any()),
-        ]
-      )
-
-      return await databases.updateDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.questions,
-        questionId,
-        {
-          status: 'SentForReview',
-          sentForReviewTo: userId,
-        }
-      )
-    }
-    const approverId = (await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.teams,
-      tempTeam,
-    ))?.teamOwner;
+  static async sendForApproval(questionId, userId, approvingTeam) {
+    const team = await Team.getTeamData(approvingTeam);
 
     // Send Notification
     await databases.createDocument(
@@ -1268,7 +1216,7 @@ export class Question {
       APPWRITE_API.databases.notifications,
       ID.unique(),
       {
-        userId: approverId,
+        userId: team?.teamOwner,
         type: 'QUESTION_REVIEW_RECIEVED',
         seen: false,
         completed: false,
@@ -1291,7 +1239,7 @@ export class Question {
       questionId,
       {
         status: 'SentForReview',
-        sentForReviewTo: approverId,
+        sentForReviewTo: team?.teamOwner,
         sentForReviewAt: new Date(),
       }
     )
@@ -1372,59 +1320,109 @@ export class Question {
     return null;
   }
 
-  static async getFilteredQuestionList(standard, subject, chapter, concept, startDate, endDate, createdBy) {
+  static async getQuestionList(filterParameter, offset, limit ) {
     var queries = [];
+    queries.push(Query.limit(limit));
+    queries.push(Query.offset(offset));
+    queries.push(Query.orderDesc("$createdAt"))
 
-    queries.push(Query.greaterThanEqual('$createdAt', startDate + 'T00:00:00.000+00:00'))
-    queries.push(Query.lessThanEqual('$createdAt', endDate + 'T23:59:59.999+00:00'))
-
-    if (standard?.length) {
-      queries.push(Query.equal('standardId', standard))
-    } else {
-      queries.push(Query.notEqual('standardId', ['demo']))
+    if (filterParameter?.standardId) {
+      queries.push(Query.equal('standardId', [filterParameter?.standardId]))
     }
 
-    if (subject?.length) {
-      queries.push(Query.equal('subjectId', subject))
-    } else {
-      queries.push(Query.notEqual('subjectId', ['demo']))
+    if (filterParameter?.subjectId) {
+      queries.push(Query.equal('subjectId', [filterParameter?.subjectId]))
     }
 
-    if (chapter?.length) {
-      queries.push(Query.equal('chapterId', chapter))
-    } else {
-      queries.push(Query.notEqual('chapterId', ['demo']))
+    if (filterParameter?.chapterId) {
+      queries.push(Query.equal('chapterId', [filterParameter?.chapterId]))
     }
 
-    if (concept?.length) {
-      queries.push(Query.equal('conceptId', concept))
-    } else {
-      queries.push(Query.notEqual('conceptId', ['demo']))
+    if (filterParameter?.conceptId) {
+      queries.push(Query.equal('conceptId', [filterParameter?.conceptId]))
     }
 
-    if (createdBy?.length) {
-      queries.push(Query.equal('createdBy', createdBy))
-    } else {
-      queries.push(Query.notEqual('createdBy', ['demo']))
+    if (filterParameter?.status) {
+      queries.push(Query.equal('status', [filterParameter?.status]))
+    }
+
+    if (filterParameter?.createdBy) {
+      queries.push(Query.equal('createdBy', filterParameter?.createdBy))
+    }
+
+    if (filterParameter?.updatedBy) {
+      queries.push(Query.equal('updatedBy', filterParameter?.updatedBy))
+    }
+
+    if (filterParameter?.approvedBy) {
+      queries.push(Query.equal('approvedBy', filterParameter?.approvedBy))
+    }
+
+    if (filterParameter?.sentForReviewTo) {
+      queries.push(Query.equal('sentForReviewTo', filterParameter?.sentForReviewTo))
+    }
+
+    if (filterParameter?.reviewedBackTo) {
+      queries.push(Query.equal('reviewdBackTo', filterParameter?.reviewedBackTo))
+    }
+
+    if (filterParameter?.createdAt) {
+      const dates = filterParameter?.createdAt.split('to');
+      queries.push(Query.greaterThanEqual('$createdAt', dates[0]))
+      queries.push(Query.lessThanEqual('$createdAt', dates[1]))
+    }
+
+    if (filterParameter?.updatedAt) {
+      const dates = filterParameter?.updatedAt.split('to');
+      queries.push(Query.greaterThanEqual('$updatedAt', dates[0]))
+      queries.push(Query.lessThanEqual('$updatedAt', dates[1]))
+    }
+
+    if (filterParameter?.approvedAt) {
+      const dates = filterParameter?.approvedAt.split('to');
+      queries.push(Query.greaterThanEqual('approvedAt', dates[0]))
+      queries.push(Query.lessThanEqual('approvedAt', dates[1]))
+    }
+
+    if (filterParameter?.sentForReviewAt) {
+      const dates = filterParameter?.sentForReviewAt.split('to');
+      queries.push(Query.greaterThanEqual('sentForReviewAt', dates[0]))
+      queries.push(Query.lessThanEqual('sentForReviewAt', dates[1]))
+    }
+
+    if (filterParameter?.reviewedBackAt) {
+      const dates = filterParameter?.reviewedBackAt.split('to');
+      queries.push(Query.greaterThanEqual('reviewBackAt', dates[0]))
+      queries.push(Query.lessThanEqual('reviewBackAt', dates[1]))
     }
 
     const data = (await databases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.questions,
       queries,
-    )).documents;
+    ));
 
-    var ans = [];
-    for (let i in data) {
-      ans.push(
-        {
-          ...data[i],
-          question: data[i].question,
-        }
-      )
+    return data;
+  }
+
+  static async canAction(questionId, userId) {
+    const question = await this.getQuestion(questionId);
+    const isOwner = (await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.teams,
+      [
+        Query.equal('teamOwner', [userId])
+      ]
+    )).total!==0;
+    if(isOwner) return true;
+    if(question?.status === 'Initialize') {
+      return (userId === question?.createdBy)
+    } else if(question?.status === 'SentForReview') {
+      return (userId === question?.createdBy || userId === question?.reviewdBackTo)
+    } else if(question?.status === 'ReviewedBack') {
+      return (userId === question?.createdBy || userId === question?.reviewdBackTo)
     }
-
-    return ans;
+    return true;
   }
 
   static async approveQuestion(questionId, userId) {

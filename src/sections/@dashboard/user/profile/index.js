@@ -18,3 +18,4 @@ export { default as ProfileTaskInfo } from './home/ProfileTaskInfo';
 export { default as ProfileSocialInfo } from './home/ProfileSocialInfo';
 
 export { default as ProfileCover } from './ProfileCover';
+export { default as SarthakUserDisplayUI} from './SarthakUserDisplayUI';

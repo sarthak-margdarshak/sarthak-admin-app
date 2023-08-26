@@ -49,7 +49,6 @@ export default function UserUpdatePermissionPage() {
 
   const {
     user,
-    notificationCount,
   } = useAuthContext();
 
   const [currentUser, setCurrentUser] = useState(null);
@@ -92,7 +91,7 @@ export default function UserUpdatePermissionPage() {
   return (
     <>
       <Helmet>
-        <title>{(notificationCount!==0?'('+notificationCount+')':'')+' '+currentUser?.name + " Permission: Update | Sarthak Admin"}</title>
+        <title>{currentUser?.name + " Permission: Update | Sarthak Admin"}</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>
@@ -139,7 +138,6 @@ export default function UserUpdatePermissionPage() {
             </Block>
             <LoadingButton
               variant="contained"
-              alignItems="flex-end"
               startIcon={<Iconify icon="material-symbols:update" />}
               onClick={updatePermission}
               loading={isSubmitting}

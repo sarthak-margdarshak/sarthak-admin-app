@@ -61,11 +61,12 @@ ProfileCover.propTypes = {
   cover: PropTypes.string,
   name: PropTypes.string,
   role: PropTypes.string,
+  empId: PropTypes.string,
 };
 
 // ----------------------------------------------------------------------
 
-export default function ProfileCover({ name, role, cover, profileImage }) {
+export default function ProfileCover({ name, role, cover, profileImage, empId }) {
   return (
     <StyledRoot>
       <StyledInfo>
@@ -92,6 +93,7 @@ export default function ProfileCover({ name, role, cover, profileImage }) {
           }}
         >
           <Typography variant="h4">{name}</Typography>
+          <Typography variant="body">{empId}</Typography>
 
           <Typography sx={{ opacity: 0.72 }}>{role}</Typography>
         </Box>
