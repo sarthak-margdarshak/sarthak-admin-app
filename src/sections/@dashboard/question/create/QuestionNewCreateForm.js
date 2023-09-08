@@ -70,7 +70,7 @@ import SarthakTeamDisplayUI from '../../team/teamView/SarthakTeamDisplayUI';
 
 // ----------------------------------------------------------------------
 
-const STEPS = ['Meta data', 'Question', 'Option A', 'Option B', 'Option C', 'Option D', 'Answer'];
+const STEPS = ['Meta', 'Q', 'A', 'B', 'C', 'D', 'Ans'];
 
 // ----------------------------------------------------------------------
 
@@ -747,28 +747,30 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
   }
 
   const handleStepChange = (index) => async () => {
-    if (activeStep === 0) {
-      saveMetaData(index);
-    } else if (activeStep === 1) {
-      saveQuestion(index);
-    } else if (activeStep === 2) {
-      saveOptionA(index);
-    } else if (activeStep === 3) {
-      saveOptionB(index);
-    } else if (activeStep === 4) {
-      saveOptionC(index);
-    } else if (activeStep === 5) {
-      saveOptionD(index);
-    } else if (activeStep === 6) {
-      saveAnswer(index);
-    } else {
-      setMotionKey(motionKey + 1)
-      setMotion('zoomOut')
-      displaySection(index);
-      setActiveStep(index);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setMotionKey(motionKey + 2)
-      setMotion('fadeInRight')
+    if (activeStep !== index) {
+      if (activeStep === 0) {
+        saveMetaData(index);
+      } else if (activeStep === 1) {
+        saveQuestion(index);
+      } else if (activeStep === 2) {
+        saveOptionA(index);
+      } else if (activeStep === 3) {
+        saveOptionB(index);
+      } else if (activeStep === 4) {
+        saveOptionC(index);
+      } else if (activeStep === 5) {
+        saveOptionD(index);
+      } else if (activeStep === 6) {
+        saveAnswer(index);
+      } else {
+        setMotionKey(motionKey + 1)
+        setMotion('zoomOut')
+        displaySection(index);
+        setActiveStep(index);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setMotionKey(motionKey + 2)
+        setMotion('fadeInRight')
+      }
     }
   }
 
