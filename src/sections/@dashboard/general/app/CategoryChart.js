@@ -33,13 +33,13 @@ const StyledChart = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-AppCurrentDownload.propTypes = {
+CategoryChart.propTypes = {
   chart: PropTypes.object,
   title: PropTypes.string,
   subheader: PropTypes.string,
 };
 
-export default function AppCurrentDownload({ title, subheader, chart, ...other }) {
+export default function CategoryChart({ title, subheader, chart, ...other }) {
   const theme = useTheme();
 
   const { colors, series, options } = chart;
