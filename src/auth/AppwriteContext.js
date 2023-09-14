@@ -461,7 +461,7 @@ export class Team {
         Query.equal('userId', [userId]),
       ]
     );
-    if(checkMembership.total !== 0) {
+    if (checkMembership.total !== 0) {
       throw new Error('User already a member of the team.');
     }
     return await functions.createExecution(
@@ -1320,7 +1320,7 @@ export class Question {
     return null;
   }
 
-  static async getQuestionList(filterParameter, offset, limit ) {
+  static async getQuestionList(filterParameter, offset, limit) {
     var queries = [];
     queries.push(Query.limit(limit));
     queries.push(Query.offset(offset));
@@ -1413,13 +1413,13 @@ export class Question {
       [
         Query.equal('teamOwner', [userId])
       ]
-    )).total!==0;
-    if(isOwner) return true;
-    if(question?.status === 'Initialize') {
+    )).total !== 0;
+    if (isOwner) return true;
+    if (question?.status === 'Initialize') {
       return (userId === question?.createdBy)
-    } else if(question?.status === 'SentForReview') {
+    } else if (question?.status === 'SentForReview') {
       return (userId === question?.createdBy || userId === question?.reviewdBackTo)
-    } else if(question?.status === 'ReviewedBack') {
+    } else if (question?.status === 'ReviewedBack') {
       return (userId === question?.createdBy || userId === question?.reviewdBackTo)
     }
     return true;
@@ -1487,6 +1487,120 @@ export class Question {
         updatedBy: userId,
       }
     )
+  }
+
+  static async getTotalQuestionSubjectWise() {
+    const subjects = await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.subjects,
+      [
+        Query.orderDesc("count"),
+        Query.limit(5),
+      ]
+    );
+
+    const totalQuestionCount = (await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.questions,
+      [Query.limit(0)]
+    )).total;
+
+    var currToatal = 0;
+    var ans = [];
+    for (let i in subjects.documents) {
+      currToatal += subjects.documents[i].count;
+      ans.push({ label: subjects.documents[i]?.name, value: subjects.documents[i].count })
+    }
+    ans.push({ label: 'Others', value: totalQuestionCount-currToatal })
+    return ans;
+  }
+
+  static async getTotalQuestionStandardWise() {
+    const standards = await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.standards,
+      [
+        Query.orderDesc("count"),
+        Query.limit(5),
+      ]
+    );
+
+    const totalQuestionCount = (await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.questions,
+      [Query.limit(0)]
+    )).total;
+
+    var currToatal = 0;
+    var ans = [];
+    for (let i in standards.documents) {
+      currToatal += standards.documents[i].count;
+      ans.push({ label: standards.documents[i]?.name, value: standards.documents[i].count })
+    }
+    ans.push({ label: 'Others', value: totalQuestionCount-currToatal })
+    return ans;
+  }
+
+  static async getTotalQuestionChapterWise() {
+    const chapters = await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.chapters,
+      [
+        Query.orderDesc("count"),
+        Query.limit(5),
+      ]
+    );
+
+    const totalQuestionCount = (await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.questions,
+      [Query.limit(0)]
+    )).total;
+
+    var currToatal = 0;
+    var ans = [];
+    for (let i in chapters.documents) {
+      currToatal += chapters.documents[i].count;
+      ans.push({ label: chapters.documents[i]?.name, value: chapters.documents[i].count })
+    }
+    ans.push({ label: 'Others', value: totalQuestionCount-currToatal })
+    return ans;
+  }
+
+  static async getTotalQuestionConceptWise() {
+    const concepts = await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.concepts,
+      [
+        Query.orderDesc("count"),
+        Query.limit(5),
+      ]
+    );
+
+    const totalQuestionCount = (await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.questions,
+      [Query.limit(0)]
+    )).total;
+
+    var currToatal = 0;
+    var ans = [];
+    for (let i in concepts.documents) {
+      currToatal += concepts.documents[i].count;
+      ans.push({ label: concepts.documents[i]?.name, value: concepts.documents[i].count })
+    }
+    ans.push({ label: 'Others', value: totalQuestionCount-currToatal })
+    return ans;
+  }
+
+  static async getQuestionTypedData() {
+    return JSON.parse(
+      (await databases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.sarthakInfoData,
+        APPWRITE_API.databases.sarthakInfoDataCollection
+      )).questionCount
+    );
   }
 }
 
