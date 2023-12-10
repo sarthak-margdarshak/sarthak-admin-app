@@ -11,7 +11,6 @@ import {
   Paper,
   Button,
   Stepper,
-  StepLabel,
   StepConnector,
   stepConnectorClasses,
   Grid,

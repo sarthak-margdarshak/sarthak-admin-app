@@ -1502,7 +1502,7 @@ export class Question {
     const totalQuestionCount = (await databases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.questions,
-      [Query.limit(0)]
+      [Query.limit(1)]
     )).total;
 
     var currToatal = 0;
@@ -1528,7 +1528,7 @@ export class Question {
     const totalQuestionCount = (await databases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.questions,
-      [Query.limit(0)]
+      [Query.limit(1)]
     )).total;
 
     var currToatal = 0;
@@ -1554,7 +1554,7 @@ export class Question {
     const totalQuestionCount = (await databases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.questions,
-      [Query.limit(0)]
+      [Query.limit(1)]
     )).total;
 
     var currToatal = 0;
@@ -1580,7 +1580,7 @@ export class Question {
     const totalQuestionCount = (await databases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.questions,
-      [Query.limit(0)]
+      [Query.limit(1)]
     )).total;
 
     var currToatal = 0;
