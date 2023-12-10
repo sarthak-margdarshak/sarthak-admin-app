@@ -78,5 +78,14 @@ export const PATH_DASHBOARD = {
   notification: {
     root: path(ROOTS_DASHBOARD, '/notifications'),
     list: path(ROOTS_DASHBOARD, '/notifications/list'),
-  }
+  },
+  mockTest: {
+    root: path(ROOTS_DASHBOARD, '/mock-test'),
+    standardList: path(ROOTS_DASHBOARD, '/mock-test/list'),
+    subjectList: (standardId) => path(ROOTS_DASHBOARD, `/mock-test/list/standard/${standardId}`),
+    chapterList: (standardId, subjectId) => path(ROOTS_DASHBOARD, `/mock-test/list/standard/${standardId}/subject/${subjectId}`),
+    conceptList: (standardId, subjectId, chapterId) => path(ROOTS_DASHBOARD, `/mock-test/list/standard/${standardId}/subject/${subjectId}/chapter/${chapterId}`),
+    view: (id) => path(ROOTS_DASHBOARD, `/mock-test/${id}`),
+    edit: (id) => path(ROOTS_DASHBOARD, `/mock-test/${id}/edit`),
+  },
 };

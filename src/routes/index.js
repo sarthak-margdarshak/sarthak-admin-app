@@ -59,6 +59,12 @@ import {
   ChangeLogPage,
   PrivacyAndPolicyPage,
   TermsAndConditionsPage,
+  MockTestListStandardPage,
+  MockTestPage,
+  MockTestEditPage,
+  MockTestListBySubjectPage,
+  MockTestListByChapterPage,
+  MockTestListByConceptPage,
 } from './elements';
 
 // ----------------------------------------------------------------------
@@ -139,6 +145,19 @@ export default function Router() {
           children: [
             { element: <Navigate to="/dashboard/notifications/list" replace />, index: true },
             { path: 'list', element: <NotificationListPage /> },
+          ]
+        },
+        // Dashboard: Mock Test
+        {
+          path: 'mock-test',
+          children: [
+            { element: <Navigate to="/dashboard/mock-test/list" replace />, index: true },
+            { path: 'list', element: <MockTestListStandardPage /> },
+            { path: 'list/standard/:standardId', element: <MockTestListBySubjectPage /> },
+            { path: 'list/standard/:standardId/subject/:subjectId', element: <MockTestListByChapterPage /> },
+            { path: 'list/standard/:standardId/subject/:subjectId/chapter/:chapterId', element: <MockTestListByConceptPage /> },
+            { path: ':id', element: <MockTestPage /> },
+            { path: ':id/edit', element: <MockTestEditPage /> },
           ]
         },
       ],

@@ -31,6 +31,7 @@ const ICONS = {
   team: icon('ic_team'),
   task: icon('ic_task'),
   question: icon('ic_question'),
+  mockTest: icon('ic_mockTest'),
   invoice: icon('ic_invoice'),
   chat: icon('ic_chat'),
   calendar: icon('ic_calendar'),
@@ -74,6 +75,13 @@ const navConfig = [
         title: 'question',
         path: PATH_DASHBOARD.question.root,
         icon: ICONS.question,
+      },
+
+      // MOCK-TEST
+      {
+        title: 'mock-test',
+        path: PATH_DASHBOARD.mockTest.root,
+        icon: ICONS.mockTest,
       },
     ],
   },
