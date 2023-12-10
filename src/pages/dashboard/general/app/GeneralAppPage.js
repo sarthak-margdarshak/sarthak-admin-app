@@ -28,12 +28,16 @@ import { useSettingsContext } from '../../../../components/settings';
 import {
   AppWelcome,
   AppFeatured,
-  AppAreaInstalled,
+  QuestionTypedChart,
   AppWidgetSummary,
-  AppCurrentDownload,
+  CategoryChart,
 } from '../../../../sections/@dashboard/general/app';
 // assets
 import { SeoIllustration } from '../../../../assets/illustrations';
+import { useEffect } from 'react';
+import { useState } from 'react';
+import { Question } from '../../../../auth/AppwriteContext';
+import { PATH_DASHBOARD } from '../../../../routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -43,6 +47,31 @@ export default function GeneralAppPage() {
   const theme = useTheme();
 
   const { themeStretch } = useSettingsContext();
+
+  const [standardWiseSeries, setStandardWise] = useState([]);
+  const [subjectWiseSeries, setSubjectWise] = useState([]);
+  const [chapterWiseSeries, setChapterWise] = useState([]);
+  const [conceptWiseSeries, setConceptWise] = useState([]);
+  const [questionCount, setQuestionCount] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      var data = await Question.getTotalQuestionStandardWise();
+      setStandardWise(data);
+      data = await Question.getTotalQuestionSubjectWise();
+      setSubjectWise(data);
+      data = await Question.getTotalQuestionChapterWise();
+      setChapterWise(data);
+      data = await Question.getTotalQuestionConceptWise();
+      setConceptWise(data);
+      data = await Question.getQuestionTypedData();
+      setQuestionCount(data);
+      setLoading(false);
+    }
+    fetchData();
+  }, [user])
 
   return (
     <>
@@ -55,7 +84,7 @@ export default function GeneralAppPage() {
           <Grid item xs={12} md={8}>
             <AppWelcome
               title={`Welcome back! \n ${user?.name}`}
-              description="If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything."
+              description="Have you typed any question? Contribute to Sarthak Institute by adding questions to the System. Click below!!!"
               img={
                 <SeoIllustration
                   sx={{
@@ -65,7 +94,7 @@ export default function GeneralAppPage() {
                   }}
                 />
               }
-              action={<Button variant="contained">Go Now</Button>}
+              action={<Button variant="contained" onClick={() => window.open(PATH_DASHBOARD.question.new, '_self')}>Enter The magic world</Button>}
             />
           </Grid>
 
@@ -73,87 +102,50 @@ export default function GeneralAppPage() {
             <AppFeatured list={_appFeatured} />
           </Grid>
 
-          <Grid item xs={12} md={4}>
-            <AppWidgetSummary
-              title="Total Active Users"
-              percent={2.6}
-              total={18765}
+          <Grid item xs={12} md={6} lg={4}>
+            <CategoryChart
+              title="Total Question Standard wise"
               chart={{
-                colors: [theme.palette.primary.main],
-                series: [5, 18, 12, 51, 68, 11, 39, 37, 27, 20],
-              }}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <AppWidgetSummary
-              title="Total Installed"
-              percent={0.2}
-              total={4876}
-              chart={{
-                colors: [theme.palette.info.main],
-                series: [20, 41, 63, 33, 28, 35, 50, 46, 11, 26],
-              }}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <AppWidgetSummary
-              title="Total Downloads"
-              percent={-0.1}
-              total={678}
-              chart={{
-                colors: [theme.palette.warning.main],
-                series: [8, 9, 31, 8, 16, 37, 8, 33, 46, 31],
+                series: standardWiseSeries,
               }}
             />
           </Grid>
 
           <Grid item xs={12} md={6} lg={4}>
-            <AppCurrentDownload
-              title="Current Download"
+            <CategoryChart
+              title="Total Question Subject wise"
               chart={{
-                colors: [
-                  theme.palette.primary.main,
-                  theme.palette.info.main,
-                  theme.palette.error.main,
-                  theme.palette.warning.main,
-                ],
-                series: [
-                  { label: 'Mac', value: 12244 },
-                  { label: 'Window', value: 53345 },
-                  { label: 'iOS', value: 44313 },
-                  { label: 'Android', value: 78343 },
-                ],
+                series: subjectWiseSeries,
               }}
             />
           </Grid>
 
-          <Grid item xs={12} md={6} lg={8}>
-            <AppAreaInstalled
-              title="Area Installed"
-              subheader="(+43%) than last year"
+          <Grid item xs={12} md={6} lg={4}>
+            <CategoryChart
+              title="Total Question Chapter wise"
               chart={{
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                series: [
-                  {
-                    year: '2019',
-                    data: [
-                      { name: 'Asia', data: [10, 41, 35, 51, 49, 62, 69, 91, 148] },
-                      { name: 'America', data: [10, 34, 13, 56, 77, 88, 99, 77, 45] },
-                    ],
-                  },
-                  {
-                    year: '2020',
-                    data: [
-                      { name: 'Asia', data: [148, 91, 69, 62, 49, 51, 35, 41, 10] },
-                      { name: 'America', data: [45, 77, 99, 88, 77, 56, 13, 34, 10] },
-                    ],
-                  },
-                ],
+                series: chapterWiseSeries,
               }}
             />
           </Grid>
+
+          <Grid item xs={12} md={6} lg={4}>
+            <CategoryChart
+              title="Total Question Concept wise"
+              chart={{
+                series: conceptWiseSeries,
+              }}
+            />
+          </Grid>
+
+          {!loading &&
+            <Grid item xs={12} md={6} lg={8}>
+              <QuestionTypedChart
+                title="Question Typed"
+                questionCount={questionCount}
+              />
+            </Grid>
+          }
         </Grid>
       </Container>
     </>

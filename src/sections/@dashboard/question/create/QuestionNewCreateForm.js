@@ -41,6 +41,7 @@ import {
   RadioGroup,
   DialogActions,
   Radio,
+  StepButton,
 } from '@mui/material';
 // components
 import Iconify from '../../../../components/iconify';
@@ -69,7 +70,7 @@ import SarthakTeamDisplayUI from '../../team/teamView/SarthakTeamDisplayUI';
 
 // ----------------------------------------------------------------------
 
-const STEPS = ['Meta data', 'Question', 'Option A', 'Option B', 'Option C', 'Option D', 'Answer'];
+const STEPS = ['Meta', 'Q', 'A', 'B', 'C', 'D', 'Ans'];
 
 // ----------------------------------------------------------------------
 
@@ -163,6 +164,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
   const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState(0);
+  const [completedStep, setCompletedStep] = useState({});
   const [content, setContent] = useState('');
 
   const [questionId, setQuestionId] = useState('');
@@ -307,49 +309,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
     fetchData();
   }, [inComingQuestionId, enqueueSnackbar, user])
 
-  const handleNext = () => {
-    if (activeStep === 0) {
-      saveMetaData();
-    } else if (activeStep === 1) {
-      saveQuestion(1);
-    } else if (activeStep === 2) {
-      saveOptionA(1);
-    } else if (activeStep === 3) {
-      saveOptionB(1);
-    } else if (activeStep === 4) {
-      saveOptionC(1);
-    } else if (activeStep === 5) {
-      saveOptionD(1);
-    } else if (activeStep === 6) {
-      saveAnswer(1);
-    }
-  };
-
-  const handleBack = async () => {
-    if (activeStep === 1) {
-      saveQuestion(-1);
-    } else if (activeStep === 2) {
-      saveOptionA(-1);
-    } else if (activeStep === 3) {
-      saveOptionB(-1);
-    } else if (activeStep === 4) {
-      saveOptionC(-1);
-    } else if (activeStep === 5) {
-      saveOptionD(-1);
-    } else if (activeStep === 6) {
-      saveAnswer(-1);
-    } else {
-      setMotionKey(motionKey + 1)
-      setMotion('zoomOut')
-      setContent(contentAnswer);
-      setActiveStep((prevActiveStep) => prevActiveStep - 1);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setMotionKey(motionKey + 2)
-      setMotion('fadeInRight')
-    }
-  };
-
-  const saveMetaData = async () => {
+  const saveMetaData = async (moveTo) => {
     setIsSaving(true);
     if (standard === null || standard === '') {
       setError({ active: true, message: 'Standard cannot be empty. — check it out!' });
@@ -374,10 +334,10 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
     try {
       const savedQuestion = await Question.uploadMetaDataQuestion(questionId, standard, subject, chapter, concept, user?.$id);
       setQuestionId(savedQuestion?.$id);
-      setContent(question);
+      displaySection(moveTo);
       setMotionKey(motionKey + 1)
       setMotion('zoomOut')
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      setActiveStep(moveTo);
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setMotionKey(motionKey + 2)
       setMotion('fadeInRight');
@@ -388,7 +348,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
     setMotionKey(motionKey + 1);
   }
 
-  const saveQuestion = async (direction) => {
+  const saveQuestion = async (moveTo) => {
     setQuestion(content);
     setIsSaving(true);
     if (content === null || content === '') {
@@ -401,14 +361,10 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
       const fileData = await Question.getQuestionContentForPreview(data?.coverQuestion);
       setCoverQuestion(fileData);
 
-      if (direction === 1) {
-        setContent(optionA);
-      } else {
-        setContent('');
-      }
+      displaySection(moveTo)
       setMotionKey(motionKey + 1)
       setMotion('zoomOut')
-      setActiveStep((prevActiveStep) => prevActiveStep + direction);
+      setActiveStep(moveTo);
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setMotionKey(motionKey + 2)
       setMotion('fadeInRight')
@@ -418,7 +374,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
     setIsSaving(false);
   }
 
-  const saveOptionA = async (direction) => {
+  const saveOptionA = async (moveTo) => {
     setIsSaving(true);
     setOptionA(content);
     if (content === null || content === '') {
@@ -430,14 +386,10 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
       const data = await Question.uploadOptionAContent(questionId, content, coverOptionA, user?.$id);
       const fileData = await Question.getQuestionContentForPreview(data?.coverOptionA);
       setCoverOptionA(fileData);
-      if (direction === 1) {
-        setContent(optionB);
-      } else {
-        setContent(question);
-      }
+      displaySection(moveTo)
       setMotionKey(motionKey + 1)
       setMotion('zoomOut')
-      setActiveStep((prevActiveStep) => prevActiveStep + direction);
+      setActiveStep(moveTo);
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setMotionKey(motionKey + 2)
       setMotion('fadeInRight')
@@ -447,7 +399,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
     setIsSaving(false);
   }
 
-  const saveOptionB = async (direction) => {
+  const saveOptionB = async (moveTo) => {
     setIsSaving(true);
     setOptionB(content);
     if (content === null || content === '') {
@@ -459,14 +411,10 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
       const data = await Question.uploadOptionBContent(questionId, content, coverOptionB, user?.$id);
       const fileData = await Question.getQuestionContentForPreview(data?.coverOptionB);
       setCoverOptionB(fileData);
-      if (direction === 1) {
-        setContent(optionC);
-      } else {
-        setContent(optionA);
-      }
+      displaySection(moveTo)
       setMotionKey(motionKey + 1)
       setMotion('zoomOut')
-      setActiveStep((prevActiveStep) => prevActiveStep + direction);
+      setActiveStep(moveTo);
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setMotionKey(motionKey + 2)
       setMotion('fadeInRight')
@@ -476,7 +424,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
     setIsSaving(false);
   }
 
-  const saveOptionC = async (direction) => {
+  const saveOptionC = async (moveTo) => {
     setIsSaving(true);
     setOptionC(content);
     if (content === null || content === '') {
@@ -488,14 +436,10 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
       const data = await Question.uploadOptionCContent(questionId, content, coverOptionC, user?.$id);
       const fileData = await Question.getQuestionContentForPreview(data?.coverOptionC);
       setCoverOptionC(fileData);
-      if (direction === 1) {
-        setContent(optionD);
-      } else {
-        setContent(optionB);
-      }
+      displaySection(moveTo)
       setMotionKey(motionKey + 1)
       setMotion('zoomOut')
-      setActiveStep((prevActiveStep) => prevActiveStep + direction);
+      setActiveStep(moveTo);
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setMotionKey(motionKey + 2)
       setMotion('fadeInRight')
@@ -505,7 +449,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
     setIsSaving(false);
   }
 
-  const saveOptionD = async (direction) => {
+  const saveOptionD = async (moveTo) => {
     setIsSaving(true);
     setOptionD(content);
     if (content === null || content === '') {
@@ -517,14 +461,10 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
       const data = await Question.uploadOptionDContent(questionId, content, coverOptionD, user?.$id);
       const fileData = await Question.getQuestionContentForPreview(data?.coverOptionD);
       setCoverOptionD(fileData);
-      if (direction === 1) {
-        setContent(contentAnswer);
-      } else {
-        setContent(optionC);
-      }
+      displaySection(moveTo)
       setMotionKey(motionKey + 1);
       setMotion('zoomOut');
-      setActiveStep((prevActiveStep) => prevActiveStep + direction);
+      setActiveStep(moveTo);
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setMotionKey(motionKey + 2);
       setMotion('fadeInRight');
@@ -534,7 +474,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
     setIsSaving(false);
   }
 
-  const saveAnswer = async (direction) => {
+  const saveAnswer = async (moveTo) => {
     setIsSaving(true);
     setContentAnswer(content);
     var tmp = '';
@@ -552,14 +492,10 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
       const data = await Question.uploadAnswerContent(questionId, tmp, content, coverAnswer, user?.$id);
       const fileData = await Question.getQuestionContentForPreview(data?.coverAnswer);
       setCoverAnswer(fileData);
-      if (direction === 1) {
-        setContent('');
-      } else {
-        setContent(optionD);
-      }
+      displaySection(moveTo)
       setMotionKey(motionKey + 1);
       setMotion('zoomOut');
-      setActiveStep((prevActiveStep) => prevActiveStep + direction);
+      setActiveStep(moveTo);
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setMotionKey(motionKey + 2);
       setMotion('fadeInRight');
@@ -787,6 +723,57 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
     return <PermissionDeniedComponent />
   }
 
+  const displaySection = (step) => {
+    if (step === 0) {
+      setContent('');
+    } else if (step === 1) {
+      setContent(question);
+    } else if (step === 2) {
+      setContent(optionA);
+    } else if (step === 3) {
+      setContent(optionB);
+    } else if (step === 4) {
+      setContent(optionC);
+    } else if (step === 5) {
+      setContent(optionD);
+    } else if (step === 6) {
+      setContent(contentAnswer);
+    } else {
+      setContent('');
+    }
+    const newCompleted = completedStep;
+    newCompleted[activeStep] = true;
+    setCompletedStep(newCompleted);
+  }
+
+  const handleStepChange = (index) => async () => {
+    if (activeStep !== index) {
+      if (activeStep === 0) {
+        saveMetaData(index);
+      } else if (activeStep === 1) {
+        saveQuestion(index);
+      } else if (activeStep === 2) {
+        saveOptionA(index);
+      } else if (activeStep === 3) {
+        saveOptionB(index);
+      } else if (activeStep === 4) {
+        saveOptionC(index);
+      } else if (activeStep === 5) {
+        saveOptionD(index);
+      } else if (activeStep === 6) {
+        saveAnswer(index);
+      } else {
+        setMotionKey(motionKey + 1)
+        setMotion('zoomOut')
+        displaySection(index);
+        setActiveStep(index);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setMotionKey(motionKey + 2)
+        setMotion('fadeInRight')
+      }
+    }
+  }
+
   return (
     <>
       {inComingQuestionId &&
@@ -889,10 +876,12 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
         <Grid container spacing={4}>
           <Grid item xs>
-            <Stepper alternativeLabel activeStep={activeStep} connector={<QontoConnector />} >
-              {STEPS.map((label) => (
-                <Step key={label}>
-                  <StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
+            <Stepper nonLinear activeStep={activeStep} connector={<QontoConnector />} >
+              {STEPS.map((label, index) => (
+                <Step key={label} completed={completedStep[index]}>
+                  <StepButton color="inherit" onClick={handleStepChange(index)} StepIconComponent={QontoStepIcon}>
+                    {label}
+                  </StepButton>
                 </Step>
               ))}
             </Stepper>
@@ -990,7 +979,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   <LoadingButton
                     disabled={activeStep === 0}
                     variant="contained"
-                    onClick={handleBack}
+                    onClick={handleStepChange(activeStep - 1)}
                     sx={{ mr: 1 }}
                     loading={isSaving}
                     startIcon={<Iconify icon="mingcute:back-fill" />}
@@ -1017,7 +1006,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                     :
                     <LoadingButton
                       variant="contained"
-                      onClick={handleNext}
+                      onClick={handleStepChange(activeStep + 1)}
                       sx={{ mr: 1 }}
                       endIcon={<Iconify icon="carbon:next-outline" />}
                       color='success'
@@ -1585,12 +1574,12 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
               name="radio-buttons-group"
             >
               {
-                ownTeams.map((value, i) => 
+                ownTeams.map((value, i) =>
                   <FormControlLabel
                     key={value?.$id}
                     value={value?.$id}
                     control={<Radio />}
-                    sx={{mt: 2, mb: 2}}
+                    sx={{ mt: 2, mb: 2 }}
                     onClick={(event) => setApprovingTeam(event.target.value)}
                     label={
                       <Stack direction='row' spacing={8}>
@@ -1608,7 +1597,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
           <LoadingButton loading={isSaving} onClick={() => setOpenOwnersDialogue(false)}>
             Close
           </LoadingButton>
-          <LoadingButton variant='contained' loading={isSaving} onClick={onFinalSubmit} disabled={ownTeams.length===0 || !approvingTeam}>
+          <LoadingButton variant='contained' loading={isSaving} onClick={onFinalSubmit} disabled={ownTeams.length === 0 || !approvingTeam}>
             Submit
           </LoadingButton>
         </DialogActions>
