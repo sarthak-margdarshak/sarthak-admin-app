@@ -14,7 +14,6 @@
 
 import { Helmet } from 'react-helmet-async';
 // @mui
-import { useTheme } from '@mui/material/styles';
 import { Container, Grid, Button } from '@mui/material';
 // auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
@@ -29,7 +28,6 @@ import {
   AppWelcome,
   AppFeatured,
   QuestionTypedChart,
-  AppWidgetSummary,
   CategoryChart,
 } from '../../../../sections/@dashboard/general/app';
 // assets
@@ -43,8 +41,6 @@ import { PATH_DASHBOARD } from '../../../../routes/paths';
 
 export default function GeneralAppPage() {
   const { user } = useAuthContext();
-
-  const theme = useTheme();
 
   const { themeStretch } = useSettingsContext();
 
