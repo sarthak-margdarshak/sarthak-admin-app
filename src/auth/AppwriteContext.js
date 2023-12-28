@@ -1682,6 +1682,31 @@ export class Notification {
 
 // ----------------------------------------------------------------------
 
+export class MockTest {
+  static async createMockTest(name, description, standardId, subjectId, chapterId, time) {
+    return (await databases.createDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTests,
+      ID.unique(),
+      {
+        standardId: standardId,
+        subjectId: subjectId,
+        name: name,
+        description: description,
+        status: false,
+        time: time,
+        chapterId: chapterId,
+      },
+      [
+        Permission.read(Role.any()),
+        Permission.update(Role.any()),
+      ]
+    )).$id
+  }
+}
+
+// ----------------------------------------------------------------------
+
 const initialState = {
   isInitialized: false,
   isAuthenticated: false,

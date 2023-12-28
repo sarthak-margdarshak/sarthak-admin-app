@@ -81,6 +81,7 @@ export const PATH_DASHBOARD = {
   },
   mockTest: {
     root: path(ROOTS_DASHBOARD, '/mock-test'),
+    new: path(ROOTS_DASHBOARD, '/mock-test/new'),
     standardList: path(ROOTS_DASHBOARD, '/mock-test/list'),
     subjectList: (standardId) => path(ROOTS_DASHBOARD, `/mock-test/list/standard/${standardId}`),
     chapterList: (standardId, subjectId) => path(ROOTS_DASHBOARD, `/mock-test/list/standard/${standardId}/subject/${subjectId}`),

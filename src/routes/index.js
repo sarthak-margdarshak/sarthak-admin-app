@@ -66,6 +66,7 @@ import {
   MockTestListByChapterPage,
   MockTestListByConceptPage,
 } from './elements';
+import MockTestNewPage from '../pages/dashboard/management/mock-test/MockTestNewPage';
 
 // ----------------------------------------------------------------------
 
@@ -153,6 +154,7 @@ export default function Router() {
           children: [
             { element: <Navigate to="/dashboard/mock-test/list" replace />, index: true },
             { path: 'list', element: <MockTestListStandardPage /> },
+            { path: 'new', element: <MockTestNewPage />},
             { path: 'list/standard/:standardId', element: <MockTestListBySubjectPage /> },
             { path: 'list/standard/:standardId/subject/:subjectId', element: <MockTestListByChapterPage /> },
             { path: 'list/standard/:standardId/subject/:subjectId/chapter/:chapterId', element: <MockTestListByConceptPage /> },
