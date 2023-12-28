@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { Link as RouterLink } from 'react-router-dom';
 // @mui
 import { Button, Container } from '@mui/material';
 // routes
@@ -35,7 +36,8 @@ export default function QuestionEditPage() {
           ]}
           action={
             <Button
-              onClick={() => window.open(PATH_DASHBOARD.question.new, '_self')}
+              to={PATH_DASHBOARD.question.new}
+              component={RouterLink}
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
             >

@@ -4,6 +4,7 @@ import CustomBreadcrumbs from "../../../../../components/custom-breadcrumbs";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
 import { useSettingsContext } from "../../../../../components/settings";
 import Iconify from "../../../../../components/iconify";
+import { Link as RouterLink } from 'react-router-dom';
 
 export default function ListByStandard() {
   const { themeStretch } = useSettingsContext();
@@ -31,7 +32,8 @@ export default function ListByStandard() {
           ]}
           action={
             <Button
-              href= {PATH_DASHBOARD.mockTest.new}
+              component={RouterLink}
+              to={PATH_DASHBOARD.mockTest.new}
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
             >
