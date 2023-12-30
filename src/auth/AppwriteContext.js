@@ -1703,6 +1703,30 @@ export class MockTest {
       ]
     )).$id
   }
+
+  static async getMockTestStandardList() {
+    const standardList = await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTests,
+      [
+        Query.select(["standardId"])
+      ]
+    );
+
+    var x = new Set();
+
+    for(let i=0; i<standardList.total; i++) {
+      x.add(standardList.documents[i].standardId);
+    }
+
+    var res = [];
+    for(const i of x) {
+      const name = await Question.getStandardName(i);
+      res.push({id: i, name: name})
+    }
+
+    return res;
+  }
 }
 
 // ----------------------------------------------------------------------

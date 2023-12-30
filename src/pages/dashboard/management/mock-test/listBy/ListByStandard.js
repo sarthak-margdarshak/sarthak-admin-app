@@ -1,13 +1,29 @@
-import { Button, Container } from "@mui/material";
+import { Button, Container, Grid, Skeleton } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import CustomBreadcrumbs from "../../../../../components/custom-breadcrumbs";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
 import { useSettingsContext } from "../../../../../components/settings";
 import Iconify from "../../../../../components/iconify";
 import { Link as RouterLink } from 'react-router-dom';
+import MockTestTile from "../../../../../sections/@dashboard/mock-test/MockTestTile";
+import { useEffect, useState } from "react";
+import { MockTest } from "../../../../../auth/AppwriteContext";
+import MockLoaderSkeleton from "../../../../../sections/@dashboard/mock-test/MockLoaderSkeleton";
 
 export default function ListByStandard() {
   const { themeStretch } = useSettingsContext();
+  const [standardList, setStandardList] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      const data = await MockTest.getMockTestStandardList();
+      setStandardList(data);
+      setLoading(false)
+    }
+    fetchData();
+  }, [])
 
   return (
     <>
@@ -42,7 +58,26 @@ export default function ListByStandard() {
           }
         />
 
-      </Container>
+        {
+          loading
+            ?
+              <MockLoaderSkeleton />
+            :
+              <Grid container spacing={3}>
+                {
+                  standardList.map((value) =>
+                    <Grid item key={value.id}>
+                      <MockTestTile
+                        tileValue={value.name}
+                        tileLink={PATH_DASHBOARD.mockTest.subjectList(value.id)}
+                      />
+                    </Grid>
+                  )
+                }
+              </Grid>
+        }
+
+      </Container >
     </>
   )
 }
