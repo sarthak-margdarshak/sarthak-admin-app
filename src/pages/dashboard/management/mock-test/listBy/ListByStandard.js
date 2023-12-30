@@ -1,4 +1,4 @@
-import { Button, Container, Grid, Skeleton } from "@mui/material";
+import { Button, Container, Grid } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import CustomBreadcrumbs from "../../../../../components/custom-breadcrumbs";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";

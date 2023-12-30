@@ -10,7 +10,7 @@ const GradientButton0 = styled(Button)`
   color: black;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(255, 176, 3, 0.3);
 `;
 
 const GradientButton1 = styled(Button)`
@@ -20,7 +20,7 @@ const GradientButton1 = styled(Button)`
   color: black;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(152, 228, 149, 0.3);
 `;
 
 const GradientButton2 = styled(Button)`
@@ -30,7 +30,7 @@ const GradientButton2 = styled(Button)`
   color: black;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(74, 213, 175, 0.3);
 `;
 
 const GradientButton3 = styled(Button)`
@@ -40,7 +40,7 @@ const GradientButton3 = styled(Button)`
   color: black;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(182, 240, 162, 0.3);
 `;
 
 const GradientButton4 = styled(Button)`
@@ -50,7 +50,7 @@ const GradientButton4 = styled(Button)`
   color: black;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(182, 213, 255, 0.3);
 `;
 
 const GradientButton5 = styled(Button)`
@@ -60,7 +60,7 @@ const GradientButton5 = styled(Button)`
   color: black;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(124, 203, 255, 0.3);
 `;
 
 const GradientButton6 = styled(Button)`
@@ -70,7 +70,7 @@ const GradientButton6 = styled(Button)`
   color: black;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(75, 216, 229, 0.3);
 `;
 
 const GradientButton7 = styled(Button)`
@@ -80,7 +80,7 @@ const GradientButton7 = styled(Button)`
   color: black;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(191, 141, 254, 0.3);
 `;
 
 const GradientButton8 = styled(Button)`
@@ -90,7 +90,7 @@ const GradientButton8 = styled(Button)`
   color: black;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(229, 158, 238, 0.3);
 `;
 
 const GradientButton9 = styled(Button)`
@@ -100,7 +100,7 @@ const GradientButton9 = styled(Button)`
   color: black;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(250, 189, 173, 0.3);
 `;
 
 const GradientButton10 = styled(Button)`
@@ -110,7 +110,7 @@ const GradientButton10 = styled(Button)`
   color: white;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(174, 107, 254, 0.3);
 `;
 
 const GradientButton11 = styled(Button)`
@@ -120,7 +120,7 @@ const GradientButton11 = styled(Button)`
   color: white;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(194, 58, 178, 0.3);
 `;
 
 const GradientButton12 = styled(Button)`
@@ -130,7 +130,7 @@ const GradientButton12 = styled(Button)`
   color: white;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(191, 78, 136, 0.3);
 `;
 
 const GradientButton13 = styled(Button)`
@@ -140,7 +140,7 @@ const GradientButton13 = styled(Button)`
   color: black;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(243, 238, 249, 0.3);
 `;
 
 const GradientButton14 = styled(Button)`
@@ -150,7 +150,7 @@ const GradientButton14 = styled(Button)`
   color: black;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(245, 243, 244, 0.3);
 `;
 
 const GradientButton15 = styled(Button)`
@@ -160,7 +160,7 @@ const GradientButton15 = styled(Button)`
   color: white;
   height: 48px;
   padding: 0 30px;
-  box-shadow: 0 3px 5px 2px rgba(255, 160, 0, 0.3);
+  box-shadow: 0 3px 5px 2px rgba(34, 39, 44, 0.3);
 `;
 
 export default function MockTestTile({ tileValue, tileLink }) {
@@ -170,7 +170,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton0
             sx={{ width: 128, height: 128 }}
@@ -188,7 +188,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton1
             sx={{ width: 128, height: 128 }}
@@ -206,7 +206,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton2
             sx={{ width: 128, height: 128 }}
@@ -224,7 +224,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton3
             sx={{ width: 128, height: 128 }}
@@ -242,7 +242,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton4
             sx={{ width: 128, height: 128 }}
@@ -260,7 +260,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton5
             sx={{ width: 128, height: 128 }}
@@ -278,7 +278,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton6
             sx={{ width: 128, height: 128 }}
@@ -296,7 +296,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton7
             sx={{ width: 128, height: 128 }}
@@ -314,7 +314,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton8
             sx={{ width: 128, height: 128 }}
@@ -332,7 +332,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton9
             sx={{ width: 128, height: 128 }}
@@ -350,7 +350,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton10
             sx={{ width: 128, height: 128 }}
@@ -368,7 +368,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton11
             sx={{ width: 128, height: 128 }}
@@ -386,7 +386,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton12
             sx={{ width: 128, height: 128 }}
@@ -404,7 +404,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton13
             sx={{ width: 128, height: 128 }}
@@ -422,7 +422,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton14
             sx={{ width: 128, height: 128 }}
@@ -440,7 +440,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
     return (
       <Paper
         sx={{ width: 128, height: 128 }}
-        elevation={12}
+        elevation={24}
         children={
           <GradientButton15
             sx={{ width: 128, height: 128 }}

@@ -1724,7 +1724,30 @@ export class MockTest {
       const name = await Question.getStandardName(i);
       res.push({id: i, name: name})
     }
+    return res;
+  }
 
+  static async getMockTestSubjectList(standardId) {
+    const subjectList = await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTests,
+      [
+        Query.select(["subjectId"]),
+        Query.equal("standardId", [standardId])
+      ]
+    );
+
+    var x = new Set();
+
+    for(let i=0; i<subjectList.total; i++) {
+      x.add(subjectList.documents[i].subjectId);
+    }
+
+    var res = [];
+    for(const i of x) {
+      const name = await Question.getSubjectName(i);
+      res.push({id: i, name: name})
+    }
     return res;
   }
 }
