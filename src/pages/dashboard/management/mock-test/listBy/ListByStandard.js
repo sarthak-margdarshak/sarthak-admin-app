@@ -33,7 +33,7 @@ export default function ListByStandard() {
 
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="Mock-Test"
+          heading="Mock Test - Standards"
           links={[
             {
               name: 'Dashboard',
@@ -41,9 +41,6 @@ export default function ListByStandard() {
             },
             {
               name: 'Mock-Test',
-            },
-            {
-              name: 'Standards'
             }
           ]}
           action={

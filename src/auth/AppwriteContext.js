@@ -1750,6 +1750,30 @@ export class MockTest {
     }
     return res;
   }
+
+  static async getMockTestChapterList(standardId, subjectId) {
+    const chapterList = await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTests,
+      [
+        Query.select(["chapterId"]),
+        Query.equal("standardId", [standardId]),
+        Query.equal("subjectId", [subjectId])
+      ]
+    );
+
+    var x = new Set();
+    for(let i=0; i<chapterList.total; i++) {
+      x.add(chapterList.documents[i].chapterId);
+    }
+
+    var res = [];
+    for(const i of x) {
+      const name = await Question.getChapterName(i);
+      res.push({id: i, name: name})
+    }
+    return res;
+  }
 }
 
 // ----------------------------------------------------------------------
