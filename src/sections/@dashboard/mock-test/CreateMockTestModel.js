@@ -1,12 +1,29 @@
 import { Autocomplete, Card, CardContent, CardHeader, Grid, Paper, TextField } from "@mui/material";
 import { alpha } from '@mui/material/styles';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MockTest, Question } from "../../../auth/AppwriteContext";
 import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { PATH_DASHBOARD } from "../../../routes/paths";
 
 export default function CreateMockTestModel() {
+  const searchParams = window.location.search.split('?');
+  var id1 = "";
+  var id2 = "";
+  var id3 = "";
+  if(searchParams.length===2) {
+    const searchMap = searchParams[1].split('&');
+    for(let i=0; i<searchMap.length; i++) {
+      const x = searchMap[i].split('=');
+      if(x[0] === 'standardId') {
+        id1 = x[1]
+      } else if(x[0] === 'subjectId') {
+        id2 = x[1]
+      } else if(x[0] === 'chapterId') {
+        id3 = x[1]
+      }
+    }
+  }
 
   const [mockTestId] = useState("");
   const [name, setName] = useState("");
@@ -14,9 +31,9 @@ export default function CreateMockTestModel() {
   const [standard, setStandard] = useState("");
   const [subject, setSubject] = useState("");
   const [chapter, setChapter] = useState("");
-  const [standardId, setStandardId] = useState("");
-  const [subjectId, setSubjectId] = useState("");
-  const [chapterId, setChapterId] = useState("");
+  const [standardId, setStandardId] = useState(id1);
+  const [subjectId, setSubjectId] = useState(id2);
+  const [chapterId, setChapterId] = useState(id3);
   const [time, setTime] = useState(0);
 
   const [creating, setCreating] = useState(false);
@@ -30,6 +47,24 @@ export default function CreateMockTestModel() {
   const [isChapterListLoading, setIsChapterListLoading] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if(standardId !== "") {
+        const data = await Question.getStandardName(standardId);
+        setStandard(data);
+      }
+      if(subjectId !== "") {
+        const data = await Question.getSubjectName(subjectId);
+        setSubject(data);
+      }
+      if(chapterId !== "") {
+        const data = await Question.getChapterName(chapterId);
+        setChapter(data);
+      }
+    }
+    fetchData()
+  })
 
   const createQuestion = async () => {
     if (name.length === 0) {

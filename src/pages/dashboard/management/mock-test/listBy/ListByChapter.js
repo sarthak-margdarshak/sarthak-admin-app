@@ -62,7 +62,7 @@ export default function ListByChapter() {
           action={
             <Button
               component={RouterLink}
-              to={PATH_DASHBOARD.mockTest.new}
+              to={PATH_DASHBOARD.mockTest.new+'?standardId='+standardId+'&subjectId='+subjectId}
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
             >
@@ -74,20 +74,31 @@ export default function ListByChapter() {
         {
           loading
             ?
-              <MockLoaderSkeleton />
+            <MockLoaderSkeleton />
             :
-              <Grid container spacing={3}>
-                {
-                  standardList.map((value) =>
-                    <Grid item key={value.id}>
-                      <MockTestTile
-                        tileValue={value.name}
-                        tileLink={PATH_DASHBOARD.mockTest.conceptList(standardId, subjectId, value.id)}
-                      />
-                    </Grid>
-                  )
-                }
+            <Grid container spacing={3}>
+              {
+                standardList.map((value) =>
+                  <Grid item key={value.id}>
+                    <MockTestTile
+                      tileValue={value.name}
+                      tileLink={PATH_DASHBOARD.mockTest.view(value.id)}
+                    />
+                  </Grid>
+                )
+              }
+              <Grid item>
+                <Button
+                  sx={{ width: 128, height: 128 }}
+                  variant="contained"
+                  component={RouterLink}
+                  to={PATH_DASHBOARD.mockTest.new+'?standardId='+standardId+'&subjectId='+subjectId}
+                  startIcon={<Iconify icon="eva:plus-fill" />}
+                >
+                  Add
+                </Button>
               </Grid>
+            </Grid>
         }
 
       </Container >

@@ -1774,6 +1774,25 @@ export class MockTest {
     }
     return res;
   }
+
+  static async getMockTestList(standardId, subjectId, chapterId) {
+    const mockTestList = await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTests,
+      [
+        Query.select(["name"]),
+        Query.equal("standardId", [standardId]),
+        Query.equal("subjectId", [subjectId]),
+        Query.equal("chapterId", [chapterId]),
+      ]
+    );
+
+    var res = [];
+    for(let i=0; i<mockTestList.total; i++) {
+      res.push({id: mockTestList.documents[i].$id, name: mockTestList.documents[i].name})
+    }
+    return res;
+  }
 }
 
 // ----------------------------------------------------------------------

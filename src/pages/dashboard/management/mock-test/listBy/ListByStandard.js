@@ -58,20 +58,31 @@ export default function ListByStandard() {
         {
           loading
             ?
-              <MockLoaderSkeleton />
+            <MockLoaderSkeleton />
             :
-              <Grid container spacing={3}>
-                {
-                  standardList.map((value) =>
-                    <Grid item key={value.id}>
-                      <MockTestTile
-                        tileValue={value.name}
-                        tileLink={PATH_DASHBOARD.mockTest.subjectList(value.id)}
-                      />
-                    </Grid>
-                  )
-                }
+            <Grid container spacing={3}>
+              {
+                standardList.map((value) =>
+                  <Grid item key={value.id}>
+                    <MockTestTile
+                      tileValue={value.name}
+                      tileLink={PATH_DASHBOARD.mockTest.subjectList(value.id)}
+                    />
+                  </Grid>
+                )
+              }
+              <Grid item>
+                <Button
+                  sx={{ width: 128, height: 128 }}
+                  variant="contained"
+                  component={RouterLink}
+                  to={PATH_DASHBOARD.mockTest.new}
+                  startIcon={<Iconify icon="eva:plus-fill" />}
+                >
+                  Add
+                </Button>
               </Grid>
+            </Grid>
         }
 
       </Container >
