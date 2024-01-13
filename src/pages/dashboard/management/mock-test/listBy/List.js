@@ -1,41 +1,50 @@
+import { Card, Container, Grid } from "@mui/material";
 import { useEffect, useState } from "react";
-import { MockTest, Question } from "../../../../../auth/AppwriteContext";
-import { useSettingsContext } from "../../../../../components/settings";
+import { Helmet } from "react-helmet-async";
+import CustomBreadcrumbs from "../../../../../components/custom-breadcrumbs/CustomBreadcrumbs";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
-import { Button, Container, Grid } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
-import Iconify from "../../../../../components/iconify";
+import { MockTest, Question } from "../../../../../auth/AppwriteContext";
 import MockLoaderSkeleton from "../../../../../sections/@dashboard/mock-test/MockLoaderSkeleton";
 import MockTestTile from "../../../../../sections/@dashboard/mock-test/MockTestTile";
-import { Helmet } from "react-helmet-async";
-import CustomBreadcrumbs from "../../../../../components/custom-breadcrumbs";
+import { useSettingsContext } from "../../../../../components/settings";
 
-export default function ListByConcept() {
+export default function List() {
   const standardId = window.location.pathname.split('/')[5];
   const subjectId = window.location.pathname.split('/')[7];
   const chapterId = window.location.pathname.split('/')[9];
+  const conceptId = window.location.pathname.split('/')[11];
+
   const { themeStretch } = useSettingsContext();
-  const [conceptList, setConceptList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [standardName, setStandardName] = useState("Standard Name");
   const [subjectName, setSubjectName] = useState("Subject Name");
   const [chapterName, setChapterName] = useState("Chapter Name");
+  const [conceptName, setConceptName] = useState("Concept Name");
+  const [mockTest, setMockTestList] = useState([]);
+
+  const [time, setTime] = useState();
+  const [questionCnt, setQuestionCnt] = useState();
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true)
-      const data = await MockTest.getMockTestConceptList(standardId, subjectId, chapterId);
-      setConceptList(data);
+      const data = await MockTest.getMockTestList(standardId, subjectId, chapterId, conceptId);
+      setMockTestList(data);
       const data2 = await Question.getStandardName(standardId);
       setStandardName(data2);
       const data3 = await Question.getSubjectName(subjectId);
       setSubjectName(data3);
       const data4 = await Question.getChapterName(chapterId);
       setChapterName(data4);
+      const data5 = await Question.getConceptName(conceptId);
+      setConceptName(data5);
+      const data6 = await MockTest.getMockTestDriver(standardId, subjectId, chapterId, conceptId);
+      setTime(data6.documents[0].time);
+      setQuestionCnt(data6.documents[0].questionCount);
       setLoading(false)
     }
     fetchData();
-  }, [standardId, subjectId, chapterId])
+  }, [standardId, subjectId, chapterId, conceptId])
 
   return (
     <>
@@ -65,18 +74,12 @@ export default function ListByConcept() {
             },
             {
               name: chapterName,
+              href: PATH_DASHBOARD.mockTest.conceptList(standardId, subjectId, chapterId),
+            },
+            {
+              name: conceptName,
             }
           ]}
-          action={
-            <Button
-              component={RouterLink}
-              to={PATH_DASHBOARD.mockTest.new+'?standardId='+standardId+'&subjectId='+subjectId+'&chapterId='+chapterId}
-              variant="contained"
-              startIcon={<Iconify icon="eva:plus-fill" />}
-            >
-              New Mock-Test
-            </Button>
-          }
         />
 
         {
@@ -85,27 +88,26 @@ export default function ListByConcept() {
             <MockLoaderSkeleton />
             :
             <Grid container spacing={3}>
+              <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                <Card sx={{p:2}}>
+                  {"No of question per mock test - "+time}
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <Card sx={{p:2}}>
+              {"Mock Test Duration - "+questionCnt}
+                </Card>
+              </Grid>
               {
-                conceptList.map((value) =>
+                mockTest.map((value) =>
                   <Grid item key={value.id}>
                     <MockTestTile
                       tileValue={value.name}
-                      tileLink={PATH_DASHBOARD.mockTest.list(standardId, subjectId, chapterId, value.id)}
+                      tileLink={PATH_DASHBOARD.mockTest.view(value.id)}
                     />
                   </Grid>
                 )
               }
-              <Grid item>
-                <Button
-                  sx={{ width: 128, height: 128 }}
-                  variant="contained"
-                  component={RouterLink}
-                  to={PATH_DASHBOARD.mockTest.new+'?standardId='+standardId+'&subjectId='+subjectId+'&chapterId='+chapterId}
-                  startIcon={<Iconify icon="eva:plus-fill" />}
-                >
-                  Add
-                </Button>
-              </Grid>
             </Grid>
         }
 

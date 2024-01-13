@@ -82,7 +82,7 @@ export default function ListByChapter() {
                   <Grid item key={value.id}>
                     <MockTestTile
                       tileValue={value.name}
-                      tileLink={PATH_DASHBOARD.mockTest.view(value.id)}
+                      tileLink={PATH_DASHBOARD.mockTest.conceptList(standardId, subjectId, value.id)}
                     />
                   </Grid>
                 )

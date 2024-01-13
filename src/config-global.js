@@ -45,6 +45,7 @@ export const APPWRITE_API = {
     sarthakInfoDataCollection: process.env.REACT_APP_APPWRITE_DATABASE_SARTHAK_INFO_DATA_COLLECTION,
     // MockTest
     mockTests: process.env.REACT_APP_APPWRITE_DATABASE_MOCKTEST,
+    mockTestDriver: process.env.REACT_APP_APPWRITE_DATABASE_MOCKTESTDRIVER,
   },
   buckets: {
     userImage: process.env.REACT_APP_APPWRITE_BUCKET_USERIMAGE,

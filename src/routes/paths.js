@@ -86,6 +86,7 @@ export const PATH_DASHBOARD = {
     subjectList: (standardId) => path(ROOTS_DASHBOARD, `/mock-test/list/standard/${standardId}`),
     chapterList: (standardId, subjectId) => path(ROOTS_DASHBOARD, `/mock-test/list/standard/${standardId}/subject/${subjectId}`),
     conceptList: (standardId, subjectId, chapterId) => path(ROOTS_DASHBOARD, `/mock-test/list/standard/${standardId}/subject/${subjectId}/chapter/${chapterId}`),
+    list: (standardId, subjectId, chapterId, conceptId) => path(ROOTS_DASHBOARD, `/mock-test/list/standard/${standardId}/subject/${subjectId}/chapter/${chapterId}/concept/${conceptId}`),
     view: (id) => path(ROOTS_DASHBOARD, `/mock-test/${id}`),
     edit: (id) => path(ROOTS_DASHBOARD, `/mock-test/${id}/edit`),
   },
