@@ -39,7 +39,6 @@ export const APPWRITE_API = {
     subjects: process.env.REACT_APP_APPWRITE_DATABASE_SUBJECTS,
     chapters: process.env.REACT_APP_APPWRITE_DATABASE_CHAPTERS,
     concepts: process.env.REACT_APP_APPWRITE_DATABASE_CONCEPTS,
-    conceptMapped: process.env.REACT_APP_APPWRITE_DATABASE_CONCEPT_MAPPED,
     // Sarthak Infodata
     sarthakInfoData: process.env.REACT_APP_APPWRITE_DATABASE_SARTHAK_INFO_DATA,
     sarthakInfoDataCollection: process.env.REACT_APP_APPWRITE_DATABASE_SARTHAK_INFO_DATA_COLLECTION,
