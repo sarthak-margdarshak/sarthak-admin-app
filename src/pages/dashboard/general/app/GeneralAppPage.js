@@ -13,6 +13,7 @@
 // IMPORT ---------------------------------------------------------------
 
 import { Helmet } from 'react-helmet-async';
+import { Link as RouterLink } from 'react-router-dom';
 // @mui
 import { Container, Grid, Button } from '@mui/material';
 // auth
@@ -90,7 +91,7 @@ export default function GeneralAppPage() {
                   }}
                 />
               }
-              action={<Button variant="contained" onClick={() => window.open(PATH_DASHBOARD.question.new, '_self')}>Enter The magic world</Button>}
+              action={<Button component={RouterLink} variant="contained" to={PATH_DASHBOARD.question.new}>Enter The magic world</Button>}
             />
           </Grid>
 

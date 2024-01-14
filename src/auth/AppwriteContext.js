@@ -517,72 +517,158 @@ export class Question {
    * Function to get List of  Subjects
    * @returns List of Subjects
    */
-  static async getSubjectList(name) {
+  static async getSubjectList(name, standardId) {
+    var standardList = [];
+    if (standardId) {
+      try {
+        standardList = (await databases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.databases.standards,
+          standardId
+        )).subjectIds;
+      } catch (error) { }
+    }
+
+    var ans = [];
     if (!name || name === '') {
-      return (await databases.listDocuments(
+      ans = (await databases.listDocuments(
         APPWRITE_API.databaseId,
         APPWRITE_API.databases.subjects,
         [
           Query.limit(100)
         ]
       )).documents;
+    } else {
+      ans = (await databases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.subjects,
+        [
+          Query.search("name", name),
+          Query.limit(100)
+        ]
+      )).documents;
     }
-    return (await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.subjects,
-      [
-        Query.search("name", name),
-        Query.limit(100)
-      ]
-    )).documents;
+    ans.sort((a, b) => standardList.includes(a.$id) ? -1 : 1);
+    return ans;
   }
 
   /**
    * Function to get List of  Chapters
    * @returns List of Chapters
    */
-  static async getChapterList(name) {
+  static async getChapterList(name, standardId, subjectId) {
+    // Get standardList
+    var standardList = [];
+    if (standardId) {
+      try {
+        standardList = (await databases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.databases.standards,
+          standardId
+        )).subjectIds;
+      } catch (error) { }
+    }
+
+    // Get Subject List
+    var subjectList = [];
+    if (subjectId) {
+      try {
+        subjectList = (await databases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.databases.subjects,
+          subjectId
+        )).chapterIds;
+      } catch (error) { }
+    }
+    subjectList.sort((a, b) => standardList.includes(a.$id) ? -1 : 1);
+
+    var ans = [];
     if (!name || name === '') {
-      return (await databases.listDocuments(
+      ans = (await databases.listDocuments(
         APPWRITE_API.databaseId,
         APPWRITE_API.databases.chapters,
         [
           Query.limit(100)
         ]
       )).documents;
+    } else {
+      ans = (await databases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.chapters,
+        [
+          Query.search("name", name),
+          Query.limit(100)
+        ]
+      )).documents;
     }
-    return (await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.chapters,
-      [
-        Query.search("name", name),
-        Query.limit(100)
-      ]
-    )).documents;
+    ans.sort((a, b) => subjectList.includes(a.$id) ? -1 : 1);
+    return ans;
   }
 
   /**
    * Function to get List of  Concepts
    * @returns List of Concepts
    */
-  static async getConceptList(name) {
+  static async getConceptList(name, standardId, subjectId, chapterId) {
+    // Get standardList
+    var standardList = [];
+    if (standardId) {
+      try {
+        standardList = (await databases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.databases.standards,
+          standardId
+        )).subjectIds;
+      } catch (error) { }
+    }
+
+    // Get Subject List
+    var subjectList = [];
+    if (subjectId) {
+      try {
+        subjectList = (await databases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.databases.subjects,
+          subjectId
+        )).chapterIds;
+      } catch (error) { }
+    }
+    subjectList.sort((a, b) => standardList.includes(a.$id) ? -1 : 1);
+
+    // Get Chapter List
+    var chapterList = [];
+    if (chapterId) {
+      try {
+        chapterList = (await databases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.databases.chapters,
+          chapterId
+        )).conceptIds;
+      } catch (err) { }
+    }
+    chapterList.sort((a, b) => subjectList.includes(a.$id) ? -1 : 1);
+
+    var ans = [];
     if (!name || name === '') {
-      return (await databases.listDocuments(
+      ans = (await databases.listDocuments(
         APPWRITE_API.databaseId,
         APPWRITE_API.databases.concepts,
         [
           Query.limit(100)
         ]
       )).documents;
+    } else {
+      ans = (await databases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.concepts,
+        [
+          Query.search("name", name),
+          Query.limit(100)
+        ]
+      )).documents;
     }
-    return (await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.concepts,
-      [
-        Query.search("name", name),
-        Query.limit(100)
-      ]
-    )).documents;
+    ans.sort((a, b) => chapterList.includes(a.$id) ? -1 : 1);
+    return ans;
   }
 
   /**
@@ -1511,7 +1597,7 @@ export class Question {
       currToatal += subjects.documents[i].count;
       ans.push({ label: subjects.documents[i]?.name, value: subjects.documents[i].count })
     }
-    ans.push({ label: 'Others', value: totalQuestionCount-currToatal })
+    ans.push({ label: 'Others', value: totalQuestionCount - currToatal })
     return ans;
   }
 
@@ -1537,7 +1623,7 @@ export class Question {
       currToatal += standards.documents[i].count;
       ans.push({ label: standards.documents[i]?.name, value: standards.documents[i].count })
     }
-    ans.push({ label: 'Others', value: totalQuestionCount-currToatal })
+    ans.push({ label: 'Others', value: totalQuestionCount - currToatal })
     return ans;
   }
 
@@ -1563,7 +1649,7 @@ export class Question {
       currToatal += chapters.documents[i].count;
       ans.push({ label: chapters.documents[i]?.name, value: chapters.documents[i].count })
     }
-    ans.push({ label: 'Others', value: totalQuestionCount-currToatal })
+    ans.push({ label: 'Others', value: totalQuestionCount - currToatal })
     return ans;
   }
 
@@ -1589,7 +1675,7 @@ export class Question {
       currToatal += concepts.documents[i].count;
       ans.push({ label: concepts.documents[i]?.name, value: concepts.documents[i].count })
     }
-    ans.push({ label: 'Others', value: totalQuestionCount-currToatal })
+    ans.push({ label: 'Others', value: totalQuestionCount - currToatal })
     return ans;
   }
 
@@ -1677,6 +1763,171 @@ export class Notification {
         throw new Error('Some unexpected error occured !!!');
       }
     }
+  }
+}
+
+// ----------------------------------------------------------------------
+
+export class MockTest {
+  static async createMockTestDriver(standardId, subjectId, chapterId, conceptId, time, questionCount) {
+    return (await databases.createDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTestDriver,
+      ID.unique(),
+      {
+        standardId: standardId,
+        subjectId: subjectId,
+        chapterId: chapterId,
+        conceptId: conceptId,
+        time: time,
+        questionCount: questionCount,
+      },
+      [
+        Permission.read(Role.any()),
+        Permission.update(Role.any()),
+      ]
+    )).$id
+  }
+
+  static async getMockTestStandardList() {
+    const standardList = await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTestDriver,
+      [
+        Query.select(["standardId"]),
+        Query.limit(100),
+      ]
+    );
+
+    var x = new Set();
+
+    for (let i = 0; i < standardList.total; i++) {
+      x.add(standardList.documents[i].standardId);
+    }
+
+    var res = [];
+    for (const i of x) {
+      const name = await Question.getStandardName(i);
+      res.push({ id: i, name: name })
+    }
+    return res;
+  }
+
+  static async getMockTestSubjectList(standardId) {
+    const subjectList = await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTestDriver,
+      [
+        Query.select(["subjectId"]),
+        Query.equal("standardId", [standardId]),
+        Query.limit(100),
+      ]
+    );
+
+    var x = new Set();
+
+    for (let i = 0; i < subjectList.total; i++) {
+      x.add(subjectList.documents[i].subjectId);
+    }
+
+    var res = [];
+    for (const i of x) {
+      const name = await Question.getSubjectName(i);
+      res.push({ id: i, name: name })
+    }
+    return res;
+  }
+
+  static async getMockTestChapterList(standardId, subjectId) {
+    const chapterList = await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTestDriver,
+      [
+        Query.select(["chapterId"]),
+        Query.equal("standardId", [standardId]),
+        Query.equal("subjectId", [subjectId]),
+        Query.limit(100),
+      ]
+    );
+
+    var x = new Set();
+    for (let i = 0; i < chapterList.total; i++) {
+      x.add(chapterList.documents[i].chapterId);
+    }
+
+    var res = [];
+    for (const i of x) {
+      const name = await Question.getChapterName(i);
+      res.push({ id: i, name: name })
+    }
+    return res;
+  }
+
+  static async getMockTestConceptList(standardId, subjectId, chapterId) {
+    const conceptList = await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTestDriver,
+      [
+        Query.select(["conceptId"]),
+        Query.equal("standardId", [standardId]),
+        Query.equal("subjectId", [subjectId]),
+        Query.equal("chapterId", [chapterId])
+      ]
+    );
+
+    var x = new Set();
+    for (let i = 0; i < conceptList.total; i++) {
+      x.add(conceptList.documents[i].conceptId);
+    }
+
+    var res = [];
+    for (const i of x) {
+      const name = await Question.getConceptName(i);
+      res.push({ id: i, name: name })
+    }
+    return res;
+  }
+
+  static async getMockTestList(standardId, subjectId, chapterId, conceptId) {
+    const mockTestList = await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTests,
+      [
+        Query.select(["$id", "name"]),
+        Query.equal("standardId", [standardId]),
+        Query.equal("subjectId", [subjectId]),
+        Query.equal("chapterId", [chapterId]),
+        Query.equal("conceptId", [conceptId]),
+        Query.limit(100),
+      ]
+    );
+
+    var res = [];
+    for (let i = 0; i < mockTestList.total; i++) {
+      res.push({ id: mockTestList.documents[i].$id, name: mockTestList.documents[i].name })
+    }
+    return res;
+  }
+
+  static async getMockTestDriver(standardId, subjectId, chapterId, conceptId) {
+    return (await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTestDriver,
+      [
+        Query.equal("standardId", [standardId]),
+        Query.equal("subjectId", [subjectId]),
+        Query.equal("chapterId", [chapterId]),
+        Query.equal("conceptId", [conceptId]),
+      ]
+    ))
+  }
+
+  static async getMockTest(id) {
+    return (await databases.getDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTests,
+      id
+    ));
   }
 }
 

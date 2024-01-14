@@ -50,7 +50,7 @@ export default function ProfileTaskInfo({ team, question }) {
         </Stack>
 
         <Stack width={1} textAlign="center">
-          <Link component={RouterLink} onClick={() => window.open(window.location.origin+'/dashboard/question/list?createdBy='+user?.$id, '_self')}>
+          <Link component={RouterLink} to={'/dashboard/question/list?createdBy='+user?.$id}>
             <Typography variant="h4">{fNumber(question)}</Typography>
 
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
