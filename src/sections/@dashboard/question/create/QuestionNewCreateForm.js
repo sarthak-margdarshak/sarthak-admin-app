@@ -193,7 +193,6 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
   const [standardId, setStandardId] = useState('');
   const [subjectId, setSubjectId] = useState('');
   const [chapterId, setChapterId] = useState('');
-  const [conceptId, setConceptId] = useState('');
 
   const [status, setStatus] = useState('');
   const [createdBy, setCreatedBy] = useState();

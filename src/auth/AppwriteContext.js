@@ -1893,7 +1893,6 @@ export class MockTest {
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.mockTests,
       [
-        Query.select(["$id", "name"]),
         Query.equal("standardId", [standardId]),
         Query.equal("subjectId", [subjectId]),
         Query.equal("chapterId", [chapterId]),

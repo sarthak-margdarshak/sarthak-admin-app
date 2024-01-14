@@ -26,8 +26,6 @@ export default function CreateMockTestModel() {
   }
 
   const [mockTestId] = useState("");
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
   const [standard, setStandard] = useState("");
   const [subject, setSubject] = useState("");
   const [chapter, setChapter] = useState("");
@@ -98,7 +96,7 @@ export default function CreateMockTestModel() {
     }
     setCreating(true);
     try {
-      const id = await MockTest.createMockTestDriver(standardId, subjectId, chapterId, conceptId, time, questionCount);
+      await MockTest.createMockTestDriver(standardId, subjectId, chapterId, conceptId, time, questionCount);
       setCreating(false);
       window.location.href = PATH_DASHBOARD.mockTest.list(standardId, subjectId, chapterId, conceptId);
     } catch (error) {
