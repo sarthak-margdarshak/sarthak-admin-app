@@ -1770,7 +1770,7 @@ export class Notification {
 
 export class MockTest {
   static async createMockTestDriver(standardId, subjectId, chapterId, conceptId, time, questionCount) {
-    return (await databases.createDocument(
+    const id = (await databases.createDocument(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.mockTestDriver,
       ID.unique(),
@@ -1786,7 +1786,14 @@ export class MockTest {
         Permission.read(Role.any()),
         Permission.update(Role.any()),
       ]
-    )).$id
+    )).$id;
+
+    functions.createExecution(
+      APPWRITE_API.functions.updateMockTests
+    )
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+
+    return id;
   }
 
   static async getMockTestStandardList() {
@@ -1808,7 +1815,15 @@ export class MockTest {
     var res = [];
     for (const i of x) {
       const name = await Question.getStandardName(i);
-      res.push({ id: i, name: name })
+      const cnt = (await databases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.mockTests,
+        [
+          Query.equal("standardId", [i]),
+          Query.limit(1)
+        ]
+      )).total
+      res.push({ id: i, name: name, mockTestCnt: cnt })
     }
     return res;
   }
@@ -1833,7 +1848,16 @@ export class MockTest {
     var res = [];
     for (const i of x) {
       const name = await Question.getSubjectName(i);
-      res.push({ id: i, name: name })
+      const cnt = (await databases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.mockTests,
+        [
+          Query.equal("standardId", [standardId]),
+          Query.equal("subjectId", [i]),
+          Query.limit(1)
+        ]
+      )).total
+      res.push({ id: i, name: name, mockTestCnt: cnt })
     }
     return res;
   }
@@ -1858,7 +1882,17 @@ export class MockTest {
     var res = [];
     for (const i of x) {
       const name = await Question.getChapterName(i);
-      res.push({ id: i, name: name })
+      const cnt = (await databases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.mockTests,
+        [
+          Query.equal("standardId", [standardId]),
+          Query.equal("subjectId", [subjectId]),
+          Query.equal("chapterId", [i]),
+          Query.limit(1)
+        ]
+      )).total
+      res.push({ id: i, name: name, mockTestCnt: cnt })
     }
     return res;
   }
@@ -1883,7 +1917,18 @@ export class MockTest {
     var res = [];
     for (const i of x) {
       const name = await Question.getConceptName(i);
-      res.push({ id: i, name: name })
+      const cnt = (await databases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.mockTests,
+        [
+          Query.equal("standardId", [standardId]),
+          Query.equal("subjectId", [subjectId]),
+          Query.equal("chapterId", [chapterId]),
+          Query.equal("conceptId", [i]),
+          Query.limit(1)
+        ]
+      )).total
+      res.push({ id: i, name: name, mockTestCnt: cnt })
     }
     return res;
   }
