@@ -46,11 +46,10 @@ export default function ListByStandard() {
           action={
             <Button
               component={RouterLink}
-              to={PATH_DASHBOARD.mockTest.new}
+              to={PATH_DASHBOARD.question.list+"?status=Active"}
               variant="contained"
-              startIcon={<Iconify icon="eva:plus-fill" />}
             >
-              New Mock-Test
+              View Available Question
             </Button>
           }
         />
@@ -80,7 +79,7 @@ export default function ListByStandard() {
                   to={PATH_DASHBOARD.mockTest.new}
                   startIcon={<Iconify icon="eva:plus-fill" />}
                 >
-                  Add
+                  Add New
                 </Button>
               </Grid>
             </Grid>

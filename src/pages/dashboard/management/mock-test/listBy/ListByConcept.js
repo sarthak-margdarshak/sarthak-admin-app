@@ -70,11 +70,10 @@ export default function ListByConcept() {
           action={
             <Button
               component={RouterLink}
-              to={PATH_DASHBOARD.mockTest.new+'?standardId='+standardId+'&subjectId='+subjectId+'&chapterId='+chapterId}
+              to={PATH_DASHBOARD.question.list+'?status=Active&standardId='+standardId+'&subjectId='+subjectId+'&chapterId='+chapterId}
               variant="contained"
-              startIcon={<Iconify icon="eva:plus-fill" />}
             >
-              New Mock-Test
+              View Available Question
             </Button>
           }
         />
@@ -104,7 +103,7 @@ export default function ListByConcept() {
                   to={PATH_DASHBOARD.mockTest.new+'?standardId='+standardId+'&subjectId='+subjectId+'&chapterId='+chapterId}
                   startIcon={<Iconify icon="eva:plus-fill" />}
                 >
-                  Add
+                  Add New
                 </Button>
               </Grid>
             </Grid>
