@@ -62,11 +62,10 @@ export default function ListByChapter() {
           action={
             <Button
               component={RouterLink}
-              to={PATH_DASHBOARD.mockTest.new+'?standardId='+standardId+'&subjectId='+subjectId}
+              to={PATH_DASHBOARD.question.list+"?status=Active&standardId="+standardId+'&subjectId='+subjectId}
               variant="contained"
-              startIcon={<Iconify icon="eva:plus-fill" />}
             >
-              New Mock-Test
+              View Available Question
             </Button>
           }
         />
@@ -96,7 +95,7 @@ export default function ListByChapter() {
                   to={PATH_DASHBOARD.mockTest.new+'?standardId='+standardId+'&subjectId='+subjectId}
                   startIcon={<Iconify icon="eva:plus-fill" />}
                 >
-                  Add
+                  Add New
                 </Button>
               </Grid>
             </Grid>

@@ -54,11 +54,10 @@ export default function ListBySubject() {
           action={
             <Button
               component={RouterLink}
-              to={PATH_DASHBOARD.mockTest.new+"?standardId="+standardId}
+              to={PATH_DASHBOARD.question.list+"?status=Active&standardId="+standardId}
               variant="contained"
-              startIcon={<Iconify icon="eva:plus-fill" />}
             >
-              New Mock-Test
+              View Available Question
             </Button>
           }
         />
@@ -88,7 +87,7 @@ export default function ListBySubject() {
                   to={PATH_DASHBOARD.mockTest.new+"?standardId="+standardId}
                   startIcon={<Iconify icon="eva:plus-fill" />}
                 >
-                  Add
+                  Add New
                 </Button>
               </Grid>
             </Grid>
