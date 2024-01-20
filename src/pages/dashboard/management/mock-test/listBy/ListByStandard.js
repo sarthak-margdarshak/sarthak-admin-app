@@ -67,6 +67,7 @@ export default function ListByStandard() {
                     <MockTestTile
                       tileValue={value.name}
                       tileLink={PATH_DASHBOARD.mockTest.subjectList(value.id)}
+                      cnt={value.mockTestCnt}
                     />
                   </Grid>
                 )

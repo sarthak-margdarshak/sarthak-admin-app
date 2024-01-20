@@ -162,7 +162,7 @@ const GradientButton15 = styled(Button)`
   box-shadow: 0 3px 5px 2px rgba(34, 39, 44, 0.3);
 `;
 
-export default function MockTestTile({ tileValue, tileLink }) {
+export default function MockTestTile({ tileValue, tileLink, cnt }) {
   const randomNumber = parseInt(Math.random() * 100) % 16;
 
   if (randomNumber === 0) {
@@ -177,7 +177,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton0>
         }
       />
@@ -195,7 +195,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton1>
         }
       />
@@ -213,7 +213,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton2>
         }
       />
@@ -231,7 +231,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton3>
         }
       />
@@ -249,7 +249,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton4>
         }
       />
@@ -267,7 +267,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton5>
         }
       />
@@ -285,7 +285,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton6>
         }
       />
@@ -303,7 +303,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton7>
         }
       />
@@ -321,7 +321,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton8>
         }
       />
@@ -339,7 +339,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton9>
         }
       />
@@ -357,7 +357,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton10>
         }
       />
@@ -375,7 +375,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton11>
         }
       />
@@ -393,7 +393,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton12>
         }
       />
@@ -411,7 +411,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton13>
         }
       />
@@ -429,7 +429,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton14>
         }
       />
@@ -447,7 +447,7 @@ export default function MockTestTile({ tileValue, tileLink }) {
             component={RouterLink}
             to={tileLink}
           >
-            {tileValue}
+            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
           </GradientButton15>
         }
       />

@@ -104,6 +104,7 @@ export default function List() {
                     <MockTestTile
                       tileValue={value.name}
                       tileLink={PATH_DASHBOARD.mockTest.view(value.id)}
+                      cnt={-1}
                     />
                   </Grid>
                 )
