@@ -1,3 +1,4 @@
+import { Link as RouterLink } from 'react-router-dom';
 import { Autocomplete, Box, Card, CardContent, CardHeader, Chip, Divider, Drawer, FormControl, Grid, IconButton, InputLabel, List, ListItem, MenuItem, Select, Skeleton, Stack, TextField, Typography } from "@mui/material";
 import Image from '../../../../components/image/Image';
 import ReactKatex from '@pkasila/react-katex';
@@ -158,14 +159,14 @@ export default function QuestionRowComponent({ question, onSave }) {
           title={question?.$id}
           action={
             <>
-              <IconButton aria-label="view" onClick={() => window.open(PATH_DASHBOARD.question.view(question?.$id), '_self')}>
+              <IconButton component={RouterLink} aria-label="view" to={PATH_DASHBOARD.question.view(question?.$id)}>
                 <Iconify icon="carbon:view-filled" />
               </IconButton>
               <IconButton aria-label="Action" disabled={!canDoAction}
                 onClick={() => setOpenDrawer(true)}>
                 <Iconify icon="fluent-mdl2:set-action" />
               </IconButton>
-              <IconButton aria-label="Edit" disabled={!canDoAction} onClick={() => window.open(PATH_DASHBOARD.question.edit(question?.$id), '_self')}>
+              <IconButton component={RouterLink} aria-label="Edit" disabled={!canDoAction} to={PATH_DASHBOARD.question.edit(question?.$id)}>
                 <Iconify icon="ic:baseline-edit" />
               </IconButton>
             </>

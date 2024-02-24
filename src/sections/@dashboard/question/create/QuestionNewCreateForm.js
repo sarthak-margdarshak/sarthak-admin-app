@@ -190,6 +190,9 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
   const [subject, setSubject] = useState('');
   const [chapter, setChapter] = useState('');
   const [concept, setConcept] = useState('');
+  const [standardId, setStandardId] = useState('');
+  const [subjectId, setSubjectId] = useState('');
+  const [chapterId, setChapterId] = useState('');
 
   const [status, setStatus] = useState('');
   const [createdBy, setCreatedBy] = useState();
@@ -1082,6 +1085,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                         }}
                         onChange={async (event, value) => {
                           setStandard(value?.$id ? value?.name : value);
+                          setStandardId(value?.$id)
                         }}
                         getOptionLabel={(option) => option?.name || option}
                         renderOption={(props, option, { selected }) => (
@@ -1106,18 +1110,19 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                         options={subjectList}
                         onFocus={async (event, value) => {
                           setIsSubjectListLoading(true);
-                          const tem = await Question.getSubjectList(value?.$id ? value?.name : value);
+                          const tem = await Question.getSubjectList(value?.$id ? value?.name : value, standardId);
                           setSubjectList(tem);
                           setIsSubjectListLoading(false);
                         }}
                         onInputChange={async (event, value) => {
                           setIsSubjectListLoading(true);
-                          const tem = await Question.getSubjectList(value?.$id ? value?.name : value);
+                          const tem = await Question.getSubjectList(value?.$id ? value?.name : value, standardId);
                           setSubjectList(tem);
                           setIsSubjectListLoading(false);
                         }}
                         onChange={(event, value) => {
                           setSubject(value?.$id ? value?.name : value);
+                          setSubjectId(value?.$id)
                         }}
                         getOptionLabel={(option) => option?.name || option}
                         renderOption={(props, option, { selected }) => (
@@ -1142,18 +1147,19 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                         options={chapterList}
                         onFocus={async (event, value) => {
                           setIsChapterListLoading(true);
-                          const tem = await Question.getChapterList(value?.$id ? value?.name : value);
+                          const tem = await Question.getChapterList(value?.$id ? value?.name : value, standardId, subjectId);
                           setChapterList(tem);
                           setIsChapterListLoading(false);
                         }}
                         onInputChange={async (event, value) => {
                           setIsChapterListLoading(true);
-                          const tem = await Question.getChapterList(value?.$id ? value?.name : value);
+                          const tem = await Question.getChapterList(value?.$id ? value?.name : value, standardId, subjectId);
                           setChapterList(tem);
                           setIsChapterListLoading(false);
                         }}
                         onChange={(event, value) => {
                           setChapter(value?.$id ? value?.name : value);
+                          setChapterId(value?.$id)
                         }}
                         getOptionLabel={(option) => option?.name || option}
                         renderOption={(props, option, { selected }) => (
@@ -1179,18 +1185,19 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                         options={conceptList}
                         onFocus={async (event, value) => {
                           setIsConceptListLoading(true);
-                          const tem = await Question.getConceptList(value?.$id ? value?.name : value);
+                          const tem = await Question.getConceptList(value?.$id ? value?.name : value, standardId, subjectId, chapterId);
                           setConceptList(tem);
                           setIsConceptListLoading(false);
                         }}
                         onInputChange={async (event, value) => {
                           setIsConceptListLoading(true);
-                          const tem = await Question.getConceptList(value?.$id ? value?.name : value);
+                          const tem = await Question.getConceptList(value?.$id ? value?.name : value, standardId, subjectId, chapterId);
                           setConceptList(tem);
                           setIsConceptListLoading(false);
                         }}
                         onChange={(event, value) => {
                           setConcept(value?.$id ? value?.name : value);
+                          setChapterId(value?.$id)
                         }}
                         getOptionLabel={(option) => option?.name || option}
                         renderOption={(props, option, { selected }) => (

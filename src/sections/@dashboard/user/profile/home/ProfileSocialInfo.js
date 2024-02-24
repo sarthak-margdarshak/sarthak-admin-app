@@ -12,6 +12,7 @@
 
 // IMPORT ---------------------------------------------------------------
 
+import { Link as RouterLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 // @mui
 import { Link, Card, CardHeader, Stack, IconButton } from '@mui/material';
@@ -44,7 +45,7 @@ export default function ProfileSocialInfo({ userId, socialLinks }) {
         title={translate('social')}
         action={
           userId === user?.$id ?
-            <IconButton aria-label="Edit" onClick={() => window.open(PATH_DASHBOARD.user.account+'?tab=social_links', '_self')}>
+            <IconButton component={RouterLink} aria-label="Edit" to={PATH_DASHBOARD.user.account+'?tab=social_links'}>
               <Iconify icon="ic:baseline-edit" />
             </IconButton> : <></>
         }

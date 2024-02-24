@@ -61,7 +61,15 @@ import {
     ChangeLogPage,
     PrivacyAndPolicyPage,
     TermsAndConditionsPage,
+    MockTestListStandardPage,
+    MockTestPage,
+    MockTestEditPage,
+    MockTestListBySubjectPage,
+    MockTestListByChapterPage,
+    MockTestListByConceptPage,
+    MockTestListPage,
 } from "./elements";
+import MockTestNewPage from "../pages/dashboard/management/mock-test/MockTestNewPage";
 
 // ----------------------------------------------------------------------
 
@@ -179,6 +187,41 @@ export default function Router() {
                             index: true,
                         },
                         { path: "list", element: <NotificationListPage /> },
+                    ],
+                },
+                // Dashboard: Mock Test
+                {
+                    path: "mock-test",
+                    children: [
+                        {
+                            element: (
+                                <Navigate
+                                    to="/dashboard/mock-test/list"
+                                    replace
+                                />
+                            ),
+                            index: true,
+                        },
+                        { path: "list", element: <MockTestListStandardPage /> },
+                        { path: "new", element: <MockTestNewPage /> },
+                        {
+                            path: "list/standard/:standardId",
+                            element: <MockTestListBySubjectPage />,
+                        },
+                        {
+                            path: "list/standard/:standardId/subject/:subjectId",
+                            element: <MockTestListByChapterPage />,
+                        },
+                        {
+                            path: "list/standard/:standardId/subject/:subjectId/chapter/:chapterId",
+                            element: <MockTestListByConceptPage />,
+                        },
+                        {
+                            path: "list/standard/:standardId/subject/:subjectId/chapter/:chapterId/concept/:conceptId",
+                            element: <MockTestListPage />,
+                        },
+                        { path: ":id", element: <MockTestPage /> },
+                        { path: ":id/edit", element: <MockTestEditPage /> },
                     ],
                 },
                 // Dashboard: Coupons

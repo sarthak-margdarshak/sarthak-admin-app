@@ -12,6 +12,7 @@
 
 // IMPORT ---------------------------------------------------------------
 
+import { Link as RouterLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 // @mui
 import { styled } from '@mui/material/styles';
@@ -58,7 +59,7 @@ export default function ProfileAbout({ userId, quote, country, email, role, comp
         title={translate("about")}
         action={
           userId === user?.$id ?
-            <IconButton aria-label="Edit" onClick={() => window.open(PATH_DASHBOARD.user.account, '_self')}>
+            <IconButton component={RouterLink} aria-label="Edit" to={PATH_DASHBOARD.user.account}>
               <Iconify icon="ic:baseline-edit" />
             </IconButton> : <></>
         }

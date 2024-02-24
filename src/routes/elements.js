@@ -102,6 +102,16 @@ export const CouponsListPage = Loadable(
     lazy(() => import("../pages/dashboard/management/coupons/CouponsListPage"))
 );
 
+// MOCK-TEST
+export const MockTestListStandardPage = Loadable(lazy(() => import('../pages/dashboard/management/mock-test/listBy/ListByStandard')));
+export const MockTestPage = Loadable(lazy(() => import('../pages/dashboard/management/mock-test/MockTestPage')));
+export const MockTestEditPage = Loadable(lazy(() => import('../pages/dashboard/management/mock-test/MockTestEditPage')));
+export const MockTestListBySubjectPage = Loadable(lazy(() => import('../pages/dashboard/management/mock-test/listBy/ListBySubject')));
+export const MockTestListByChapterPage = Loadable(lazy(() => import('../pages/dashboard/management/mock-test/listBy/ListByChapter')));
+export const MockTestListByConceptPage = Loadable(lazy(() => import('../pages/dashboard/management/mock-test/listBy/ListByConcept')));
+export const MockTestListPage = Loadable(lazy(() => import('../pages/dashboard/management/mock-test/listBy/List')));
+export const MockTestNewPage = Loadable(lazy(() => import('../pages/dashboard/management/mock-test/MockTestNewPage')))
+
 // MAIN
 export const Page500 = Loadable(lazy(() => import("../pages/Page500")));
 export const Page403 = Loadable(lazy(() => import("../pages/Page403")));
