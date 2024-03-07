@@ -29,11 +29,10 @@ export default function CreateMockTestModel() {
   const [standard, setStandard] = useState("");
   const [subject, setSubject] = useState("");
   const [chapter, setChapter] = useState("");
-  const [concept, setConcept] = useState("");
+  const [concept, setConcept] = useState([]);
   const [standardId, setStandardId] = useState(id1);
   const [subjectId, setSubjectId] = useState(id2);
   const [chapterId, setChapterId] = useState(id3);
-  const [conceptId, setConceptId] = useState("");
   const [time, setTime] = useState(0);
   const [questionCount, setQuestionCount] = useState(0);
 
@@ -96,9 +95,16 @@ export default function CreateMockTestModel() {
     }
     setCreating(true);
     try {
-      await MockTest.createMockTestDriver(standardId, subjectId, chapterId, conceptId, time, questionCount);
+      const x = concept.map((value) => value.$id)
+      x.sort((a, b) => a>b)
+      var conceptIds = x[0];
+      for(let i=1; i<x.length; i++) {
+        conceptIds += ','+x[i];
+      }
+      console.log(conceptIds)
+      await MockTest.createMockTestDriver(standardId, subjectId, chapterId, conceptIds, time, questionCount);
       setCreating(false);
-      window.location.href = PATH_DASHBOARD.mockTest.list(standardId, subjectId, chapterId, conceptId);
+      window.location.href = PATH_DASHBOARD.mockTest.list(standardId, subjectId, chapterId, conceptIds);
     } catch (error) {
       enqueueSnackbar(error.message, { variant: 'error' })
       setCreating(false);
@@ -272,8 +278,10 @@ export default function CreateMockTestModel() {
             <Grid item xs={12} md={12}>
               <Autocomplete
                 fullWidth
+                multiple
+                filterSelectedOptions
                 autoComplete
-                value={concept}
+                defaultValue={concept}
                 loading={isConceptListLoading}
                 options={conceptList}
                 onFocus={async (event, value) => {
@@ -297,8 +305,7 @@ export default function CreateMockTestModel() {
                   }
                 }}
                 onChange={(event, value) => {
-                  setConceptId(value?.$id)
-                  setConcept(value?.name);
+                  setConcept(value)
                 }}
                 getOptionLabel={(option) => {
                   if (typeof (option) === 'string') return option;
@@ -310,7 +317,7 @@ export default function CreateMockTestModel() {
                   </li>
                 )}
                 renderInput={(params) => (
-                  <TextField {...params} label="Concept" />
+                  <TextField {...params} label="Concept" variant='standard' />
                 )}
                 sx={{ mt: 2 }}
               />

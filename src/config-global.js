@@ -45,6 +45,7 @@ export const APPWRITE_API = {
     // MockTest
     mockTests: process.env.REACT_APP_APPWRITE_DATABASE_MOCKTEST,
     mockTestDriver: process.env.REACT_APP_APPWRITE_DATABASE_MOCKTESTDRIVER,
+    mockTestPriceTag: process.env.REACT_APP_APPWRITE_DATABASE_MOCKTESTPRICETAG,
   },
   buckets: {
     userImage: process.env.REACT_APP_APPWRITE_BUCKET_USERIMAGE,

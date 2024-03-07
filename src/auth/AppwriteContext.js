@@ -1973,6 +1973,119 @@ export class MockTest {
       id
     ));
   }
+
+  /**
+   * 
+   * @param {string} standard 
+   * @param {string} subject 
+   * @param {string} chapter 
+   * @param {string} concept 
+   * @param {number} mrp 
+   * @param {number} sellPrice 
+   */
+  static async updateMockTestPrice(standard, subject, chapter, concept, mrp, sellPrice) {
+    if(!mrp) throw new Error("MRP Cannot be null")
+    if(!sellPrice) throw new Error("sellPrice Cannot be null")
+    var queries = []
+    if(standard) {
+      queries.push(Query.equal("standardId", standard));
+    } else {
+      queries.push(Query.isNull("standardId"));
+    }
+
+    if(subject) {
+      queries.push(Query.equal("subjectId", subject));
+    } else {
+      queries.push(Query.isNull("subjectId"));
+    }
+
+    if(chapter) {
+      queries.push(Query.equal("chapterId", chapter));
+    } else {
+      queries.push(Query.isNull("chapterId"));
+    }
+
+    if(concept) {
+      queries.push(Query.equal("conceptId", concept));
+    } else {
+      queries.push(Query.isNull("conceptId"));
+    }
+
+    const x = (await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTestPriceTag,
+      queries
+    ))
+
+    if(x.total===0) {
+      // create
+      await databases.createDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.mockTestPriceTag,
+        ID.unique(),
+        {
+          standardId: standard,
+          subjectId: subject,
+          chapterId: chapter,
+          conceptId: concept,
+          mrp: mrp,
+          sell_price: sellPrice
+        }
+      )
+    } else {
+      // update
+      await databases.updateDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.databases.mockTestPriceTag,
+        x.documents[0].$id,
+        {
+          mrp: mrp,
+          sell_price: sellPrice
+        }
+      )
+    }
+  }
+
+  static async getMockTestPrice(standard, subject, chapter, concept) {
+    var queries = []
+    if(standard) {
+      queries.push(Query.equal("standardId", standard));
+    } else {
+      queries.push(Query.isNull("standardId"));
+    }
+
+    if(subject) {
+      queries.push(Query.equal("subjectId", subject));
+    } else {
+      queries.push(Query.isNull("subjectId"));
+    }
+
+    if(chapter) {
+      queries.push(Query.equal("chapterId", chapter));
+    } else {
+      queries.push(Query.isNull("chapterId"));
+    }
+
+    if(concept) {
+      queries.push(Query.equal("conceptId", concept));
+    } else {
+      queries.push(Query.isNull("conceptId"));
+    }
+
+    const x = (await databases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.databases.mockTestPriceTag,
+      queries
+    ))
+
+    if(x.total===0) {
+      // create
+      return {mrp: '', sellPrice: ''};
+    } else {
+      // update
+      return {mrp: x.documents[0].mrp, sellPrice: x.documents[0].sell_price};
+    }
+  }
 }
 
 // ----------------------------------------------------------------------
