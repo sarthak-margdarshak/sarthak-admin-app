@@ -52,9 +52,6 @@ export const QuestionCreatePage = Loadable(lazy(() => import('../pages/dashboard
 export const QuestionDetailsPage = Loadable(lazy(() => import('../pages/dashboard/management/question/QuestionDetailsPage')));
 export const QuestionEditPage = Loadable(lazy(() => import('../pages/dashboard/management/question/QuestionEditPage')));
 
-// NOTIFICATION
-export const NotificationListPage = Loadable(lazy(() => import('../pages/dashboard/notifications/NotificationListPage')));
-
 // MOCK-TEST
 export const MockTestListStandardPage = Loadable(lazy(() => import('../pages/dashboard/management/mock-test/listBy/ListByStandard')));
 export const MockTestPage = Loadable(lazy(() => import('../pages/dashboard/management/mock-test/MockTestPage')));

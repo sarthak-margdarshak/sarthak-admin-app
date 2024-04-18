@@ -31,8 +31,6 @@ export const APPWRITE_API = {
     // Team Databases
     teams: process.env.REACT_APP_APPWRITE_DATABASE_TEAMS,
     teamMembership: process.env.REACT_APP_APPWRITE_DATABASE_TEAM_MEMBERSHIP,
-    // Notifications Database
-    notifications: process.env.REACT_APP_APPWRITE_DATABASE_NOTIFICATIONS,
     // Question Databases
     questions: process.env.REACT_APP_APPWRITE_DATABASE_QUESTIONS,
     standards: process.env.REACT_APP_APPWRITE_DATABASE_STANDARDS,

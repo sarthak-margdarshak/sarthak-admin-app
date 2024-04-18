@@ -803,9 +803,8 @@ export class Question {
         updatedBy: userId,
       },
       [
-        Permission.read(Role.any()),
-        Permission.read(Role.users()),
-        Permission.update(Role.users()),
+        Permission.read(Role.user(userId)),
+        Permission.update(Role.user(userId)),
       ]
     )).$id;
   }
@@ -1296,29 +1295,6 @@ export class Question {
   static async sendForApproval(questionId, userId, approvingTeam) {
     const team = await Team.getTeamData(approvingTeam);
 
-    // Send Notification
-    await databases.createDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.notifications,
-      ID.unique(),
-      {
-        userId: team?.teamOwner,
-        type: 'QUESTION_REVIEW_RECIEVED',
-        seen: false,
-        completed: false,
-        data: JSON.stringify(
-          {
-            questionId: questionId,
-            createdBy: (await User.getProfileData(userId)).name
-          }
-        )
-      },
-      [
-        Permission.read(Role.any()),
-        Permission.update(Role.any()),
-      ]
-    )
-
     return await databases.updateDocument(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.questions,
@@ -1526,28 +1502,6 @@ export class Question {
   }
 
   static async reviewBackQuestion(questionId, userId, createdBy, comment) {
-    await databases.createDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.notifications,
-      ID.unique(),
-      {
-        userId: createdBy,
-        type: 'QUESTION_REVIEW_RETURNED',
-        seen: false,
-        completed: false,
-        data: JSON.stringify(
-          {
-            questionId: questionId,
-            sentBy: (await User.getProfileData(userId)).name,
-            comment: comment
-          }
-        )
-      },
-      [
-        Permission.read(Role.any()),
-        Permission.update(Role.any()),
-      ]
-    )
 
     return await databases.updateDocument(
       APPWRITE_API.databaseId,
@@ -1687,82 +1641,6 @@ export class Question {
         APPWRITE_API.databases.sarthakInfoDataCollection
       )).questionCount
     );
-  }
-}
-
-export class Notification {
-  static async getAllNotification(user) {
-    return (await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.notifications,
-      [
-        Query.equal('userId', [user]),
-        Query.orderDesc("$createdAt")
-      ],
-    )).documents;
-  }
-
-  static async getUnreadNotification(user) {
-    return (await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.notifications,
-      [
-        Query.equal('seen', [false]),
-        Query.equal('userId', [user]),
-        Query.orderDesc("$createdAt"),
-      ],
-    )).documents;
-  }
-
-  static async getUnreadNotificationCount(user) {
-    return (await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.notifications,
-      [
-        Query.equal('seen', [false]),
-        Query.equal('userId', [user]),
-      ],
-    )).total
-  }
-
-  static async updateSeen(id) {
-    return await databases.updateDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.notifications,
-      id,
-      {
-        seen: true,
-        completed: true,
-      }
-    )
-  }
-
-  static async updateInvitationAction(action, membershipId, userId, notificationId, managerName) {
-    const execId = await functions.createExecution(
-      APPWRITE_API.functions.acceptInvite,
-      JSON.stringify(
-        {
-          action: action,
-          membershipId: membershipId,
-          userId: userId,
-          notificationId: notificationId,
-          managerName: managerName,
-        }
-      )
-    );
-
-    var notDone = true;
-    while (notDone) {
-      const data = await functions.getExecution(
-        APPWRITE_API.functions.acceptInvite,
-        execId?.$id
-      );
-      if (data?.status === 'completed') {
-        break;
-      } else if (data?.status === 'failed') {
-        throw new Error('Some unexpected error occured !!!');
-      }
-    }
   }
 }
 
@@ -1984,28 +1862,28 @@ export class MockTest {
    * @param {number} sellPrice 
    */
   static async updateMockTestPrice(standard, subject, chapter, concept, mrp, sellPrice) {
-    if(!mrp) throw new Error("MRP Cannot be null")
-    if(!sellPrice) throw new Error("sellPrice Cannot be null")
+    if (!mrp) throw new Error("MRP Cannot be null")
+    if (!sellPrice) throw new Error("sellPrice Cannot be null")
     var queries = []
-    if(standard) {
+    if (standard) {
       queries.push(Query.equal("standardId", standard));
     } else {
       queries.push(Query.isNull("standardId"));
     }
 
-    if(subject) {
+    if (subject) {
       queries.push(Query.equal("subjectId", subject));
     } else {
       queries.push(Query.isNull("subjectId"));
     }
 
-    if(chapter) {
+    if (chapter) {
       queries.push(Query.equal("chapterId", chapter));
     } else {
       queries.push(Query.isNull("chapterId"));
     }
 
-    if(concept) {
+    if (concept) {
       queries.push(Query.equal("conceptId", concept));
     } else {
       queries.push(Query.isNull("conceptId"));
@@ -2017,7 +1895,7 @@ export class MockTest {
       queries
     ))
 
-    if(x.total===0) {
+    if (x.total === 0) {
       // create
       await databases.createDocument(
         APPWRITE_API.databaseId,
@@ -2048,25 +1926,25 @@ export class MockTest {
 
   static async getMockTestPrice(standard, subject, chapter, concept) {
     var queries = []
-    if(standard) {
+    if (standard) {
       queries.push(Query.equal("standardId", standard));
     } else {
       queries.push(Query.isNull("standardId"));
     }
 
-    if(subject) {
+    if (subject) {
       queries.push(Query.equal("subjectId", subject));
     } else {
       queries.push(Query.isNull("subjectId"));
     }
 
-    if(chapter) {
+    if (chapter) {
       queries.push(Query.equal("chapterId", chapter));
     } else {
       queries.push(Query.isNull("chapterId"));
     }
 
-    if(concept) {
+    if (concept) {
       queries.push(Query.equal("conceptId", concept));
     } else {
       queries.push(Query.isNull("conceptId"));
@@ -2078,12 +1956,12 @@ export class MockTest {
       queries
     ))
 
-    if(x.total===0) {
+    if (x.total === 0) {
       // create
-      return {mrp: '', sellPrice: ''};
+      return { mrp: '', sellPrice: '' };
     } else {
       // update
-      return {mrp: x.documents[0].mrp, sellPrice: x.documents[0].sell_price};
+      return { mrp: x.documents[0].mrp, sellPrice: x.documents[0].sell_price };
     }
   }
 }
@@ -2100,7 +1978,6 @@ const initialState = {
   userGeneral: null,
   userPermissions: null,
   userSocialLinks: null,
-  notificationCount: 0,
   underMaintenance: false,
 };
 
@@ -2118,7 +1995,6 @@ const reducer = (state, action) => {
       userGeneral: action.payload.userGeneral,
       userPermissions: action.payload.userPermissions,
       userSocialLinks: action.payload.userSocialLinks,
-      notificationCount: action.payload.notificationCount,
       underMaintenance: action.payload.underMaintenance,
     };
   }
@@ -2134,7 +2010,6 @@ const reducer = (state, action) => {
       userGeneral: action.payload.userGeneral,
       userPermissions: action.payload.userPermissions,
       userSocialLinks: action.payload.userSocialLinks,
-      notificationCount: action.payload.notificationCount,
       underMaintenance: action.payload.underMaintenance,
     };
   }
@@ -2150,7 +2025,6 @@ const reducer = (state, action) => {
       userGeneral: action.payload.userGeneral,
       userPermissions: action.payload.userPermissions,
       userSocialLinks: action.payload.userSocialLinks,
-      notificationCount: action.payload.notificationCount,
     };
   }
   if (action.type === 'UPDATE_PASSWORD') {
@@ -2199,12 +2073,6 @@ const reducer = (state, action) => {
     return {
       ...state,
       userSocialLinks: action.payload.userSocialLinks,
-    }
-  }
-  if (action.type === 'UPDATE_NOTIFICATION_BADGE') {
-    return {
-      ...state,
-      notificationCount: action.payload.notificationCount,
     }
   }
   return state;
@@ -2291,16 +2159,6 @@ export function AuthProvider({ children }) {
         const user = response;
         const userProfile = await User.getProfileData(user.$id);
         var profileImage = null;
-        const cnt = await Notification.getUnreadNotificationCount(user?.$id);
-        client.subscribe('databases.' + APPWRITE_API.databaseId + '.collections.' + APPWRITE_API.databases.notifications + '.documents', async (response) => {
-          const cnt = await Notification.getUnreadNotificationCount(user?.$id);
-          dispatch({
-            type: 'UPDATE_NOTIFICATION_BADGE',
-            payload: {
-              notificationCount: cnt,
-            },
-          });
-        })
         if (userProfile.photoUrl) {
           profileImage = await User.getImageProfileLink(userProfile.photoUrl);
         }
@@ -2313,7 +2171,6 @@ export function AuthProvider({ children }) {
             user: user,
             profileImage: profileImage,
             userProfile: userProfile,
-            notificationCount: cnt,
           },
         });
       }, async function (error) {
@@ -2345,7 +2202,6 @@ export function AuthProvider({ children }) {
           userGeneral: null,
           userPermissions: null,
           userSocialLinks: null,
-          notificationCount: 0,
           underMaintenance: true,
         },
       });
@@ -2369,36 +2225,38 @@ export function AuthProvider({ children }) {
         underMaintenance: sarthakInfoData?.maintenance,
       }
     })
-    await account.createEmailSession(email, password);
-    const user = await account.get();
-    const userProfile = await User.getProfileData(user.$id);
-    var profileImage = null;
-    if (userProfile.photoUrl) {
-      profileImage = await User.getImageProfileLink(userProfile.photoUrl);
-    }
-    const cnt = await Notification.getUnreadNotificationCount(user?.$id);
-    client.subscribe('databases.' + APPWRITE_API.databaseId + '.collections.' + APPWRITE_API.databases.notifications + '.documents', async (response) => {
-      const cnt = await Notification.getUnreadNotificationCount(user?.$id);
+    try {
+      await account.createEmailSession(email, password);
+      const user = await account.get();
+      const userProfile = await User.getProfileData(user.$id);
+      var profileImage = null;
+      if (userProfile.photoUrl) {
+        profileImage = await User.getImageProfileLink(userProfile.photoUrl);
+      }
       dispatch({
-        type: 'UPDATE_NOTIFICATION_BADGE',
+        type: 'LOGIN',
         payload: {
-          notificationCount: cnt,
+          isInitialized: true,
+          isAuthenticated: true,
+          errorMessage: null,
+          user: user,
+          profileImage: profileImage,
+          userProfile: userProfile,
         },
       });
-    })
-
-    dispatch({
-      type: 'LOGIN',
-      payload: {
-        isInitialized: true,
-        isAuthenticated: true,
-        errorMessage: null,
-        user: user,
-        profileImage: profileImage,
-        userProfile: userProfile,
-        notificationCount: cnt,
-      },
-    });
+    } catch (err) {
+      dispatch({
+        type: 'LOGIN',
+        payload: {
+          isInitialized: true,
+          isAuthenticated: false,
+          errorMessage: err.message,
+          user: null,
+          profileImage: null,
+          userProfile: null,
+        },
+      });
+    }
   }, []);
 
   // LOGOUT
@@ -2416,7 +2274,6 @@ export function AuthProvider({ children }) {
         userGeneral: null,
         userPermissions: null,
         userSocialLinks: null,
-        notificationCount: 0,
       }
     });
   }, []);
@@ -2552,7 +2409,6 @@ export function AuthProvider({ children }) {
       userGeneral: state.userGeneral,
       userPermissions: state.userPermissions,
       userSocialLinks: state.userSocialLinks,
-      notificationCount: state.notificationCount,
       underMaintenance: state.underMaintenance,
       // auth functions
       login,
@@ -2569,7 +2425,7 @@ export function AuthProvider({ children }) {
       // team variables
       // team functions
     }),
-    [state.isInitialized, state.isAuthenticated, state.user, state.errorMessage, state.profileImage, state.userProfile, state.userGeneral, state.userPermissions, state.userSocialLinks, state.notificationCount, state.underMaintenance, login, logout, updatePassword, updateProfileImage, updateUserGeneral, updateUserSocialLinks, fetchGeneralData, fetchPermissionData, fetchSocialLinksData]
+    [state.isInitialized, state.isAuthenticated, state.user, state.errorMessage, state.profileImage, state.userProfile, state.userGeneral, state.userPermissions, state.userSocialLinks, state.underMaintenance, login, logout, updatePassword, updateProfileImage, updateUserGeneral, updateUserSocialLinks, fetchGeneralData, fetchPermissionData, fetchSocialLinksData]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;

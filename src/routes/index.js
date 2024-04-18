@@ -44,8 +44,6 @@ import {
   QuestionCreatePage,
   QuestionDetailsPage,
   QuestionEditPage,
-  // Dashboard: Notification
-  NotificationListPage,
   //
   Page500,
   Page403,
@@ -140,14 +138,6 @@ export default function Router() {
             { path: ':id', element: <QuestionDetailsPage /> },
             { path: ':id/edit', element: <QuestionEditPage /> },
           ],
-        },
-        // Dashboard: Notification
-        {
-          path: 'notifications',
-          children: [
-            { element: <Navigate to="/dashboard/notifications/list" replace />, index: true },
-            { path: 'list', element: <NotificationListPage /> },
-          ]
         },
         // Dashboard: Mock Test
         {

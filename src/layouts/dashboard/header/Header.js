@@ -30,7 +30,6 @@ import { useSettingsContext } from '../../../components/settings';
 //
 import AccountPopover from './AccountPopover';
 import LanguagePopover from './LanguagePopover';
-import NotificationsPopover from './NotificationsPopover';
 import SvgColor from '../../../components/svg-color/SvgColor';
 
 // ----------------------------------------------------------------------
@@ -73,7 +72,7 @@ export default function Header({ onOpenNav }) {
       >
         <LanguagePopover />
 
-        <NotificationsPopover />
+        {/* <NotificationsPopover /> */}
 
         <IconButton color={themeMode === 'dark' ? 'warning' : 'default'} onClick={onToggleMode}>
           <SvgColor

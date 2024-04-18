@@ -75,10 +75,6 @@ export const PATH_DASHBOARD = {
     view: (id) => path(ROOTS_DASHBOARD, `/question/${id}`),
     edit: (id) => path(ROOTS_DASHBOARD, `/question/${id}/edit`),
   },
-  notification: {
-    root: path(ROOTS_DASHBOARD, '/notifications'),
-    list: path(ROOTS_DASHBOARD, '/notifications/list'),
-  },
   mockTest: {
     root: path(ROOTS_DASHBOARD, '/mock-test'),
     new: path(ROOTS_DASHBOARD, '/mock-test/new'),
