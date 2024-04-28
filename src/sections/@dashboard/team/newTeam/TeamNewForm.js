@@ -23,9 +23,7 @@ import { PATH_DASHBOARD } from '../../../../routes/paths';
 // components
 import { useSnackbar } from '../../../../components/snackbar';
 // Auth
-import {
-  Team,
-} from '../../../../auth/AppwriteContext';
+import { Team } from '../../../../auth/Team';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 import { Upload } from '../../../../components/upload';
 

@@ -35,7 +35,7 @@ import {
 import { SeoIllustration } from '../../../../assets/illustrations';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import { Question } from '../../../../auth/AppwriteContext';
+import { Question } from '../../../../auth/Question';
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 
 // ----------------------------------------------------------------------

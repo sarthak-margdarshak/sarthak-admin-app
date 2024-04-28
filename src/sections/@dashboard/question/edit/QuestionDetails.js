@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 // Auth
-import { Question, User } from '../../../../auth/AppwriteContext';
+import { Question } from '../../../../auth/Question';
+import { User } from '../../../../auth/User';
 // @mui
 import { Autocomplete, Box, Button, Card, CardContent, CardHeader, Checkbox, Divider, Drawer, FormControl, Grid, IconButton, InputLabel, MenuItem, Paper, Select, Skeleton, Stack, TextField, Typography, alpha } from '@mui/material';
 import { LoadingButton, Timeline, TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineSeparator } from '@mui/lab';

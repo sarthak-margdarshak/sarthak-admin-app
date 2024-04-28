@@ -20,11 +20,9 @@ import { Tab, Card, Tabs, Container, Box } from '@mui/material';
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 // auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
-import {
-  Question,
-  Team,
-  User,
-} from '../../../../auth/AppwriteContext';
+import { Question } from '../../../../auth/Question';
+import { Team } from '../../../../auth/Team';
+import { User } from '../../../../auth/User';
 // components
 import Iconify from '../../../../components/iconify';
 import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';

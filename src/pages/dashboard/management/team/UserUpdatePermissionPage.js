@@ -29,9 +29,7 @@ import LoadingScreen from '../../../../components/loading-screen/LoadingScreen';
 // locales
 import { useLocales } from '../../../../locales';
 // Auth
-import {
-  User,
-} from '../../../../auth/AppwriteContext';
+import { User } from '../../../../auth/User';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 // sections
 import PermissionDeniedComponent from '../../../../sections/_examples/PermissionDeniedComponent';

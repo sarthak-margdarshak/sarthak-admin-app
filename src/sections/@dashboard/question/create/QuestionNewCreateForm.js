@@ -48,9 +48,8 @@ import { useSnackbar } from '../../../../components/snackbar';
 import { Upload } from '../../../../components/upload';
 // Auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
-import {
-  Question, Team,
-} from '../../../../auth/AppwriteContext';
+import { Question } from '../../../../auth/Question';
+import { Team } from '../../../../auth/Team';
 // Routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 // Animation

@@ -58,6 +58,11 @@ export const APPWRITE_API = {
     acceptInvite: process.env.REACT_APP_APPWRITE_FUCTION_ACCEPT_INVITE,
     updateMockTests: process.env.REACT_APP_APPWRITE_FUCTION_CREATE_MOCK_TEST,
   },
+  team: {
+    admin: process.env.REACT_APP_APPWRITE_TEAM_ADMIN,
+    student: process.env.REACT_APP_APPWRITE_TEAM_STUDENT,
+  },
+  ceoId: process.env.REACT_APP_APPWRITE_CEO_ID,
 };
 
 // ROOT PATH AFTER LOGIN SUCCESSFUL

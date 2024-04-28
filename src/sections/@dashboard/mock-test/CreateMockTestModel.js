@@ -1,7 +1,8 @@
 import { Autocomplete, Card, CardContent, CardHeader, Grid, Paper, TextField } from "@mui/material";
 import { alpha } from '@mui/material/styles';
 import { useEffect, useState } from "react";
-import { MockTest, Question } from "../../../auth/AppwriteContext";
+import { Question } from "../../../auth/Question";
+import { MockTest } from "../../../auth/MockTest";
 import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { PATH_DASHBOARD } from "../../../routes/paths";

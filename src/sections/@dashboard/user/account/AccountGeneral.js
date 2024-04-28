@@ -22,7 +22,7 @@ import { Box, Grid, Card, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
-import { User } from '../../../../auth/AppwriteContext';
+import { User } from '../../../../auth/User';
 // utils
 import { fData } from '../../../../utils/formatNumber';
 // assets

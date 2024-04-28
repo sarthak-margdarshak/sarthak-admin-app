@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Team } from "../../../../auth/AppwriteContext";
+import { Team } from "../../../../auth/Team";
 import { CustomAvatar } from "../../../../components/custom-avatar";
 import { Link, Skeleton, Stack, Typography } from "@mui/material";
 import { Link as RouterLink } from 'react-router-dom';

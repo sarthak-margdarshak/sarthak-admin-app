@@ -7,7 +7,7 @@ import Iconify from "../../../../../components/iconify";
 import { Link as RouterLink } from 'react-router-dom';
 import MockTestTile from "../../../../../sections/@dashboard/mock-test/MockTestTile";
 import { useEffect, useState } from "react";
-import { MockTest } from "../../../../../auth/AppwriteContext";
+import { MockTest } from "../../../../../auth/MockTest";
 import MockLoaderSkeleton from "../../../../../sections/@dashboard/mock-test/MockLoaderSkeleton";
 
 export default function ListByStandard() {

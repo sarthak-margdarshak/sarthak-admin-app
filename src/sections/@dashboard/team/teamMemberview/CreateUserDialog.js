@@ -25,7 +25,7 @@ import { useSnackbar } from '../../../../components/snackbar';
 import FormProvider, { RHFTextField, RHFSelect } from '../../../../components/hook-form';
 import Iconify from '../../../../components/iconify';
 // auth
-import { Team } from '../../../../auth/AppwriteContext';
+import { Team } from '../../../../auth/Team';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 // assets
 import { countries } from '../../../../assets/data';

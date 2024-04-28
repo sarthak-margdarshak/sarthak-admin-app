@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { MockTest, Question } from "../../../../../auth/AppwriteContext";
+import { MockTest } from "../../../../../auth/MockTest";
+import { Question } from "../../../../../auth/Question";
 import { useSettingsContext } from "../../../../../components/settings";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
 import { Button, Container, Divider, Grid, TextField } from "@mui/material";

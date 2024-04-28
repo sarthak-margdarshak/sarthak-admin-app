@@ -16,7 +16,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 // @mui
-import { Container, Box, Button, Tabs, Tab } from '@mui/material';
+import { Container, Button, Card } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 // components
@@ -27,34 +27,43 @@ import LoadingScreen from '../../../../components/loading-screen/LoadingScreen';
 import { useSnackbar } from '../../../../components/snackbar';
 // locales
 import { useLocales } from '../../../../locales';
-// sections
-import TeamListCard from '../../../../sections/@dashboard/team/teamView/TeamListCard';
 // auth
-import {
-  Team,
-  User,
-} from '../../../../auth/AppwriteContext';
+import { User } from '../../../../auth/User';
+import { Team } from '../../../../auth/Team';
 import { useAuthContext } from '../../../../auth/useAuthContext';
+import { useTable, getComparator, emptyRows, TableEmptyRows, TableHeadCustom, TablePaginationCustom } from '../../../../components/table';
 
 // ----------------------------------------------------------------------
 
+const TABLE_HEAD = [
+  { id: 'sn', },
+  { id: 'name', label: 'Name', align: 'left' },
+  { id: 'createdAt', label: 'Created At', align: 'left' },
+  { id: 'totalMember', label: 'Total Member', align: 'left' },
+  { id: '' },
+];
+
 export default function TeamListPage() {
+
   const { themeStretch } = useSettingsContext();
-
   const { enqueueSnackbar } = useSnackbar();
-
-  const {
-    user,
-  } = useAuthContext();
-
-  const [currentTab, setCurrentTab] = useState('your_team');
-
+  const { user } = useAuthContext();
   const { translate } = useLocales();
-
   const [createTeam, setCreateTeam] = useState(false);
   const [myTeam, setMyTeam] = useState(null);
-  const [allTeam, setAllTeam] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [update, setUpdate] = useState(true);
+
+  const {
+    page,
+    order,
+    orderBy,
+    rowsPerPage,
+    //
+    onSort,
+    onChangePage,
+    onChangeRowsPerPage,
+  } = useTable();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,9 +72,6 @@ export default function TeamListPage() {
         // Get My Team Data
         const team = await Team.getMyTeamData(user.$id);
         setMyTeam(team.documents);
-        // Get all data
-        const tempAllTeam = await Team.getAllTeamData();
-        setAllTeam(tempAllTeam.documents);
         // Check whether user has permission to create Team or not
         const permission = await User.getUserPermissionData(user.$id);
         setCreateTeam(permission.createTeam);
@@ -77,21 +83,6 @@ export default function TeamListPage() {
     }
     fetchData();
   }, [user, enqueueSnackbar])
-
-  const TABS = [
-    {
-      value: 'your_team',
-      label: translate('your_team'),
-      icon: <Iconify icon="fluent-mdl2:team-favorite" />,
-      component: <TeamListCard teams={myTeam} />,
-    },
-    {
-      value: 'all_team',
-      label: translate('all_team'),
-      icon: <Iconify icon="ps:people-team" />,
-      component: <TeamListCard teams={allTeam} />,
-    },
-  ];
 
   if (loading) {
     return (
@@ -125,20 +116,55 @@ export default function TeamListPage() {
           }
         />
 
-        <Tabs value={currentTab} onChange={(event, newValue) => setCurrentTab(newValue)}>
-          {TABS.map((tab) => (
-            <Tab key={tab.value} label={tab.label} icon={tab.icon} value={tab.value} />
-          ))}
-        </Tabs>
+        {/* <Card>
+          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+            <Scrollbar>
+              {update ?
+                <LinearProgress /> :
+                <Table size={'medium'} sx={{ minWidth: 800 }}>
+                  <TableHeadCustom
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={TABLE_HEAD}
+                    onSort={onSort}
+                  />
 
-        {TABS.map(
-          (tab) =>
-            tab.value === currentTab && (
-              <Box key={tab.value} sx={{ mt: 5 }}>
-                {tab.component}
-              </Box>
-            )
-        )}
+                  <TableBody>
+                    {dataFiltered
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((row) => {
+                        return (
+                          <UserTableRow
+                            key={row.$id}
+                            index={row?.sn}
+                            row={row}
+                            onViewRow={() => handleViewRow(row?.userId)}
+                            onEditRow={() => handleEditPermissionRow(row)}
+                            onBlockRow={() => handleBlockRow(row)}
+                            userIsOwner={user?.$id === team?.teamOwner}
+                          />
+                        )
+                      })}
+
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(page, rowsPerPage, dataFiltered.length)}
+                    />
+                  </TableBody>
+                </Table>
+              }
+            </Scrollbar>
+          </TableContainer>
+
+          <TablePaginationCustom
+            count={dataFiltered.length}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={onChangePage}
+            onRowsPerPageChange={onChangeRowsPerPage}
+          />
+        </Card> */}
+
       </Container>
     </>
   );

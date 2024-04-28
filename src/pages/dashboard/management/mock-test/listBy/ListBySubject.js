@@ -7,7 +7,8 @@ import MockTestTile from "../../../../../sections/@dashboard/mock-test/MockTestT
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
 import { useSettingsContext } from "../../../../../components/settings";
 import { useEffect, useState } from "react";
-import { MockTest, Question } from "../../../../../auth/AppwriteContext";
+import { MockTest } from "../../../../../auth/MockTest";
+import { Question } from "../../../../../auth/Question";
 import { Link as RouterLink } from 'react-router-dom';
 import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";

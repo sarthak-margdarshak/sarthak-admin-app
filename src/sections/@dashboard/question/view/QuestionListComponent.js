@@ -12,7 +12,8 @@ import { useSnackbar } from '../../../../components/snackbar';
 // utils
 import { fDate } from '../../../../utils/formatTime';
 // Auth
-import { Question, User } from "../../../../auth/AppwriteContext";
+import { Question } from "../../../../auth/Question";
+import { User } from "../../../../auth/User";
 // Display UI
 import StandardDisplayUI from "./StandardDisplayUI";
 import SubjectDisplayUI from "./SubjectDisplayUI";

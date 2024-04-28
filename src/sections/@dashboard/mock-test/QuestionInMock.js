@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Question } from "../../../auth/AppwriteContext";
+import { Question } from "../../../auth/Question";
 import { Card, CardContent, CardHeader, Skeleton } from "@mui/material";
 
 export default function QuestionInMock({ sn, questionId }) {

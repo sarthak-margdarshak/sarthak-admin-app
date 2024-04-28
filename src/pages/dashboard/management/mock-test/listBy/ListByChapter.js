@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { MockTest, Question } from "../../../../../auth/AppwriteContext";
+import { Question } from "../../../../../auth/Question";
+import { MockTest } from "../../../../../auth/MockTest";
 import { useSettingsContext } from "../../../../../components/settings";
 import { Helmet } from "react-helmet-async";
 import { Button, Container, Divider, Grid, TextField } from "@mui/material";

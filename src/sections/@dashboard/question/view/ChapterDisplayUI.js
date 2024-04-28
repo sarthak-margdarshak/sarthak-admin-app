@@ -1,6 +1,6 @@
 import { Link, Skeleton, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Question } from "../../../../auth/AppwriteContext";
+import { Question } from "../../../../auth/Question";
 import { Link as RouterLink } from 'react-router-dom';
 
 export default function ChapterDisplayUI({ id }) {

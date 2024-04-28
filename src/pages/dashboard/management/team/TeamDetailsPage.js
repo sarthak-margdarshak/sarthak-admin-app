@@ -17,15 +17,7 @@ import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 // @mui
-import {
-  Card,
-  Table,
-  Button,
-  TableBody,
-  Container,
-  TableContainer,
-  LinearProgress,
-} from '@mui/material';
+import { Card, Table, Button, TableBody, Container, TableContainer, LinearProgress } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 // components
@@ -33,14 +25,7 @@ import Iconify from '../../../../components/iconify';
 import Scrollbar from '../../../../components/scrollbar';
 import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
 import { useSettingsContext } from '../../../../components/settings';
-import {
-  useTable,
-  getComparator,
-  emptyRows,
-  TableEmptyRows,
-  TableHeadCustom,
-  TablePaginationCustom,
-} from '../../../../components/table';
+import { useTable, getComparator, emptyRows, TableEmptyRows, TableHeadCustom, TablePaginationCustom } from '../../../../components/table';
 import { useSnackbar } from '../../../../components/snackbar';
 // sections
 import { UserTableRow } from '../../../../sections/@dashboard/team/list';
@@ -48,10 +33,8 @@ import TeamCover from '../../../../sections/@dashboard/team/teamMemberview/TeamC
 import CreateUserDialog from '../../../../sections/@dashboard/team/teamMemberview/CreateUserDialog';
 import UserInviteDialoge from '../../../../sections/@dashboard/team/teamMemberview/UserInviteDialoge';
 // Auth
-import {
-  Team,
-  User,
-} from '../../../../auth/AppwriteContext';
+import { Team } from '../../../../auth/Team';
+import { User } from '../../../../auth/User';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 
 // ----------------------------------------------------------------------
@@ -69,14 +52,13 @@ const TABLE_HEAD = [
 // ----------------------------------------------------------------------
 
 export default function TeamDetailsPage() {
+  
   const teamId = window.location.pathname.split('/')[3];
 
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { themeStretch } = useSettingsContext();
-  const {
-    user,
-  } = useAuthContext();
+  const { user } = useAuthContext();
 
   const [team, setTeam] = useState(null);
   const [cover, setCover] = useState(null);

@@ -3,7 +3,8 @@ import { Autocomplete, Box, Card, CardContent, CardHeader, Chip, Divider, Drawer
 import Image from '../../../../components/image/Image';
 import ReactKatex from '@pkasila/react-katex';
 import { useEffect, useState } from "react";
-import { Question, User } from "../../../../auth/AppwriteContext";
+import { Question } from "../../../../auth/Question";
+import { User } from "../../../../auth/User";
 import Iconify from "../../../../components/iconify/Iconify";
 import { useAuthContext } from "../../../../auth/useAuthContext";
 import { PATH_DASHBOARD } from "../../../../routes/paths";

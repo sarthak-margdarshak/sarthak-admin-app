@@ -31,9 +31,7 @@ import MenuPopover from '../../../../components/menu-popover';
 import { useSnackbar } from '../../../../components/snackbar';
 // Auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
-import {
-  User,
-} from '../../../../auth/AppwriteContext';
+import { User } from '../../../../auth/User';
 
 // ----------------------------------------------------------------------
 

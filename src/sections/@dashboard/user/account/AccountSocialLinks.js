@@ -25,7 +25,7 @@ import { useSnackbar } from '../../../../components/snackbar';
 import FormProvider, { RHFTextField } from '../../../../components/hook-form';
 // Auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
-import { User } from '../../../../auth/AppwriteContext';
+import { User } from '../../../../auth/User';
 // locales
 import { useLocales } from '../../../../locales';
 

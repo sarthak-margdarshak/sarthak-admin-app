@@ -31,10 +31,8 @@ import { Block } from '../../../../sections/_examples/Block';
 import Iconify from '../../../../components/iconify';
 import { useSnackbar } from '../../../../components/snackbar';
 // Auth
-import {
-  Team,
-  User,
-} from '../../../../auth/AppwriteContext';
+import { Team } from '../../../../auth/Team';
+import { User } from '../../../../auth/User';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 
 // ----------------------------------------------------------------------
