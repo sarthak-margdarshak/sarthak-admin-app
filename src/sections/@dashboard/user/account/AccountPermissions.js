@@ -29,7 +29,7 @@ export default function AccountPermissions({ userPermissions }) {
         {translate('activity')}
       </Typography>
 
-      <Stack alignItems="flex-start" spacing={1} sx={{ mt: 2, mb: 5, }}>
+      <Stack alignItems="flex-start" sx={{ mt: 2, mb: 5, }}>
         <FormControlLabel
           control={
             <Switch
@@ -40,21 +40,10 @@ export default function AccountPermissions({ userPermissions }) {
             />
           }
           label={translate('permission_createTeam')} />
-
-        <FormControlLabel
-          control={
-            <Switch
-              key={"createTask"}
-              defaultChecked={userPermissions?.createTask || false}
-              disabled
-              sx={{ m: 0 }}
-            />
-          }
-          label={translate('permission_createTask')} />
       </Stack>
 
       <Typography variant="overline" component="div" sx={{ color: 'text.info' }}>
-      {translate('note')} :- {translate('permission_owner')}
+        {translate('note')} :- {translate('permission_owner')}
       </Typography>
     </Card>
   );

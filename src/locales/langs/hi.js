@@ -57,7 +57,7 @@ const hi = {
   permission: `अनुमति`,
   permission_createTask: 'आपके पास कार्य बनाने की अनुमति है।',
   permission_createTeam: 'आपके पास टीम बनाने की अनुमति है।',
-  permission_owner: 'अनुमतियाँ केवल टीम के मालिक द्वारा ही बदली जा सकती हैं।',
+  permission_owner: 'अनुमतियाँ केवल मालिक द्वारा ही बदली जा सकती हैं।',
   phone_number: `दूरभाष संख्या`,
   profile: `प्रोफ़ाइल`,
   question: `प्रश्न`,
