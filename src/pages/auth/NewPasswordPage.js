@@ -41,9 +41,9 @@ export default function NewPasswordPage() {
       </Typography>
 
       <Typography sx={{ color: 'text.secondary', mb: 5 }}>
-        We&apos;ve sent a 6-digit confirmation email to your email.
+        We&apos;ve sent a confirmation link to your email.
         <br />
-        Please enter the code in below box to verify your email.
+        Please enter the password in below box to reset your password.
       </Typography>
 
       <AuthNewPasswordForm />

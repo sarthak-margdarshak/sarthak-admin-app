@@ -29,7 +29,6 @@ const Loadable = (Component) => (props) =>
 
 // AUTH
 export const LoginPage = Loadable(lazy(() => import('../pages/auth/LoginPage')));
-export const VerifyCodePage = Loadable(lazy(() => import('../pages/auth/VerifyCodePage')));
 export const NewPasswordPage = Loadable(lazy(() => import('../pages/auth/NewPasswordPage')));
 export const ResetPasswordPage = Loadable(lazy(() => import('../pages/auth/ResetPasswordPage')));
 
@@ -66,6 +65,7 @@ export const MockTestNewPage = Loadable(lazy(() => import('../pages/dashboard/ma
 export const Page500 = Loadable(lazy(() => import('../pages/Page500')));
 export const Page403 = Loadable(lazy(() => import('../pages/Page403')));
 export const Page404 = Loadable(lazy(() => import('../pages/Page404')));
+export const Page410 = Loadable(lazy(() => import('../pages/Page410')));
 export const HomePage = Loadable(lazy(() => import('../pages/HomePage')));
 export const FaqsPage = Loadable(lazy(() => import('../pages/FaqsPage')));
 export const AboutPage = Loadable(lazy(() => import('../pages/AboutPage')));

@@ -25,7 +25,6 @@ const ROOTS_DASHBOARD = '/dashboard';
 export const PATH_AUTH = {
   root: ROOTS_AUTH,
   login: path(ROOTS_AUTH, '/login'),
-  verify: path(ROOTS_AUTH, '/verify'),
   resetPassword: path(ROOTS_AUTH, '/reset-password'),
   newPassword: path(ROOTS_AUTH, '/new-password'),
 };
@@ -42,6 +41,7 @@ export const PATH_PAGE = {
   faqs: '/faqs',
   page403: '/403',
   page404: '/404',
+  page410: '/410',
   page500: '/500',
   changelog: '/changelog',
   termsAndConditions: '/terms-and-conditions',

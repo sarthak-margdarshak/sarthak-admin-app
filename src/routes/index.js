@@ -26,7 +26,6 @@ import { PATH_AFTER_LOGIN } from '../config-global';
 import {
   // Auth
   LoginPage,
-  VerifyCodePage,
   NewPasswordPage,
   ResetPasswordPage,
   // Dashboard: General
@@ -48,6 +47,7 @@ import {
   Page500,
   Page403,
   Page404,
+  Page410,
   HomePage,
   FaqsPage,
   AboutPage,
@@ -88,7 +88,6 @@ export default function Router() {
           children: [
             { path: 'reset-password', element: <ResetPasswordPage /> },
             { path: 'new-password', element: <NewPasswordPage /> },
-            { path: 'verify', element: <VerifyCodePage /> },
           ],
         },
       ],
@@ -180,6 +179,7 @@ export default function Router() {
         { path: '500', element: <Page500 /> },     // Complete
         { path: '404', element: <Page404 /> },     // Complete
         { path: '403', element: <Page403 /> },     // Complete
+        { path: '410', element: <Page410 /> },     // Complete
       ],
     },
 

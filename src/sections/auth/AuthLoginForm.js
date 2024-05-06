@@ -28,13 +28,11 @@ import { useAuthContext } from '../../auth/useAuthContext';
 // components
 import Iconify from '../../components/iconify';
 import FormProvider, { RHFTextField } from '../../components/hook-form';
-import { useSnackbar } from '../../components/snackbar';
 
 // ----------------------------------------------------------------------
 
 export default function AuthLoginForm() {
-  const { login, errorMessage } = useAuthContext();
-  const { enqueueSnackbar } = useSnackbar();
+  const { login } = useAuthContext();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -43,8 +41,14 @@ export default function AuthLoginForm() {
     password: Yup.string().required('Password is required'),
   });
 
+  const defaultValues = {
+    email: '',
+    password: '',
+  };
+
   const methods = useForm({
     resolver: yupResolver(LoginSchema),
+    defaultValues,
   });
 
   const {
@@ -55,14 +59,19 @@ export default function AuthLoginForm() {
   } = methods;
 
   const onSubmit = async (data) => {
-    await login(data.email, data.password, setError, reset);
-    if(errorMessage) enqueueSnackbar(errorMessage, { variant: 'error' })
+    const x = await login(data.email, data.password);
+    if(!x.success) {
+      reset();
+      setError('afterSubmit', {
+        message: x.message,
+      });
+    }
   };
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={3}>
-        {!!errors.afterSubmit && <Alert fullWidth severity="error">{errors.afterSubmit.message}</Alert>}
+        {!!errors.afterSubmit && <Alert severity="error">{errors.afterSubmit.message}</Alert>}
 
         <RHFTextField name="email" label="Email address" />
 

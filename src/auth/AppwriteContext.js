@@ -20,21 +20,20 @@ import { APPWRITE_API } from '../config-global';
 import { User } from './User';
 
 // CLIENT INITIALIZATION ------------------------------------------------
-const client = new Client()
+export const client = new Client()
   .setEndpoint(APPWRITE_API.backendUrl)
   .setProject(APPWRITE_API.projectId);
 
-const account = new Account(client);
-const storage = new Storage(client);
-const databases = new Databases(client);
-const teams = new Teams(client);
+export const account = new Account(client);
+export const storage = new Storage(client);
+export const databases = new Databases(client);
+export const teams = new Teams(client);
 
 // ----------------------------------------------------------------------
 
 const initialState = {
   isInitialized: false,
   isAuthenticated: false,
-  errorMessage: null,
   user: null,
   profileImage: null,
   userProfile: null,
@@ -51,7 +50,6 @@ const reducer = (state, action) => {
       ...state,
       isInitialized: action.payload.isInitialized,
       isAuthenticated: action.payload.isAuthenticated,
-      errorMessage: action.payload.errorMessage,
       user: action.payload.user,
       profileImage: action.payload.profileImage,
       userProfile: action.payload.userProfile,
@@ -66,7 +64,6 @@ const reducer = (state, action) => {
       ...state,
       isInitialized: action.payload.isInitialized,
       isAuthenticated: action.payload.isAuthenticated,
-      errorMessage: action.payload.errorMessage,
       user: action.payload.user,
       profileImage: action.payload.profileImage,
       userProfile: action.payload.userProfile,
@@ -81,7 +78,6 @@ const reducer = (state, action) => {
       ...state,
       isInitialized: action.payload.isInitialized,
       isAuthenticated: action.payload.isAuthenticated,
-      errorMessage: action.payload.errorMessage,
       user: action.payload.user,
       profileImage: action.payload.profileImage,
       userProfile: action.payload.userProfile,
@@ -92,8 +88,7 @@ const reducer = (state, action) => {
   }
   if (action.type === 'UPDATE_PASSWORD') {
     return {
-      ...state,
-      errorMessage: action.payload.errorMessage,
+      ...state
     };
   }
   // UPDATE REDUCER
@@ -102,7 +97,6 @@ const reducer = (state, action) => {
       ...state,
       isInitialized: action.payload.isInitialized,
       isAuthenticated: action.payload.isAuthenticated,
-      errorMessage: action.payload.errorMessage,
       profileImage: action.payload.profileImage,
       userProfile: action.payload.userProfile,
     }
@@ -228,7 +222,6 @@ export function AuthProvider({ children }) {
           payload: {
             isInitialized: true,
             isAuthenticated: true,
-            errorMessage: null,
             user: user,
             profileImage: profileImage,
             userProfile: userProfile,
@@ -240,7 +233,6 @@ export function AuthProvider({ children }) {
           payload: {
             isInitialized: true,
             isAuthenticated: false,
-            errorMessage: error?.message,
             user: null,
             profileImage: null,
             userProfile: null,
@@ -256,7 +248,6 @@ export function AuthProvider({ children }) {
         payload: {
           isInitialized: false,
           isAuthenticated: false,
-          errorMessage: error,
           user: null,
           profileImage: null,
           userProfile: null,
@@ -275,17 +266,6 @@ export function AuthProvider({ children }) {
 
   // LOGIN
   const login = useCallback(async (email, password) => {
-    const sarthakInfoData = await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.sarthakInfoData,
-      APPWRITE_API.databases.sarthakInfoDataCollection
-    );
-    dispatch({
-      type: 'LOGIN',
-      payload: {
-        underMaintenance: sarthakInfoData?.maintenance,
-      }
-    })
     try {
       await account.createEmailSession(email, password);
       const user = await account.get();
@@ -293,17 +273,7 @@ export function AuthProvider({ children }) {
       const adminTeams = currTeams.filter((val, i) => val.$id===APPWRITE_API.team.admin)
       if(adminTeams.length!==1) {
         account.deleteSessions();
-        dispatch({
-          type: 'LOGIN',
-          payload: {
-            isInitialized: true,
-            isAuthenticated: false,
-            errorMessage: 'Unauthorised login',
-            user: null,
-            profileImage: null,
-            userProfile: null,
-          },
-        });
+        return {success: false, message: "Unauthorised login attempt."}
       }
       const userProfile = await User.getProfileData(user.$id);
       var profileImage = null;
@@ -315,24 +285,14 @@ export function AuthProvider({ children }) {
         payload: {
           isInitialized: true,
           isAuthenticated: true,
-          errorMessage: null,
           user: user,
           profileImage: profileImage,
           userProfile: userProfile,
         },
       });
+      return {success: true, message: ""}
     } catch (err) {
-      dispatch({
-        type: 'LOGIN',
-        payload: {
-          isInitialized: true,
-          isAuthenticated: false,
-          errorMessage: err.message,
-          user: null,
-          profileImage: null,
-          userProfile: null,
-        },
-      });
+      return {success: false, message: err.message}
     }
   }, []);
 
@@ -344,7 +304,6 @@ export function AuthProvider({ children }) {
       payload: {
         isInitialized: true,
         isAuthenticated: false,
-        errorMessage: null,
         user: null,
         profileImage: null,
         userProfile: null,
@@ -405,7 +364,6 @@ export function AuthProvider({ children }) {
       payload: {
         isInitialized: true,
         isAuthenticated: true,
-        errorMessage: null,
         profileImage: profileImage,
         userProfile: userProfile,
       }
@@ -480,7 +438,6 @@ export function AuthProvider({ children }) {
       isInitialized: state.isInitialized,
       isAuthenticated: state.isAuthenticated,
       user: state.user,
-      errorMessage: state.errorMessage,
       profileImage: state.profileImage,
       userProfile: state.userProfile,
       userGeneral: state.userGeneral,
@@ -502,7 +459,7 @@ export function AuthProvider({ children }) {
       // team variables
       // team functions
     }),
-    [state.isInitialized, state.isAuthenticated, state.user, state.errorMessage, state.profileImage, state.userProfile, state.userGeneral, state.userPermissions, state.userSocialLinks, state.underMaintenance, login, logout, updatePassword, updateProfileImage, updateUserGeneral, updateUserSocialLinks, fetchGeneralData, fetchPermissionData, fetchSocialLinksData]
+    [state.isInitialized, state.isAuthenticated, state.user, state.profileImage, state.userProfile, state.userGeneral, state.userPermissions, state.userSocialLinks, state.underMaintenance, login, logout, updatePassword, updateProfileImage, updateUserGeneral, updateUserSocialLinks, fetchGeneralData, fetchPermissionData, fetchSocialLinksData]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
