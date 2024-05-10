@@ -34,7 +34,7 @@ import UserInviteDialoge from '../../../../sections/@dashboard/team/teamMembervi
 // Auth
 import { User } from '../../../../auth/User';
 import { useAuthContext } from '../../../../auth/useAuthContext';
-import { teams } from '../../../../auth/AppwriteContext';
+import { databases, teams } from '../../../../auth/AppwriteContext';
 import { Query } from 'appwrite';
 import { APPWRITE_API } from '../../../../config-global';
 
@@ -77,7 +77,7 @@ export default function TeamDetailsPage() {
         var f_data = [];
         var count = 1;
         for (let i in membershipData.memberships) {
-          const tempRowUser = await User.getProfileData(membershipData.memberships[i]?.userId);
+          const tempRowUser = await databases.getDocument(APPWRITE_API.databaseId, APPWRITE_API.collections.adminUsers, membershipData.memberships[i]?.userId);
           f_data.push(
             {
               sn: count,
@@ -150,7 +150,7 @@ export default function TeamDetailsPage() {
           ]}
           action={
             <>
-              {team?.$id === APPWRITE_API.team.admin && user?.$id === APPWRITE_API.ceoId && !update &&
+              {team?.$id === APPWRITE_API.teams.admin && user?.$id === APPWRITE_API.documents.ceoId && !update &&
                 <Button
                   component={RouterLink}
                   onClick={() => setOpenConfirm(true)}
@@ -160,7 +160,7 @@ export default function TeamDetailsPage() {
                   New
                 </Button>
               }
-              {team?.$id !== APPWRITE_API.team.admin && !update &&
+              {team?.$id !== APPWRITE_API.teams.admin && !update &&
                 <Button
                   component={RouterLink}
                   sx={{ ml: 2 }}

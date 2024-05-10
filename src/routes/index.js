@@ -35,9 +35,7 @@ import {
   UserAccountPage,
   // Dashboard: Team
   TeamListPage,
-  TeamCreatePage,
   TeamDetailsPage,
-  TeamUserPermissionPage,
   // Dashboard: Question
   QuestionListPage,
   QuestionCreatePage,
@@ -121,10 +119,7 @@ export default function Router() {
           children: [
             { element: <Navigate to="/dashboard/team/list" replace />, index: true },
             { path: 'list', element: <TeamListPage /> },
-            { path: 'new', element: <TeamCreatePage /> },
-            { path: ':id/edit', element: <TeamCreatePage /> },
             { path: ':id/view', element: <TeamDetailsPage /> },
-            { path: ':teamId/user/:userId/permissions', element: <TeamUserPermissionPage /> }
           ],
         },
         // Dashboard: Question

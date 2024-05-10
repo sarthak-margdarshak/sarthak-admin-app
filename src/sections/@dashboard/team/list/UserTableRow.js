@@ -29,8 +29,8 @@ import Iconify from '../../../../components/iconify';
 import MenuPopover from '../../../../components/menu-popover';
 import { useSnackbar } from '../../../../components/snackbar';
 // Auth
-import { User } from '../../../../auth/User';
 import { APPWRITE_API } from '../../../../config-global';
+import { storage } from '../../../../auth/AppwriteContext';
 
 // ----------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ export default function UserTableRow({ index, row, onEditRow, onViewRow, isCEO, 
     async function fetchData() {
       try {
         if (row?.photoUrl) {
-          const tempAvatar = await User.getImageProfileLink(row?.photoUrl);
+          const tempAvatar = (storage.getFilePreview(APPWRITE_API.buckets.adminUserImage, row?.photoUrl, undefined, undefined, undefined, 20)).href;
           setAvatarUrl(tempAvatar)
         }
       } catch (error) {

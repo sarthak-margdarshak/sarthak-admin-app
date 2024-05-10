@@ -41,9 +41,7 @@ export const UserAccountPage = Loadable(lazy(() => import('../pages/dashboard/ma
 
 // DASHBOARD: TEAM
 export const TeamListPage = Loadable(lazy(() => import('../pages/dashboard/management/team/TeamListPage')));
-export const TeamCreatePage = Loadable(lazy(() => import('../pages/dashboard/management/team/TeamCreatePage')));
 export const TeamDetailsPage = Loadable(lazy(() => import('../pages/dashboard/management/team/TeamDetailsPage')));
-export const TeamUserPermissionPage = Loadable(lazy(() => import('../pages/dashboard/management/team/UserUpdatePermissionPage')));
 
 // DASHBOARD: QUESTION
 export const QuestionListPage = Loadable(lazy(() => import('../pages/dashboard/management/question/QuestionListPage')));

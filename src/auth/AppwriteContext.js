@@ -196,7 +196,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const updateUserProfile = useCallback(async (data, photoFile=null) => {
-    var data = data;
+    var tempData = data;
     if (photoFile) {
       if (state.userProfile.photoUrl) {
         await storage.deleteFile(
@@ -215,14 +215,14 @@ export function AuthProvider({ children }) {
           Permission.delete(Role.user(state.user.$id)),
         ]
       );
-      data = {...data, photoUrl: response.$id}
+      tempData = {...tempData, photoUrl: response.$id}
     }
 
     const adminUserProfile = await databases.updateDocument(
       APPWRITE_API.databaseId,
       APPWRITE_API.collections.adminUsers,
       state.user.$id,
-      { ...data },
+      { ...tempData },
     );
 
     var profileImage = null;

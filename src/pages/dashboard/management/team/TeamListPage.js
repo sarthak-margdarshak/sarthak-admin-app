@@ -16,7 +16,7 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 // @mui
-import { Container, Button, Card, LinearProgress, TableContainer, Table, TableBody } from '@mui/material';
+import { Container, Button, Card, LinearProgress, TableContainer, Table, TableBody, Dialog, DialogTitle, DialogContent, TextField, DialogContentText, DialogActions } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 // components
@@ -27,12 +27,13 @@ import { useSnackbar } from '../../../../components/snackbar';
 // locales
 import { useLocales } from '../../../../locales';
 // auth
-import { User } from '../../../../auth/User';
 import { Team } from '../../../../auth/Team';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 import { useTable, getComparator, emptyRows, TableEmptyRows, TableHeadCustom, TablePaginationCustom } from '../../../../components/table';
 import Scrollbar from '../../../../components/scrollbar';
 import TeamTableRow from '../../../../sections/@dashboard/team/list/TeamTableRow';
+import { teams } from '../../../../auth/AppwriteContext';
+import { ID } from 'appwrite';
 
 // ----------------------------------------------------------------------
 
@@ -50,11 +51,12 @@ export default function TeamListPage() {
 
   const { themeStretch } = useSettingsContext();
   const { enqueueSnackbar } = useSnackbar();
-  const { user } = useAuthContext();
+  const { userProfile } = useAuthContext();
   const { translate } = useLocales();
   const [createTeam, setCreateTeam] = useState(false);
   const [myTeam, setMyTeam] = useState([]);
   const [update, setUpdate] = useState(true);
+  const [createTeamOpen, setCreateTeamOpen] = useState(false);
 
   const {
     page,
@@ -68,21 +70,21 @@ export default function TeamListPage() {
   } = useTable();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Get My Team Data
-        const team = await Team.getMyTeamData();
-        setMyTeam(team.teams);
-        // Check whether user has permission to create Team or not
-        const permission = await User.getUserPermissionData(user.$id);
-        setCreateTeam(permission.createTeam);
-      } catch (error) {
-        enqueueSnackbar(error.message, { variant: 'error' });
-      }
-      setUpdate(false)
-    }
     fetchData();
-  }, [user, enqueueSnackbar])
+  }, [userProfile.createTeam, enqueueSnackbar, setUpdate])
+
+  const fetchData = async () => {
+    setUpdate(true)
+    try {
+      // Get My Team Data
+      const team = await Team.getMyTeamData();
+      setMyTeam(team.teams);
+      setCreateTeam(userProfile.createTeam);
+    } catch (error) {
+      enqueueSnackbar(error.message, { variant: 'error' });
+    }
+    setUpdate(false)
+  }
 
   const denseHeight = 72;
 
@@ -112,7 +114,7 @@ export default function TeamListPage() {
             createTeam &&
             <Button
               component={RouterLink}
-              to={PATH_DASHBOARD.team.new}
+              onClick={() => setCreateTeamOpen(true)}
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
             >
@@ -168,6 +170,47 @@ export default function TeamListPage() {
         </Card>
 
       </Container>
+
+      <Dialog maxWidth="md" open={createTeamOpen}
+        PaperProps={{
+          component: 'form',
+          onSubmit: async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries(formData.entries());
+            const newTeamName = formJson.newTeamName;
+            try {
+              await teams.create(ID.unique(), newTeamName);
+              enqueueSnackbar("Team Created Successfully");
+              fetchData();
+              setCreateTeamOpen(false)
+            } catch (error) {
+              enqueueSnackbar(error.message, { variant: 'error' })
+            }
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 2 }} >Create Team</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Please enter the name of the team, which you wants to create
+          </DialogContentText>
+          <TextField
+            name='newTeamName'
+            margin="dense"
+            fullWidth
+            autoFocus
+            required
+            placeholder='Enter Name'
+            label="Team Name" />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            setCreateTeamOpen(false)
+          }}>Cancel</Button>
+          <Button type="submit">Create</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
