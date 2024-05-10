@@ -29,6 +29,9 @@ import { Team } from '../../../../auth/Team';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 // assets
 import { countries } from '../../../../assets/data';
+import { teams } from '../../../../auth/AppwriteContext';
+import { APPWRITE_API } from '../../../../config-global';
+import { ID } from 'appwrite';
 
 // ----------------------------------------------------------------------
 
@@ -71,8 +74,18 @@ export default function CreateUserDialog({ open, teamName, teamId, onClose, onUp
     designation: Yup.string().required('Designation is required'),
   });
 
+  const defaultValues = {
+    name: '',
+    phoneNumber: '',
+    email: '',
+    phoneCode: '',
+    role: '',
+    designation: '',
+  };
+
   const methods = useForm({
     resolver: yupResolver(NewUserSchema),
+    defaultValues,
   });
 
   const {
@@ -82,24 +95,32 @@ export default function CreateUserDialog({ open, teamName, teamId, onClose, onUp
   } = methods;
 
   const onSubmit = async (data) => {
-    const password = generatePassword(10, { exclude: 'abc123' });
     try {
-      await Team.onboardWelcome(
-        data.name,
+      await teams.createMembership(
+        APPWRITE_API.teams.admin,
+        [data.role],
+        window.location.origin,
         data.email,
-        password,
-        data.designation,
+        null,
         '+'+data.phoneCode+data.phoneNumber,
-        userProfile.$id,
-        userProfile.name,
-        userProfile.designation,
-        userProfile.email,
-        userProfile.phoneNumber,
-        data.role,
-        teamId,
-        teamName
-      );
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+        data.name,
+      )
+      // await Team.onboardWelcome(
+      //   data.name,
+      //   data.email,
+      //   password,
+      //   data.designation,
+      //   '+'+data.phoneCode+data.phoneNumber,
+      //   userProfile.$id,
+      //   userProfile.name,
+      //   userProfile.designation,
+      //   userProfile.email,
+      //   userProfile.phoneNumber,
+      //   data.role,
+      //   teamId,
+      //   teamName
+      // );
+      // await new Promise((resolve) => setTimeout(resolve, 5000));
       reset();
       onClose();
       onUpdate();

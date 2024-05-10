@@ -25,13 +25,12 @@ import {
   Typography,
 } from '@mui/material';
 // components
-import Label from '../../../../components/label';
 import Iconify from '../../../../components/iconify';
 import MenuPopover from '../../../../components/menu-popover';
 import { useSnackbar } from '../../../../components/snackbar';
 // Auth
-import { useAuthContext } from '../../../../auth/useAuthContext';
 import { User } from '../../../../auth/User';
+import { APPWRITE_API } from '../../../../config-global';
 
 // ----------------------------------------------------------------------
 
@@ -40,18 +39,16 @@ UserTableRow.propTypes = {
   selected: PropTypes.bool,
   onEditRow: PropTypes.func,
   onViewRow: PropTypes.func,
-  userIsOwner: PropTypes.bool,
+  isCEO: PropTypes.bool,
   onBlockRow: PropTypes.func,
 };
 
 // ----------------------------------------------------------------------
 
-export default function UserTableRow({ index, row, onEditRow, onViewRow, userIsOwner, onBlockRow }) {
+export default function UserTableRow({ index, row, onEditRow, onViewRow, isCEO, onBlockRow }) {
   const [openPopover, setOpenPopover] = useState(null);
 
   const { enqueueSnackbar } = useSnackbar();
-
-  const { user } = useAuthContext();
 
   const [avatarUrl, setAvatarUrl] = useState(null);
 
@@ -89,7 +86,7 @@ export default function UserTableRow({ index, row, onEditRow, onViewRow, userIsO
             <Avatar alt={row?.name} src={avatarUrl} />
 
             <Typography variant="subtitle2" noWrap>
-              {row?.name}
+              {row?.userName}
             </Typography>
           </Stack>
         </TableCell>
@@ -97,32 +94,22 @@ export default function UserTableRow({ index, row, onEditRow, onViewRow, userIsO
         <TableCell align="left">{row?.designation}</TableCell>
 
         <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
-          {row?.role}
+          {row?.roles}
         </TableCell>
 
         <TableCell align="center">
           <Iconify
-            icon={row?.invitationAccepted ? 'eva:checkmark-circle-fill' : 'eva:clock-outline'}
+            icon={row?.confirm ? 'eva:checkmark-circle-fill' : 'eva:clock-outline'}
             sx={{
               width: 20,
               height: 20,
               color: 'success.main',
-              ...(!row?.invitationAccepted && { color: 'warning.main' }),
+              ...(!row?.confirm && { color: 'warning.main' }),
             }}
           />
         </TableCell>
 
-        <TableCell align="left">
-          <Label
-            variant="soft"
-            color={(row?.active === false && 'error') || 'success'}
-            sx={{ textTransform: 'capitalize' }}
-          >
-            {row?.active ? "Active" : "Not Active"}
-          </Label>
-        </TableCell>
-
-        <TableCell align="right">
+        <TableCell align="center">
           <IconButton color={openPopover ? 'inherit' : 'default'} onClick={handleOpenPopover}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
@@ -144,28 +131,30 @@ export default function UserTableRow({ index, row, onEditRow, onViewRow, userIsO
           <Iconify icon="carbon:view" />
           View
         </MenuItem>
+        {
+          row?.userId !== APPWRITE_API.ceoId && <>
+            <MenuItem
+              disabled={!isCEO}
+              onClick={() => {
+                onEditRow();
+                handleClosePopover();
+              }}
+            >
+              <Iconify icon="fluent-mdl2:permissions" />
+              Permissions
+            </MenuItem>
 
-        {userIsOwner && user?.$id !== row?.userId && row?.invitationAccepted &&
-          <MenuItem
-            onClick={() => {
-              onEditRow();
-              handleClosePopover();
-            }}
-          >
-            <Iconify icon="fluent-mdl2:permissions" />
-            Permissions
-          </MenuItem>
-        } {userIsOwner && user?.$id !== row?.userId && row?.invitationAccepted &&
-          <MenuItem
-            disabled
-            onClick={() => {
-              onBlockRow();
-              handleClosePopover();
-            }}
-          >
-            <Iconify icon="material-symbols:block" />
-            Block
-          </MenuItem>
+            <MenuItem
+              disabled={!isCEO}
+              onClick={() => {
+                onBlockRow();
+                handleClosePopover();
+              }}
+            >
+              <Iconify icon="material-symbols:block" />
+              Block
+            </MenuItem>
+          </>
         }
       </MenuPopover>
     </>

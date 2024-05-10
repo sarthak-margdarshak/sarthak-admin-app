@@ -12,18 +12,17 @@
 
 // IMPORT ---------------------------------------------------------------
 
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 // @mui
-import { Container, Button, Card } from '@mui/material';
+import { Container, Button, Card, LinearProgress, TableContainer, Table, TableBody } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 // components
 import { useSettingsContext } from '../../../../components/settings';
 import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
 import Iconify from '../../../../components/iconify/Iconify';
-import LoadingScreen from '../../../../components/loading-screen/LoadingScreen';
 import { useSnackbar } from '../../../../components/snackbar';
 // locales
 import { useLocales } from '../../../../locales';
@@ -32,6 +31,8 @@ import { User } from '../../../../auth/User';
 import { Team } from '../../../../auth/Team';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 import { useTable, getComparator, emptyRows, TableEmptyRows, TableHeadCustom, TablePaginationCustom } from '../../../../components/table';
+import Scrollbar from '../../../../components/scrollbar';
+import TeamTableRow from '../../../../sections/@dashboard/team/list/TeamTableRow';
 
 // ----------------------------------------------------------------------
 
@@ -40,18 +41,19 @@ const TABLE_HEAD = [
   { id: 'name', label: 'Name', align: 'left' },
   { id: 'createdAt', label: 'Created At', align: 'left' },
   { id: 'totalMember', label: 'Total Member', align: 'left' },
-  { id: '' },
+  { id: 'id', label: 'Id', align: 'left' },
+  { id: 'view', label: 'View', align: 'left' },
 ];
 
 export default function TeamListPage() {
+  const navigate = useNavigate();
 
   const { themeStretch } = useSettingsContext();
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuthContext();
   const { translate } = useLocales();
   const [createTeam, setCreateTeam] = useState(false);
-  const [myTeam, setMyTeam] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [myTeam, setMyTeam] = useState([]);
   const [update, setUpdate] = useState(true);
 
   const {
@@ -67,28 +69,31 @@ export default function TeamListPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       try {
         // Get My Team Data
-        const team = await Team.getMyTeamData(user.$id);
-        setMyTeam(team.documents);
+        const team = await Team.getMyTeamData();
+        setMyTeam(team.teams);
         // Check whether user has permission to create Team or not
         const permission = await User.getUserPermissionData(user.$id);
         setCreateTeam(permission.createTeam);
-        setLoading(false);
       } catch (error) {
         enqueueSnackbar(error.message, { variant: 'error' });
-        setLoading(false);
       }
+      setUpdate(false)
     }
     fetchData();
   }, [user, enqueueSnackbar])
 
-  if (loading) {
-    return (
-      <LoadingScreen />
-    )
-  }
+  const denseHeight = 72;
+
+  const handleViewRow = (id) => {
+    navigate(PATH_DASHBOARD.team.view(id));
+  };
+
+  const dataFiltered = applyFilter({
+    inputData: myTeam,
+    comparator: getComparator(order, orderBy),
+  });
 
   return (
     <>
@@ -116,7 +121,7 @@ export default function TeamListPage() {
           }
         />
 
-        {/* <Card>
+        <Card>
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <Scrollbar>
               {update ?
@@ -134,14 +139,11 @@ export default function TeamListPage() {
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row) => {
                         return (
-                          <UserTableRow
+                          <TeamTableRow
                             key={row.$id}
                             index={row?.sn}
                             row={row}
-                            onViewRow={() => handleViewRow(row?.userId)}
-                            onEditRow={() => handleEditPermissionRow(row)}
-                            onBlockRow={() => handleBlockRow(row)}
-                            userIsOwner={user?.$id === team?.teamOwner}
+                            onViewRow={() => handleViewRow(row?.$id)}
                           />
                         )
                       })}
@@ -163,9 +165,33 @@ export default function TeamListPage() {
             onPageChange={onChangePage}
             onRowsPerPageChange={onChangeRowsPerPage}
           />
-        </Card> */}
+        </Card>
 
       </Container>
     </>
   );
+}
+
+function applyFilter({ inputData, comparator }) {
+  const stabilizedThis = inputData.map((el, index) => [el, index]);
+
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) return order;
+    return a[1] - b[1];
+  });
+
+  inputData = stabilizedThis.map((el) => el[0]);
+  var filtered = [];
+  var count = 1;
+  for (let i in inputData) {
+    filtered.push(
+      {
+        ...inputData[i],
+        sn: count,
+      }
+    );
+    count++;
+  }
+  return filtered;
 }

@@ -31,19 +31,6 @@ export class Team {
   }
 
   /**
-   * Function to fetch team data of particular team.
-   * @param {string} id - Id of team
-   * @returns - Team data
-   */
-  static async getTeamData(id) {
-    return await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.teams,
-      id,
-    );
-  }
-
-  /**
    * Function to create a team.
    * @param {string} name - Name of the team
    * @param {string} teamOwner - teamOwner ID
@@ -76,64 +63,6 @@ export class Team {
           Permission.read(Role.any()),
         ]
       )
-    }
-  }
-
-  /**
-   * Function to upload cover photo of a team.
-   * @param {File} file - cover file
-   * @param {string} teamId - team id
-   * @param {string} teamOwner - team owner id
-   */
-  static async uploadTeamCover(file, teamId, teamOwner, actionUpload) {
-    // Get Team Data to check existing Cover
-    const team = await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.teams,
-      teamId,
-    );
-
-    // If cover is already is present delete it
-    if (team.cover) {
-      await storage.deleteFile(
-        APPWRITE_API.buckets.teamCover,
-        team.cover,
-      );
-    }
-
-    // Upload file and give permissions
-    if (actionUpload) {
-      const coverData = await storage.createFile(
-        APPWRITE_API.buckets.teamCover,
-        ID.unique(),
-        file,
-        [
-          Permission.update(Role.user(teamOwner)),
-          Permission.read(Role.user(teamOwner)),
-          Permission.delete(Role.user(teamOwner)),
-          Permission.read(Role.any()),
-        ]
-      );
-
-      // Update database
-      await databases.updateDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.teams,
-        teamId,
-        {
-          cover: coverData.$id,
-        },
-      );
-    } else {
-      // Update database
-      await databases.updateDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.teams,
-        teamId,
-        {
-          cover: null,
-        },
-      );
     }
   }
 

@@ -25,7 +25,6 @@ import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
 import Block from '../../../../components/settings/drawer/Block';
 import Iconify from '../../../../components/iconify/Iconify';
 import { useSnackbar } from '../../../../components/snackbar';
-import LoadingScreen from '../../../../components/loading-screen/LoadingScreen';
 // locales
 import { useLocales } from '../../../../locales';
 // Auth
@@ -33,50 +32,41 @@ import { User } from '../../../../auth/User';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 // sections
 import PermissionDeniedComponent from '../../../../sections/_examples/PermissionDeniedComponent';
-import Page404 from '../../../Page404';
+import { APPWRITE_API } from '../../../../config-global';
 
 // ----------------------------------------------------------------------
 
 export default function UserUpdatePermissionPage() {
-  const teamId = window.location.pathname.split('/')[3];
-  const userId = window.location.pathname.split('/')[5];
+  const userId = window.location.pathname.split('/')[3];
 
   const { themeStretch } = useSettingsContext();
   const { translate } = useLocales();
   const { enqueueSnackbar } = useSnackbar();
 
-  const {
-    user,
-  } = useAuthContext();
+  const { user } = useAuthContext();
 
   const [currentUser, setCurrentUser] = useState(null);
   const [createTeam, setCreateTeam] = useState(false);
-  const [createTask, setCreateTask] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [isAccessible, setIsAccessible] = useState(-1);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        var data = await User.isPermissionUpdatable(userId, teamId, user?.$id);
-        setIsAccessible(data);
-        data = await User.getProfileData(userId);
+        var data = await User.getProfileData(userId);
         setCurrentUser(data);
         data = await User.getUserPermissionData(userId);
         setCreateTeam(data?.createTeam);
-        setCreateTask(data?.createTask);
       } catch (error) {
         enqueueSnackbar(error.message, { variant: 'error' });
       }
     }
     fetchData();
-  }, [userId, teamId, enqueueSnackbar, user])
+  }, [userId, enqueueSnackbar, user])
 
   const updatePermission = async () => {
     try {
       setIsSubmitting(true);
-      await User.updatePermissions(userId, createTeam, createTask);
+      await User.updatePermissions(userId, createTeam);
       enqueueSnackbar('Updated Successfully');
       setIsSubmitting(false);
     } catch (error) {
@@ -84,7 +74,7 @@ export default function UserUpdatePermissionPage() {
     }
   }
 
-  if(isAccessible === -1) return <LoadingScreen />
+  if (user?.$id !== APPWRITE_API.ceoId) return <PermissionDeniedComponent />
 
   return (
     <>
@@ -113,37 +103,26 @@ export default function UserUpdatePermissionPage() {
             },
           ]}
         />
-        {isAccessible === 1 ? <PermissionDeniedComponent /> : (isAccessible === 0 ? <Page404 /> :
-          <>
-            <Block>
+        <Block>
 
-              <Stack direction="column">
-                <FormControlLabel
-                  sx={{ mb: 2 }}
-                  label="Permission to create Team"
-                  control={
-                    <Checkbox checked={createTeam} onChange={(event, checked) => setCreateTeam(checked)} />
-                  }
-                />
-                <FormControlLabel
-                  sx={{ mb: 2 }}
-                  label="Permission to create Task"
-                  control={
-                    <Checkbox checked={createTask} onChange={(event, checked) => setCreateTask(checked)} />
-                  }
-                />
-              </Stack>
-            </Block>
-            <LoadingButton
-              variant="contained"
-              startIcon={<Iconify icon="material-symbols:update" />}
-              onClick={updatePermission}
-              loading={isSubmitting}
-            >
-              Update
-            </LoadingButton>
-          </>
-        )}
+          <Stack direction="column">
+            <FormControlLabel
+              sx={{ mb: 2 }}
+              label="Permission to create Team"
+              control={
+                <Checkbox checked={createTeam} onChange={(event, checked) => setCreateTeam(checked)} />
+              }
+            />
+          </Stack>
+        </Block>
+        <LoadingButton
+          variant="contained"
+          startIcon={<Iconify icon="material-symbols:update" />}
+          onClick={updatePermission}
+          loading={isSubmitting}
+        >
+          Update
+        </LoadingButton>
       </Container>
     </>
   );

@@ -27,6 +27,7 @@ import FormProvider, { RHFTextField } from '../../../../components/hook-form';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 // locales
 import { useLocales } from '../../../../locales';
+import { account } from '../../../../auth/AppwriteContext';
 
 // ----------------------------------------------------------------------
 
@@ -34,7 +35,7 @@ export default function AccountChangePassword() {
   const { enqueueSnackbar } = useSnackbar();
   const { translate } = useLocales();
 
-  const { user, updatePassword } = useAuthContext();
+  const { user } = useAuthContext();
 
   const ChangePassWordSchema = Yup.object().shape({
     oldPassword: Yup.string().required(translate('old')+' '+translate('password')+' '+translate('is_required')),
@@ -65,7 +66,7 @@ export default function AccountChangePassword() {
 
   const onSubmit = async (data) => {
     try {
-      await updatePassword(data.oldPassword, data.newPassword);
+      await account.updatePassword(data.newPassword, data.oldPassword);
       reset();
       enqueueSnackbar(translate('update_success')+' !!!', {variant: 'success'});
     } catch (error) {

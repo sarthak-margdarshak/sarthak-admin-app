@@ -25,7 +25,6 @@ import { useSnackbar } from '../../../../components/snackbar';
 import FormProvider, { RHFTextField } from '../../../../components/hook-form';
 // Auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
-import { User } from '../../../../auth/User';
 // locales
 import { useLocales } from '../../../../locales';
 
@@ -55,11 +54,7 @@ const SOCIAL_LINKS = [
 export default function AccountSocialLinks() {
   const { enqueueSnackbar } = useSnackbar();
   const { translate } = useLocales();
-
-  const {
-    user,
-    updateUserSocialLinks,
-  } = useAuthContext();
+  const { userProfile, updateUserProfile } = useAuthContext();
 
   const UpdateUserSchema = Yup.object().shape({
     facebookId: Yup.string().matches(/^(http:\/\/|https:\/\/)?(?:www\.)?facebook\.com\/(?:(?:\w\.)*#!\/)?(?:pages\/)?(?:[\w\-.]*\/)*([\w\-.]*)|^$/, translate('invalid_fb')),
@@ -70,14 +65,11 @@ export default function AccountSocialLinks() {
 
   const methods = useForm({
     resolver: yupResolver(UpdateUserSchema),
-    defaultValues: async() => {
-      const userSocialLinks = await User.getUserSocialLinksData(user.$id);
-      return {
-        facebookId: userSocialLinks?.facebookId || '',
-        instagramId: userSocialLinks?.instagramId || '',
-        linkedinId: userSocialLinks?.linkedinId || '',
-        twitterId: userSocialLinks?.twitterId || '',
-      }
+    defaultValues: {
+      facebookId: userProfile?.facebookId || '',
+      instagramId: userProfile?.instagramId || '',
+      linkedinId: userProfile?.linkedinId || '',
+      twitterId: userProfile?.twitterId || '',
     },
   });
 
@@ -88,8 +80,13 @@ export default function AccountSocialLinks() {
 
   const onSubmit = async (data) => {
     try {
-      await updateUserSocialLinks(data);
-      enqueueSnackbar(translate('update_success')+' !!!', {variant: 'success'});
+      await updateUserProfile({
+        facebookId: data.facebookId || null,
+        instagramId: data.instagramId || null,
+        linkedinId: data.linkedinId || null,
+        twitterId: data.twitterId || null,
+      });
+      enqueueSnackbar(translate('update_success') + ' !!!', { variant: 'success' });
     } catch (error) {
       console.error(error);
       enqueueSnackbar(error.message, { variant: 'error' });

@@ -16,12 +16,14 @@
 import { Card, Stack, Typography, Switch, FormControlLabel } from '@mui/material';
 // locales
 import { useLocales } from '../../../../locales';
+import { useAuthContext } from '../../../../auth/useAuthContext';
 
 // ----------------------------------------------------------------------
 
-export default function AccountPermissions({ userPermissions }) {
+export default function AccountPermissions() {
 
   const { translate } = useLocales();
+  const { userProfile } = useAuthContext();
 
   return (
     <Card sx={{ p: 3 }}>
@@ -34,7 +36,7 @@ export default function AccountPermissions({ userPermissions }) {
           control={
             <Switch
               key={"createTeam"}
-              defaultChecked={userPermissions?.createTeam || false}
+              defaultChecked={userProfile?.createTeam || false}
               disabled
               sx={{ m: 0 }}
             />

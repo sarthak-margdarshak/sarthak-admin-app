@@ -22,7 +22,6 @@ import { PATH_DASHBOARD } from '../../../../routes/paths';
 import { useAuthContext } from '../../../../auth/useAuthContext';
 import { Question } from '../../../../auth/Question';
 import { Team } from '../../../../auth/Team';
-import { User } from '../../../../auth/User';
 // components
 import Iconify from '../../../../components/iconify';
 import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
@@ -39,9 +38,7 @@ import { useLocales } from '../../../../locales';
 
 export default function UserProfilePage() {
   var userId = window.location.pathname.split('/')[4];
-  const {
-    user,
-  } = useAuthContext();
+  const { user, userProfile, profileImage } = useAuthContext();
   if (userId === '') {
     userId = user.$id;
   }
@@ -49,33 +46,18 @@ export default function UserProfilePage() {
   const { themeStretch } = useSettingsContext();
 
   const { translate } = useLocales();
-  const [userProfile, setUserProfile] = useState(null);
-  const [userGeneral, setUserGeneral] = useState(null);
-  const [userSocialLinks, setUserSocialLinks] = useState(null);
-  const [profileImage, setProfileImage] = useState(null);
   const [teamCount, setTeamCount] = useState(0);
   const [questionCount, setQuestionCount] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
-      var data = await User.getProfileData(userId);
-      setUserProfile(data);
-      const user = data;
-      if (data?.photoUrl && data?.photoUrl!=='') {
-        data = await User.getImageProfileLink(data?.photoUrl);
-        setProfileImage(data);
-      }
-      data = await User.getUserGeneralData(userId);
-      setUserGeneral(data);
-      data = await User.getUserSocialLinksData(userId);
-      setUserSocialLinks(data);
-      data = await Question.getQuestionList({ createdBy: user?.$id }, 1, 1);
+      var data = await Question.getQuestionList({ createdBy: user?.$id }, 1, 1);
       setQuestionCount(data?.total)
       data = await Team.getMyTeamData(user?.$id);
       setTeamCount(data?.total)
     }
     fetchData();
-  }, [userId])
+  }, [user?.$id])
 
   const [currentTab, setCurrentTab] = useState('profile');
 
@@ -84,7 +66,12 @@ export default function UserProfilePage() {
       value: 'profile',
       label: translate("profile"),
       icon: <Iconify icon="ic:round-account-box" />,
-      component: <Profile userId={userId} team={teamCount} question={questionCount} infoGeneral={userGeneral} infoProfile={userProfile} infoSocialLinks={userSocialLinks} />,
+      component: <Profile
+        userId={userId}
+        team={teamCount}
+        question={questionCount}
+        infoProfile={userProfile}
+      />,
     },
   ];
 

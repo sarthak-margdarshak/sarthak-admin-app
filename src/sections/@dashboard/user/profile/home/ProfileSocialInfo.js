@@ -13,7 +13,6 @@
 // IMPORT ---------------------------------------------------------------
 
 import { Link as RouterLink } from 'react-router-dom';
-import PropTypes from 'prop-types';
 // @mui
 import { Link, Card, CardHeader, Stack, IconButton } from '@mui/material';
 // _mock
@@ -27,14 +26,7 @@ import { PATH_DASHBOARD } from '../../../../../routes/paths';
 
 // ----------------------------------------------------------------------
 
-ProfileSocialInfo.propTypes = {
-  userId:  PropTypes.string,
-  socialLinks: PropTypes.object,
-};
-
-// ----------------------------------------------------------------------
-
-export default function ProfileSocialInfo({ userId, socialLinks }) {
+export default function ProfileSocialInfo({ userId, infoProfile }) {
 
   const { translate } = useLocales();
   const { user } = useAuthContext();
@@ -67,16 +59,16 @@ export default function ProfileSocialInfo({ userId, socialLinks }) {
               variant="body2"
               color="text.primary"
               onClick={() => window.open(
-                (link.value === 'facebook' && socialLinks?.facebookId) ||
-                (link.value === 'instagram' && socialLinks?.instagramId) ||
-                (link.value === 'linkedin' && socialLinks?.linkedinId) ||
-                socialLinks?.twitterId, '_blank',
+                (link.value === 'facebook' && infoProfile?.facebookId) ||
+                (link.value === 'instagram' && infoProfile?.instagramId) ||
+                (link.value === 'linkedin' && infoProfile?.linkedinId) ||
+                infoProfile?.twitterId, '_blank',
               )}
               sx={{ cursor: 'pointer' }}>
-              {(link.value === 'facebook' && socialLinks?.facebookId) ||
-                (link.value === 'instagram' && socialLinks?.instagramId) ||
-                (link.value === 'linkedin' && socialLinks?.linkedinId) ||
-                socialLinks?.twitterId}
+              {(link.value === 'facebook' && infoProfile?.facebookId) ||
+                (link.value === 'instagram' && infoProfile?.instagramId) ||
+                (link.value === 'linkedin' && infoProfile?.linkedinId) ||
+                infoProfile?.twitterId}
             </Link>
           </Stack>
         ))}

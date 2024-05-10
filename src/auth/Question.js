@@ -986,7 +986,7 @@ export class Question {
 
     const data = (await databases.listDocuments(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
+      APPWRITE_API.collections.questions,
       queries,
     ));
 
@@ -997,7 +997,7 @@ export class Question {
     const question = await this.getQuestion(questionId);
     const isOwner = (await databases.listDocuments(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.teams,
+      APPWRITE_API.collections.teams,
       [
         Query.equal('teamOwner', [userId])
       ]
@@ -1058,7 +1058,7 @@ export class Question {
   static async getTotalQuestionSubjectWise() {
     const subjects = await databases.listDocuments(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.subjects,
+      APPWRITE_API.collections.subjects,
       [
         Query.orderDesc("count"),
         Query.limit(5),
@@ -1067,7 +1067,7 @@ export class Question {
 
     const totalQuestionCount = (await databases.listDocuments(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
+      APPWRITE_API.collections.questions,
       [Query.limit(1)]
     )).total;
 
@@ -1084,7 +1084,7 @@ export class Question {
   static async getTotalQuestionStandardWise() {
     const standards = await databases.listDocuments(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.standards,
+      APPWRITE_API.collections.standards,
       [
         Query.orderDesc("count"),
         Query.limit(5),
@@ -1093,7 +1093,7 @@ export class Question {
 
     const totalQuestionCount = (await databases.listDocuments(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
+      APPWRITE_API.collections.questions,
       [Query.limit(1)]
     )).total;
 
@@ -1110,7 +1110,7 @@ export class Question {
   static async getTotalQuestionChapterWise() {
     const chapters = await databases.listDocuments(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.chapters,
+      APPWRITE_API.collections.chapters,
       [
         Query.orderDesc("count"),
         Query.limit(5),
@@ -1119,7 +1119,7 @@ export class Question {
 
     const totalQuestionCount = (await databases.listDocuments(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
+      APPWRITE_API.collections.questions,
       [Query.limit(1)]
     )).total;
 
@@ -1136,7 +1136,7 @@ export class Question {
   static async getTotalQuestionConceptWise() {
     const concepts = await databases.listDocuments(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.concepts,
+      APPWRITE_API.collections.concepts,
       [
         Query.orderDesc("count"),
         Query.limit(5),
@@ -1145,7 +1145,7 @@ export class Question {
 
     const totalQuestionCount = (await databases.listDocuments(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
+      APPWRITE_API.collections.questions,
       [Query.limit(1)]
     )).total;
 
@@ -1163,8 +1163,8 @@ export class Question {
     return JSON.parse(
       (await databases.getDocument(
         APPWRITE_API.databaseId,
-        APPWRITE_API.databases.sarthakInfoData,
-        APPWRITE_API.databases.sarthakInfoDataCollection
+        APPWRITE_API.collections.sarthakInfoData,
+        APPWRITE_API.documents.sarthak
       )).questionCount
     );
   }

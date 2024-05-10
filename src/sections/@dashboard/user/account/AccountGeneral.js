@@ -22,7 +22,6 @@ import { Box, Grid, Card, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // auth
 import { useAuthContext } from '../../../../auth/useAuthContext';
-import { User } from '../../../../auth/User';
 // utils
 import { fData } from '../../../../utils/formatNumber';
 // assets
@@ -39,50 +38,47 @@ import { useLocales } from '../../../../locales';
 
 // ----------------------------------------------------------------------
 
-export default function AccountGeneral({ userGeneral }) {
+export default function AccountGeneral() {
   const { enqueueSnackbar } = useSnackbar();
   const { translate } = useLocales();
 
   const {
     user,
+    userProfile,
     profileImage,
-    updateProfileImage,
-    updateUserGeneral,
+    updateUserProfile,
   } = useAuthContext();
 
   const [photoFile, setPhotoFile] = useState();
 
   const UpdateUserSchema = Yup.object().shape({
-    name: Yup.string().required(translate('name')+' '+translate('is_required')),
-    email: Yup.string().required(translate('email')+' '+translate('is_required')).email(translate('valid_email')),
-    photoURL: Yup.string().required(translate('avatar')+' '+translate('is_required')).nullable(true),
-    phoneNumber: Yup.string().required(translate('phone_number')+' '+translate('is_required')),
-    country: Yup.string().required(translate('country')+' '+translate('is_required')),
-    address: Yup.string().required(translate('address')+' '+translate('is_required')),
-    state: Yup.string().required(translate('state')+' '+translate('is_required')),
-    city: Yup.string().required(translate('city')+' '+translate('is_required')),
-    zipCode: Yup.string().required(translate('zip')+' '+translate('code')+' '+translate('is_required')),
-    about: Yup.string().required(translate('about')+' '+translate('is_required')),
-    schoolCollege: Yup.string().required(translate('school')+'/'+translate('college')+' '+translate('is_required')),
+    name: Yup.string().required(translate('name') + ' ' + translate('is_required')),
+    email: Yup.string().required(translate('email') + ' ' + translate('is_required')).email(translate('valid_email')),
+    photoURL: Yup.string().required(translate('avatar') + ' ' + translate('is_required')).nullable(true),
+    phoneNumber: Yup.string().required(translate('phone_number') + ' ' + translate('is_required')),
+    country: Yup.string().required(translate('country') + ' ' + translate('is_required')),
+    address: Yup.string().required(translate('address') + ' ' + translate('is_required')),
+    state: Yup.string().required(translate('state') + ' ' + translate('is_required')),
+    city: Yup.string().required(translate('city') + ' ' + translate('is_required')),
+    zipCode: Yup.string().required(translate('zip') + ' ' + translate('code') + ' ' + translate('is_required')),
+    about: Yup.string().required(translate('about') + ' ' + translate('is_required')),
+    schoolCollege: Yup.string().required(translate('school') + '/' + translate('college') + ' ' + translate('is_required')),
   });
 
   const methods = useForm({
     resolver: yupResolver(UpdateUserSchema),
-    defaultValues: async() => {
-      const userGeneral = await User.getUserGeneralData(user.$id)
-      return {
-        name: user?.name || '',
-        email: user?.email || '',
-        photoURL: profileImage || '',
-        phoneNumber: user?.phone || '',
-        country: userGeneral?.country || '',
-        address: userGeneral?.address || '',
-        state: userGeneral?.state || '',
-        city: userGeneral?.city || '',
-        zipCode: userGeneral?.zipCode || '',
-        about: userGeneral?.about || '',
-        schoolCollege: userGeneral?.schoolCollege || '',
-      }
+    defaultValues: {
+      name: user?.name || '',
+      email: user?.email || '',
+      photoURL: profileImage || '',
+      phoneNumber: user?.phone || '',
+      country: userProfile?.country || '',
+      address: userProfile?.address || '',
+      state: userProfile?.state || '',
+      city: userProfile?.city || '',
+      zipCode: userProfile?.zipCode || '',
+      about: userProfile?.about || '',
+      schoolCollege: userProfile?.schoolCollege || '',
     },
   });
 
@@ -94,11 +90,16 @@ export default function AccountGeneral({ userGeneral }) {
 
   const onSubmit = async (data) => {
     try {
-      await updateUserGeneral(data);
-      if(photoFile) {
-        await updateProfileImage(photoFile)
-      }
-      enqueueSnackbar(translate('update_success')+' !!!', {variant: 'success'});
+      await updateUserProfile({
+        city: data.city,
+        zipCode: data.zipCode,
+        country: data.country,
+        schoolCollege: data.schoolCollege,
+        about: data.about,
+        state: data.state,
+        address: data.address,
+      }, photoFile);
+      enqueueSnackbar(translate('update_success') + ' !!!', { variant: 'success' });
     } catch (error) {
       console.error(error);
       enqueueSnackbar(error.message, { variant: 'error' });
@@ -177,13 +178,13 @@ export default function AccountGeneral({ userGeneral }) {
                 ))}
               </RHFSelect>
 
-              <RHFTextField name="state" label={translate('state')+'/'+translate('region')} InputLabelProps={{ shrink: true }} />
+              <RHFTextField name="state" label={translate('state') + '/' + translate('region')} InputLabelProps={{ shrink: true }} />
 
               <RHFTextField name="city" label={translate('city')} InputLabelProps={{ shrink: true }} />
 
-              <RHFTextField name="zipCode" label={translate('zip')+'/'+translate('code')} InputLabelProps={{ shrink: true }} />
+              <RHFTextField name="zipCode" label={translate('zip') + '/' + translate('code')} InputLabelProps={{ shrink: true }} />
 
-              <RHFTextField name="schoolCollege" label={translate('school')+'/'+translate('college')} InputLabelProps={{ shrink: true }} />
+              <RHFTextField name="schoolCollege" label={translate('school') + '/' + translate('college')} InputLabelProps={{ shrink: true }} />
             </Box>
 
             <Stack spacing={3} alignItems="flex-end" sx={{ mt: 3 }}>

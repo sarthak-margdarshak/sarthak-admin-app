@@ -13,7 +13,7 @@
 // IMPORT ---------------------------------------------------------------
 
 import { Helmet } from 'react-helmet-async';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 // @mui
 import { Container, Tab, Tabs, Box } from '@mui/material';
 // routes
@@ -46,18 +46,7 @@ export default function UserAccountPage() {
 
   const { translate } = useLocales();
 
-  const {
-    user,
-    userPermissions,
-    fetchPermissionData,
-  } = useAuthContext();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await fetchPermissionData(user.$id);
-    }
-    fetchData();
-  }, [fetchPermissionData, user])
+  const { user } = useAuthContext();
 
   const TABS = [
     {
@@ -70,7 +59,7 @@ export default function UserAccountPage() {
       value: 'permissions',
       label: translate('permission'),
       icon: <Iconify icon="streamline:computer-desktop-block-desktop-device-display-disable-permission-computer" />,
-      component: <AccountPermissions userPermissions={userPermissions} />,
+      component: <AccountPermissions />,
     },
     {
       value: 'social_links',

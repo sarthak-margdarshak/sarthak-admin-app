@@ -21,34 +21,29 @@ import { PATH_DASHBOARD } from './routes/paths';
 export const APPWRITE_API = {
   backendUrl: process.env.REACT_APP_BACKEND_URL,
   projectId: process.env.REACT_APP_APPWRITE_PROJECT_ID,
-  databaseId: process.env.REACT_APP_APPWRITE_DATABASE,
-  databases: {
-    // User Databases
-    usersProfile: process.env.REACT_APP_APPWRITE_DATABASE_USERS_PROFILE,
-    usersGeneral: process.env.REACT_APP_APPWRITE_DATABASE_USERS_GENERAL,
-    usersSocialLinks: process.env.REACT_APP_APPWRITE_DATABASE_USERS_SOCIALLINKS,
-    usersPermissions: process.env.REACT_APP_APPWRITE_DATABASE_USERS_PERMISSIONS,
-    // Team Databases
-    teams: process.env.REACT_APP_APPWRITE_DATABASE_TEAMS,
-    teamMembership: process.env.REACT_APP_APPWRITE_DATABASE_TEAM_MEMBERSHIP,
-    // Question Databases
-    questions: process.env.REACT_APP_APPWRITE_DATABASE_QUESTIONS,
-    standards: process.env.REACT_APP_APPWRITE_DATABASE_STANDARDS,
-    subjects: process.env.REACT_APP_APPWRITE_DATABASE_SUBJECTS,
-    chapters: process.env.REACT_APP_APPWRITE_DATABASE_CHAPTERS,
-    concepts: process.env.REACT_APP_APPWRITE_DATABASE_CONCEPTS,
-    // Sarthak Infodata
-    sarthakInfoData: process.env.REACT_APP_APPWRITE_DATABASE_SARTHAK_INFO_DATA,
-    sarthakInfoDataCollection: process.env.REACT_APP_APPWRITE_DATABASE_SARTHAK_INFO_DATA_COLLECTION,
-    // MockTest
-    mockTests: process.env.REACT_APP_APPWRITE_DATABASE_MOCKTEST,
-    mockTestDriver: process.env.REACT_APP_APPWRITE_DATABASE_MOCKTESTDRIVER,
-    mockTestPriceTag: process.env.REACT_APP_APPWRITE_DATABASE_MOCKTESTPRICETAG,
+  databaseId: process.env.REACT_APP_APPWRITE_SARTHAK_DATABASE,
+  collections: {
+    adminUsers: process.env.REACT_APP_APPWRITE_COLLECTION_ADMIN_USERS,
+    chapters: process.env.REACT_APP_APPWRITE_COLLECTION_CHAPTERS,
+    concepts: process.env.REACT_APP_APPWRITE_COLLECTION_CONCEPTS,
+    mockTest: process.env.REACT_APP_APPWRITE_COLLECTION_MOCKTEST,
+    mockTestDriver: process.env.REACT_APP_APPWRITE_COLLECTION_MOCK_TEST_DRIVER,
+    questions: process.env.REACT_APP_APPWRITE_COLLECTION_QUESTIONS,
+    sarthakInfoData: process.env.REACT_APP_APPWRITE_COLLECTION_SARTHAK_INFO_DATA,
+    standards: process.env.REACT_APP_APPWRITE_COLLECTION_STANDARDS,
+    subjects: process.env.REACT_APP_APPWRITE_COLLECTION_SUBJECTS,
+  },
+  documents: {
+    sarthak: process.env.REACT_APP_APPWRITE_DOCUMENT_SARTHAK,
+    ceoId: process.env.REACT_APP_APPWRITE_DOCUMENT_CEO_ID,
+  },
+  teams: {
+    admin: process.env.REACT_APP_APPWRITE_TEAM_ADMIN,
+    student: process.env.REACT_APP_APPWRITE_TEAM_STUDENT,
   },
   buckets: {
-    userImage: process.env.REACT_APP_APPWRITE_BUCKET_USERIMAGE,
-    teamCover: process.env.REACT_APP_APPWRITE_BUCKET_TEAMCOVER,
-    questionFiles: process.env.REACT_APP_APPWRITE_BUCKET_QUESTIONFILES,
+    adminUserImage: process.env.REACT_APP_APPWRITE_BUCKET_ADMIN_USER_IMAGE,
+    questionFiles: process.env.REACT_APP_APPWRITE_BUCKET_QUESTION_FILES,
   },
   functions: {
     onboardWelcome: process.env.REACT_APP_APPWRITE_FUCTION_ONBOARD_WELCOME,
@@ -58,11 +53,6 @@ export const APPWRITE_API = {
     acceptInvite: process.env.REACT_APP_APPWRITE_FUCTION_ACCEPT_INVITE,
     updateMockTests: process.env.REACT_APP_APPWRITE_FUCTION_CREATE_MOCK_TEST,
   },
-  team: {
-    admin: process.env.REACT_APP_APPWRITE_TEAM_ADMIN,
-    student: process.env.REACT_APP_APPWRITE_TEAM_STUDENT,
-  },
-  ceoId: process.env.REACT_APP_APPWRITE_CEO_ID,
 };
 
 // ROOT PATH AFTER LOGIN SUCCESSFUL

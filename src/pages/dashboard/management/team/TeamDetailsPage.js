@@ -29,13 +29,14 @@ import { useTable, getComparator, emptyRows, TableEmptyRows, TableHeadCustom, Ta
 import { useSnackbar } from '../../../../components/snackbar';
 // sections
 import { UserTableRow } from '../../../../sections/@dashboard/team/list';
-import TeamCover from '../../../../sections/@dashboard/team/teamMemberview/TeamCover';
 import CreateUserDialog from '../../../../sections/@dashboard/team/teamMemberview/CreateUserDialog';
 import UserInviteDialoge from '../../../../sections/@dashboard/team/teamMemberview/UserInviteDialoge';
 // Auth
-import { Team } from '../../../../auth/Team';
 import { User } from '../../../../auth/User';
 import { useAuthContext } from '../../../../auth/useAuthContext';
+import { teams } from '../../../../auth/AppwriteContext';
+import { Query } from 'appwrite';
+import { APPWRITE_API } from '../../../../config-global';
 
 // ----------------------------------------------------------------------
 
@@ -44,15 +45,14 @@ const TABLE_HEAD = [
   { id: 'name', label: 'Name', align: 'left' },
   { id: 'designation', label: 'Designation', align: 'left' },
   { id: 'role', label: 'Role', align: 'left' },
-  { id: 'invitationAccepted', label: 'Invite Accepted', align: 'center' },
-  { id: 'status', label: 'Status', align: 'left' },
-  { id: '' },
+  { id: 'status', label: 'Status', align: 'center' },
+  { id: 'action', label: 'Action', align: 'center' },
 ];
 
 // ----------------------------------------------------------------------
 
 export default function TeamDetailsPage() {
-  
+
   const teamId = window.location.pathname.split('/')[3];
 
   const navigate = useNavigate();
@@ -61,9 +61,6 @@ export default function TeamDetailsPage() {
   const { user } = useAuthContext();
 
   const [team, setTeam] = useState(null);
-  const [cover, setCover] = useState(null);
-  const [avatarUrl, setAvatarUrl] = useState(null);
-  const [ownerName, setOwnerName] = useState(null);
   const [tableData, setTableData] = useState([]);
   const [update, setUpdate] = useState(true);
   const [openConfirm, setOpenConfirm] = useState(false);
@@ -73,30 +70,18 @@ export default function TeamDetailsPage() {
     async function fetchData() {
       try {
         // Get Team Data
-        const tempTeam = await Team.getTeamData(teamId);
+        const membershipData = await teams.listMemberships(teamId, [Query.limit(100)])
+        const tempTeam = await teams.get(teamId)
         setTeam(tempTeam);
-        // Get Owner Data of the team
-        const ownerData = await User.getProfileData(tempTeam?.teamOwner);
-        setOwnerName(ownerData?.name)
-        if (tempTeam?.cover) {
-          const tempCover = await Team.getTeamCover(tempTeam?.cover);
-          setCover(tempCover);
-        }
-        if (ownerData?.photoUrl) {
-          const tempAvatarUrl = await User.getImageProfileLink(ownerData?.photoUrl);
-          setAvatarUrl(tempAvatarUrl);
-        }
         // Get Team members data
-        var data = await Team.listTeamMembership(teamId);
         var f_data = [];
         var count = 1;
-        for (let i in data.documents) {
-          const tempRowUser = await User.getProfileData(data.documents[i]?.userId);
+        for (let i in membershipData.memberships) {
+          const tempRowUser = await User.getProfileData(membershipData.memberships[i]?.userId);
           f_data.push(
             {
               sn: count,
-              ...data.documents[i],
-              name: tempRowUser?.name,
+              ...membershipData.memberships[i],
               photoUrl: tempRowUser?.photoUrl,
               designation: tempRowUser?.designation,
             }
@@ -131,7 +116,7 @@ export default function TeamDetailsPage() {
   };
 
   const handleEditPermissionRow = (id) => {
-    navigate(PATH_DASHBOARD.team.permissionEdit(id?.teamId, id?.userId));
+    navigate(PATH_DASHBOARD.team.permissionEdit(id?.userId));
   };
 
   const handleBlockRow = async (id) => {
@@ -163,38 +148,32 @@ export default function TeamDetailsPage() {
             { name: 'Team', href: PATH_DASHBOARD.team.list },
             { name: team?.name },
           ]}
-          action={user?.$id === team?.teamOwner &&
+          action={
             <>
-              <Button
-                component={RouterLink}
-                onClick={() => setOpenConfirm(true)}
-                variant="contained"
-                startIcon={<Iconify icon="eva:plus-fill" />}
-              >
-                New
-              </Button>
-              <Button
-                component={RouterLink}
-                sx={{ ml: 2 }}
-                onClick={() => setOpenInvite(true)}
-                variant="outlined"
-                startIcon={<Iconify icon="mingcute:invite-line" />}
-              >
-                Invite
-              </Button>
+              {team?.$id === APPWRITE_API.team.admin && user?.$id === APPWRITE_API.ceoId && !update &&
+                <Button
+                  component={RouterLink}
+                  onClick={() => setOpenConfirm(true)}
+                  variant="contained"
+                  startIcon={<Iconify icon="eva:plus-fill" />}
+                >
+                  New
+                </Button>
+              }
+              {team?.$id !== APPWRITE_API.team.admin && !update &&
+                <Button
+                  component={RouterLink}
+                  sx={{ ml: 2 }}
+                  onClick={() => setOpenInvite(true)}
+                  variant="outlined"
+                  startIcon={<Iconify icon="mingcute:invite-line" />}
+                >
+                  Invite
+                </Button>
+              }
             </>
           }
         />
-
-        <Card
-          sx={{
-            mb: 3,
-            height: 280,
-            position: 'relative',
-          }}
-        >
-          <TeamCover id={team?.$id} cover={cover} name={team?.name} ownerName={ownerName} ownerCover={avatarUrl} />
-        </Card>
 
         <Card>
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
@@ -221,7 +200,7 @@ export default function TeamDetailsPage() {
                             onViewRow={() => handleViewRow(row?.userId)}
                             onEditRow={() => handleEditPermissionRow(row)}
                             onBlockRow={() => handleBlockRow(row)}
-                            userIsOwner={user?.$id === team?.teamOwner}
+                            isCEO={user?.$id === APPWRITE_API.ceoId}
                           />
                         )
                       })}

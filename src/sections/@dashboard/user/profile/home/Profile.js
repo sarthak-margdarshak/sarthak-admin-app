@@ -12,7 +12,6 @@
 
 // IMPORT ---------------------------------------------------------------
 
-import PropTypes from 'prop-types';
 // @mui
 import { Stack } from '@mui/material';
 //
@@ -24,15 +23,7 @@ import { useLocales } from '../../../../../locales';
 
 // ----------------------------------------------------------------------
 
-Profile.propTypes = {
-  infoGeneral: PropTypes.object,
-  infoProfile: PropTypes.object,
-  infoSocialLinks: PropTypes.object,
-};
-
-// ----------------------------------------------------------------------
-
-export default function Profile({ userId, infoGeneral, infoProfile, infoSocialLinks, team, question }) {
+export default function Profile({ userId, infoProfile, team, question }) {
 
   const { translate } = useLocales();
 
@@ -41,16 +32,16 @@ export default function Profile({ userId, infoGeneral, infoProfile, infoSocialLi
       <ProfileTaskInfo team={team} question={question} />
 
       <ProfileAbout
-        quote={infoGeneral?.about}
+        quote={infoProfile?.about}
         userId={userId}
-        country={infoGeneral?.city+', '+infoGeneral?.state+', '+infoGeneral?.country}
+        country={infoProfile?.city+', '+infoProfile?.state+', '+infoProfile?.country}
         email={infoProfile?.email}
         role={infoProfile?.designation}
         company={translate('sarthak_guidance_institute')}
-        school={infoGeneral?.schoolCollege}
+        school={infoProfile?.schoolCollege}
       />
 
-      <ProfileSocialInfo userId={userId} socialLinks={infoSocialLinks} />
+      <ProfileSocialInfo userId={userId} infoProfile={infoProfile} />
     </Stack>
   );
 }

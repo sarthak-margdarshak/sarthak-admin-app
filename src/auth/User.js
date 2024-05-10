@@ -15,32 +15,6 @@ const databases = new Databases(client);
 
 export class User {
   /**
-   * Function to fetch a document from `sgi_users_profile` table
-   * @param {string} id - User Id
-   * @returns User Profile Data of user id
-   */
-  static async getProfileData(id) {
-    return await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.usersProfile,
-      id,
-    );
-  }
-
-  /**
-   * Function to fetch a document from `sgi_users_general` table
-   * @param {string} id - User Id
-   * @returns - User General Data of user id
-   */
-  static async getUserGeneralData(id) {
-    return await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.usersGeneral,
-      id,
-    );
-  }
-
-  /**
    * Function to fetch a document from `sgi_users_permissions` table
    * @param {string} id - User Id
    * @returns - User Permission Data of user id
@@ -49,19 +23,6 @@ export class User {
     return await databases.getDocument(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.usersPermissions,
-      id,
-    );
-  }
-
-  /**
-   * Function to fetch a document from `sgi_users_social_links` table
-   * @param {string} id - User Id
-   * @returns - User Social Links Data of user id
-   */
-  static async getUserSocialLinksData(id) {
-    return await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.usersSocialLinks,
       id,
     );
   }
@@ -121,43 +82,14 @@ export class User {
    * @param {boolean} createTask Permission to create Task
    * @returns Permission document
    */
-  static async updatePermissions(userId, createTeam, createTask) {
+  static async updatePermissions(userId, createTeam) {
     return await databases.updateDocument(
       APPWRITE_API.databaseId,
       APPWRITE_API.databases.usersPermissions,
       userId,
       {
         createTeam: createTeam,
-        createTask: createTask,
       },
     );
-  }
-
-  /**
-   * Function to know whether current user can update a permission or not
-   * @param {string} userId User ID
-   * @param {string} teamId team ID
-   * @param {string} currentUser ID of current user logged in
-   * @returns boolean
-   */
-  static async isPermissionUpdatable(userId, teamId, currentUser) {
-    if (userId === currentUser) return 1;
-    const data = await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.teamMembership,
-      [
-        Query.equal('userId', [userId]),
-        Query.equal('teamId', [teamId]),
-      ],
-    );
-    if (data.total === 0) return 0;
-
-    const data2 = await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.teams,
-      teamId
-    );
-    if (data2?.teamOwner === currentUser) return 2;
-    return 1;
   }
 }
