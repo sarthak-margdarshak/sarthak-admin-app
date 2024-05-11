@@ -112,7 +112,9 @@ export default function TeamDetailsPage() {
           f_data.push({
             sn: count,
             ...membershipData.memberships[i],
+            blocked: tempRowUser?.blocked || false,
             photoUrl: tempRowUser?.photoUrl,
+            createTeam: tempRowUser?.createTeam || false,
           });
           count++;
         }
@@ -143,11 +145,7 @@ export default function TeamDetailsPage() {
     navigate(PATH_DASHBOARD.user.profile(id));
   };
 
-  const handleEditPermissionRow = (id) => {
-    navigate(PATH_DASHBOARD.team.permissionEdit(id?.userId));
-  };
-
-  const handleBlockRow = async (id) => {
+  const handleToogleBlockRow = async (id) => {
     try {
       await User.blockUser(id);
       setUpdate(true);
@@ -232,11 +230,11 @@ export default function TeamDetailsPage() {
                           <UserTableRow
                             key={row.$id}
                             index={row?.sn}
-                            row={row}
+                            userRow={row}
                             onViewRow={() => handleViewRow(row?.userId)}
-                            onEditRow={() => handleEditPermissionRow(row)}
-                            onBlockRow={() => handleBlockRow(row)}
-                            isCEO={user?.$id === APPWRITE_API.ceoId}
+                            onBlockRow={() => handleToogleBlockRow(row?.userId)}
+                            isCEO={user?.$id === APPWRITE_API.documents.ceoId}
+                            teamId={teamId}
                           />
                         );
                       })}

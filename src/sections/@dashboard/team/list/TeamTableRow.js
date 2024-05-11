@@ -1,27 +1,22 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 // @mui
-import {
-  TableRow,
-  TableCell,
-  IconButton,
-  Typography,
-} from '@mui/material';
+import { TableRow, TableCell, IconButton, Typography } from "@mui/material";
 // components
-import Iconify from '../../../../components/iconify';
+import Iconify from "../../../../components/iconify";
 
 // ----------------------------------------------------------------------
 
@@ -37,7 +32,6 @@ export default function TeamTableRow({ index, row, onViewRow }) {
   return (
     <>
       <TableRow hover>
-
         <TableCell align="left">{index}</TableCell>
 
         <TableCell>
@@ -46,9 +40,11 @@ export default function TeamTableRow({ index, row, onViewRow }) {
           </Typography>
         </TableCell>
 
-        <TableCell align="left">{(new Date(row?.$createdAt)).toLocaleDateString('en-US')}</TableCell>
+        <TableCell align="left">
+          {new Date(row?.$createdAt).toLocaleDateString("en-US")}
+        </TableCell>
 
-        <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
+        <TableCell align="left" sx={{ textTransform: "capitalize" }}>
           {row?.total}
         </TableCell>
 

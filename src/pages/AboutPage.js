@@ -1,27 +1,27 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "react-helmet-async";
 // @mui
-import { Divider } from '@mui/material';
+import { Divider } from "@mui/material";
 // sections
 import {
   AboutHero,
   AboutWhat,
   AboutTeam,
-  AboutVision
-} from '../sections/about';
+  AboutVision,
+} from "../sections/about";
 
 // ----------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ export default function AboutPage() {
 
       <Divider
         orientation="vertical"
-        sx={{ my: 10, mx: 'auto', width: 2, height: 40 }}
+        sx={{ my: 10, mx: "auto", width: 2, height: 40 }}
       />
 
       <AboutTeam />

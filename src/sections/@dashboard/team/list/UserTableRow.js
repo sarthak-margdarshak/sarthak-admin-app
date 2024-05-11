@@ -1,19 +1,20 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import PropTypes from 'prop-types';
-import { useEffect, useState } from 'react';
+import PropTypes from "prop-types";
+import * as Yup from "yup";
+import { useEffect, useState } from "react";
 // @mui
 import {
   Stack,
@@ -23,49 +24,78 @@ import {
   TableCell,
   IconButton,
   Typography,
-} from '@mui/material';
+  Dialog,
+  DialogTitle,
+  Grid,
+  Card,
+  Button,
+} from "@mui/material";
 // components
-import Iconify from '../../../../components/iconify';
-import MenuPopover from '../../../../components/menu-popover';
-import { useSnackbar } from '../../../../components/snackbar';
+import Iconify from "../../../../components/iconify";
+import MenuPopover from "../../../../components/menu-popover";
+import { useSnackbar } from "../../../../components/snackbar";
 // Auth
-import { APPWRITE_API } from '../../../../config-global';
-import { storage } from '../../../../auth/AppwriteContext';
+import { APPWRITE_API } from "../../../../config-global";
+import { databases, storage } from "../../../../auth/AppwriteContext";
+import { useAuthContext } from "../../../../auth/useAuthContext";
+import FormProvider from "../../../../components/hook-form/FormProvider";
+import { Box } from "@mui/system";
+import { LoadingButton } from "@mui/lab";
+import { useForm } from "react-hook-form";
+import { RHFSwitch } from "../../../../components/hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 // ----------------------------------------------------------------------
 
 UserTableRow.propTypes = {
   row: PropTypes.object,
   selected: PropTypes.bool,
-  onEditRow: PropTypes.func,
   onViewRow: PropTypes.func,
   isCEO: PropTypes.bool,
-  onBlockRow: PropTypes.func,
+  teamId: PropTypes.string,
+  onBlonToogleBlockRowockRow: PropTypes.func,
 };
 
 // ----------------------------------------------------------------------
 
-export default function UserTableRow({ index, row, onEditRow, onViewRow, isCEO, onBlockRow }) {
+export default function UserTableRow({
+  index,
+  userRow,
+  onViewRow,
+  isCEO,
+  teamId,
+  onToogleBlockRow,
+}) {
   const [openPopover, setOpenPopover] = useState(null);
 
   const { enqueueSnackbar } = useSnackbar();
+  const { sarthakInfoData } = useAuthContext();
 
   const [avatarUrl, setAvatarUrl] = useState(null);
+  const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
+  const [row, setRow] = useState(userRow);
 
   useEffect(() => {
     async function fetchData() {
       try {
         if (row?.photoUrl) {
-          const tempAvatar = (storage.getFilePreview(APPWRITE_API.buckets.adminUserImage, row?.photoUrl, undefined, undefined, undefined, 20)).href;
-          setAvatarUrl(tempAvatar)
+          const tempAvatar = storage.getFilePreview(
+            APPWRITE_API.buckets.adminUserImage,
+            row?.photoUrl,
+            undefined,
+            undefined,
+            undefined,
+            20
+          ).href;
+          setAvatarUrl(tempAvatar);
         }
       } catch (error) {
         console.error(error);
-        enqueueSnackbar(error.message, { variant: 'error' });
+        enqueueSnackbar(error.message, { variant: "error" });
       }
     }
     fetchData();
-  }, [enqueueSnackbar, row])
+  }, [enqueueSnackbar, row]);
 
   const handleOpenPopover = (event) => {
     setOpenPopover(event.currentTarget);
@@ -75,10 +105,46 @@ export default function UserTableRow({ index, row, onEditRow, onViewRow, isCEO, 
     setOpenPopover(null);
   };
 
+  const NewUserSchema = Yup.object().shape({
+    createTeam: Yup.boolean(),
+  });
+
+  const defaultValues = {
+    createTeam: row?.createTeam,
+  };
+
+  const methods = useForm({
+    resolver: yupResolver(NewUserSchema),
+    defaultValues,
+  });
+
+  const {
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
+
+  const onSubmit = async (data) => {
+    try {
+      await databases.updateDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.adminUsers,
+        row?.userId,
+        {
+          createTeam: data.createTeam,
+        }
+      );
+      setPermissionDialogOpen(false);
+      setRow({ ...row, createTeam: data.createTeam });
+      enqueueSnackbar("Permission updated successfully");
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar(error.message, { variant: "error" });
+    }
+  };
+
   return (
     <>
       <TableRow hover>
-
         <TableCell align="left">{index}</TableCell>
 
         <TableCell>
@@ -91,24 +157,29 @@ export default function UserTableRow({ index, row, onEditRow, onViewRow, isCEO, 
           </Stack>
         </TableCell>
 
-        <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
+        <TableCell align="left" sx={{ textTransform: "capitalize" }}>
           {row?.roles}
         </TableCell>
 
         <TableCell align="center">
           <Iconify
-            icon={row?.confirm ? 'eva:checkmark-circle-fill' : 'eva:clock-outline'}
+            icon={
+              row?.confirm ? "eva:checkmark-circle-fill" : "eva:clock-outline"
+            }
             sx={{
               width: 20,
               height: 20,
-              color: 'success.main',
-              ...(!row?.confirm && { color: 'warning.main' }),
+              color: "success.main",
+              ...(!row?.confirm && { color: "warning.main" }),
             }}
           />
         </TableCell>
 
         <TableCell align="center">
-          <IconButton color={openPopover ? 'inherit' : 'default'} onClick={handleOpenPopover}>
+          <IconButton
+            color={openPopover ? "inherit" : "default"}
+            onClick={handleOpenPopover}
+          >
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
@@ -129,12 +200,12 @@ export default function UserTableRow({ index, row, onEditRow, onViewRow, isCEO, 
           <Iconify icon="carbon:view" />
           View
         </MenuItem>
-        {
-          row?.userId !== APPWRITE_API.ceoId && <>
+        {sarthakInfoData.adminTeamId === teamId && isCEO && (
+          <>
             <MenuItem
-              disabled={!isCEO}
+              disabled={row?.userId === APPWRITE_API.documents.ceoId}
               onClick={() => {
-                onEditRow();
+                setPermissionDialogOpen(true);
                 handleClosePopover();
               }}
             >
@@ -143,18 +214,66 @@ export default function UserTableRow({ index, row, onEditRow, onViewRow, isCEO, 
             </MenuItem>
 
             <MenuItem
-              disabled={!isCEO}
+              disabled={row?.userId === APPWRITE_API.documents.ceoId}
               onClick={() => {
-                onBlockRow();
+                onToogleBlockRow();
                 handleClosePopover();
               }}
             >
               <Iconify icon="material-symbols:block" />
-              Block
+              {row?.blocked ? "Unblock" : "Block"}
             </MenuItem>
           </>
-        }
+        )}
       </MenuPopover>
+
+      <Dialog maxWidth="md" open={permissionDialogOpen}>
+        <DialogTitle sx={{ pb: 2 }}>
+          {"Update Permission for " + row?.userName}
+        </DialogTitle>
+
+        <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={12}>
+              <Card sx={{ p: 3 }}>
+                <Box
+                  rowGap={3}
+                  columnGap={2}
+                  display="grid"
+                  gridTemplateColumns={{
+                    xs: "repeat(1, 1fr)",
+                    sm: "repeat(2, 1fr)",
+                  }}
+                >
+                  <RHFSwitch name="createTeam" label="Allow Team Creation" />
+                </Box>
+
+                <Stack
+                  direction={"row-reverse"}
+                  alignItems={"end"}
+                  sx={{ mt: 3 }}
+                >
+                  <Button
+                    variant="outlined"
+                    startIcon={<Iconify icon="zondicons:close-outline" />}
+                    onClick={() => setPermissionDialogOpen(false)}
+                    sx={{ ml: 2 }}
+                  >
+                    Close
+                  </Button>
+                  <LoadingButton
+                    type="submit"
+                    variant="contained"
+                    loading={isSubmitting}
+                  >
+                    Update
+                  </LoadingButton>
+                </Stack>
+              </Card>
+            </Grid>
+          </Grid>
+        </FormProvider>
+      </Dialog>
     </>
   );
 }

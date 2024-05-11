@@ -1,23 +1,39 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 // react
-import { createContext, useEffect, useReducer, useCallback, useMemo, useState } from 'react';
+import {
+  createContext,
+  useEffect,
+  useReducer,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 // appwrite
-import { Account, Client, Databases, ID, Permission, Role, Storage, Teams } from "appwrite";
-import { APPWRITE_API } from '../config-global';
-import MaintenancePage from '../pages/MaintenancePage';
+import {
+  Account,
+  Client,
+  Databases,
+  ID,
+  Permission,
+  Role,
+  Storage,
+  Teams,
+} from "appwrite";
+import { APPWRITE_API } from "../config-global";
+import MaintenancePage from "../pages/MaintenancePage";
 
 // CLIENT INITIALIZATION ------------------------------------------------
 export const client = new Client()
@@ -37,14 +53,14 @@ const initialState = {
   profileImage: null,
   userProfile: null,
   sarthakInfoData: null,
-  login: async () => { },
-  logout: () => { },
-  updateUserProfile: () => { },
+  login: async () => {},
+  logout: () => {},
+  updateUserProfile: () => {},
 };
 
 const reducer = (state, action) => {
   // AUTH REDUCER
-  if (action.type === 'INITIAL') {
+  if (action.type === "INITIAL") {
     return {
       ...state,
       isInitialized: action.payload.isInitialized,
@@ -55,7 +71,7 @@ const reducer = (state, action) => {
       userProfile: action.payload.userProfile,
     };
   }
-  if (action.type === 'LOGIN') {
+  if (action.type === "LOGIN") {
     return {
       ...state,
       isInitialized: action.payload.isInitialized,
@@ -66,7 +82,7 @@ const reducer = (state, action) => {
       userProfile: action.payload.userProfile,
     };
   }
-  if (action.type === 'LOGOUT') {
+  if (action.type === "LOGOUT") {
     return {
       ...state,
       isAuthenticated: action.payload.isAuthenticated,
@@ -75,12 +91,12 @@ const reducer = (state, action) => {
       userProfile: action.payload.userProfile,
     };
   }
-  if (action.type === 'UPDATE_USER_PROFILE') {
+  if (action.type === "UPDATE_USER_PROFILE") {
     return {
       ...state,
       profileImage: action.payload.profileImage,
       userProfile: action.payload.userProfile,
-    }
+    };
   }
   return state;
 };
@@ -97,7 +113,7 @@ AuthProvider.propTypes = {
 
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [underMaintenance, setUnderMaintenance] = useState(false)
+  const [underMaintenance, setUnderMaintenance] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -107,49 +123,61 @@ export function AuthProvider({ children }) {
           APPWRITE_API.collections.sarthakInfoData,
           APPWRITE_API.documents.sarthak
         );
-        setUnderMaintenance(sarthak?.maintenance)
-        account.get().then(async function (response) {
-          const adminUser = response;
-          var adminUserProfile = null;
-          try {
-            adminUserProfile = await databases.getDocument(APPWRITE_API.databaseId, APPWRITE_API.collections.adminUsers, adminUser.$id)
-          } catch (error) {
-
+        setUnderMaintenance(sarthak?.maintenance);
+        account.get().then(
+          async function (response) {
+            const adminUser = response;
+            var adminUserProfile = null;
+            try {
+              adminUserProfile = await databases.getDocument(
+                APPWRITE_API.databaseId,
+                APPWRITE_API.collections.adminUsers,
+                adminUser.$id
+              );
+            } catch (error) {}
+            var profileImage = null;
+            if (adminUserProfile?.photoUrl) {
+              profileImage = storage.getFilePreview(
+                APPWRITE_API.buckets.adminUserImage,
+                adminUserProfile?.photoUrl,
+                undefined,
+                undefined,
+                undefined,
+                20
+              ).href;
+            }
+            dispatch({
+              type: "INITIAL",
+              payload: {
+                isInitialized: true,
+                isAuthenticated: true,
+                sarthakInfoData: sarthak,
+                user: adminUser,
+                profileImage: profileImage,
+                userProfile: adminUserProfile,
+              },
+            });
+          },
+          async function () {
+            dispatch({
+              type: "INITIAL",
+              payload: {
+                isInitialized: true,
+                isAuthenticated: false,
+                sarthakInfoData: sarthak,
+                user: null,
+                profileImage: null,
+                userProfile: null,
+              },
+            });
           }
-          var profileImage = null;
-          if (adminUserProfile?.photoUrl) {
-            profileImage = (storage.getFilePreview(APPWRITE_API.buckets.adminUserImage, adminUserProfile?.photoUrl, undefined, undefined, undefined, 20)).href
-          }
-          dispatch({
-            type: 'INITIAL',
-            payload: {
-              isInitialized: true,
-              isAuthenticated: true,
-              sarthakInfoData: sarthak,
-              user: adminUser,
-              profileImage: profileImage,
-              userProfile: adminUserProfile,
-            },
-          });
-        }, async function () {
-          dispatch({
-            type: 'INITIAL',
-            payload: {
-              isInitialized: true,
-              isAuthenticated: false,
-              sarthakInfoData: sarthak,
-              user: null,
-              profileImage: null,
-              userProfile: null,
-            },
-          });
-        });
+        );
       } catch (error) {
-        console.log(error)
+        console.log(error.message);
         dispatch({
-          type: 'INITIAL',
+          type: "INITIAL",
           payload: {
-            isInitialized: false,
+            isInitialized: true,
             isAuthenticated: false,
             sarthakInfoData: null,
             user: null,
@@ -158,110 +186,137 @@ export function AuthProvider({ children }) {
           },
         });
       }
-    }
+    };
     fetchData();
   }, [setUnderMaintenance]);
 
-  const login = useCallback(async (email, password) => {
-    const sarthak = await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.sarthakInfoData,
-      APPWRITE_API.documents.sarthak
-    );
-    try {
-      await account.createEmailSession(email, password);
-      const adminUser = await account.get();
-      const currTeams = (await teams.list()).teams;
-      const adminTeams = currTeams.filter((val) => val.$id === state.sarthakInfoData?.adminTeamId || adminUser?.$id === APPWRITE_API.documents.ceoId)
-      if (adminTeams.length !== 1) {
-        account.deleteSessions();
-        return { success: false, message: "Unauthorised login attempt." }
-      }
-      var adminUserProfile = null;
+  const login = useCallback(
+    async (email, password) => {
+      const sarthak = await databases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.sarthakInfoData,
+        APPWRITE_API.documents.sarthak
+      );
       try {
-        adminUserProfile = await databases.getDocument(APPWRITE_API.databaseId, APPWRITE_API.collections.adminUsers, adminUser.$id)
-      } catch (error) {
-        console.log(error)
+        await account.createEmailSession(email, password);
+        const adminUser = await account.get();
+        const currTeams = (await teams.list()).teams;
+        const adminTeams = currTeams.filter(
+          (val) =>
+            val.$id === state.sarthakInfoData?.adminTeamId ||
+            adminUser?.$id === APPWRITE_API.documents.ceoId
+        );
+        if (adminTeams.length !== 1) {
+          account.deleteSessions();
+          return { success: false, message: "Unauthorised login attempt." };
+        }
+        var adminUserProfile = null;
+        try {
+          adminUserProfile = await databases.getDocument(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.adminUsers,
+            adminUser.$id
+          );
+        } catch (error) {
+          console.log(error);
+        }
+        var profileImage = null;
+        if (adminUserProfile.photoUrl) {
+          profileImage = storage.getFilePreview(
+            APPWRITE_API.buckets.adminUserImage,
+            adminUserProfile.photoUrl,
+            undefined,
+            undefined,
+            undefined,
+            20
+          ).href;
+        }
+        dispatch({
+          type: "LOGIN",
+          payload: {
+            isInitialized: true,
+            isAuthenticated: true,
+            sarthakInfoData: sarthak,
+            user: adminUser,
+            profileImage: profileImage,
+            userProfile: adminUserProfile,
+          },
+        });
+        return { success: true, message: "" };
+      } catch (err) {
+        return { success: false, message: err.message };
       }
-      var profileImage = null;
-      if (adminUserProfile.photoUrl) {
-        profileImage = (storage.getFilePreview(APPWRITE_API.buckets.adminUserImage, adminUserProfile.photoUrl, undefined, undefined, undefined, 20)).href
-      }
-      dispatch({
-        type: 'LOGIN',
-        payload: {
-          isInitialized: true,
-          isAuthenticated: true,
-          sarthakInfoData: sarthak,
-          user: adminUser,
-          profileImage: profileImage,
-          userProfile: adminUserProfile,
-        },
-      });
-      return { success: true, message: "" }
-    } catch (err) {
-      return { success: false, message: err.message }
-    }
-  }, [state.sarthakInfoData?.adminTeamId]);
+    },
+    [state.sarthakInfoData?.adminTeamId]
+  );
 
   const logout = useCallback(async () => {
     await account.deleteSessions();
     dispatch({
-      type: 'LOGOUT',
+      type: "LOGOUT",
       payload: {
         isAuthenticated: false,
         user: null,
         sarthakInfoData: null,
         profileImage: null,
         userProfile: null,
-      }
+      },
     });
   }, []);
 
-  const updateUserProfile = useCallback(async (data, photoFile = null) => {
-    var tempData = data;
-    if (photoFile) {
-      if (state.userProfile.photoUrl) {
-        await storage.deleteFile(
+  const updateUserProfile = useCallback(
+    async (data, photoFile = null) => {
+      var tempData = data;
+      if (photoFile) {
+        if (state.userProfile.photoUrl) {
+          await storage.deleteFile(
+            APPWRITE_API.buckets.adminUserImage,
+            state.userProfile.photoUrl
+          );
+        }
+
+        const response = await storage.createFile(
           APPWRITE_API.buckets.adminUserImage,
-          state.userProfile.photoUrl,
+          ID.unique(),
+          photoFile,
+          [
+            Permission.update(Role.user(state.user.$id)),
+            Permission.read(Role.user(state.user.$id)),
+            Permission.delete(Role.user(state.user.$id)),
+          ]
         );
+        tempData = { ...tempData, photoUrl: response.$id };
       }
 
-      const response = await storage.createFile(
-        APPWRITE_API.buckets.adminUserImage,
-        ID.unique(),
-        photoFile,
-        [
-          Permission.update(Role.user(state.user.$id)),
-          Permission.read(Role.user(state.user.$id)),
-          Permission.delete(Role.user(state.user.$id)),
-        ]
+      const adminUserProfile = await databases.updateDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.adminUsers,
+        state.user.$id,
+        { ...tempData }
       );
-      tempData = { ...tempData, photoUrl: response.$id }
-    }
 
-    const adminUserProfile = await databases.updateDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.adminUsers,
-      state.user.$id,
-      { ...tempData },
-    );
+      var profileImage = null;
+      if (adminUserProfile.photoUrl) {
+        profileImage = storage.getFilePreview(
+          APPWRITE_API.buckets.adminUserImage,
+          adminUserProfile.photoUrl,
+          undefined,
+          undefined,
+          undefined,
+          20
+        ).href;
+      }
 
-    var profileImage = null;
-    if (adminUserProfile.photoUrl) {
-      profileImage = (storage.getFilePreview(APPWRITE_API.buckets.adminUserImage, adminUserProfile.photoUrl, undefined, undefined, undefined, 20)).href
-    }
-
-    dispatch({
-      type: 'UPDATE_USER_PROFILE',
-      payload: {
-        profileImage: profileImage,
-        userProfile: adminUserProfile,
-      },
-    });
-
-  }, [state])
+      dispatch({
+        type: "UPDATE_USER_PROFILE",
+        payload: {
+          profileImage: profileImage,
+          userProfile: adminUserProfile,
+        },
+      });
+    },
+    [state]
+  );
 
   const memoizedValue = useMemo(
     () => ({
@@ -278,12 +333,27 @@ export function AuthProvider({ children }) {
       //update functions
       updateUserProfile,
     }),
-    [state.isInitialized, state.isAuthenticated, state.user, state.sarthakInfoData, state.profileImage, state.userProfile, state.underMaintenance, login, logout, updateUserProfile]
+    [
+      state.isInitialized,
+      state.isAuthenticated,
+      state.user,
+      state.sarthakInfoData,
+      state.profileImage,
+      state.userProfile,
+      state.underMaintenance,
+      login,
+      logout,
+      updateUserProfile,
+    ]
   );
 
   if (underMaintenance) {
-    return <MaintenancePage />
+    return <MaintenancePage />;
   }
 
-  return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={memoizedValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 }

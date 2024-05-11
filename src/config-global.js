@@ -1,19 +1,19 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
 // routes
-import { PATH_DASHBOARD } from './routes/paths';
+import { PATH_DASHBOARD } from "./routes/paths";
 
 // API
 // ----------------------------------------------------------------------
@@ -29,7 +29,8 @@ export const APPWRITE_API = {
     mockTest: process.env.REACT_APP_APPWRITE_COLLECTION_MOCKTEST,
     mockTestDriver: process.env.REACT_APP_APPWRITE_COLLECTION_MOCK_TEST_DRIVER,
     questions: process.env.REACT_APP_APPWRITE_COLLECTION_QUESTIONS,
-    sarthakInfoData: process.env.REACT_APP_APPWRITE_COLLECTION_SARTHAK_INFO_DATA,
+    sarthakInfoData:
+      process.env.REACT_APP_APPWRITE_COLLECTION_SARTHAK_INFO_DATA,
     standards: process.env.REACT_APP_APPWRITE_COLLECTION_STANDARDS,
     subjects: process.env.REACT_APP_APPWRITE_COLLECTION_SUBJECTS,
   },
@@ -46,7 +47,6 @@ export const APPWRITE_API = {
     teamInvite: process.env.REACT_APP_APPWRITE_FUCTION_TEAM_INVITE,
     contactInstitute: process.env.REACT_APP_APPWRITE_FUCTION_CONTACT_INSTITUTE,
     createQuestion: process.env.REACT_APP_APPWRITE_FUCTION_CREATE_QUESTION,
-    acceptInvite: process.env.REACT_APP_APPWRITE_FUCTION_ACCEPT_INVITE,
     updateMockTests: process.env.REACT_APP_APPWRITE_FUCTION_CREATE_MOCK_TEST,
   },
 };

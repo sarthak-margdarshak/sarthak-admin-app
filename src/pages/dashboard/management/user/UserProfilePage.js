@@ -1,47 +1,47 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import { Helmet } from 'react-helmet-async';
-import { useEffect, useState } from 'react';
+import { Helmet } from "react-helmet-async";
+import { useEffect, useState } from "react";
 // @mui
-import { Tab, Card, Tabs, Container, Box } from '@mui/material';
+import { Tab, Card, Tabs, Container, Box } from "@mui/material";
 // routes
-import { PATH_DASHBOARD } from '../../../../routes/paths';
+import { PATH_DASHBOARD } from "../../../../routes/paths";
 // auth
-import { useAuthContext } from '../../../../auth/useAuthContext';
-import { Question } from '../../../../auth/Question';
-import { Team } from '../../../../auth/Team';
+import { useAuthContext } from "../../../../auth/useAuthContext";
+import { Question } from "../../../../auth/Question";
+import { Team } from "../../../../auth/Team";
 // components
-import Iconify from '../../../../components/iconify';
-import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
-import { useSettingsContext } from '../../../../components/settings';
+import Iconify from "../../../../components/iconify";
+import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs";
+import { useSettingsContext } from "../../../../components/settings";
 // sections
 import {
   Profile,
   ProfileCover,
-} from '../../../../sections/@dashboard/user/profile';
+} from "../../../../sections/@dashboard/user/profile";
 // locales
-import { useLocales } from '../../../../locales';
-import { APPWRITE_API } from '../../../../config-global';
-import { databases, storage } from '../../../../auth/AppwriteContext';
+import { useLocales } from "../../../../locales";
+import { APPWRITE_API } from "../../../../config-global";
+import { databases, storage } from "../../../../auth/AppwriteContext";
 
 // ----------------------------------------------------------------------
 
 export default function UserProfilePage() {
-  var userId = window.location.pathname.split('/')[4];
+  var userId = window.location.pathname.split("/")[4];
   const { user } = useAuthContext();
-  if (userId === '') {
+  if (userId === "") {
     userId = user.$id;
   }
 
@@ -58,31 +58,46 @@ export default function UserProfilePage() {
       setProfileImage(null);
       setUserProfile(null);
       var data = await Question.getQuestionList({ createdBy: userId }, 1, 1);
-      setQuestionCount(data?.total)
+      setQuestionCount(data?.total);
       data = await Team.getMyTeamData(userId);
-      setTeamCount(data?.total)
-      data = await databases.getDocument(APPWRITE_API.databaseId, APPWRITE_API.collections.adminUsers, userId)
+      setTeamCount(data?.total);
+      data = await databases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.adminUsers,
+        userId
+      );
       if (data.photoUrl) {
-        setProfileImage((storage.getFilePreview(APPWRITE_API.buckets.adminUserImage, data.photoUrl, undefined, undefined, undefined, 20)).href)
+        setProfileImage(
+          storage.getFilePreview(
+            APPWRITE_API.buckets.adminUserImage,
+            data.photoUrl,
+            undefined,
+            undefined,
+            undefined,
+            20
+          ).href
+        );
       }
       setUserProfile(data);
     }
     fetchData();
-  }, [userId])
+  }, [userId]);
 
-  const [currentTab, setCurrentTab] = useState('profile');
+  const [currentTab, setCurrentTab] = useState("profile");
 
   const TABS = [
     {
-      value: 'profile',
+      value: "profile",
       label: translate("profile"),
       icon: <Iconify icon="ic:round-account-box" />,
-      component: <Profile
-        userId={userId}
-        team={teamCount}
-        question={questionCount}
-        infoProfile={userProfile}
-      />,
+      component: (
+        <Profile
+          userId={userId}
+          team={teamCount}
+          question={questionCount}
+          infoProfile={userProfile}
+        />
+      ),
     },
   ];
 
@@ -92,12 +107,12 @@ export default function UserProfilePage() {
         <title>User: Profile | Sarthak Admin</title>
       </Helmet>
 
-      <Container maxWidth={themeStretch ? false : 'lg'}>
+      <Container maxWidth={themeStretch ? false : "lg"}>
         <CustomBreadcrumbs
           heading={translate("profile")}
           links={[
-            { name: translate('dashboard'), href: PATH_DASHBOARD.root },
-            { name: translate('user'), href: PATH_DASHBOARD.user.root },
+            { name: translate("dashboard"), href: PATH_DASHBOARD.root },
+            { name: translate("user"), href: PATH_DASHBOARD.user.root },
             { name: userProfile?.name },
           ]}
         />
@@ -105,10 +120,15 @@ export default function UserProfilePage() {
           sx={{
             mb: 3,
             height: 280,
-            position: 'relative',
+            position: "relative",
           }}
         >
-          <ProfileCover name={userProfile?.name} role={userProfile?.designation} profileImage={profileImage} empId={userProfile?.empId} />
+          <ProfileCover
+            name={userProfile?.name}
+            role={userProfile?.designation}
+            profileImage={profileImage}
+            empId={userProfile?.empId}
+          />
 
           <Tabs
             value={currentTab}
@@ -117,25 +137,33 @@ export default function UserProfilePage() {
               width: 1,
               bottom: 0,
               zIndex: 9,
-              position: 'absolute',
-              bgcolor: 'background.paper',
-              '& .MuiTabs-flexContainer': {
+              position: "absolute",
+              bgcolor: "background.paper",
+              "& .MuiTabs-flexContainer": {
                 pr: { md: 3 },
                 justifyContent: {
-                  sm: 'center',
-                  md: 'flex-end',
+                  sm: "center",
+                  md: "flex-end",
                 },
               },
             }}
           >
             {TABS.map((tab) => (
-              <Tab key={tab.value} value={tab.value} icon={tab.icon} label={tab.label} />
+              <Tab
+                key={tab.value}
+                value={tab.value}
+                icon={tab.icon}
+                label={tab.label}
+              />
             ))}
           </Tabs>
         </Card>
 
         {TABS.map(
-          (tab) => tab.value === currentTab && <Box key={tab.value}> {tab.component} </Box>
+          (tab) =>
+            tab.value === currentTab && (
+              <Box key={tab.value}> {tab.component} </Box>
+            )
         )}
       </Container>
     </>

@@ -1,3 +1,15 @@
+/**
+ * Written By - Ritesh Ranjan
+ * Website - https://sagittariusk2.github.io/
+ *
+ *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
+ * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
+ *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
+ *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
+ *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
+ *
+ */
+
 import { useSearchParams, Navigate } from "react-router-dom";
 import { account, databases, teams } from "../../auth/AppwriteContext";
 import { useEffect, useState } from "react";
