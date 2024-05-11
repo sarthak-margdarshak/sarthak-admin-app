@@ -37,10 +37,6 @@ export const APPWRITE_API = {
     sarthak: process.env.REACT_APP_APPWRITE_DOCUMENT_SARTHAK,
     ceoId: process.env.REACT_APP_APPWRITE_DOCUMENT_CEO_ID,
   },
-  teams: {
-    admin: process.env.REACT_APP_APPWRITE_TEAM_ADMIN,
-    student: process.env.REACT_APP_APPWRITE_TEAM_STUDENT,
-  },
   buckets: {
     adminUserImage: process.env.REACT_APP_APPWRITE_BUCKET_ADMIN_USER_IMAGE,
     questionFiles: process.env.REACT_APP_APPWRITE_BUCKET_QUESTION_FILES,

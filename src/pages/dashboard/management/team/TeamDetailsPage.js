@@ -58,7 +58,7 @@ export default function TeamDetailsPage() {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { themeStretch } = useSettingsContext();
-  const { user } = useAuthContext();
+  const { user, sarthakInfoData } = useAuthContext();
 
   const [team, setTeam] = useState(null);
   const [tableData, setTableData] = useState([]);
@@ -150,7 +150,7 @@ export default function TeamDetailsPage() {
           ]}
           action={
             <>
-              {team?.$id === APPWRITE_API.teams.admin && user?.$id === APPWRITE_API.documents.ceoId && !update &&
+              {team?.$id === sarthakInfoData?.adminTeamId && user?.$id === APPWRITE_API.documents.ceoId && !update &&
                 <Button
                   component={RouterLink}
                   onClick={() => setOpenConfirm(true)}
@@ -160,7 +160,7 @@ export default function TeamDetailsPage() {
                   New
                 </Button>
               }
-              {team?.$id !== APPWRITE_API.teams.admin && !update &&
+              {team?.$id !== sarthakInfoData?.adminTeamId && !update &&
                 <Button
                   component={RouterLink}
                   sx={{ ml: 2 }}

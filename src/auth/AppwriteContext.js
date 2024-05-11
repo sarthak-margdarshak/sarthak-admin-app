@@ -23,7 +23,6 @@ import MaintenancePage from '../pages/MaintenancePage';
 export const client = new Client()
   .setEndpoint(APPWRITE_API.backendUrl)
   .setProject(APPWRITE_API.projectId);
-
 export const account = new Account(client);
 export const storage = new Storage(client);
 export const databases = new Databases(client);
@@ -37,8 +36,10 @@ const initialState = {
   user: null,
   profileImage: null,
   userProfile: null,
-  login: async (email, password) => {},
+  sarthakInfoData: null,
+  login: async () => {},
   logout: () => {},
+  updateUserProfile: () => {},
 };
 
 const reducer = (state, action) => {
@@ -48,6 +49,7 @@ const reducer = (state, action) => {
       ...state,
       isInitialized: action.payload.isInitialized,
       isAuthenticated: action.payload.isAuthenticated,
+      sarthakInfoData: action.payload.sarthakInfoData,
       user: action.payload.user,
       profileImage: action.payload.profileImage,
       userProfile: action.payload.userProfile,
@@ -107,7 +109,7 @@ export function AuthProvider({ children }) {
       try {
         account.get().then(async function (response) {
           const adminUser = response;
-          const adminUserProfile = await databases.getDocument(APPWRITE_API.databaseId, APPWRITE_API.collections.adminUsers, adminUser.$id, [])
+          const adminUserProfile = await databases.getDocument(APPWRITE_API.databaseId, APPWRITE_API.collections.adminUsers, adminUser.$id)
           var profileImage = null;
           if (adminUserProfile.photoUrl) {
             profileImage = (storage.getFilePreview(APPWRITE_API.buckets.adminUserImage, adminUserProfile.photoUrl, undefined, undefined, undefined, 20)).href
@@ -117,17 +119,19 @@ export function AuthProvider({ children }) {
             payload: {
               isInitialized: true,
               isAuthenticated: true,
+              sarthakInfoData: sarthak,
               user: adminUser,
               profileImage: profileImage,
               userProfile: adminUserProfile,
             },
           });
-        }, async function (error) {
+        }, async function () {
           dispatch({
             type: 'INITIAL',
             payload: {
               isInitialized: true,
               isAuthenticated: false,
+              sarthakInfoData: sarthak,
               user: null,
               profileImage: null,
               userProfile: null,
@@ -141,6 +145,7 @@ export function AuthProvider({ children }) {
           payload: {
             isInitialized: false,
             isAuthenticated: false,
+            sarthakInfoData: null,
             user: null,
             profileImage: null,
             userProfile: null,
@@ -156,7 +161,7 @@ export function AuthProvider({ children }) {
       await account.createEmailSession(email, password);
       const adminUser = await account.get();
       const currTeams = (await teams.list()).teams;
-      const adminTeams = currTeams.filter((val, i) => val.$id === APPWRITE_API.teams.admin)
+      const adminTeams = currTeams.filter((val) => val.$id === state.sarthakInfoData?.adminTeamId || adminUser?.$id===APPWRITE_API.documents.ceoId)
       if (adminTeams.length !== 1) {
         account.deleteSessions();
         return { success: false, message: "Unauthorised login attempt." }
@@ -180,7 +185,7 @@ export function AuthProvider({ children }) {
     } catch (err) {
       return { success: false, message: err.message }
     }
-  }, []);
+  }, [state.sarthakInfoData?.adminTeamId]);
 
   const logout = useCallback(async () => {
     await account.deleteSessions();
@@ -189,6 +194,7 @@ export function AuthProvider({ children }) {
       payload: {
         isAuthenticated: false,
         user: null,
+        sarthakInfoData: null,
         profileImage: null,
         userProfile: null,
       }

@@ -24,14 +24,9 @@ import { Box, Card, Grid, Stack, Button, Dialog, DialogTitle } from '@mui/materi
 import { useSnackbar } from '../../../../components/snackbar';
 import FormProvider, { RHFTextField, RHFSelect } from '../../../../components/hook-form';
 import Iconify from '../../../../components/iconify';
-// auth
-import { Team } from '../../../../auth/Team';
-import { useAuthContext } from '../../../../auth/useAuthContext';
 // assets
 import { countries } from '../../../../assets/data';
 import { teams } from '../../../../auth/AppwriteContext';
-import { APPWRITE_API } from '../../../../config-global';
-import { ID } from 'appwrite';
 
 // ----------------------------------------------------------------------
 
@@ -62,8 +57,6 @@ function generatePassword(length, options = {}) {
 export default function CreateUserDialog({ open, teamName, teamId, onClose, onUpdate, ...other }) {
 
   const { enqueueSnackbar } = useSnackbar();
-
-  const { userProfile } = useAuthContext();
 
   const NewUserSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
@@ -96,31 +89,15 @@ export default function CreateUserDialog({ open, teamName, teamId, onClose, onUp
 
   const onSubmit = async (data) => {
     try {
+      // await databases.getDocument(APPWRITE_API.databaseId, APPWRITE_API.collections.adminUsers, user.$id)
       await teams.createMembership(
-        APPWRITE_API.teams.admin,
+        teamId,
         [data.role],
         window.location.origin,
         data.email,
-        null,
-        '+'+data.phoneCode+data.phoneNumber,
-        data.name,
+        // '+'+data.phoneCode+data.phoneNumber,
+        // data.name,
       )
-      // await Team.onboardWelcome(
-      //   data.name,
-      //   data.email,
-      //   password,
-      //   data.designation,
-      //   '+'+data.phoneCode+data.phoneNumber,
-      //   userProfile.$id,
-      //   userProfile.name,
-      //   userProfile.designation,
-      //   userProfile.email,
-      //   userProfile.phoneNumber,
-      //   data.role,
-      //   teamId,
-      //   teamName
-      // );
-      // await new Promise((resolve) => setTimeout(resolve, 5000));
       reset();
       onClose();
       onUpdate();

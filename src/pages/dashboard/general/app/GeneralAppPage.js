@@ -41,7 +41,7 @@ import { PATH_DASHBOARD } from '../../../../routes/paths';
 // ----------------------------------------------------------------------
 
 export default function GeneralAppPage() {
-  const { user } = useAuthContext();
+  const { user, isInitialized } = useAuthContext();
 
   const { themeStretch } = useSettingsContext();
 
@@ -55,20 +55,24 @@ export default function GeneralAppPage() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      var data = await Question.getTotalQuestionStandardWise();
-      setStandardWise(data);
-      data = await Question.getTotalQuestionSubjectWise();
-      setSubjectWise(data);
-      data = await Question.getTotalQuestionChapterWise();
-      setChapterWise(data);
-      data = await Question.getTotalQuestionConceptWise();
-      setConceptWise(data);
-      data = await Question.getQuestionTypedData();
-      setQuestionCount(data);
+      try {
+        var data = await Question.getTotalQuestionStandardWise();
+        setStandardWise(data);
+        data = await Question.getTotalQuestionSubjectWise();
+        setSubjectWise(data);
+        data = await Question.getTotalQuestionChapterWise();
+        setChapterWise(data);
+        data = await Question.getTotalQuestionConceptWise();
+        setConceptWise(data);
+        data = await Question.getQuestionTypedData();
+        setQuestionCount(data);
+      } catch (error) {
+
+      }
       setLoading(false);
     }
     fetchData();
-  }, [user])
+  }, [isInitialized])
 
   return (
     <>

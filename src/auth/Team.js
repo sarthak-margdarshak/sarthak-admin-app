@@ -1,5 +1,5 @@
 // appwrite
-import { Client, Databases, ID, Permission, Query, Role, Storage, Functions, Teams } from "appwrite";
+import { Client, Databases, Query, Storage, Functions, Teams } from "appwrite";
 import { APPWRITE_API } from '../config-global';
 
 
@@ -27,94 +27,6 @@ export class Team {
       [
         Query.limit(100)
       ]
-    );
-  }
-
-  /**
-   * Function to create a team.
-   * @param {string} name - Name of the team
-   * @param {string} teamOwner - teamOwner ID
-   * @returns - Team
-   */
-  static async addTeamToDatabase(name, teamOwner, id) {
-    if (id) {
-      return await databases.updateDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.teams,
-        id,
-        {
-          name: name
-        }
-      )
-    } else {
-      return await databases.createDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.teams,
-        ID.unique(),
-        {
-          teamOwner: teamOwner,
-          name: name,
-          member: 1,
-        },
-        [
-          Permission.update(Role.user(teamOwner)),
-          Permission.read(Role.user(teamOwner)),
-          Permission.delete(Role.user(teamOwner)),
-          Permission.read(Role.any()),
-        ]
-      )
-    }
-  }
-
-  /**
-   * Function to create document in `sgi_team_membership` table
-   * @param {string} teamId - Id of the team
-   * @param {string} userId - Id of user
-   * @param {string} ownerId - Id of the teamOwner
-   * @param {string} role - Role of user in the team
-   * @param {boolean} active - Active or blocked
-   * @param {boolean} invitationAccepted Accepted Invitation or not
-   * @returns - Membership object
-   */
-  static async addMemberToTeamDatabase(teamId, userId, ownerId, role, active, invitationAccepted) {
-    var permissions = [];
-    permissions.push(Permission.update(Role.user(ownerId)));
-    permissions.push(Permission.read(Role.user(ownerId)));
-    permissions.push(Permission.delete(Role.user(ownerId)));
-    permissions.push(Permission.read(Role.any()));
-    if (userId !== ownerId) {
-      permissions.push(Permission.update(Role.user(userId)));
-      permissions.push(Permission.read(Role.user(userId)));
-      permissions.push(Permission.delete(Role.user(userId)));
-    }
-    return await databases.createDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.teamMembership,
-      ID.unique(),
-      {
-        teamId: teamId,
-        userId: userId,
-        role: role,
-        active: active,
-        invitationAccepted: invitationAccepted,
-      },
-      permissions,
-    )
-  }
-
-  /**
-   * Function to fetch all user present in the given team `id`
-   * @param {string} id - team id
-   * @returns - List of Team membership
-   */
-  static async listTeamMembership(id) {
-    return await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.teamMembership,
-      [
-        Query.equal("teamId", [id]),
-        Query.limit(100)
-      ],
     );
   }
 

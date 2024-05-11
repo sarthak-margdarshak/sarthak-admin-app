@@ -71,7 +71,7 @@ export default function TeamListPage() {
 
   useEffect(() => {
     fetchData();
-  }, [userProfile.createTeam, enqueueSnackbar, setUpdate])
+  }, [fetchData])
 
   const fetchData = async () => {
     setUpdate(true)
