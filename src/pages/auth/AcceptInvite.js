@@ -5,6 +5,7 @@ import { PATH_PAGE } from "../../routes/paths";
 import LoadingScreen from "../../components/loading-screen/LoadingScreen";
 import { APPWRITE_API } from "../../config-global";
 import { Query } from "appwrite";
+import { useAuthContext } from "../../auth/useAuthContext";
 
 export default function AcceptInvite() {
 	const [searchParams] = useSearchParams();
@@ -12,6 +13,8 @@ export default function AcceptInvite() {
 	const userId = searchParams.get("userId");
 	const secret = searchParams.get("secret");
 	const teamId = searchParams.get("teamId");
+
+	const { sarthakInfoData } = useAuthContext();
 
 	const [status, setStatus] = useState(0)
 
@@ -21,39 +24,40 @@ export default function AcceptInvite() {
 				await account.deleteSessions();
 				await teams.updateMembershipStatus(teamId, membershipId, userId, secret)
 
-				const totalUser = (await databases.listDocuments(
-					APPWRITE_API.databaseId,
-					APPWRITE_API.collections.adminUsers,
-					[
-						Query.limit(1),
-						Query.offset(1),
-					]
-				)).total + 1;
-				var currentEmpId = 'EMP';
-				if (totalUser.toString().length === 1) {
-					currentEmpId += '000' + totalUser.toString();
-				} else if (totalUser.toString().length === 2) {
-					currentEmpId += '00' + totalUser.toString();
-				} else if (totalUser.toString().length === 3) {
-					currentEmpId += '0' + totalUser.toString();
-				} else if (totalUser.toString().length === 4) {
-					currentEmpId += totalUser.toString();
-				}
-
-				const user = await account.get();
-				console.log(user);
-
-				await databases.createDocument(
-					APPWRITE_API.databaseId,
-					APPWRITE_API.collections.adminUsers,
-					userId,
-					{
-						name: user.name,
-						email: user.email,
-						phoneNumber: user.phone,
-						empId: currentEmpId,
+				if (sarthakInfoData?.adminTeamId === teamId) {
+					const totalUser = (await databases.listDocuments(
+						APPWRITE_API.databaseId,
+						APPWRITE_API.collections.adminUsers,
+						[
+							Query.limit(1),
+							Query.offset(1),
+						]
+					)).total + 1;
+					var currentEmpId = 'EMP';
+					if (totalUser.toString().length === 1) {
+						currentEmpId += '000' + totalUser.toString();
+					} else if (totalUser.toString().length === 2) {
+						currentEmpId += '00' + totalUser.toString();
+					} else if (totalUser.toString().length === 3) {
+						currentEmpId += '0' + totalUser.toString();
+					} else if (totalUser.toString().length === 4) {
+						currentEmpId += totalUser.toString();
 					}
-				)
+
+					const user = await account.get();
+
+					await databases.createDocument(
+						APPWRITE_API.databaseId,
+						APPWRITE_API.collections.adminUsers,
+						userId,
+						{
+							name: user.name,
+							email: user.email,
+							phoneNumber: user.phone,
+							empId: currentEmpId,
+						}
+					)
+				}
 				setStatus(1);
 			} catch (error) {
 				setStatus(-1);

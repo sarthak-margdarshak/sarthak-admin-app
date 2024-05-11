@@ -42,46 +42,6 @@ export class Team {
   }
 
   /**
-   * Function to initiate welcome a user
-   * @param {string} name - Name of the new user
-   * @param {string} email - Email of reciepent
-   * @param {string} password - Password of new User
-   * @param {string} designation - Designation of user
-   * @param {string} phoneNumber - Phone number of user
-   * @param {string} managerId - Manager Id
-   * @param {string} managerName - Name of manager
-   * @param {string} managerDesignation - Designation of Manager
-   * @param {string} manageremail - Email of manager
-   * @param {string} managerPhone - Phone of Manager
-   * @param {string} role - role of user in team
-   * @param {string} teamId - team id
-   * @param {string} teamName - team name
-   * @returns - Confirmation of mail sent
-   */
-  static async onboardWelcome(name, email, password, designation, phoneNumber, managerId, managerName, managerDesignation, manageremail, managerPhone, role, teamId, teamName) {
-    return await functions.createExecution(
-      APPWRITE_API.functions.onboardWelcome,
-      JSON.stringify(
-        {
-          name: name,
-          email: email,
-          password: password,
-          designation: designation,
-          phoneNumber: phoneNumber,
-          managerId: managerId,
-          managerName: managerName,
-          managerDesignation: managerDesignation,
-          manageremail: manageremail,
-          managerPhone: managerPhone,
-          role: role,
-          teamId: teamId,
-          teamName: teamName,
-        }),
-      true,
-    );
-  }
-
-  /**
    * Function to initiate team invitation
    * @param {string} email - Email of reciepent
    * @param {string} userId - Id of the user

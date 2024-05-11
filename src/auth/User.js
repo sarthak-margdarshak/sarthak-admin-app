@@ -33,22 +33,24 @@ export class User {
    */
   static async getUserList(name) {
     if (!name || name === '') {
-      return (await databases.listDocuments(
+      const x = (await databases.listDocuments(
         APPWRITE_API.databaseId,
-        APPWRITE_API.databases.usersProfile,
+        APPWRITE_API.collections.adminUsers,
         [
           Query.limit(100)
         ]
       )).documents;
+      return x.map((val) => val?.name + ' (' + val?.empId + ')')
     }
-    return (await databases.listDocuments(
+    const x = (await databases.listDocuments(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.usersProfile,
+      APPWRITE_API.collections.adminUsers,
       [
         Query.search("name", name),
         Query.limit(100)
       ]
     )).documents;
+    return x.map((val) => val?.name + ' (' + val?.empId + ')')
   }
 
   /**

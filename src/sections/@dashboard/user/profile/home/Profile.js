@@ -20,21 +20,23 @@ import ProfileTaskInfo from './ProfileTaskInfo';
 import ProfileSocialInfo from './ProfileSocialInfo';
 // locales
 import { useLocales } from '../../../../../locales';
+import { useAuthContext } from '../../../../../auth/useAuthContext';
 
 // ----------------------------------------------------------------------
 
 export default function Profile({ userId, infoProfile, team, question }) {
 
   const { translate } = useLocales();
+  const { user } = useAuthContext();
 
   return (
     <Stack spacing={3}>
-      <ProfileTaskInfo team={team} question={question} />
+      {user?.$id === userId && <ProfileTaskInfo team={team} question={question} />}
 
       <ProfileAbout
         quote={infoProfile?.about}
         userId={userId}
-        country={infoProfile?.city+', '+infoProfile?.state+', '+infoProfile?.country}
+        country={infoProfile?.city + ', ' + infoProfile?.state + ', ' + infoProfile?.country}
         email={infoProfile?.email}
         role={infoProfile?.designation}
         company={translate('sarthak_guidance_institute')}

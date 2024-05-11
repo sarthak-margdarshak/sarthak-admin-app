@@ -33,12 +33,14 @@ import {
 } from '../../../../sections/@dashboard/user/profile';
 // locales
 import { useLocales } from '../../../../locales';
+import { APPWRITE_API } from '../../../../config-global';
+import { databases, storage } from '../../../../auth/AppwriteContext';
 
 // ----------------------------------------------------------------------
 
 export default function UserProfilePage() {
   var userId = window.location.pathname.split('/')[4];
-  const { user, userProfile, profileImage } = useAuthContext();
+  const { user } = useAuthContext();
   if (userId === '') {
     userId = user.$id;
   }
@@ -48,16 +50,25 @@ export default function UserProfilePage() {
   const { translate } = useLocales();
   const [teamCount, setTeamCount] = useState(0);
   const [questionCount, setQuestionCount] = useState(0);
+  const [userProfile, setUserProfile] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
-      var data = await Question.getQuestionList({ createdBy: user?.$id }, 1, 1);
+      setProfileImage(null);
+      setUserProfile(null);
+      var data = await Question.getQuestionList({ createdBy: userId }, 1, 1);
       setQuestionCount(data?.total)
-      data = await Team.getMyTeamData(user?.$id);
+      data = await Team.getMyTeamData(userId);
       setTeamCount(data?.total)
+      data = await databases.getDocument(APPWRITE_API.databaseId, APPWRITE_API.collections.adminUsers, userId)
+      if (data.photoUrl) {
+        setProfileImage((storage.getFilePreview(APPWRITE_API.buckets.adminUserImage, data.photoUrl, undefined, undefined, undefined, 20)).href)
+      }
+      setUserProfile(data);
     }
     fetchData();
-  }, [user?.$id])
+  }, [userId])
 
   const [currentTab, setCurrentTab] = useState('profile');
 

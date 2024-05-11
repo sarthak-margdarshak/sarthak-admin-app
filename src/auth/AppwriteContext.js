@@ -179,7 +179,7 @@ export function AuthProvider({ children }) {
       }
       var adminUserProfile = null;
       try {
-        adminUserProfile = await databases.getDocument(APPWRITE_API.databaseId, APPWRITE_API.collections.adminUsers, adminUser.$id, [])
+        adminUserProfile = await databases.getDocument(APPWRITE_API.databaseId, APPWRITE_API.collections.adminUsers, adminUser.$id)
       } catch (error) {
         console.log(error)
       }

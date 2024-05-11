@@ -64,6 +64,7 @@ export default function TeamDetailsPage() {
   const [update, setUpdate] = useState(true);
   const [openConfirm, setOpenConfirm] = useState(false);
   const [openInvite, setOpenInvite] = useState(false);
+  const [isOwner, setIsOwner] = useState(false)
 
   useEffect(() => {
     async function fetchData() {
@@ -76,6 +77,9 @@ export default function TeamDetailsPage() {
         var f_data = [];
         var count = 1;
         for (let i in membershipData.memberships) {
+          if(membershipData.memberships[i].userId===user.$id && membershipData.memberships[i].roles.find((val) => val==='owner')!==undefined) {
+            setIsOwner(true);
+          }
           var tempRowUser = null;
           try {
             tempRowUser = await databases.getDocument(APPWRITE_API.databaseId, APPWRITE_API.collections.adminUsers, membershipData.memberships[i]?.userId);   
@@ -162,7 +166,7 @@ export default function TeamDetailsPage() {
                   New
                 </Button>
               }
-              {team?.$id !== sarthakInfoData?.adminTeamId && !update &&
+              {team?.$id !== sarthakInfoData?.adminTeamId && !update && isOwner &&
                 <Button
                   component={RouterLink}
                   sx={{ ml: 2 }}
