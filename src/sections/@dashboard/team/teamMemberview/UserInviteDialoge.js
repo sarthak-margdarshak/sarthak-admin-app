@@ -32,7 +32,6 @@ import Iconify from '../../../../components/iconify';
 import { useSnackbar } from '../../../../components/snackbar';
 // Auth
 import { User } from '../../../../auth/User';
-import { useAuthContext } from '../../../../auth/useAuthContext';
 import { databases, teams } from '../../../../auth/AppwriteContext';
 import { APPWRITE_API } from '../../../../config-global';
 import { PATH_AUTH } from '../../../../routes/paths';
@@ -55,7 +54,6 @@ export default function UserInviteDialoge({ open, onClose, onUpdate, teamName, t
   const { enqueueSnackbar } = useSnackbar();
 
   const [selectedUser, setSelectedUser] = useState('');
-  const { userProfile } = useAuthContext();
   const [role, setRole] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userList, setUserList] = useState([]);
