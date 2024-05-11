@@ -36,6 +36,7 @@ import {
   // Dashboard: Team
   TeamListPage,
   TeamDetailsPage,
+  AcceptInvitePage,
   // Dashboard: Question
   QuestionListPage,
   QuestionCreatePage,
@@ -46,6 +47,7 @@ import {
   Page403,
   Page404,
   Page410,
+  PageMotivation,
   HomePage,
   FaqsPage,
   AboutPage,
@@ -86,6 +88,7 @@ export default function Router() {
           children: [
             { path: 'reset-password', element: <ResetPasswordPage /> },
             { path: 'new-password', element: <NewPasswordPage /> },
+            { path: 'accept-invite', element: <AcceptInvitePage /> }
           ],
         },
       ],
@@ -119,7 +122,7 @@ export default function Router() {
           children: [
             { element: <Navigate to="/dashboard/team/list" replace />, index: true },
             { path: 'list', element: <TeamListPage /> },
-            { path: ':id/view', element: <TeamDetailsPage /> },
+            { path: ':id/view', element: <TeamDetailsPage /> }
           ],
         },
         // Dashboard: Question
@@ -175,6 +178,7 @@ export default function Router() {
         { path: '404', element: <Page404 /> },     // Complete
         { path: '403', element: <Page403 /> },     // Complete
         { path: '410', element: <Page410 /> },     // Complete
+        { path: 'success', element: <PageMotivation /> },
       ],
     },
 

@@ -50,8 +50,12 @@ export default function AuthResetPasswordForm() {
   } = methods;
 
   const onSubmit = async (data) => {
-    await account.createRecovery(data.email, window.location.origin+PATH_AUTH.newPassword);
-    enqueueSnackbar("Email sent successfully!!!")
+    try {
+      await account.createRecovery(data.email, window.location.origin+PATH_AUTH.newPassword);
+      enqueueSnackbar("Email sent successfully!!!")
+    } catch (error) {
+      enqueueSnackbar(error.message, {variant: 'error'})
+    }
   };
 
   return (

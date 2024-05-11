@@ -83,7 +83,7 @@ export default function QuestionRowComponent({ question, onSave }) {
       setIsDataLoading(false);
     }
     fetchData();
-  }, [question])
+  }, [question, user?.$id])
 
   const updateData = async () => {
     setUpdating(true);

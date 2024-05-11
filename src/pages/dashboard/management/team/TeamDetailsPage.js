@@ -43,7 +43,6 @@ import { APPWRITE_API } from '../../../../config-global';
 const TABLE_HEAD = [
   { id: 'sn', },
   { id: 'name', label: 'Name', align: 'left' },
-  { id: 'designation', label: 'Designation', align: 'left' },
   { id: 'role', label: 'Role', align: 'left' },
   { id: 'status', label: 'Status', align: 'center' },
   { id: 'action', label: 'Action', align: 'center' },
@@ -77,13 +76,16 @@ export default function TeamDetailsPage() {
         var f_data = [];
         var count = 1;
         for (let i in membershipData.memberships) {
-          const tempRowUser = await databases.getDocument(APPWRITE_API.databaseId, APPWRITE_API.collections.adminUsers, membershipData.memberships[i]?.userId);
+          var tempRowUser = null;
+          try {
+            tempRowUser = await databases.getDocument(APPWRITE_API.databaseId, APPWRITE_API.collections.adminUsers, membershipData.memberships[i]?.userId);   
+          } catch (error) {
+          }
           f_data.push(
             {
               sn: count,
               ...membershipData.memberships[i],
               photoUrl: tempRowUser?.photoUrl,
-              designation: tempRowUser?.designation,
             }
           );
           count++;

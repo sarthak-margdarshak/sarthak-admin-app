@@ -27,6 +27,7 @@ export const PATH_AUTH = {
   login: path(ROOTS_AUTH, '/login'),
   resetPassword: path(ROOTS_AUTH, '/reset-password'),
   newPassword: path(ROOTS_AUTH, '/new-password'),
+  acceptInvite: path(ROOTS_AUTH, '/accept-invite'),
 };
 
 // ----------------------------------------------------------------------
@@ -43,6 +44,7 @@ export const PATH_PAGE = {
   page404: '/404',
   page410: '/410',
   page500: '/500',
+  success: '/success',
   changelog: '/changelog',
   termsAndConditions: '/terms-and-conditions',
   privacyPolicy: '/privacy-policy',

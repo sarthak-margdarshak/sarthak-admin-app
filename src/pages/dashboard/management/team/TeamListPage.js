@@ -69,10 +69,6 @@ export default function TeamListPage() {
     onChangeRowsPerPage,
   } = useTable();
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData])
-
   const fetchData = async () => {
     setUpdate(true)
     try {
@@ -85,6 +81,10 @@ export default function TeamListPage() {
     }
     setUpdate(false)
   }
+
+  useEffect(() => {
+    fetchData();
+  }, [userProfile])
 
   const denseHeight = 72;
 

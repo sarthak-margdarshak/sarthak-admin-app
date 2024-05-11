@@ -27,6 +27,7 @@ import Iconify from '../../../../components/iconify';
 // assets
 import { countries } from '../../../../assets/data';
 import { teams } from '../../../../auth/AppwriteContext';
+import { PATH_AUTH } from '../../../../routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -40,20 +41,6 @@ CreateUserDialog.propTypes = {
 
 // ----------------------------------------------------------------------
 
-function generatePassword(length, options = {}) {
-  const defaultCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\\:;?><,./-=";
-  const excludedChars = options.exclude || "";
-  const customCharset = defaultCharset.replace(new RegExp(`[${excludedChars}]`, 'g'), '');
-  let password = "";
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * customCharset.length);
-    password += customCharset[randomIndex];
-  }
-  return password;
-}
-
-// ----------------------------------------------------------------------
-
 export default function CreateUserDialog({ open, teamName, teamId, onClose, onUpdate, ...other }) {
 
   const { enqueueSnackbar } = useSnackbar();
@@ -64,7 +51,6 @@ export default function CreateUserDialog({ open, teamName, teamId, onClose, onUp
     email: Yup.string().required('Email is required').email('Email must be a valid email address'),
     phoneCode: Yup.string().required('Phone Code is required'),
     role: Yup.string().required('Role is required'),
-    designation: Yup.string().required('Designation is required'),
   });
 
   const defaultValues = {
@@ -73,7 +59,6 @@ export default function CreateUserDialog({ open, teamName, teamId, onClose, onUp
     email: '',
     phoneCode: '',
     role: '',
-    designation: '',
   };
 
   const methods = useForm({
@@ -89,15 +74,18 @@ export default function CreateUserDialog({ open, teamName, teamId, onClose, onUp
 
   const onSubmit = async (data) => {
     try {
-      // await databases.getDocument(APPWRITE_API.databaseId, APPWRITE_API.collections.adminUsers, user.$id)
       await teams.createMembership(
         teamId,
         [data.role],
-        window.location.origin,
+        window.location.origin+PATH_AUTH.acceptInvite,
         data.email,
-        // '+'+data.phoneCode+data.phoneNumber,
-        // data.name,
+        undefined,
+        '+' + data.phoneCode + data.phoneNumber,
+        data.name,
       )
+
+      // Send Welcome email
+
       reset();
       onClose();
       onUpdate();
@@ -107,7 +95,6 @@ export default function CreateUserDialog({ open, teamName, teamId, onClose, onUp
       enqueueSnackbar(error.message, { variant: 'error' });
     }
   };
-
 
   return (
     <Dialog fullWidth maxWidth="md" open={open} {...other}>
@@ -133,13 +120,12 @@ export default function CreateUserDialog({ open, teamName, teamId, onClose, onUp
                   <option value="" />
                   {countries.map((country) => (
                     <option key={country.code} value={country.phone}>
-                      {country.label+'(+'+country.phone+')'}
+                      {country.label + '(+' + country.phone + ')'}
                     </option>
                   ))}
                 </RHFSelect>
                 <RHFTextField name="phoneNumber" label="Phone Number" />
                 <RHFTextField name="role" label="Role" />
-                <RHFTextField name="designation" label="Designation" />
               </Box>
 
               <Stack direction={"row-reverse"} alignItems={"end"} sx={{ mt: 3 }}>

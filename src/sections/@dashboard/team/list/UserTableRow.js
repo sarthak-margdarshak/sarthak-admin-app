@@ -91,8 +91,6 @@ export default function UserTableRow({ index, row, onEditRow, onViewRow, isCEO, 
           </Stack>
         </TableCell>
 
-        <TableCell align="left">{row?.designation}</TableCell>
-
         <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
           {row?.roles}
         </TableCell>
