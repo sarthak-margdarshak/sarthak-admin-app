@@ -31,6 +31,7 @@ import {
   Button,
 } from "@mui/material";
 // components
+import Label from "../../../../components/label";
 import Iconify from "../../../../components/iconify";
 import MenuPopover from "../../../../components/menu-popover";
 import { useSnackbar } from "../../../../components/snackbar";
@@ -173,6 +174,16 @@ export default function UserTableRow({
               ...(!row?.confirm && { color: "warning.main" }),
             }}
           />
+        </TableCell>
+
+        <TableCell align="left">
+          <Label
+            variant="soft"
+            color={(!row?.blocked === false && "error") || "success"}
+            sx={{ textTransform: "capitalize" }}
+          >
+            {row?.blocked ? "Blocked" : "Active"}
+          </Label>
         </TableCell>
 
         <TableCell align="center">

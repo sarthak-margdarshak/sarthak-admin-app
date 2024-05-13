@@ -47,9 +47,12 @@ import { UserTableRow } from "../../../../sections/@dashboard/team/list";
 import CreateUserDialog from "../../../../sections/@dashboard/team/teamMemberview/CreateUserDialog";
 import UserInviteDialoge from "../../../../sections/@dashboard/team/teamMemberview/UserInviteDialoge";
 // Auth
-import { User } from "../../../../auth/User";
 import { useAuthContext } from "../../../../auth/useAuthContext";
-import { databases, teams } from "../../../../auth/AppwriteContext";
+import {
+  appwriteFunctions,
+  databases,
+  teams,
+} from "../../../../auth/AppwriteContext";
 import { Query } from "appwrite";
 import { APPWRITE_API } from "../../../../config-global";
 
@@ -60,6 +63,7 @@ const TABLE_HEAD = [
   { id: "name", label: "Name", align: "left" },
   { id: "role", label: "Role", align: "left" },
   { id: "status", label: "Status", align: "center" },
+  { id: "active", lable: "Active", align: "center" },
   { id: "action", label: "Action", align: "center" },
 ];
 
@@ -80,53 +84,54 @@ export default function TeamDetailsPage() {
   const [openInvite, setOpenInvite] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        // Get Team Data
-        const membershipData = await teams.listMemberships(teamId, [
-          Query.limit(100),
-        ]);
-        const tempTeam = await teams.get(teamId);
-        setTeam(tempTeam);
-        // Get Team members data
-        var f_data = [];
-        var count = 1;
-        for (let i in membershipData.memberships) {
-          if (
-            membershipData.memberships[i].userId === user.$id &&
-            membershipData.memberships[i].roles.find(
-              (val) => val === "owner"
-            ) !== undefined
-          ) {
-            setIsOwner(true);
-          }
-          var tempRowUser = null;
-          try {
-            tempRowUser = await databases.getDocument(
-              APPWRITE_API.databaseId,
-              APPWRITE_API.collections.adminUsers,
-              membershipData.memberships[i]?.userId
-            );
-          } catch (error) {}
-          f_data.push({
-            sn: count,
-            ...membershipData.memberships[i],
-            blocked: tempRowUser?.blocked || false,
-            photoUrl: tempRowUser?.photoUrl,
-            createTeam: tempRowUser?.createTeam || false,
-          });
-          count++;
+  async function fetchData() {
+    setUpdate(true);
+    try {
+      // Get Team Data
+      const membershipData = await teams.listMemberships(teamId, [
+        Query.limit(100),
+      ]);
+      const tempTeam = await teams.get(teamId);
+      setTeam(tempTeam);
+      // Get Team members data
+      var f_data = [];
+      var count = 1;
+      for (let i in membershipData.memberships) {
+        if (
+          membershipData.memberships[i].userId === user.$id &&
+          membershipData.memberships[i].roles.find((val) => val === "owner") !==
+            undefined
+        ) {
+          setIsOwner(true);
         }
-        setTableData(f_data);
-      } catch (error) {
-        console.error(error);
-        enqueueSnackbar(error.message, { variant: "error" });
+        var tempRowUser = null;
+        try {
+          tempRowUser = await databases.getDocument(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.adminUsers,
+            membershipData.memberships[i]?.userId
+          );
+        } catch (error) {}
+        f_data.push({
+          sn: count,
+          ...membershipData.memberships[i],
+          blocked: tempRowUser?.blocked || false,
+          photoUrl: tempRowUser?.photoUrl,
+          createTeam: tempRowUser?.createTeam || false,
+        });
+        count++;
       }
-      setUpdate(false);
+      setTableData(f_data);
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar(error.message, { variant: "error" });
     }
+    setUpdate(false);
+  }
+
+  useEffect(() => {
     fetchData();
-  }, [update, enqueueSnackbar, teamId, user.$id]);
+  }, []);
 
   const {
     page,
@@ -145,12 +150,24 @@ export default function TeamDetailsPage() {
     navigate(PATH_DASHBOARD.user.profile(id));
   };
 
-  const handleToogleBlockRow = async (id) => {
+  const handleToogleBlockRow = async (row) => {
     try {
-      await User.blockUser(id);
-      setUpdate(true);
-      enqueueSnackbar("Blocked");
+      await appwriteFunctions.createExecution(
+        APPWRITE_API.functions.toogleBlock,
+        JSON.stringify({
+          userId: row.userId,
+          action: row.blocked ? "unblock" : "block",
+        }),
+        true
+      );
+      if (row.blocked) {
+        enqueueSnackbar("Successfully Unblocked");
+      } else {
+        enqueueSnackbar("Successfully Blocked");
+      }
+      fetchData();
     } catch (error) {
+      console.log(error);
       enqueueSnackbar(error.message, { variant: "error" });
     }
   };
@@ -232,7 +249,7 @@ export default function TeamDetailsPage() {
                             index={row?.sn}
                             userRow={row}
                             onViewRow={() => handleViewRow(row?.userId)}
-                            onBlockRow={() => handleToogleBlockRow(row?.userId)}
+                            onToogleBlockRow={() => handleToogleBlockRow(row)}
                             isCEO={user?.$id === APPWRITE_API.documents.ceoId}
                             teamId={teamId}
                           />

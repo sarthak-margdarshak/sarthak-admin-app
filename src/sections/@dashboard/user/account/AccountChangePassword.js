@@ -27,7 +27,7 @@ import FormProvider, { RHFTextField } from "../../../../components/hook-form";
 import { useAuthContext } from "../../../../auth/useAuthContext";
 // locales
 import { useLocales } from "../../../../locales";
-import { account } from "../../../../auth/AppwriteContext";
+import { appwriteAccount } from "../../../../auth/AppwriteContext";
 
 // ----------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ export default function AccountChangePassword() {
 
   const onSubmit = async (data) => {
     try {
-      await account.updatePassword(data.newPassword, data.oldPassword);
+      await appwriteAccount.updatePassword(data.newPassword, data.oldPassword);
       reset();
       enqueueSnackbar(translate("update_success") + " !!!", {
         variant: "success",

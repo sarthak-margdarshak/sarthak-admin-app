@@ -48,6 +48,7 @@ export const APPWRITE_API = {
     contactInstitute: process.env.REACT_APP_APPWRITE_FUCTION_CONTACT_INSTITUTE,
     createQuestion: process.env.REACT_APP_APPWRITE_FUCTION_CREATE_QUESTION,
     updateMockTests: process.env.REACT_APP_APPWRITE_FUCTION_CREATE_MOCK_TEST,
+    toogleBlock: process.env.REACT_APP_APPWRITE_FUCTION_TOGGLE_BLOCK,
   },
 };
 

@@ -11,7 +11,7 @@
  */
 
 import { useSearchParams, Navigate } from "react-router-dom";
-import { account, databases, teams } from "../../auth/AppwriteContext";
+import { appwriteAccount, databases, teams } from "../../auth/AppwriteContext";
 import { useEffect, useState } from "react";
 import { PATH_PAGE } from "../../routes/paths";
 import LoadingScreen from "../../components/loading-screen/LoadingScreen";
@@ -33,7 +33,7 @@ export default function AcceptInvite() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await account.deleteSessions();
+        await appwriteAccount.deleteSessions();
         await teams.updateMembershipStatus(
           teamId,
           membershipId,
@@ -61,7 +61,7 @@ export default function AcceptInvite() {
             currentEmpId += totalUser.toString();
           }
 
-          const user = await account.get();
+          const user = await appwriteAccount.get();
 
           await databases.createDocument(
             APPWRITE_API.databaseId,

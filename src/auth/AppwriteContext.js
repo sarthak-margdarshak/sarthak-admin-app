@@ -26,6 +26,7 @@ import {
   Account,
   Client,
   Databases,
+  Functions,
   ID,
   Permission,
   Role,
@@ -39,10 +40,11 @@ import MaintenancePage from "../pages/MaintenancePage";
 export const client = new Client()
   .setEndpoint(APPWRITE_API.backendUrl)
   .setProject(APPWRITE_API.projectId);
-export const account = new Account(client);
+export const appwriteAccount = new Account(client);
 export const storage = new Storage(client);
 export const databases = new Databases(client);
 export const teams = new Teams(client);
+export const appwriteFunctions = new Functions(client);
 
 // ----------------------------------------------------------------------
 
@@ -124,7 +126,7 @@ export function AuthProvider({ children }) {
           APPWRITE_API.documents.sarthak
         );
         setUnderMaintenance(sarthak?.maintenance);
-        account.get().then(
+        appwriteAccount.get().then(
           async function (response) {
             const adminUser = response;
             var adminUserProfile = null;
@@ -198,8 +200,8 @@ export function AuthProvider({ children }) {
         APPWRITE_API.documents.sarthak
       );
       try {
-        await account.createEmailSession(email, password);
-        const adminUser = await account.get();
+        await appwriteAccount.createEmailSession(email, password);
+        const adminUser = await appwriteAccount.get();
         const currTeams = (await teams.list()).teams;
         const adminTeams = currTeams.filter(
           (val) =>
@@ -207,7 +209,7 @@ export function AuthProvider({ children }) {
             adminUser?.$id === APPWRITE_API.documents.ceoId
         );
         if (adminTeams.length !== 1) {
-          account.deleteSessions();
+          appwriteAccount.deleteSessions();
           return { success: false, message: "Unauthorised login attempt." };
         }
         var adminUserProfile = null;
@@ -251,7 +253,7 @@ export function AuthProvider({ children }) {
   );
 
   const logout = useCallback(async () => {
-    await account.deleteSessions();
+    await appwriteAccount.deleteSessions();
     dispatch({
       type: "LOGOUT",
       payload: {
