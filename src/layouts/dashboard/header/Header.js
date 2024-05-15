@@ -1,36 +1,36 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 // @mui
-import { useTheme } from '@mui/material/styles';
-import { Stack, AppBar, Toolbar, IconButton } from '@mui/material';
+import { useTheme } from "@mui/material/styles";
+import { Stack, AppBar, Toolbar, IconButton } from "@mui/material";
 // utils
-import { bgBlur } from '../../../utils/cssStyles';
+import { bgBlur } from "../../../utils/cssStyles";
 // hooks
-import useOffSetTop from '../../../hooks/useOffSetTop';
-import useResponsive from '../../../hooks/useResponsive';
+import useOffSetTop from "../../../hooks/useOffSetTop";
+import useResponsive from "../../../hooks/useResponsive";
 // config
-import { HEADER, NAV } from '../../../config-global';
+import { HEADER, NAV } from "../../../config-global";
 // components
-import Logo from '../../../components/logo';
-import Iconify from '../../../components/iconify';
-import { useSettingsContext } from '../../../components/settings';
+import Logo from "../../../components/logo";
+import Iconify from "../../../components/iconify";
+import { useSettingsContext } from "../../../components/settings";
 //
-import AccountPopover from './AccountPopover';
-import LanguagePopover from './LanguagePopover';
-import SvgColor from '../../../components/svg-color/SvgColor';
+import AccountPopover from "./AccountPopover";
+import LanguagePopover from "./LanguagePopover";
+import SvgColor from "../../../components/svg-color/SvgColor";
 
 // ----------------------------------------------------------------------
 
@@ -45,11 +45,11 @@ export default function Header({ onOpenNav }) {
 
   const { themeLayout, themeMode, onToggleMode } = useSettingsContext();
 
-  const isNavHorizontal = themeLayout === 'horizontal';
+  const isNavHorizontal = themeLayout === "horizontal";
 
-  const isNavMini = themeLayout === 'mini';
+  const isNavMini = themeLayout === "mini";
 
-  const isDesktop = useResponsive('up', 'lg');
+  const isDesktop = useResponsive("up", "lg");
 
   const isOffset = useOffSetTop(HEADER.H_DASHBOARD_DESKTOP) && !isNavHorizontal;
 
@@ -58,7 +58,7 @@ export default function Header({ onOpenNav }) {
       {isDesktop && isNavHorizontal && <Logo sx={{ mr: 2.5 }} />}
 
       {!isDesktop && (
-        <IconButton onClick={onOpenNav} sx={{ mr: 1, color: 'text.primary' }}>
+        <IconButton onClick={onOpenNav} sx={{ mr: 1, color: "text.primary" }}>
           <Iconify icon="eva:menu-2-fill" />
         </IconButton>
       )}
@@ -74,9 +74,14 @@ export default function Header({ onOpenNav }) {
 
         {/* <NotificationsPopover /> */}
 
-        <IconButton color={themeMode === 'dark' ? 'warning' : 'default'} onClick={onToggleMode}>
+        <IconButton
+          color={themeMode === "dark" ? "warning" : "default"}
+          onClick={onToggleMode}
+        >
           <SvgColor
-            src={`/assets/icons/setting/ic_${themeMode === 'light' ? 'moon' : 'sun'}.svg`}
+            src={`/assets/icons/setting/ic_${
+              themeMode === "light" ? "moon" : "sun"
+            }.svg`}
           />
         </IconButton>
 
@@ -88,13 +93,13 @@ export default function Header({ onOpenNav }) {
   return (
     <AppBar
       sx={{
-        boxShadow: 'none',
+        boxShadow: "none",
         height: HEADER.H_MOBILE,
         zIndex: theme.zIndex.appBar + 1,
         ...bgBlur({
           color: theme.palette.background.default,
         }),
-        transition: theme.transitions.create(['height'], {
+        transition: theme.transitions.create(["height"], {
           duration: theme.transitions.duration.shorter,
         }),
         ...(isDesktop && {
@@ -105,7 +110,7 @@ export default function Header({ onOpenNav }) {
           }),
           ...(isNavHorizontal && {
             width: 1,
-            bgcolor: 'background.default',
+            bgcolor: "background.default",
             height: HEADER.H_DASHBOARD_DESKTOP_OFFSET,
             borderBottom: `dashed 1px ${theme.palette.divider}`,
           }),

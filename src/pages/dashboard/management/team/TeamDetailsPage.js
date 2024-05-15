@@ -50,8 +50,8 @@ import UserInviteDialoge from "../../../../sections/@dashboard/team/teamMembervi
 import { useAuthContext } from "../../../../auth/useAuthContext";
 import {
   appwriteFunctions,
-  databases,
-  teams,
+  appwriteDatabases,
+  appwriteTeams,
 } from "../../../../auth/AppwriteContext";
 import { Query } from "appwrite";
 import { APPWRITE_API } from "../../../../config-global";
@@ -88,10 +88,10 @@ export default function TeamDetailsPage() {
     setUpdate(true);
     try {
       // Get Team Data
-      const membershipData = await teams.listMemberships(teamId, [
+      const membershipData = await appwriteTeams.listMemberships(teamId, [
         Query.limit(100),
       ]);
-      const tempTeam = await teams.get(teamId);
+      const tempTeam = await appwriteTeams.get(teamId);
       setTeam(tempTeam);
       // Get Team members data
       var f_data = [];
@@ -106,7 +106,7 @@ export default function TeamDetailsPage() {
         }
         var tempRowUser = null;
         try {
-          tempRowUser = await databases.getDocument(
+          tempRowUser = await appwriteDatabases.getDocument(
             APPWRITE_API.databaseId,
             APPWRITE_API.collections.adminUsers,
             membershipData.memberships[i]?.userId

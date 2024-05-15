@@ -41,7 +41,6 @@ import { useSnackbar } from "../../../../components/snackbar";
 // locales
 import { useLocales } from "../../../../locales";
 // auth
-import { Team } from "../../../../auth/Team";
 import { useAuthContext } from "../../../../auth/useAuthContext";
 import {
   useTable,
@@ -53,8 +52,8 @@ import {
 } from "../../../../components/table";
 import Scrollbar from "../../../../components/scrollbar";
 import TeamTableRow from "../../../../sections/@dashboard/team/list/TeamTableRow";
-import { teams } from "../../../../auth/AppwriteContext";
-import { ID } from "appwrite";
+import { appwriteTeams } from "../../../../auth/AppwriteContext";
+import { ID, Query } from "appwrite";
 
 // ----------------------------------------------------------------------
 
@@ -94,7 +93,7 @@ export default function TeamListPage() {
     setUpdate(true);
     try {
       // Get My Team Data
-      const team = await Team.getMyTeamData();
+      const team = await appwriteTeams.list([Query.limit(100)]);
       setMyTeam(team.teams);
       setCreateTeam(userProfile.createTeam);
     } catch (error) {
@@ -211,7 +210,7 @@ export default function TeamListPage() {
             const formJson = Object.fromEntries(formData.entries());
             const newTeamName = formJson.newTeamName;
             try {
-              await teams.create(ID.unique(), newTeamName);
+              await appwriteTeams.create(ID.unique(), newTeamName);
               enqueueSnackbar("Team Created Successfully");
               fetchData();
               setCreateTeamOpen(false);

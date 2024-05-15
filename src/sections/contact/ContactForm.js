@@ -1,27 +1,27 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import { useState } from 'react';
-import { m } from 'framer-motion';
+import { useState } from "react";
+import { m } from "framer-motion";
 // @mui
-import { Typography, TextField, Stack, Alert, AlertTitle } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+import { Typography, TextField, Stack, Alert, AlertTitle } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 // components
-import { MotionViewport, varFade } from '../../components/animate';
+import { MotionViewport, varFade } from "../../components/animate";
 // Appwrite
-import { APPWRITE_API } from '../../config-global';
-import { Client, Functions } from 'appwrite';
+import { APPWRITE_API } from "../../config-global";
+import { Client, Functions } from "appwrite";
 
 // ----------------------------------------------------------------------
 
@@ -39,16 +39,21 @@ export default function ContactForm({ title }) {
   const [subject, setSubject] = useState();
   const [message, setMessage] = useState();
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState({ active: false, type: 'error', message: "Message" })
+  const [result, setResult] = useState({
+    active: false,
+    type: "error",
+    message: "Message",
+  });
 
   const submitData = async () => {
     setIsLoading(true);
-    var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    var validRegex =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
     if (!email.match(validRegex)) {
       setResult({
         active: true,
-        type: 'error',
-        message: "Invalid Email. Please type correct email ID."
+        type: "error",
+        message: "Invalid Email. Please type correct email ID.",
       });
       setIsLoading(false);
       return true;
@@ -56,39 +61,35 @@ export default function ContactForm({ title }) {
     try {
       await functions.createExecution(
         APPWRITE_API.functions.contactInstitute,
-        JSON.stringify(
-          {
-            name: name,
-            email: email,
-            subject: subject,
-            message: message,
-          }
-        ),
-        true,
-      )
+        JSON.stringify({
+          name: name,
+          email: email,
+          subject: subject,
+          message: message,
+        }),
+        true
+      );
       setIsLoading(false);
       setResult({
         active: true,
-        type: 'success',
-        message: "We have received your message. We will soon contact you."
+        type: "success",
+        message: "We have received your message. We will soon contact you.",
       });
     } catch (error) {
       console.log(error);
       setIsLoading(false);
       setResult({
         active: true,
-        type: 'error',
-        message: error
+        type: "error",
+        message: error,
       });
     }
-  }
+  };
 
   return (
     <Stack component={MotionViewport} spacing={5}>
       <m.div variants={varFade().inUp}>
-        <Typography variant="h3">
-          {title}
-        </Typography>
+        <Typography variant="h3">{title}</Typography>
       </m.div>
 
       <Stack spacing={3}>
@@ -100,10 +101,11 @@ export default function ContactForm({ title }) {
               setName(event.target.value);
               setResult({
                 active: false,
-                type: 'error',
-                message: "Message"
-              })
-            }} />
+                type: "error",
+                message: "Message",
+              });
+            }}
+          />
         </m.div>
 
         <m.div variants={varFade().inUp}>
@@ -114,10 +116,11 @@ export default function ContactForm({ title }) {
               setEmail(event.target.value);
               setResult({
                 active: false,
-                type: 'error',
-                message: "Message"
-              })
-            }} />
+                type: "error",
+                message: "Message",
+              });
+            }}
+          />
         </m.div>
 
         <m.div variants={varFade().inUp}>
@@ -128,10 +131,11 @@ export default function ContactForm({ title }) {
               setSubject(event.target.value);
               setResult({
                 active: false,
-                type: 'error',
-                message: "Message"
-              })
-            }} />
+                type: "error",
+                message: "Message",
+              });
+            }}
+          />
         </m.div>
 
         <m.div variants={varFade().inUp}>
@@ -144,31 +148,41 @@ export default function ContactForm({ title }) {
               setMessage(event.target.value);
               setResult({
                 active: false,
-                type: 'error',
-                message: "Message"
-              })
-            }} />
+                type: "error",
+                message: "Message",
+              });
+            }}
+          />
         </m.div>
 
-        { result?.active &&
-            <Alert
-              key={result.message}
-              severity={result?.type}
-              onClose={() => {
-                setResult({
-                  active: false,
-                  type: 'error',
-                  message: "Message"
-                })
-              }}>
-              <AlertTitle  sx={{ textTransform: 'capitalize' }}> {result?.type} </AlertTitle>
-              <strong>{result?.message}</strong>
-            </Alert>
-        }
+        {result?.active && (
+          <Alert
+            key={result.message}
+            severity={result?.type}
+            onClose={() => {
+              setResult({
+                active: false,
+                type: "error",
+                message: "Message",
+              });
+            }}
+          >
+            <AlertTitle sx={{ textTransform: "capitalize" }}>
+              {" "}
+              {result?.type}{" "}
+            </AlertTitle>
+            <strong>{result?.message}</strong>
+          </Alert>
+        )}
       </Stack>
 
       <m.div variants={varFade().inUp}>
-        <LoadingButton size="large" variant="contained" onClick={submitData} loading={isLoading}>
+        <LoadingButton
+          size="large"
+          variant="contained"
+          onClick={submitData}
+          loading={isLoading}
+        >
           Submit Now
         </LoadingButton>
       </m.div>

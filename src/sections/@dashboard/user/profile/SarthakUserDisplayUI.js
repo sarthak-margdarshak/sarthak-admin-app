@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
-import { User } from "../../../../auth/User";
 import { CustomAvatar } from "../../../../components/custom-avatar";
 import { Link, Skeleton, Stack, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import {
+  appwriteDatabases,
+  appwriteStorage,
+} from "../../../../auth/AppwriteContext";
+import { APPWRITE_API } from "../../../../config-global";
 
 export default function SarthakUserDisplayUI({ userId }) {
   const [user, setUser] = useState();
@@ -14,10 +18,21 @@ export default function SarthakUserDisplayUI({ userId }) {
     const fetchData = async () => {
       try {
         if (userId && userId !== "") {
-          const data = await User.getProfileData(userId);
+          const data = await appwriteDatabases.getDocument(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.adminUsers,
+            userId
+          );
           setUser(data);
           if (data?.photoUrl && data?.photoUrl !== "") {
-            const tempSrc = await User.getImageProfileLink(data?.photoUrl);
+            const tempSrc = appwriteStorage.getFilePreview(
+              APPWRITE_API.buckets.adminUserImage,
+              data?.photoUrl,
+              undefined,
+              undefined,
+              undefined,
+              20
+            ).href;
             setSrc(tempSrc);
           }
         }

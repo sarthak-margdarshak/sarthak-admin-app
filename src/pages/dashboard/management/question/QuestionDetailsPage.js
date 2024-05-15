@@ -1,22 +1,22 @@
-import { Link as RouterLink } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import { Link as RouterLink } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 // @mui
-import { Button, Container } from '@mui/material';
+import { Button, Container } from "@mui/material";
 // routes
-import { PATH_DASHBOARD } from '../../../../routes/paths';
+import { PATH_DASHBOARD } from "../../../../routes/paths";
 // components
-import { useSettingsContext } from '../../../../components/settings';
-import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
+import { useSettingsContext } from "../../../../components/settings";
+import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs";
 // sections
-import QuestionDetails from '../../../../sections/@dashboard/question/edit/QuestionDetails';
-import Iconify from '../../../../components/iconify/Iconify';
+import QuestionDetails from "../../../../sections/@dashboard/question/edit/QuestionDetails";
+import Iconify from "../../../../components/iconify/Iconify";
 
 // ----------------------------------------------------------------------
 
 export default function QuestionDetailsPage() {
   const { themeStretch } = useSettingsContext();
 
-  const questionId = window.location.pathname.split('/')[3];
+  const questionId = window.location.pathname.split("/")[3];
 
   return (
     <>
@@ -24,16 +24,16 @@ export default function QuestionDetailsPage() {
         <title>Question: View | Sarthak Admin</title>
       </Helmet>
 
-      <Container maxWidth={themeStretch ? false : 'lg'}>
+      <Container maxWidth={themeStretch ? false : "lg"}>
         <CustomBreadcrumbs
           heading="View Question"
           links={[
             {
-              name: 'Dashboard',
+              name: "Dashboard",
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Question',
+              name: "Question",
               href: PATH_DASHBOARD.question.list,
             },
             {
@@ -53,7 +53,6 @@ export default function QuestionDetailsPage() {
         />
 
         <QuestionDetails inComingQuestionId={questionId} />
-
       </Container>
     </>
   );

@@ -21,7 +21,6 @@ import { PATH_DASHBOARD } from "../../../../routes/paths";
 // auth
 import { useAuthContext } from "../../../../auth/useAuthContext";
 import { Question } from "../../../../auth/Question";
-import { Team } from "../../../../auth/Team";
 // components
 import Iconify from "../../../../components/iconify";
 import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs";
@@ -34,7 +33,12 @@ import {
 // locales
 import { useLocales } from "../../../../locales";
 import { APPWRITE_API } from "../../../../config-global";
-import { databases, storage } from "../../../../auth/AppwriteContext";
+import {
+  appwriteDatabases,
+  appwriteStorage,
+  appwriteTeams,
+} from "../../../../auth/AppwriteContext";
+import { Query } from "appwrite";
 
 // ----------------------------------------------------------------------
 
@@ -59,16 +63,16 @@ export default function UserProfilePage() {
       setUserProfile(null);
       var data = await Question.getQuestionList({ createdBy: userId }, 1, 1);
       setQuestionCount(data?.total);
-      data = await Team.getMyTeamData(userId);
+      data = await appwriteTeams.list([Query.limit(100)]);
       setTeamCount(data?.total);
-      data = await databases.getDocument(
+      data = await appwriteDatabases.getDocument(
         APPWRITE_API.databaseId,
         APPWRITE_API.collections.adminUsers,
         userId
       );
       if (data.photoUrl) {
         setProfileImage(
-          storage.getFilePreview(
+          appwriteStorage.getFilePreview(
             APPWRITE_API.buckets.adminUserImage,
             data.photoUrl,
             undefined,

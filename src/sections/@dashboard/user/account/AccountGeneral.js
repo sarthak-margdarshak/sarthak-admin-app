@@ -160,7 +160,7 @@ export default function AccountGeneral() {
           <Card sx={{ py: 10, px: 3, textAlign: "center" }}>
             <RHFUploadAvatar
               name="photoURL"
-              maxSize={3145728}
+              maxSize={10485760}
               onDrop={handleDrop}
               helperText={
                 <Typography

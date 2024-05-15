@@ -1,42 +1,37 @@
 // appwrite
-import { Client, Databases, ID, Permission, Query, Role, Storage } from "appwrite";
-import { APPWRITE_API } from '../config-global';
-import { Team } from "./Team";
-
-// CLIENT INITIALIZATION ------------------------------------------------
-const client = new Client()
-  .setEndpoint(APPWRITE_API.backendUrl)
-  .setProject(APPWRITE_API.projectId);
-
-const storage = new Storage(client);
-const databases = new Databases(client);
+import { ID, Permission, Query, Role } from "appwrite";
+import { APPWRITE_API } from "../config-global";
+import { AppwriteHelper } from "./AppwriteHelper";
+import {
+  appwriteAccount,
+  appwriteDatabases,
+  appwriteStorage,
+} from "./AppwriteContext";
 
 // QUESTION FUNCTIONS ---------------------------------------------------
 
 export class Question {
-
   /**
- * Function to get List of  Standards
- * @returns List of standards
- */
+   * Function to get List of  Standards sorted by -> $createdAt, name, createdBy===currentUser
+   * @returns List of standards
+   */
   static async getStandardList(name) {
-    if (!name || name === '') {
-      return (await databases.listDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.standards,
-        [
-          Query.limit(100)
-        ]
-      )).documents;
+    var queries = [
+      Query.limit(100),
+      Query.orderDesc("$createdAt"),
+      Query.orderAsc("name"),
+    ];
+    if (!name || name === "") {
+    } else {
+      queries.push(Query.search("name", name));
     }
-    return (await databases.listDocuments(
+    const x = await AppwriteHelper.listAllDocuments(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.standards,
-      [
-        Query.search("name", name),
-        Query.limit(100)
-      ]
-    )).documents;
+      APPWRITE_API.collections.standards,
+      queries
+    );
+
+    return x.map((val) => val?.name);
   }
 
   /**
@@ -44,38 +39,36 @@ export class Question {
    * @returns List of Subjects
    */
   static async getSubjectList(name, standardId) {
-    var standardList = [];
-    if (standardId) {
-      try {
-        standardList = (await databases.getDocument(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.databases.standards,
-          standardId
-        )).subjectIds;
-      } catch (error) { }
-    }
-
-    var ans = [];
-    if (!name || name === '') {
-      ans = (await databases.listDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.subjects,
-        [
-          Query.limit(100)
-        ]
-      )).documents;
+    var queries = [
+      Query.limit(100),
+      Query.orderDesc("$createdAt"),
+      Query.orderAsc("name"),
+    ];
+    if (!name || name === "") {
     } else {
-      ans = (await databases.listDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.subjects,
-        [
-          Query.search("name", name),
-          Query.limit(100)
-        ]
-      )).documents;
+      queries.push(Query.search("name", name));
     }
-    ans.sort((a, b) => standardList.includes(a.$id) ? -1 : 1);
-    return ans;
+    const x = await AppwriteHelper.listAllDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.subjects,
+      queries
+    );
+
+    var subjectQueries = [Query.select(["subjectId"])];
+    if (standardId === undefined || standardId === null || standardId === "") {
+    } else {
+      subjectQueries.push(Query.equal("standardId", standardId));
+    }
+    const subjectList = (
+      await AppwriteHelper.listAllDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        subjectQueries
+      )
+    ).map((val) => val.subjectId);
+    const subjectSet = new Set(subjectList);
+    var ans = x.sort((a, b) => (subjectSet.has(a.$id) ? -1 : 1));
+    return ans.map((val) => val.name);
   }
 
   /**
@@ -83,52 +76,40 @@ export class Question {
    * @returns List of Chapters
    */
   static async getChapterList(name, standardId, subjectId) {
-    // Get standardList
-    var standardList = [];
-    if (standardId) {
-      try {
-        standardList = (await databases.getDocument(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.databases.standards,
-          standardId
-        )).subjectIds;
-      } catch (error) { }
-    }
-
-    // Get Subject List
-    var subjectList = [];
-    if (subjectId) {
-      try {
-        subjectList = (await databases.getDocument(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.databases.subjects,
-          subjectId
-        )).chapterIds;
-      } catch (error) { }
-    }
-    subjectList.sort((a, b) => standardList.includes(a.$id) ? -1 : 1);
-
-    var ans = [];
-    if (!name || name === '') {
-      ans = (await databases.listDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.chapters,
-        [
-          Query.limit(100)
-        ]
-      )).documents;
+    var queries = [
+      Query.limit(100),
+      Query.orderDesc("$createdAt"),
+      Query.orderAsc("name"),
+    ];
+    if (!name || name === "") {
     } else {
-      ans = (await databases.listDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.chapters,
-        [
-          Query.search("name", name),
-          Query.limit(100)
-        ]
-      )).documents;
+      queries.push(Query.search("name", name));
     }
-    ans.sort((a, b) => subjectList.includes(a.$id) ? -1 : 1);
-    return ans;
+    const x = await AppwriteHelper.listAllDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.chapters,
+      queries
+    );
+
+    var chapterQueries = [Query.select(["chapterId"])];
+    if (standardId === undefined || standardId === null || standardId === "") {
+    } else {
+      chapterQueries.push(Query.equal("standardId", standardId));
+    }
+    if (subjectId === undefined || subjectId === null || subjectId === "") {
+    } else {
+      chapterQueries.push(Query.equal("subjectId", subjectId));
+    }
+    const chapterList = (
+      await AppwriteHelper.listAllDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        chapterQueries
+      )
+    ).map((val) => val.chapterId);
+    const chapterSet = new Set(chapterList);
+    var ans = x.sort((a, b) => (chapterSet.has(a.$id) ? -1 : 1));
+    return ans.map((val) => val.name);
   }
 
   /**
@@ -136,65 +117,44 @@ export class Question {
    * @returns List of Concepts
    */
   static async getConceptList(name, standardId, subjectId, chapterId) {
-    // Get standardList
-    var standardList = [];
-    if (standardId) {
-      try {
-        standardList = (await databases.getDocument(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.databases.standards,
-          standardId
-        )).subjectIds;
-      } catch (error) { }
-    }
-
-    // Get Subject List
-    var subjectList = [];
-    if (subjectId) {
-      try {
-        subjectList = (await databases.getDocument(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.databases.subjects,
-          subjectId
-        )).chapterIds;
-      } catch (error) { }
-    }
-    subjectList.sort((a, b) => standardList.includes(a.$id) ? -1 : 1);
-
-    // Get Chapter List
-    var chapterList = [];
-    if (chapterId) {
-      try {
-        chapterList = (await databases.getDocument(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.databases.chapters,
-          chapterId
-        )).conceptIds;
-      } catch (err) { }
-    }
-    chapterList.sort((a, b) => subjectList.includes(a.$id) ? -1 : 1);
-
-    var ans = [];
-    if (!name || name === '') {
-      ans = (await databases.listDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.concepts,
-        [
-          Query.limit(100)
-        ]
-      )).documents;
+    var queries = [
+      Query.limit(100),
+      Query.orderDesc("$createdAt"),
+      Query.orderAsc("name"),
+    ];
+    if (!name || name === "") {
     } else {
-      ans = (await databases.listDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.concepts,
-        [
-          Query.search("name", name),
-          Query.limit(100)
-        ]
-      )).documents;
+      queries.push(Query.search("name", name));
     }
-    ans.sort((a, b) => chapterList.includes(a.$id) ? -1 : 1);
-    return ans;
+    const x = await AppwriteHelper.listAllDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.concepts,
+      queries
+    );
+
+    var conceptQueries = [Query.select(["conceptId"])];
+    if (standardId === undefined || standardId === null || standardId === "") {
+    } else {
+      conceptQueries.push(Query.equal("standardId", standardId));
+    }
+    if (subjectId === undefined || subjectId === null || subjectId === "") {
+    } else {
+      conceptQueries.push(Query.equal("subjectId", subjectId));
+    }
+    if (chapterId === undefined || chapterId === null || chapterId === "") {
+    } else {
+      conceptQueries.push(Query.equal("chapterId", chapterId));
+    }
+    const conceptList = (
+      await AppwriteHelper.listAllDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        conceptQueries
+      )
+    ).map((val) => val.conceptId);
+    const conceptSet = new Set(conceptList);
+    var ans = x.sort((a, b) => (conceptSet.has(a.$id) ? -1 : 1));
+    return ans.map((val) => val.name);
   }
 
   /**
@@ -203,27 +163,31 @@ export class Question {
    * @returns Id of the Standard
    */
   static async getStandardId(standard) {
-    var standardId = null;
-    const tempStandardList = await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.standards,
-      [
-        Query.equal('name', [standard])
-      ]
-    );
-    if (tempStandardList.total === 0) {
-      standardId = (await databases.createDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.standards,
-        ID.unique(),
-        {
-          name: standard,
-        },
-      )).$id;
+    if (standard === undefined || standard === null || standard === "") {
+      return null;
     } else {
-      standardId = tempStandardList.documents[0].$id;
+      var standardId = null;
+      const tempStandardList = await appwriteDatabases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.standards,
+        [Query.equal("name", [standard])]
+      );
+      if (tempStandardList.total === 0) {
+        standardId = (
+          await appwriteDatabases.createDocument(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.standards,
+            ID.unique(),
+            {
+              name: standard,
+            }
+          )
+        ).$id;
+      } else {
+        standardId = tempStandardList.documents[0].$id;
+      }
+      return standardId;
     }
-    return standardId;
   }
 
   /**
@@ -232,27 +196,31 @@ export class Question {
    * @returns Id of the Subject
    */
   static async getSubjectId(subject) {
-    var subjectId = null;
-    const tempSubjectList = await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.subjects,
-      [
-        Query.equal('name', [subject])
-      ]
-    );
-    if (tempSubjectList.total === 0) {
-      subjectId = (await databases.createDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.subjects,
-        ID.unique(),
-        {
-          name: subject,
-        },
-      )).$id;
+    if (subject === undefined || subject === null || subject === "") {
+      return null;
     } else {
-      subjectId = tempSubjectList.documents[0].$id;
+      var subjectId = null;
+      const tempSubjectList = await appwriteDatabases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.subjects,
+        [Query.equal("name", [subject])]
+      );
+      if (tempSubjectList.total === 0) {
+        subjectId = (
+          await appwriteDatabases.createDocument(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.subjects,
+            ID.unique(),
+            {
+              name: subject,
+            }
+          )
+        ).$id;
+      } else {
+        subjectId = tempSubjectList.documents[0].$id;
+      }
+      return subjectId;
     }
-    return subjectId;
   }
 
   /**
@@ -261,27 +229,31 @@ export class Question {
    * @returns Id of the chapter
    */
   static async getChapterId(chapter) {
-    var chapterId = null;
-    const tempChapterList = await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.chapters,
-      [
-        Query.equal('name', [chapter])
-      ]
-    );
-    if (tempChapterList.total === 0) {
-      chapterId = (await databases.createDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.chapters,
-        ID.unique(),
-        {
-          name: chapter,
-        },
-      )).$id;
+    if (chapter === undefined || chapter === null || chapter === "") {
+      return null;
     } else {
-      chapterId = tempChapterList.documents[0].$id;
+      var chapterId = null;
+      const tempChapterList = await appwriteDatabases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.chapters,
+        [Query.equal("name", [chapter])]
+      );
+      if (tempChapterList.total === 0) {
+        chapterId = (
+          await appwriteDatabases.createDocument(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.chapters,
+            ID.unique(),
+            {
+              name: chapter,
+            }
+          )
+        ).$id;
+      } else {
+        chapterId = tempChapterList.documents[0].$id;
+      }
+      return chapterId;
     }
-    return chapterId;
   }
 
   /**
@@ -290,27 +262,31 @@ export class Question {
    * @returns Id of the concept
    */
   static async getConceptId(concept) {
-    var conceptId = null;
-    const tempConceptList = await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.concepts,
-      [
-        Query.equal('name', [concept])
-      ]
-    );
-    if (tempConceptList.total === 0) {
-      conceptId = (await databases.createDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.concepts,
-        ID.unique(),
-        {
-          name: concept,
-        },
-      )).$id;
+    if (concept === undefined || concept === null || concept === "") {
+      return null;
     } else {
-      conceptId = tempConceptList.documents[0].$id;
+      var conceptId = null;
+      const tempConceptList = await appwriteDatabases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.concepts,
+        [Query.equal("name", [concept])]
+      );
+      if (tempConceptList.total === 0) {
+        conceptId = (
+          await appwriteDatabases.createDocument(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.concepts,
+            ID.unique(),
+            {
+              name: concept,
+            }
+          )
+        ).$id;
+      } else {
+        conceptId = tempConceptList.documents[0].$id;
+      }
+      return conceptId;
     }
-    return conceptId;
   }
 
   /**
@@ -318,21 +294,23 @@ export class Question {
    * @param {string} userId - Current User
    * @returns Question Id
    */
-  static async createQuestionId(userId) {
-    return (await databases.createDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      ID.unique(),
-      {
-        status: 'Initialize',
-        createdBy: userId,
-        updatedBy: userId,
-      },
-      [
-        Permission.read(Role.user(userId)),
-        Permission.update(Role.user(userId)),
-      ]
-    )).$id;
+  static async createQuestionId(adminTeamId) {
+    console.log(Permission.read(Role.team(adminTeamId)));
+    return (
+      await appwriteDatabases.createDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        ID.unique(),
+        {
+          createdBy: (await appwriteAccount.get()).$id,
+          updatedBy: (await appwriteAccount.get()).$id,
+        },
+        [
+          Permission.read(Role.team(adminTeamId)),
+          Permission.update(Role.team(adminTeamId)),
+        ]
+      )
+    ).$id;
   }
 
   /**
@@ -345,68 +323,72 @@ export class Question {
    * @param {string} userId - Current User
    * @returns Question Object
    */
-  static async uploadMetaDataQuestion(questionId, standard, subject, chapter, concept, userId) {
+  static async uploadMetaDataQuestion(
+    questionId,
+    standard,
+    subject,
+    chapter,
+    concept,
+    adminTeamId
+  ) {
     var id = questionId;
-    if (questionId === null || questionId === '') {
-      id = await this.createQuestionId(userId);
+    if (questionId === null || questionId === "") {
+      id = await this.createQuestionId(adminTeamId);
     }
     const standardId = await this.getStandardId(standard);
     const subjectId = await this.getSubjectId(subject);
     const chapterId = await this.getChapterId(chapter);
     const conceptId = await this.getConceptId(concept);
 
-    return await databases.updateDocument(
+    return await appwriteDatabases.updateDocument(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
+      APPWRITE_API.collections.questions,
       id,
       {
         standardId: standardId,
         subjectId: subjectId,
         chapterId: chapterId,
         conceptId: conceptId,
-        updatedBy: userId,
+        updatedBy: (await appwriteAccount.get()).$id,
       }
-    )
+    );
   }
 
   /**
    * Function to get Id of question cover
    * @param {string} questionId - Id of question
    * @param {file} coverQuestionFile - question cover file
-   * @param {string} userId - Current User
    * @returns Id of uploaded question cover
    */
-  static async uploadQuestionCover(questionId, coverQuestionFile, userId) {
-    var coverId = '';
-    if (typeof (coverQuestionFile) !== 'string' && coverQuestionFile) {
-      coverId = (await storage.createFile(
-        APPWRITE_API.buckets.questionFiles,
-        ID.unique(),
-        coverQuestionFile,
-        [
-          Permission.read(Role.any()),
-          Permission.read(Role.user(userId)),
-          Permission.update(Role.user(userId)),
-          Permission.delete(Role.user(userId)),
-        ]
-      )).$id;
+  static async uploadQuestionCover(questionId, coverQuestionFile) {
+    var coverId = "";
+    if (typeof coverQuestionFile !== "string" && coverQuestionFile) {
+      coverId = (
+        await appwriteStorage.createFile(
+          APPWRITE_API.buckets.questionFiles,
+          ID.unique(),
+          coverQuestionFile
+        )
+      ).$id;
     }
 
-    const currentCoverQuestionFile = (await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      [
-        Query.select(['coverQuestion'])
-      ]
-    ))?.coverQuestion;
+    const currentCoverQuestionFile = (
+      await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        questionId,
+        [Query.select(["coverQuestion"])]
+      )
+    )?.coverQuestion;
 
-    if (typeof (coverQuestionFile) !== 'string') {
-      if (!(currentCoverQuestionFile === null || currentCoverQuestionFile === '')) {
-        await storage.deleteFile(
+    if (typeof coverQuestionFile !== "string") {
+      if (
+        !(currentCoverQuestionFile === null || currentCoverQuestionFile === "")
+      ) {
+        await appwriteStorage.deleteFile(
           APPWRITE_API.buckets.questionFiles,
-          currentCoverQuestionFile,
-        )
+          currentCoverQuestionFile
+        );
       }
     } else {
       coverId = currentCoverQuestionFile;
@@ -420,67 +402,61 @@ export class Question {
    * @param {string} questionId - Id of question
    * @param {string} question - content of Question
    * @param {file} coverQuestionFile - File of Question cover
-   * @param {string} userId - Current user
    * @returns - Question Object
    */
-  static async uploadQuestionContent(questionId, question, coverQuestionFile, userId) {
-    var id = questionId;
-    if (questionId === null || questionId === '') {
-      id = await this.createQuestionId(userId);
-    }
+  static async uploadQuestionContent(questionId, question, coverQuestionFile) {
+    const coverQuestionId = await this.uploadQuestionCover(
+      questionId,
+      coverQuestionFile
+    );
 
-    const coverQuestionId = await this.uploadQuestionCover(id, coverQuestionFile, userId);
-
-    return await databases.updateDocument(
+    return await appwriteDatabases.updateDocument(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      id,
+      APPWRITE_API.collections.questions,
+      questionId,
       {
         contentQuestion: question,
         coverQuestion: coverQuestionId,
-        updatedBy: userId,
+        updatedBy: (await appwriteAccount.get()).$id,
       }
-    )
+    );
   }
 
   /**
    * Function to get Id of option A cover
    * @param {string} questionId - Id of question
    * @param {file} coverOptionAFile - Option A cover file
-   * @param {string} userId - Current User
    * @returns Id of uploaded Option A cover
    */
-  static async uploadOptionACover(questionId, coverOptionAFile, userId) {
-    var coverId = '';
-    if (typeof (coverOptionAFile) !== 'string' && coverOptionAFile) {
-      coverId = (await storage.createFile(
-        APPWRITE_API.buckets.questionFiles,
-        ID.unique(),
-        coverOptionAFile,
-        [
-          Permission.read(Role.any()),
-          Permission.read(Role.user(userId)),
-          Permission.update(Role.user(userId)),
-          Permission.delete(Role.user(userId)),
-        ]
-      )).$id;
+  static async uploadOptionACover(questionId, coverOptionAFile) {
+    var coverId = "";
+    if (typeof coverOptionAFile !== "string" && coverOptionAFile) {
+      coverId = (
+        await appwriteStorage.createFile(
+          APPWRITE_API.buckets.questionFiles,
+          ID.unique(),
+          coverOptionAFile
+        )
+      ).$id;
     }
 
-    const currentCoverOptionAFile = (await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      [
-        Query.select(['coverOptionA'])
-      ]
-    ))?.coverOptionA;
+    const currentCoverOptionAFile = (
+      await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        questionId,
+        [Query.select(["coverOptionA"])]
+      )
+    )?.coverOptionA;
 
-    if (typeof (coverOptionAFile) !== 'string') {
-      if (!(currentCoverOptionAFile === null || currentCoverOptionAFile === '')) {
-        await storage.deleteFile(
+    if (typeof coverOptionAFile !== "string") {
+      if (
+        !(currentCoverOptionAFile === null || currentCoverOptionAFile === "")
+      ) {
+        await appwriteStorage.deleteFile(
           APPWRITE_API.buckets.questionFiles,
-          currentCoverOptionAFile,
-        )
+          currentCoverOptionAFile
+        );
       }
     } else {
       coverId = currentCoverOptionAFile;
@@ -494,66 +470,60 @@ export class Question {
    * @param {string} questionId - Id of question
    * @param {string} optionA - content of option A
    * @param {file} coverOptionAFile - File of Option A cover
-   * @param {string} userId - Current user
    * @returns - Question Object
    */
-  static async uploadOptionAContent(questionId, optionA, coverOptionAFile, userId) {
-    var id = questionId;
-    if (questionId === null || questionId === '') {
-      id = await this.createQuestionId(userId);
-    }
+  static async uploadOptionAContent(questionId, optionA, coverOptionAFile) {
+    const coverOptionAId = await this.uploadOptionACover(
+      questionId,
+      coverOptionAFile
+    );
 
-    const coverOptionAId = await this.uploadOptionACover(id, coverOptionAFile, userId);
-
-    return await databases.updateDocument(
+    return await appwriteDatabases.updateDocument(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      id,
+      APPWRITE_API.collections.questions,
+      questionId,
       {
         contentOptionA: optionA,
         coverOptionA: coverOptionAId,
-        updatedBy: userId,
+        updatedBy: (await appwriteAccount.get()).$id,
       }
-    )
+    );
   }
 
   /**
    * Function to get Id of option B cover
    * @param {string} questionId - Id of question
    * @param {file} coverOptionBFile - Option B cover file
-   * @param {string} userId - Current User
    * @returns Id of uploaded Option B cover
    */
-  static async uploadOptionBCover(questionId, coverOptionBFile, userId) {
-    var coverId = '';
-    if (typeof (coverOptionBFile) !== 'string' && coverOptionBFile) {
-      coverId = (await storage.createFile(
-        APPWRITE_API.buckets.questionFiles,
-        ID.unique(),
-        coverOptionBFile,
-        [
-          Permission.read(Role.any()),
-          Permission.read(Role.user(userId)),
-          Permission.update(Role.user(userId)),
-          Permission.delete(Role.user(userId)),
-        ]
-      )).$id;
-    }
-    const currentCoverOptionBFile = (await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      [
-        Query.select(['coverOptionB'])
-      ]
-    ))?.coverOptionB;
-
-    if (typeof (coverOptionBFile) !== 'string') {
-      if (!(currentCoverOptionBFile === null || currentCoverOptionBFile === '')) {
-        await storage.deleteFile(
+  static async uploadOptionBCover(questionId, coverOptionBFile) {
+    var coverId = "";
+    if (typeof coverOptionBFile !== "string" && coverOptionBFile) {
+      coverId = (
+        await appwriteStorage.createFile(
           APPWRITE_API.buckets.questionFiles,
-          currentCoverOptionBFile,
+          ID.unique(),
+          coverOptionBFile
         )
+      ).$id;
+    }
+    const currentCoverOptionBFile = (
+      await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        questionId,
+        [Query.select(["coverOptionB"])]
+      )
+    )?.coverOptionB;
+
+    if (typeof coverOptionBFile !== "string") {
+      if (
+        !(currentCoverOptionBFile === null || currentCoverOptionBFile === "")
+      ) {
+        await appwriteStorage.deleteFile(
+          APPWRITE_API.buckets.questionFiles,
+          currentCoverOptionBFile
+        );
       }
     } else {
       coverId = currentCoverOptionBFile;
@@ -567,66 +537,59 @@ export class Question {
    * @param {string} questionId - Id of question
    * @param {string} optionB - content of option B
    * @param {file} coverOptionBFile - File of Option B cover
-   * @param {string} userId - Current user
    * @returns - Question Object
    */
-  static async uploadOptionBContent(questionId, optionB, coverOptionBFile, userId) {
-    var id = questionId;
-    if (questionId === null || questionId === '') {
-      id = await this.createQuestionId(userId);
-    }
-
-    const coverOptionBId = await this.uploadOptionBCover(id, coverOptionBFile, userId);
-
-    return await databases.updateDocument(
+  static async uploadOptionBContent(questionId, optionB, coverOptionBFile) {
+    const coverOptionBId = await this.uploadOptionBCover(
+      questionId,
+      coverOptionBFile
+    );
+    return await appwriteDatabases.updateDocument(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      id,
+      APPWRITE_API.collections.questions,
+      questionId,
       {
         contentOptionB: optionB,
         coverOptionB: coverOptionBId,
-        updatedBy: userId,
+        updatedBy: (await appwriteAccount.get()).$id,
       }
-    )
+    );
   }
 
   /**
    * Function to get Id of option C cover
    * @param {string} questionId - Id of question
    * @param {file} coverOptionCFile - Option C cover file
-   * @param {string} userId - Current User
    * @returns Id of uploaded Option C cover
    */
-  static async uploadOptionCCover(questionId, coverOptionCFile, userId) {
-    var coverId = '';
-    if (typeof (coverOptionCFile) !== 'string' && coverOptionCFile) {
-      coverId = (await storage.createFile(
-        APPWRITE_API.buckets.questionFiles,
-        ID.unique(),
-        coverOptionCFile,
-        [
-          Permission.read(Role.any()),
-          Permission.read(Role.user(userId)),
-          Permission.update(Role.user(userId)),
-          Permission.delete(Role.user(userId)),
-        ]
-      )).$id;
-    }
-    const currentCoverOptionCFile = (await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      [
-        Query.select(['coverOptionC'])
-      ]
-    ))?.coverOptionC;
-
-    if (typeof (coverOptionCFile) !== 'string') {
-      if (!(currentCoverOptionCFile === null || currentCoverOptionCFile === '')) {
-        await storage.deleteFile(
+  static async uploadOptionCCover(questionId, coverOptionCFile) {
+    var coverId = "";
+    if (typeof coverOptionCFile !== "string" && coverOptionCFile) {
+      coverId = (
+        await appwriteStorage.createFile(
           APPWRITE_API.buckets.questionFiles,
-          currentCoverOptionCFile,
+          ID.unique(),
+          coverOptionCFile
         )
+      ).$id;
+    }
+    const currentCoverOptionCFile = (
+      await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        questionId,
+        [Query.select(["coverOptionC"])]
+      )
+    )?.coverOptionC;
+
+    if (typeof coverOptionCFile !== "string") {
+      if (
+        !(currentCoverOptionCFile === null || currentCoverOptionCFile === "")
+      ) {
+        await appwriteStorage.deleteFile(
+          APPWRITE_API.buckets.questionFiles,
+          currentCoverOptionCFile
+        );
       }
     } else {
       coverId = currentCoverOptionCFile;
@@ -640,66 +603,60 @@ export class Question {
    * @param {string} questionId - Id of question
    * @param {string} optionC - content of option C
    * @param {file} coverOptionCFile - File of Option C cover
-   * @param {string} userId - Current user
    * @returns - Question Object
    */
-  static async uploadOptionCContent(questionId, optionC, coverOptionCFile, userId) {
-    var id = questionId;
-    if (questionId === null || questionId === '') {
-      id = await this.createQuestionId(userId);
-    }
+  static async uploadOptionCContent(questionId, optionC, coverOptionCFile) {
+    const coverOptionCId = await this.uploadOptionCCover(
+      questionId,
+      coverOptionCFile
+    );
 
-    const coverOptionCId = await this.uploadOptionCCover(id, coverOptionCFile, userId);
-
-    return await databases.updateDocument(
+    return await appwriteDatabases.updateDocument(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      id,
+      APPWRITE_API.collections.questions,
+      questionId,
       {
         contentOptionC: optionC,
         coverOptionC: coverOptionCId,
-        updatedBy: userId,
+        updatedBy: (await appwriteAccount.get()).$id,
       }
-    )
+    );
   }
 
   /**
    * Function to get Id of option D cover
    * @param {string} questionId - Id of question
    * @param {file} coverOptionDFile - Option D cover file
-   * @param {string} userId - Current User
    * @returns Id of uploaded Option D cover
    */
-  static async uploadOptionDCover(questionId, coverOptionDFile, userId) {
-    var coverId = '';
-    if (typeof (coverOptionDFile) !== 'string' && coverOptionDFile) {
-      coverId = (await storage.createFile(
-        APPWRITE_API.buckets.questionFiles,
-        ID.unique(),
-        coverOptionDFile,
-        [
-          Permission.read(Role.any()),
-          Permission.read(Role.user(userId)),
-          Permission.update(Role.user(userId)),
-          Permission.delete(Role.user(userId)),
-        ]
-      )).$id;
-    }
-    const currentCoverOptionDFile = (await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      [
-        Query.select(['coverOptionD'])
-      ]
-    ))?.coverOptionD;
-
-    if (typeof (coverOptionDFile) !== 'string') {
-      if (!(currentCoverOptionDFile === null || currentCoverOptionDFile === '')) {
-        await storage.deleteFile(
+  static async uploadOptionDCover(questionId, coverOptionDFile) {
+    var coverId = "";
+    if (typeof coverOptionDFile !== "string" && coverOptionDFile) {
+      coverId = (
+        await appwriteStorage.createFile(
           APPWRITE_API.buckets.questionFiles,
-          currentCoverOptionDFile,
+          ID.unique(),
+          coverOptionDFile
         )
+      ).$id;
+    }
+    const currentCoverOptionDFile = (
+      await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        questionId,
+        [Query.select(["coverOptionD"])]
+      )
+    )?.coverOptionD;
+
+    if (typeof coverOptionDFile !== "string") {
+      if (
+        !(currentCoverOptionDFile === null || currentCoverOptionDFile === "")
+      ) {
+        await appwriteStorage.deleteFile(
+          APPWRITE_API.buckets.questionFiles,
+          currentCoverOptionDFile
+        );
       }
     } else {
       coverId = currentCoverOptionDFile;
@@ -713,67 +670,59 @@ export class Question {
    * @param {string} questionId - Id of question
    * @param {string} optionD - content of option D
    * @param {file} coverOptionDFile - File of Option D cover
-   * @param {string} userId - Current user
    * @returns - Question Object
    */
-  static async uploadOptionDContent(questionId, optionD, coverOptionDFile, userId) {
-    var id = questionId;
-    if (questionId === null || questionId === '') {
-      id = await this.createQuestionId(userId);
-    }
+  static async uploadOptionDContent(questionId, optionD, coverOptionDFile) {
+    const coverOptionDId = await this.uploadOptionDCover(
+      questionId,
+      coverOptionDFile
+    );
 
-    const coverOptionDId = await this.uploadOptionDCover(id, coverOptionDFile, userId);
-
-    return await databases.updateDocument(
+    return await appwriteDatabases.updateDocument(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      id,
+      APPWRITE_API.collections.questions,
+      questionId,
       {
         contentOptionD: optionD,
         coverOptionD: coverOptionDId,
-        updatedBy: userId,
+        updatedBy: (await appwriteAccount.get()).$id,
       }
-    )
+    );
   }
 
   /**
    * Function to get Id of option D cover
    * @param {string} questionId - Id of question
    * @param {file} coverAnswerFile - Answer cover file
-   * @param {string} userId - Current User
    * @returns Id of uploaded Option D cover
    */
-  static async uploadAnswerCover(questionId, coverAnswerFile, userId) {
-    var coverId = '';
-    if (typeof (coverAnswerFile) !== 'string' && coverAnswerFile) {
-      coverId = (await storage.createFile(
-        APPWRITE_API.buckets.questionFiles,
-        ID.unique(),
-        coverAnswerFile,
-        [
-          Permission.read(Role.any()),
-          Permission.read(Role.user(userId)),
-          Permission.update(Role.user(userId)),
-          Permission.delete(Role.user(userId)),
-        ]
-      )).$id;
+  static async uploadAnswerCover(questionId, coverAnswerFile) {
+    var coverId = "";
+    if (typeof coverAnswerFile !== "string" && coverAnswerFile) {
+      coverId = (
+        await appwriteStorage.createFile(
+          APPWRITE_API.buckets.questionFiles,
+          ID.unique(),
+          coverAnswerFile
+        )
+      ).$id;
     }
 
-    const currentCoverAnswerFile = (await databases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      [
-        Query.select(['coverAnswer'])
-      ]
-    ))?.coverAnswer;
+    const currentCoverAnswerFile = (
+      await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        questionId,
+        [Query.select(["coverAnswer"])]
+      )
+    )?.coverAnswer;
 
-    if (typeof (coverAnswerFile) !== 'string') {
-      if (!(currentCoverAnswerFile === null || currentCoverAnswerFile === '')) {
-        await storage.deleteFile(
+    if (typeof coverAnswerFile !== "string") {
+      if (!(currentCoverAnswerFile === null || currentCoverAnswerFile === "")) {
+        await appwriteStorage.deleteFile(
           APPWRITE_API.buckets.questionFiles,
-          currentCoverAnswerFile,
-        )
+          currentCoverAnswerFile
+        );
       }
     } else {
       coverId = currentCoverAnswerFile;
@@ -788,56 +737,37 @@ export class Question {
    * @param {string} answerOption - Answer Options
    * @param {string} answer - content of answer
    * @param {file} coverAnswerFile - File of Answer cover
-   * @param {string} userId - Current user
    * @returns - Question Object
    */
-  static async uploadAnswerContent(questionId, answerOption, answer, coverAnswerFile, userId) {
-    var id = questionId;
-    if (questionId === null || questionId === '') {
-      id = await this.createQuestionId(userId);
-    }
+  static async uploadAnswerContent(
+    questionId,
+    answerOption,
+    answer,
+    coverAnswerFile
+  ) {
+    const coverAnswerId = await this.uploadAnswerCover(
+      questionId,
+      coverAnswerFile
+    );
 
-    const coverAnswerId = await this.uploadAnswerCover(id, coverAnswerFile, userId);
-
-    return await databases.updateDocument(
+    return await appwriteDatabases.updateDocument(
       APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      id,
+      APPWRITE_API.collections.questions,
+      questionId,
       {
         answerOption: answerOption,
         contentAnswer: answer,
         coverAnswer: coverAnswerId,
-        updatedBy: userId,
+        updatedBy: (await appwriteAccount.get()).$id,
       }
-    )
-  }
-
-  /**
-   * Function to send for approval of a question
-   * @param {string} questionId - Id of question
-   * @param {string} userId - current user
-   * @returns Question object
-   */
-  static async sendForApproval(questionId, userId, approvingTeam) {
-    const team = await Team.getTeamData(approvingTeam);
-
-    return await databases.updateDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      {
-        status: 'SentForReview',
-        sentForReviewTo: team?.teamOwner,
-        sentForReviewAt: new Date(),
-      }
-    )
+    );
   }
 
   static async getQuestion(questionId) {
     if (questionId) {
-      return await databases.getDocument(
+      return await appwriteDatabases.getDocument(
         APPWRITE_API.databaseId,
-        APPWRITE_API.databases.questions,
+        APPWRITE_API.collections.questions,
         questionId
       );
     }
@@ -846,64 +776,72 @@ export class Question {
 
   static async getStandardName(standardId) {
     if (standardId) {
-      return (await databases.getDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.standards,
-        standardId
-      ))?.name;
+      return (
+        await appwriteDatabases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.standards,
+          standardId
+        )
+      )?.name;
     }
-    return '';
+    return "";
   }
 
   static async getSubjectName(subjectId) {
     if (subjectId) {
-      return (await databases.getDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.subjects,
-        subjectId
-      ))?.name;
+      return (
+        await appwriteDatabases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.subjects,
+          subjectId
+        )
+      )?.name;
     }
-    return '';
+    return "";
   }
 
   static async getChapterName(chapterId) {
     if (chapterId) {
-      return (await databases.getDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.chapters,
-        chapterId
-      ))?.name;
+      return (
+        await appwriteDatabases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.chapters,
+          chapterId
+        )
+      )?.name;
     }
-    return '';
+    return "";
   }
 
   static async getConceptName(conceptId) {
     if (conceptId) {
-      return (await databases.getDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.databases.concepts,
-        conceptId
-      ))?.name;
+      return (
+        await appwriteDatabases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.concepts,
+          conceptId
+        )
+      )?.name;
     }
-    return '';
+    return "";
   }
 
   static async getQuestionContent(fileId) {
     if (fileId) {
-      return storage.getFileView(
+      return appwriteStorage.getFileView(
         APPWRITE_API.buckets.questionFiles,
         fileId
-      ).href
+      ).href;
     }
     return null;
   }
 
   static async getQuestionContentForPreview(fileId) {
     if (fileId) {
-      return storage.getFileDownload(
+      return appwriteStorage.getFileDownload(
         APPWRITE_API.buckets.questionFiles,
         fileId
-      ).href
+      ).href;
     }
     return null;
   }
@@ -912,260 +850,238 @@ export class Question {
     var queries = [];
     queries.push(Query.limit(limit));
     queries.push(Query.offset(offset));
-    queries.push(Query.orderDesc("$createdAt"))
+    queries.push(Query.orderDesc("$createdAt"));
+
+    if (
+      filterParameter?.question !== undefined &&
+      filterParameter?.question &&
+      filterParameter?.question !== ""
+    ) {
+      queries.push(Query.search("contentQuestion", filterParameter?.question));
+    }
+
+    if (
+      filterParameter?.optionA !== undefined &&
+      filterParameter?.optionA &&
+      filterParameter?.optionA !== ""
+    ) {
+      queries.push(Query.search("contentOptionA", filterParameter?.content));
+    }
+
+    if (
+      filterParameter?.optionB !== undefined &&
+      filterParameter?.optionB &&
+      filterParameter?.optionB !== ""
+    ) {
+      queries.push(Query.search("contentOptionB", filterParameter?.content));
+    }
+
+    if (
+      filterParameter?.optionC !== undefined &&
+      filterParameter?.optionC &&
+      filterParameter?.optionC !== ""
+    ) {
+      queries.push(Query.search("contentOptionC", filterParameter?.content));
+    }
+
+    if (
+      filterParameter?.optionD !== undefined &&
+      filterParameter?.optionD &&
+      filterParameter?.optionD !== ""
+    ) {
+      queries.push(Query.search("contentOptionD", filterParameter?.content));
+    }
+
+    if (
+      filterParameter?.answer !== undefined &&
+      filterParameter?.answer &&
+      filterParameter?.answer !== ""
+    ) {
+      queries.push(Query.search("contentAnswer", filterParameter?.content));
+    }
 
     if (filterParameter?.standardId) {
-      queries.push(Query.equal('standardId', [filterParameter?.standardId]))
+      queries.push(Query.equal("standardId", [filterParameter?.standardId]));
     }
 
     if (filterParameter?.subjectId) {
-      queries.push(Query.equal('subjectId', [filterParameter?.subjectId]))
+      queries.push(Query.equal("subjectId", [filterParameter?.subjectId]));
     }
 
     if (filterParameter?.chapterId) {
-      queries.push(Query.equal('chapterId', [filterParameter?.chapterId]))
+      queries.push(Query.equal("chapterId", [filterParameter?.chapterId]));
     }
 
     if (filterParameter?.conceptId) {
-      queries.push(Query.equal('conceptId', [filterParameter?.conceptId]))
+      queries.push(Query.equal("conceptId", [filterParameter?.conceptId]));
     }
 
-    if (filterParameter?.status) {
-      queries.push(Query.equal('status', [filterParameter?.status]))
+    if (filterParameter?.published) {
+      queries.push(
+        Query.equal("published", [filterParameter?.published === "true"])
+      );
     }
 
     if (filterParameter?.createdBy) {
-      queries.push(Query.equal('createdBy', filterParameter?.createdBy))
+      queries.push(Query.equal("createdBy", filterParameter?.createdBy));
     }
 
     if (filterParameter?.updatedBy) {
-      queries.push(Query.equal('updatedBy', filterParameter?.updatedBy))
+      queries.push(Query.equal("updatedBy", filterParameter?.updatedBy));
     }
 
     if (filterParameter?.approvedBy) {
-      queries.push(Query.equal('approvedBy', filterParameter?.approvedBy))
-    }
-
-    if (filterParameter?.sentForReviewTo) {
-      queries.push(Query.equal('sentForReviewTo', filterParameter?.sentForReviewTo))
-    }
-
-    if (filterParameter?.reviewedBackTo) {
-      queries.push(Query.equal('reviewdBackTo', filterParameter?.reviewedBackTo))
+      queries.push(Query.equal("approvedBy", filterParameter?.approvedBy));
     }
 
     if (filterParameter?.createdAt) {
-      const dates = filterParameter?.createdAt.split('to');
-      queries.push(Query.greaterThanEqual('$createdAt', dates[0]))
-      queries.push(Query.lessThanEqual('$createdAt', dates[1]))
+      const dates = filterParameter?.createdAt.split("to");
+      queries.push(Query.greaterThanEqual("$createdAt", dates[0]));
+      queries.push(Query.lessThanEqual("$createdAt", dates[1]));
     }
 
     if (filterParameter?.updatedAt) {
-      const dates = filterParameter?.updatedAt.split('to');
-      queries.push(Query.greaterThanEqual('$updatedAt', dates[0]))
-      queries.push(Query.lessThanEqual('$updatedAt', dates[1]))
+      const dates = filterParameter?.updatedAt.split("to");
+      queries.push(Query.greaterThanEqual("$updatedAt", dates[0]));
+      queries.push(Query.lessThanEqual("$updatedAt", dates[1]));
     }
 
     if (filterParameter?.approvedAt) {
-      const dates = filterParameter?.approvedAt.split('to');
-      queries.push(Query.greaterThanEqual('approvedAt', dates[0]))
-      queries.push(Query.lessThanEqual('approvedAt', dates[1]))
+      const dates = filterParameter?.approvedAt.split("to");
+      queries.push(Query.greaterThanEqual("approvedAt", dates[0]));
+      queries.push(Query.lessThanEqual("approvedAt", dates[1]));
     }
 
-    if (filterParameter?.sentForReviewAt) {
-      const dates = filterParameter?.sentForReviewAt.split('to');
-      queries.push(Query.greaterThanEqual('sentForReviewAt', dates[0]))
-      queries.push(Query.lessThanEqual('sentForReviewAt', dates[1]))
-    }
-
-    if (filterParameter?.reviewedBackAt) {
-      const dates = filterParameter?.reviewedBackAt.split('to');
-      queries.push(Query.greaterThanEqual('reviewBackAt', dates[0]))
-      queries.push(Query.lessThanEqual('reviewBackAt', dates[1]))
-    }
-
-    const data = (await databases.listDocuments(
+    const data = await appwriteDatabases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.collections.questions,
-      queries,
-    ));
+      queries
+    );
 
     return data;
   }
 
-  static async canAction(questionId, userId) {
-    const question = await this.getQuestion(questionId);
-    const isOwner = (await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.teams,
-      [
-        Query.equal('teamOwner', [userId])
-      ]
-    )).total !== 0;
-    if (isOwner) return true;
-    if (question?.status === 'Initialize') {
-      return (userId === question?.createdBy)
-    } else if (question?.status === 'SentForReview') {
-      return (userId === question?.createdBy || userId === question?.reviewdBackTo)
-    } else if (question?.status === 'ReviewedBack') {
-      return (userId === question?.createdBy || userId === question?.reviewdBackTo)
-    }
-    return true;
-  }
-
-  static async approveQuestion(questionId, userId) {
-    return await databases.updateDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      {
-        status: 'Approved',
-        approvedBy: userId,
-        updatedBy: userId,
-        approvedAt: new Date(),
-      }
-    )
-  }
-
-  static async reviewBackQuestion(questionId, userId, createdBy, comment) {
-
-    return await databases.updateDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      {
-        status: 'ReviewedBack',
-        reviewdBackTo: createdBy,
-        updatedBy: userId,
-        reviewComment: comment,
-        reviewBackAt: new Date(),
-      }
-    )
-  }
-
-  static async activateQuestion(questionId, userId, status) {
-    return await databases.updateDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.databases.questions,
-      questionId,
-      {
-        status: status,
-        updatedBy: userId,
-      }
-    )
-  }
-
   static async getTotalQuestionSubjectWise() {
-    const subjects = await databases.listDocuments(
+    const subjects = await appwriteDatabases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.collections.subjects,
-      [
-        Query.orderDesc("count"),
-        Query.limit(5),
-      ]
+      [Query.orderDesc("count"), Query.limit(5)]
     );
 
-    const totalQuestionCount = (await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.questions,
-      [Query.limit(1)]
-    )).total;
+    const totalQuestionCount = (
+      await appwriteDatabases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        [Query.limit(1)]
+      )
+    ).total;
 
     var currToatal = 0;
     var ans = [];
     for (let i in subjects.documents) {
       currToatal += subjects.documents[i].count;
-      ans.push({ label: subjects.documents[i]?.name, value: subjects.documents[i].count })
+      ans.push({
+        label: subjects.documents[i]?.name,
+        value: subjects.documents[i].count,
+      });
     }
-    ans.push({ label: 'Others', value: totalQuestionCount - currToatal })
+    ans.push({ label: "Others", value: totalQuestionCount - currToatal });
     return ans;
   }
 
   static async getTotalQuestionStandardWise() {
-    const standards = await databases.listDocuments(
+    const standards = await appwriteDatabases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.collections.standards,
-      [
-        Query.orderDesc("count"),
-        Query.limit(5),
-      ]
+      [Query.orderDesc("count"), Query.limit(5)]
     );
 
-    const totalQuestionCount = (await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.questions,
-      [Query.limit(1)]
-    )).total;
+    const totalQuestionCount = (
+      await appwriteDatabases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        [Query.limit(1)]
+      )
+    ).total;
 
     var currToatal = 0;
     var ans = [];
     for (let i in standards.documents) {
       currToatal += standards.documents[i].count;
-      ans.push({ label: standards.documents[i]?.name, value: standards.documents[i].count })
+      ans.push({
+        label: standards.documents[i]?.name,
+        value: standards.documents[i].count,
+      });
     }
-    ans.push({ label: 'Others', value: totalQuestionCount - currToatal })
+    ans.push({ label: "Others", value: totalQuestionCount - currToatal });
     return ans;
   }
 
   static async getTotalQuestionChapterWise() {
-    const chapters = await databases.listDocuments(
+    const chapters = await appwriteDatabases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.collections.chapters,
-      [
-        Query.orderDesc("count"),
-        Query.limit(5),
-      ]
+      [Query.orderDesc("count"), Query.limit(5)]
     );
 
-    const totalQuestionCount = (await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.questions,
-      [Query.limit(1)]
-    )).total;
+    const totalQuestionCount = (
+      await appwriteDatabases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        [Query.limit(1)]
+      )
+    ).total;
 
     var currToatal = 0;
     var ans = [];
     for (let i in chapters.documents) {
       currToatal += chapters.documents[i].count;
-      ans.push({ label: chapters.documents[i]?.name, value: chapters.documents[i].count })
+      ans.push({
+        label: chapters.documents[i]?.name,
+        value: chapters.documents[i].count,
+      });
     }
-    ans.push({ label: 'Others', value: totalQuestionCount - currToatal })
+    ans.push({ label: "Others", value: totalQuestionCount - currToatal });
     return ans;
   }
 
   static async getTotalQuestionConceptWise() {
-    const concepts = await databases.listDocuments(
+    const concepts = await appwriteDatabases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.collections.concepts,
-      [
-        Query.orderDesc("count"),
-        Query.limit(5),
-      ]
+      [Query.orderDesc("count"), Query.limit(5)]
     );
 
-    const totalQuestionCount = (await databases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.questions,
-      [Query.limit(1)]
-    )).total;
+    const totalQuestionCount = (
+      await appwriteDatabases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        [Query.limit(1)]
+      )
+    ).total;
 
     var currToatal = 0;
     var ans = [];
     for (let i in concepts.documents) {
       currToatal += concepts.documents[i].count;
-      ans.push({ label: concepts.documents[i]?.name, value: concepts.documents[i].count })
+      ans.push({
+        label: concepts.documents[i]?.name,
+        value: concepts.documents[i].count,
+      });
     }
-    ans.push({ label: 'Others', value: totalQuestionCount - currToatal })
+    ans.push({ label: "Others", value: totalQuestionCount - currToatal });
     return ans;
   }
 
   static async getQuestionTypedData() {
     return JSON.parse(
-      (await databases.getDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.sarthakInfoData,
-        APPWRITE_API.documents.sarthak
-      )).questionCount
+      (
+        await appwriteDatabases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.sarthakInfoData,
+          APPWRITE_API.documents.sarthak
+        )
+      ).questionCount
     );
   }
 }

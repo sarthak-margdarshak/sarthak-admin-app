@@ -1,27 +1,27 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import { Navigate, useRoutes } from 'react-router-dom';
+import { Navigate, useRoutes } from "react-router-dom";
 // auth
-import AuthGuard from '../auth/AuthGuard';
-import GuestGuard from '../auth/GuestGuard';
+import AuthGuard from "../auth/AuthGuard";
+import GuestGuard from "../auth/GuestGuard";
 // layouts
-import MainLayout from '../layouts/main';
-import CompactLayout from '../layouts/compact';
-import DashboardLayout from '../layouts/dashboard';
+import MainLayout from "../layouts/main";
+import CompactLayout from "../layouts/compact";
+import DashboardLayout from "../layouts/dashboard";
 // config
-import { PATH_AFTER_LOGIN } from '../config-global';
+import { PATH_AFTER_LOGIN } from "../config-global";
 //
 import {
   // Auth
@@ -64,8 +64,8 @@ import {
   MockTestListByChapterPage,
   MockTestListByConceptPage,
   MockTestListPage,
-} from './elements';
-import MockTestNewPage from '../pages/dashboard/management/mock-test/MockTestNewPage';
+} from "./elements";
+import MockTestNewPage from "../pages/dashboard/management/mock-test/MockTestNewPage";
 
 // ----------------------------------------------------------------------
 
@@ -73,10 +73,10 @@ export default function Router() {
   return useRoutes([
     // Auth
     {
-      path: 'auth',
+      path: "auth",
       children: [
         {
-          path: 'login',
+          path: "login",
           element: (
             <GuestGuard>
               <LoginPage />
@@ -86,9 +86,9 @@ export default function Router() {
         {
           element: <CompactLayout />,
           children: [
-            { path: 'reset-password', element: <ResetPasswordPage /> },
-            { path: 'new-password', element: <NewPasswordPage /> },
-            { path: 'accept-invite', element: <AcceptInvitePage /> }
+            { path: "reset-password", element: <ResetPasswordPage /> },
+            { path: "new-password", element: <NewPasswordPage /> },
+            { path: "accept-invite", element: <AcceptInvitePage /> },
           ],
         },
       ],
@@ -96,7 +96,7 @@ export default function Router() {
 
     // Dashboard
     {
-      path: 'dashboard',
+      path: "dashboard",
       element: (
         <AuthGuard>
           <DashboardLayout />
@@ -105,51 +105,73 @@ export default function Router() {
       children: [
         { element: <Navigate to={PATH_AFTER_LOGIN} replace />, index: true },
         // Dashboard: App
-        { path: 'app', element: <GeneralAppPage /> },
+        { path: "app", element: <GeneralAppPage /> },
         // Dashboard: User
         {
-          path: 'user',
+          path: "user",
           children: [
-            { element: <Navigate to="/dashboard/user/account" replace />, index: true },
-            { path: 'profile/', element: <UserProfilePage /> },
-            { path: 'profile/:id', element: <UserProfilePage /> },
-            { path: 'account', element: <UserAccountPage /> },
+            {
+              element: <Navigate to="/dashboard/user/account" replace />,
+              index: true,
+            },
+            { path: "profile/", element: <UserProfilePage /> },
+            { path: "profile/:id", element: <UserProfilePage /> },
+            { path: "account", element: <UserAccountPage /> },
           ],
         },
         // Dashboard: Team
         {
-          path: 'team',
+          path: "team",
           children: [
-            { element: <Navigate to="/dashboard/team/list" replace />, index: true },
-            { path: 'list', element: <TeamListPage /> },
-            { path: ':id/view', element: <TeamDetailsPage /> }
+            {
+              element: <Navigate to="/dashboard/team/list" replace />,
+              index: true,
+            },
+            { path: "list", element: <TeamListPage /> },
+            { path: ":id/view", element: <TeamDetailsPage /> },
           ],
         },
         // Dashboard: Question
         {
-          path: 'question',
+          path: "question",
           children: [
-            { element: <Navigate to="/dashboard/question/list" replace />, index: true },
-            { path: 'list', element: <QuestionListPage /> },
-            { path: 'new', element: <QuestionCreatePage /> },
-            { path: ':id', element: <QuestionDetailsPage /> },
-            { path: ':id/edit', element: <QuestionEditPage /> },
+            {
+              element: <Navigate to="/dashboard/question/list" replace />,
+              index: true,
+            },
+            { path: "list", element: <QuestionListPage /> },
+            { path: "new", element: <QuestionCreatePage /> },
+            { path: ":id", element: <QuestionDetailsPage /> },
+            { path: ":id/edit", element: <QuestionEditPage /> },
           ],
         },
         // Dashboard: Mock Test
         {
-          path: 'mock-test',
+          path: "mock-test",
           children: [
-            { element: <Navigate to="/dashboard/mock-test/list" replace />, index: true },
-            { path: 'list', element: <MockTestListStandardPage /> },
-            { path: 'new', element: <MockTestNewPage />},
-            { path: 'list/standard/:standardId', element: <MockTestListBySubjectPage /> },
-            { path: 'list/standard/:standardId/subject/:subjectId', element: <MockTestListByChapterPage /> },
-            { path: 'list/standard/:standardId/subject/:subjectId/chapter/:chapterId', element: <MockTestListByConceptPage /> },
-            { path: 'list/standard/:standardId/subject/:subjectId/chapter/:chapterId/concept/:conceptId', element: <MockTestListPage /> },
-            { path: ':id', element: <MockTestPage /> },
-            { path: ':id/edit', element: <MockTestEditPage /> },
-          ]
+            // { element: <Navigate to="/dashboard/mock-test/list" replace />, index: true },
+            { element: <Navigate to="/maintenance" replace />, index: true },
+            { path: "list", element: <MockTestListStandardPage /> },
+            { path: "new", element: <MockTestNewPage /> },
+            {
+              path: "list/standard/:standardId",
+              element: <MockTestListBySubjectPage />,
+            },
+            {
+              path: "list/standard/:standardId/subject/:subjectId",
+              element: <MockTestListByChapterPage />,
+            },
+            {
+              path: "list/standard/:standardId/subject/:subjectId/chapter/:chapterId",
+              element: <MockTestListByConceptPage />,
+            },
+            {
+              path: "list/standard/:standardId/subject/:subjectId/chapter/:chapterId/concept/:conceptId",
+              element: <MockTestListPage />,
+            },
+            { path: ":id", element: <MockTestPage /> },
+            { path: ":id/edit", element: <MockTestEditPage /> },
+          ],
         },
       ],
     },
@@ -159,12 +181,12 @@ export default function Router() {
       element: <MainLayout />,
       children: [
         { element: <HomePage />, index: true },
-        { path: 'about-us', element: <AboutPage /> },
-        { path: 'contact-us', element: <Contact /> },  // ERROR
-        { path: 'faqs', element: <FaqsPage /> },
-        { path: 'changelog', element: <ChangeLogPage /> },
-        { path: 'terms-and-conditions', element: <TermsAndConditionsPage /> },
-        { path: 'privacy-policy', element: <PrivacyAndPolicyPage /> },
+        { path: "about-us", element: <AboutPage /> },
+        { path: "contact-us", element: <Contact /> }, // ERROR
+        { path: "faqs", element: <FaqsPage /> },
+        { path: "changelog", element: <ChangeLogPage /> },
+        { path: "terms-and-conditions", element: <TermsAndConditionsPage /> },
+        { path: "privacy-policy", element: <PrivacyAndPolicyPage /> },
       ],
     },
 
@@ -172,17 +194,17 @@ export default function Router() {
     {
       element: <CompactLayout />,
       children: [
-        { path: 'coming-soon', element: <ComingSoonPage /> },
-        { path: 'maintenance', element: <MaintenancePage /> },     // Complete
-        { path: '500', element: <Page500 /> },     // Complete
-        { path: '404', element: <Page404 /> },     // Complete
-        { path: '403', element: <Page403 /> },     // Complete
-        { path: '410', element: <Page410 /> },     // Complete
-        { path: 'success', element: <PageMotivation /> },
+        { path: "coming-soon", element: <ComingSoonPage /> },
+        { path: "maintenance", element: <MaintenancePage /> }, // Complete
+        { path: "500", element: <Page500 /> }, // Complete
+        { path: "404", element: <Page404 /> }, // Complete
+        { path: "403", element: <Page403 /> }, // Complete
+        { path: "410", element: <Page410 /> }, // Complete
+        { path: "success", element: <PageMotivation /> },
       ],
     },
 
     // Other Routes
-    { path: '*', element: <Navigate to="/404" replace /> },
+    { path: "*", element: <Navigate to="/404" replace /> },
   ]);
 }

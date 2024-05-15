@@ -1,6 +1,6 @@
 {
   "name": "sarthak-admin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "homepage": "https://admin.sarthakmargdarshak.in",
   "dependencies": {
@@ -43,6 +43,7 @@
     "highlight.js": "^11.8.0",
     "i18next": "^22.5.0",
     "i18next-browser-languagedetector": "^7.0.1",
+    "javascript-time-ago": "^2.5.10",
     "jquery": "^3.7.0",
     "notistack": "^3.0.1",
     "nprogress": "^0.2.0",

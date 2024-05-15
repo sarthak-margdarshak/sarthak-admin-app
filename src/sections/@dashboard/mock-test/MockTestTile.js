@@ -1,5 +1,5 @@
 import { Button, Paper } from "@mui/material";
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from "react-router-dom";
 import { styled } from "@mui/system";
 
 const GradientButton0 = styled(Button)`
@@ -177,11 +177,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton0>
         }
       />
-    )
+    );
   }
   if (randomNumber === 1) {
     return (
@@ -195,11 +195,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton1>
         }
       />
-    )
+    );
   }
   if (randomNumber === 2) {
     return (
@@ -213,11 +213,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton2>
         }
       />
-    )
+    );
   }
   if (randomNumber === 3) {
     return (
@@ -231,11 +231,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton3>
         }
       />
-    )
+    );
   }
   if (randomNumber === 4) {
     return (
@@ -249,11 +249,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton4>
         }
       />
-    )
+    );
   }
   if (randomNumber === 5) {
     return (
@@ -267,11 +267,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton5>
         }
       />
-    )
+    );
   }
   if (randomNumber === 6) {
     return (
@@ -285,11 +285,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton6>
         }
       />
-    )
+    );
   }
   if (randomNumber === 7) {
     return (
@@ -303,11 +303,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton7>
         }
       />
-    )
+    );
   }
   if (randomNumber === 8) {
     return (
@@ -321,11 +321,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton8>
         }
       />
-    )
+    );
   }
   if (randomNumber === 9) {
     return (
@@ -339,11 +339,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton9>
         }
       />
-    )
+    );
   }
   if (randomNumber === 10) {
     return (
@@ -357,11 +357,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton10>
         }
       />
-    )
+    );
   }
   if (randomNumber === 11) {
     return (
@@ -375,11 +375,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton11>
         }
       />
-    )
+    );
   }
   if (randomNumber === 12) {
     return (
@@ -393,11 +393,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton12>
         }
       />
-    )
+    );
   }
   if (randomNumber === 13) {
     return (
@@ -411,11 +411,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton13>
         }
       />
-    )
+    );
   }
   if (randomNumber === 14) {
     return (
@@ -429,11 +429,11 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton14>
         }
       />
-    )
+    );
   }
   if (randomNumber === 15) {
     return (
@@ -447,10 +447,10 @@ export default function MockTestTile({ tileValue, tileLink, cnt }) {
             component={RouterLink}
             to={tileLink}
           >
-            {cnt===-1?tileValue:tileValue+" ("+cnt+")"}
+            {cnt === -1 ? tileValue : tileValue + " (" + cnt + ")"}
           </GradientButton15>
         }
       />
-    )
+    );
   }
 }

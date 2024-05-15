@@ -1,1 +1,1 @@
-export { default as QuestionNewCreateForm } from './QuestionNewCreateForm';
+export { default as QuestionNewCreateForm } from "./QuestionNewCreateForm";

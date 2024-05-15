@@ -12,10 +12,10 @@ import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 
 export default function List() {
-  const standardId = window.location.pathname.split('/')[5];
-  const subjectId = window.location.pathname.split('/')[7];
-  const chapterId = window.location.pathname.split('/')[9];
-  const conceptId = window.location.pathname.split('/')[11];
+  const standardId = window.location.pathname.split("/")[5];
+  const subjectId = window.location.pathname.split("/")[7];
+  const chapterId = window.location.pathname.split("/")[9];
+  const conceptId = window.location.pathname.split("/")[11];
 
   const { themeStretch } = useSettingsContext();
   const [loading, setLoading] = useState(false);
@@ -36,8 +36,13 @@ export default function List() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true)
-      const data = await MockTest.getMockTestList(standardId, subjectId, chapterId, conceptId);
+      setLoading(true);
+      const data = await MockTest.getMockTestList(
+        standardId,
+        subjectId,
+        chapterId,
+        conceptId
+      );
       setMockTestList(data);
       const data2 = await Question.getStandardName(standardId);
       setStandardName(data2);
@@ -47,27 +52,44 @@ export default function List() {
       setChapterName(data4);
       const data5 = await Question.getConceptName(conceptId);
       setConceptName(data5);
-      const data6 = await MockTest.getMockTestDriver(standardId, subjectId, chapterId, conceptId);
+      const data6 = await MockTest.getMockTestDriver(
+        standardId,
+        subjectId,
+        chapterId,
+        conceptId
+      );
       setTime(data6.documents[0].time);
       setQuestionCnt(data6.documents[0].questionCount);
-      const data7 = await MockTest.getMockTestPrice(standardId, subjectId, chapterId, conceptId);
+      const data7 = await MockTest.getMockTestPrice(
+        standardId,
+        subjectId,
+        chapterId,
+        conceptId
+      );
       setSellPrice(data7.sellPrice);
       setMRP(data7.mrp);
-      setLoading(false)
-    }
+      setLoading(false);
+    };
     fetchData();
-  }, [standardId, subjectId, chapterId, conceptId])
+  }, [standardId, subjectId, chapterId, conceptId]);
 
   const onsubmitmitPrice = async () => {
-    setUpdating(true)
+    setUpdating(true);
     try {
-      await MockTest.updateMockTestPrice(standardId, subjectId, chapterId, conceptId, parseFloat(mrp), parseFloat(sellPrice));
-      enqueueSnackbar('Successfully Updated')
+      await MockTest.updateMockTestPrice(
+        standardId,
+        subjectId,
+        chapterId,
+        conceptId,
+        parseFloat(mrp),
+        parseFloat(sellPrice)
+      );
+      enqueueSnackbar("Successfully Updated");
     } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' })
+      enqueueSnackbar(error.message, { variant: "error" });
     }
-    setUpdating(false)
-  }
+    setUpdating(false);
+  };
 
   return (
     <>
@@ -75,16 +97,16 @@ export default function List() {
         <title> Mock-Test: List | Chapter</title>
       </Helmet>
 
-      <Container maxWidth={themeStretch ? false : 'lg'}>
+      <Container maxWidth={themeStretch ? false : "lg"}>
         <CustomBreadcrumbs
           heading="Mock Test - Lists"
           links={[
             {
-              name: 'Dashboard',
+              name: "Dashboard",
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Mock-Test',
+              name: "Mock-Test",
               href: PATH_DASHBOARD.mockTest.root,
             },
             {
@@ -97,59 +119,72 @@ export default function List() {
             },
             {
               name: chapterName,
-              href: PATH_DASHBOARD.mockTest.conceptList(standardId, subjectId, chapterId),
+              href: PATH_DASHBOARD.mockTest.conceptList(
+                standardId,
+                subjectId,
+                chapterId
+              ),
             },
             {
               name: conceptName,
-            }
+            },
           ]}
         />
 
-        {
-          loading
-            ?
-            <MockLoaderSkeleton />
-            :
-            <>
-              <Grid container spacing={2} padding={2}>
-                <Grid item lg={4} xl={4} md={4} sm={12} xs={12}>
-                  <TextField fullWidth id="outlined-basic-mrp" label="MRP" variant="outlined" value={mrp} onChange={(event) => setMRP(event.target.value)} />
-                </Grid>
-                <Grid item lg={4} xl={4} md={4} sm={12} xs={12}>
-                  <TextField fullWidth id="outlined-basic-sell" label="Sell Price" variant="outlined" value={sellPrice} onChange={(event) => setSellPrice(event.target.value)} />
-                </Grid>
-                <Grid item lg={4} xl={4} md={4} sm={12} xs={12}>
-                  <LoadingButton loading={updating} onClick={onsubmitmitPrice} >Update Price</LoadingButton>
-                </Grid>
+        {loading ? (
+          <MockLoaderSkeleton />
+        ) : (
+          <>
+            <Grid container spacing={2} padding={2}>
+              <Grid item lg={4} xl={4} md={4} sm={12} xs={12}>
+                <TextField
+                  fullWidth
+                  id="outlined-basic-mrp"
+                  label="MRP"
+                  variant="outlined"
+                  value={mrp}
+                  onChange={(event) => setMRP(event.target.value)}
+                />
               </Grid>
-              <Divider />
-              <Grid container spacing={3} marginTop={1}>
-                <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                  <Card sx={{ p: 2 }}>
-                    {"No of question per mock test - " + questionCnt}
-                  </Card>
-                </Grid>
-                <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                  <Card sx={{ p: 2 }}>
-                    {"Mock Test Duration - " + time}
-                  </Card>
-                </Grid>
-                {
-                  mockTest.map((value) =>
-                    <Grid item key={value.id}>
-                      <MockTestTile
-                        tileValue={value.name}
-                        tileLink={PATH_DASHBOARD.mockTest.view(value.id)}
-                        cnt={-1}
-                      />
-                    </Grid>
-                  )
-                }
+              <Grid item lg={4} xl={4} md={4} sm={12} xs={12}>
+                <TextField
+                  fullWidth
+                  id="outlined-basic-sell"
+                  label="Sell Price"
+                  variant="outlined"
+                  value={sellPrice}
+                  onChange={(event) => setSellPrice(event.target.value)}
+                />
               </Grid>
-            </>
-        }
-
-      </Container >
+              <Grid item lg={4} xl={4} md={4} sm={12} xs={12}>
+                <LoadingButton loading={updating} onClick={onsubmitmitPrice}>
+                  Update Price
+                </LoadingButton>
+              </Grid>
+            </Grid>
+            <Divider />
+            <Grid container spacing={3} marginTop={1}>
+              <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                <Card sx={{ p: 2 }}>
+                  {"No of question per mock test - " + questionCnt}
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                <Card sx={{ p: 2 }}>{"Mock Test Duration - " + time}</Card>
+              </Grid>
+              {mockTest.map((value) => (
+                <Grid item key={value.id}>
+                  <MockTestTile
+                    tileValue={value.name}
+                    tileLink={PATH_DASHBOARD.mockTest.view(value.id)}
+                    cnt={-1}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          </>
+        )}
+      </Container>
     </>
-  )
+  );
 }

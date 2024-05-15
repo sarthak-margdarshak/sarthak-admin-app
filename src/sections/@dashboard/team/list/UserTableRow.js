@@ -37,7 +37,10 @@ import MenuPopover from "../../../../components/menu-popover";
 import { useSnackbar } from "../../../../components/snackbar";
 // Auth
 import { APPWRITE_API } from "../../../../config-global";
-import { databases, storage } from "../../../../auth/AppwriteContext";
+import {
+  appwriteDatabases,
+  appwriteStorage,
+} from "../../../../auth/AppwriteContext";
 import { useAuthContext } from "../../../../auth/useAuthContext";
 import FormProvider from "../../../../components/hook-form/FormProvider";
 import { Box } from "@mui/system";
@@ -80,7 +83,7 @@ export default function UserTableRow({
     async function fetchData() {
       try {
         if (row?.photoUrl) {
-          const tempAvatar = storage.getFilePreview(
+          const tempAvatar = appwriteStorage.getFilePreview(
             APPWRITE_API.buckets.adminUserImage,
             row?.photoUrl,
             undefined,
@@ -126,7 +129,7 @@ export default function UserTableRow({
 
   const onSubmit = async (data) => {
     try {
-      await databases.updateDocument(
+      await appwriteDatabases.updateDocument(
         APPWRITE_API.databaseId,
         APPWRITE_API.collections.adminUsers,
         row?.userId,

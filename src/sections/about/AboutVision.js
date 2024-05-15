@@ -1,23 +1,23 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import { m } from 'framer-motion';
+import { m } from "framer-motion";
 // @mui
-import { Box, Container, Typography, Stack } from '@mui/material';
+import { Box, Container, Typography, Stack } from "@mui/material";
 // components
-import Image from '../../components/image';
-import { MotionViewport, varFade } from '../../components/animate';
+import Image from "../../components/image";
+import { MotionViewport, varFade } from "../../components/animate";
 
 // ----------------------------------------------------------------------
 
@@ -28,8 +28,8 @@ export default function AboutVision() {
         sx={{
           mb: 10,
           borderRadius: 2,
-          overflow: 'hidden',
-          position: 'relative',
+          overflow: "hidden",
+          position: "relative",
         }}
       >
         <Image src="/assets/images/about/vision.jpg" alt="about-vision" />
@@ -43,10 +43,10 @@ export default function AboutVision() {
             bottom: { xs: 24, md: 40 },
             width: 1,
             opacity: 0.48,
-            position: 'absolute',
+            position: "absolute",
           }}
         >
-          {['ibm', 'lya', 'spotify', 'netflix', 'hbo', 'amazon'].map((logo) => (
+          {["ibm", "lya", "spotify", "netflix", "hbo", "amazon"].map((logo) => (
             <m.div key={logo} variants={varFade().in}>
               <Image
                 alt={logo}
@@ -62,8 +62,12 @@ export default function AboutVision() {
       </Box>
 
       <m.div variants={varFade().inUp}>
-        <Typography variant="h3" sx={{ textAlign: 'center', maxWidth: 800, mx: 'auto' }}>
-          Our vision offering the best product to promote education to every part of this country.
+        <Typography
+          variant="h3"
+          sx={{ textAlign: "center", maxWidth: 800, mx: "auto" }}
+        >
+          Our vision offering the best product to promote education to every
+          part of this country.
         </Typography>
       </m.div>
     </Container>

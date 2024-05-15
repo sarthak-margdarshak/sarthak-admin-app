@@ -32,7 +32,10 @@ import Iconify from "../../../../components/iconify";
 import { useSnackbar } from "../../../../components/snackbar";
 // Auth
 import { User } from "../../../../auth/User";
-import { databases, teams } from "../../../../auth/AppwriteContext";
+import {
+  appwriteDatabases,
+  appwriteTeams,
+} from "../../../../auth/AppwriteContext";
 import { APPWRITE_API } from "../../../../config-global";
 import { PATH_AUTH } from "../../../../routes/paths";
 import { Query } from "appwrite";
@@ -69,13 +72,13 @@ export default function UserInviteDialoge({
     setIsSubmitting(true);
     try {
       const x = (
-        await databases.listDocuments(
+        await appwriteDatabases.listDocuments(
           APPWRITE_API.databaseId,
           APPWRITE_API.collections.adminUsers,
           [Query.equal("empId", selectedUser.match(/\w{3}\d{4}/g))]
         )
       ).documents[0];
-      await teams.createMembership(
+      await appwriteTeams.createMembership(
         teamId,
         [role],
         window.location.origin + PATH_AUTH.acceptInvite,
@@ -101,36 +104,33 @@ export default function UserInviteDialoge({
           loading={isUserListLoading}
           options={userList}
           onFocus={async (event) => {
+            setIsUserListLoading(true);
             try {
-              setIsUserListLoading(true);
               const tem = await User.getUserList(event.currentTarget.value);
               setUserList(tem);
-              setIsUserListLoading(false);
             } catch (error) {
               console.log(error);
             }
+            setIsUserListLoading(false);
           }}
           onInputChange={async (event) => {
+            setIsUserListLoading(true);
             try {
-              setIsUserListLoading(true);
               const tem = await User.getUserList(event.currentTarget.value);
               setUserList(tem);
-              setIsUserListLoading(false);
             } catch (error) {
               console.log(error);
             }
+            setIsUserListLoading(false);
           }}
           onChange={async (event) => {
             setSelectedUser(event.currentTarget.innerHTML);
           }}
-          getOptionLabel={(option) => option}
-          renderOption={(props, option) => {
-            return (
-              <li {...props} key={props.key}>
-                {option}
-              </li>
-            );
-          }}
+          renderOption={(props, option) => (
+            <li {...props} key={props.key}>
+              {option}
+            </li>
+          )}
           renderInput={(params) => <TextField {...params} label="Value" />}
           sx={{ mt: 2 }}
         />

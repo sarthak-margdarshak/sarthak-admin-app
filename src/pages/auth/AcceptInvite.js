@@ -11,7 +11,11 @@
  */
 
 import { useSearchParams, Navigate } from "react-router-dom";
-import { appwriteAccount, databases, teams } from "../../auth/AppwriteContext";
+import {
+  appwriteAccount,
+  appwriteDatabases,
+  appwriteTeams,
+} from "../../auth/AppwriteContext";
 import { useEffect, useState } from "react";
 import { PATH_PAGE } from "../../routes/paths";
 import LoadingScreen from "../../components/loading-screen/LoadingScreen";
@@ -34,7 +38,7 @@ export default function AcceptInvite() {
     const fetchData = async () => {
       try {
         await appwriteAccount.deleteSessions();
-        await teams.updateMembershipStatus(
+        await appwriteTeams.updateMembershipStatus(
           teamId,
           membershipId,
           userId,
@@ -44,7 +48,7 @@ export default function AcceptInvite() {
         if (sarthakInfoData?.adminTeamId === teamId) {
           const totalUser =
             (
-              await databases.listDocuments(
+              await appwriteDatabases.listDocuments(
                 APPWRITE_API.databaseId,
                 APPWRITE_API.collections.adminUsers,
                 [Query.limit(1), Query.offset(1)]
@@ -63,7 +67,7 @@ export default function AcceptInvite() {
 
           const user = await appwriteAccount.get();
 
-          await databases.createDocument(
+          await appwriteDatabases.createDocument(
             APPWRITE_API.databaseId,
             APPWRITE_API.collections.adminUsers,
             userId,

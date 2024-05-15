@@ -37,7 +37,7 @@ import FormProvider, {
 import Iconify from "../../../../components/iconify";
 // assets
 import { countries } from "../../../../assets/data";
-import { teams } from "../../../../auth/AppwriteContext";
+import { appwriteTeams } from "../../../../auth/AppwriteContext";
 import { PATH_AUTH } from "../../../../routes/paths";
 
 // ----------------------------------------------------------------------
@@ -93,7 +93,7 @@ export default function CreateUserDialog({
 
   const onSubmit = async (data) => {
     try {
-      await teams.createMembership(
+      await appwriteTeams.createMembership(
         teamId,
         [data.role],
         window.location.origin + PATH_AUTH.acceptInvite,

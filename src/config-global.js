@@ -44,11 +44,10 @@ export const APPWRITE_API = {
   },
   functions: {
     onboardWelcome: process.env.REACT_APP_APPWRITE_FUCTION_ONBOARD_WELCOME,
-    teamInvite: process.env.REACT_APP_APPWRITE_FUCTION_TEAM_INVITE,
     contactInstitute: process.env.REACT_APP_APPWRITE_FUCTION_CONTACT_INSTITUTE,
-    createQuestion: process.env.REACT_APP_APPWRITE_FUCTION_CREATE_QUESTION,
     updateMockTests: process.env.REACT_APP_APPWRITE_FUCTION_CREATE_MOCK_TEST,
     toogleBlock: process.env.REACT_APP_APPWRITE_FUCTION_TOGGLE_BLOCK,
+    publishQuestion: process.env.REACT_APP_APPWRITE_FUCTION_PUBLIC_QUESTION,
   },
 };
 

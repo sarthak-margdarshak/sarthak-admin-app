@@ -1,25 +1,25 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import PropTypes from 'prop-types';
-import { Link as RouterLink } from 'react-router-dom';
+import PropTypes from "prop-types";
+import { Link as RouterLink } from "react-router-dom";
 // @mui
-import { Link, ListItemText, ListItemIcon } from '@mui/material';
+import { Link, ListItemText, ListItemIcon } from "@mui/material";
 // components
-import Iconify from '../../../../components/iconify';
+import Iconify from "../../../../components/iconify";
 //
-import { ListItem } from './styles';
+import { ListItem } from "./styles";
 
 // ----------------------------------------------------------------------
 
@@ -32,7 +32,13 @@ NavItem.propTypes = {
 
 // ----------------------------------------------------------------------
 
-export default function NavItem({ item, open, active, isExternalLink, ...other }) {
+export default function NavItem({
+  item,
+  open,
+  active,
+  isExternalLink,
+  ...other
+}) {
   const { title, path, icon, children } = item;
 
   const renderContent = (
@@ -44,7 +50,9 @@ export default function NavItem({ item, open, active, isExternalLink, ...other }
       {!!children && (
         <Iconify
           width={16}
-          icon={open ? 'eva:arrow-ios-downward-fill' : 'eva:arrow-ios-forward-fill'}
+          icon={
+            open ? "eva:arrow-ios-downward-fill" : "eva:arrow-ios-forward-fill"
+          }
           sx={{ ml: 1 }}
         />
       )}

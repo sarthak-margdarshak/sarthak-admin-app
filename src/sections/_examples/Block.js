@@ -1,7 +1,7 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 // @mui
-import { alpha } from '@mui/material/styles';
-import { Paper, CardHeader, Box, Typography } from '@mui/material';
+import { alpha } from "@mui/material/styles";
+import { Paper, CardHeader, Box, Typography } from "@mui/material";
 
 // ----------------------------------------------------------------------
 
@@ -43,7 +43,12 @@ Label.propTypes = {
 
 export function Label({ title }) {
   return (
-    <Typography variant="overline" component="p" gutterBottom sx={{ color: 'text.secondary' }}>
+    <Typography
+      variant="overline"
+      component="p"
+      gutterBottom
+      sx={{ color: "text.secondary" }}
+    >
       {title}
     </Typography>
   );

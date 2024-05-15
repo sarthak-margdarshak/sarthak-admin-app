@@ -1,33 +1,36 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import PropTypes from 'prop-types';
-import { m } from 'framer-motion';
-import { forwardRef } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import PropTypes from "prop-types";
+import { m } from "framer-motion";
+import { forwardRef } from "react";
+import { Link as RouterLink } from "react-router-dom";
 // @mui
-import { Link, CardActionArea } from '@mui/material';
+import { Link, CardActionArea } from "@mui/material";
 // components
-import Iconify from '../../../../components/iconify';
-import Image from '../../../../components/image';
+import Iconify from "../../../../components/iconify";
+import Image from "../../../../components/image";
 //
-import { ListItem } from './styles';
+import { ListItem } from "./styles";
 
 // ----------------------------------------------------------------------
 
 export const NavItem = forwardRef(
-  ({ item, open, isOffset, active, subItem, isExternalLink, ...other }, ref) => {
+  (
+    { item, open, isOffset, active, subItem, isExternalLink, ...other },
+    ref
+  ) => {
     const { title, path, children } = item;
 
     const renderContent = (
@@ -42,7 +45,13 @@ export const NavItem = forwardRef(
       >
         {title}
 
-        {!!children && <Iconify width={16} icon="eva:arrow-ios-downward-fill" sx={{ ml: 1 }} />}
+        {!!children && (
+          <Iconify
+            width={16}
+            icon="eva:arrow-ios-downward-fill"
+            sx={{ ml: 1 }}
+          />
+        )}
       </ListItem>
     );
 
@@ -98,8 +107,8 @@ export function NavItemDashboard({ item, sx, ...other }) {
           px: 10,
           minHeight: 400,
           borderRadius: 1,
-          color: 'text.disabled',
-          bgcolor: 'background.neutral',
+          color: "text.disabled",
+          bgcolor: "background.neutral",
 
           ...sx,
         }}
