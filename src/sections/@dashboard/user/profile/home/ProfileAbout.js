@@ -1,28 +1,35 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import { Link as RouterLink } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import { Link as RouterLink } from "react-router-dom";
+import PropTypes from "prop-types";
 // @mui
-import { styled } from '@mui/material/styles';
-import { Link, Card, Typography, CardHeader, Stack, IconButton } from '@mui/material';
+import { styled } from "@mui/material/styles";
+import {
+  Link,
+  Card,
+  Typography,
+  CardHeader,
+  Stack,
+  IconButton,
+} from "@mui/material";
 // components
-import Iconify from '../../../../../components/iconify';
+import Iconify from "../../../../../components/iconify";
 // locales
-import { useLocales } from '../../../../../locales';
-import { useAuthContext } from '../../../../../auth/useAuthContext';
-import { PATH_DASHBOARD } from '../../../../../routes/paths';
+import { useLocales } from "../../../../../locales";
+import { useAuthContext } from "../../../../../auth/useAuthContext";
+import { PATH_DASHBOARD } from "../../../../../routes/paths";
 
 // ----------------------------------------------------------------------
 
@@ -48,8 +55,15 @@ ProfileAbout.propTypes = {
 
 // ----------------------------------------------------------------------
 
-export default function ProfileAbout({ userId, quote, country, email, role, company, school }) {
-
+export default function ProfileAbout({
+  userId,
+  quote,
+  country,
+  email,
+  role,
+  company,
+  school,
+}) {
   const { translate } = useLocales();
   const { user } = useAuthContext();
 
@@ -58,10 +72,17 @@ export default function ProfileAbout({ userId, quote, country, email, role, comp
       <CardHeader
         title={translate("about")}
         action={
-          userId === user?.$id ?
-            <IconButton component={RouterLink} aria-label="Edit" to={PATH_DASHBOARD.user.account}>
+          userId === user?.$id ? (
+            <IconButton
+              component={RouterLink}
+              aria-label="Edit"
+              to={PATH_DASHBOARD.user.account}
+            >
               <Iconify icon="ic:baseline-edit" />
-            </IconButton> : <></>
+            </IconButton>
+          ) : (
+            <></>
+          )
         }
       />
 
@@ -72,7 +93,7 @@ export default function ProfileAbout({ userId, quote, country, email, role, comp
           <StyledIcon icon="eva:pin-fill" />
 
           <Typography variant="body2">
-            {translate('live_at') + " : "} &nbsp;
+            {translate("live_at") + " : "} &nbsp;
             <Link component="span" variant="subtitle2" color="text.primary">
               {country}
             </Link>
@@ -99,7 +120,7 @@ export default function ProfileAbout({ userId, quote, country, email, role, comp
           <StyledIcon icon="material-symbols:school" />
 
           <Typography variant="body2">
-            {translate('studied_at') + ' : '} &nbsp;
+            {translate("studied_at") + " : "} &nbsp;
             <Link component="span" variant="subtitle2" color="text.primary">
               {school}
             </Link>

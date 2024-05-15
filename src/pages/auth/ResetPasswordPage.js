@@ -1,29 +1,29 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import { Helmet } from 'react-helmet-async';
-import { Link as RouterLink } from 'react-router-dom';
+import { Helmet } from "react-helmet-async";
+import { Link as RouterLink } from "react-router-dom";
 // @mui
-import { Link, Typography } from '@mui/material';
+import { Link, Typography } from "@mui/material";
 // routes
-import { PATH_AUTH } from '../../routes/paths';
+import { PATH_AUTH } from "../../routes/paths";
 // components
-import Iconify from '../../components/iconify';
+import Iconify from "../../components/iconify";
 // sections
-import AuthResetPasswordForm from '../../sections/auth/AuthResetPasswordForm';
+import AuthResetPasswordForm from "../../sections/auth/AuthResetPasswordForm";
 // assets
-import { PasswordIcon } from '../../assets/icons';
+import { PasswordIcon } from "../../assets/icons";
 
 // ----------------------------------------------------------------------
 
@@ -40,9 +40,9 @@ export default function ResetPasswordPage() {
         Forgot your password?
       </Typography>
 
-      <Typography sx={{ color: 'text.secondary', mb: 5 }}>
-        Please enter the email address associated with your account and We will email you a link to
-        reset your password.
+      <Typography sx={{ color: "text.secondary", mb: 5 }}>
+        Please enter the email address associated with your account and We will
+        email you a link to reset your password.
       </Typography>
 
       <AuthResetPasswordForm />
@@ -54,9 +54,9 @@ export default function ResetPasswordPage() {
         variant="subtitle2"
         sx={{
           mt: 3,
-          mx: 'auto',
-          alignItems: 'center',
-          display: 'inline-flex',
+          mx: "auto",
+          alignItems: "center",
+          display: "inline-flex",
         }}
       >
         <Iconify icon="eva:chevron-left-fill" width={16} />

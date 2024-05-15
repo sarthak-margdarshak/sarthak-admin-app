@@ -1,26 +1,62 @@
 import { forwardRef, useEffect, useState } from "react";
 // @mui
-import { Autocomplete, Box, Card, CardContent, CardHeader, Grid, TextField, Divider, Tabs, Typography, Skeleton, useTheme, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Slide, Select, MenuItem, InputLabel, FormControl, Stack, TablePagination, styled, Collapse } from "@mui/material";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add';
+import {
+  Autocomplete,
+  Box,
+  Card,
+  CardContent,
+  CardHeader,
+  Grid,
+  TextField,
+  Divider,
+  Tabs,
+  Typography,
+  Skeleton,
+  useTheme,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Slide,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Stack,
+  TablePagination,
+  styled,
+  Collapse,
+  Switch,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
 import { LoadingButton } from "@mui/lab";
 // Components
 import Iconify from "../../../../components/iconify/Iconify";
-import DateRangePicker, { useDateRangePicker } from '../../../../components/date-range-picker';
-import { useSnackbar } from '../../../../components/snackbar';
+import DateRangePicker, {
+  useDateRangePicker,
+} from "../../../../components/date-range-picker";
+import { useSnackbar } from "../../../../components/snackbar";
 // utils
-import { fDate } from '../../../../utils/formatTime';
+import { fDate } from "../../../../utils/formatTime";
 // Auth
-import { Question, User } from "../../../../auth/AppwriteContext";
+import { Question } from "../../../../auth/Question";
+import { User } from "../../../../auth/User";
 // Display UI
 import StandardDisplayUI from "./StandardDisplayUI";
 import SubjectDisplayUI from "./SubjectDisplayUI";
 import ConceptDisplayUI from "./ConceptDisplayUI";
 import ChapterDisplayUI from "./ChapterDisplayUI";
-import StatusDisplayUI from "./StatusDisplayUI";
 import { SarthakUserDisplayUI } from "../../user/profile";
 import QuestionRowComponent from "./QuestionRowComponent";
+import { APPWRITE_API } from "../../../../config-global";
+import { appwriteDatabases } from "../../../../auth/AppwriteContext";
+import { Query } from "appwrite";
+import UnpublishedIcon from "@mui/icons-material/Unpublished";
+import CheckIcon from "@mui/icons-material/Check";
 
 // ----------------------------------------------------------------------
 
@@ -38,9 +74,9 @@ const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
 })(({ theme, expand }) => ({
-  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-  marginLeft: 'auto',
-  transition: theme.transitions.create('transform', {
+  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
+  marginLeft: "auto",
+  transition: theme.transitions.create("transform", {
     duration: theme.transitions.duration.shortest,
   }),
 }));
@@ -48,41 +84,45 @@ const ExpandMore = styled((props) => {
 // ----------------------------------------------------------------------
 
 const searchParameterOptions = [
-  { value: 'standardId', label: 'Standard' },
-  { value: 'subjectId', label: 'Subject' },
-  { value: 'chapterId', label: 'Chapter' },
-  { value: 'conceptId', label: 'Concept' },
-  { value: 'status', label: 'Status' },
-  { value: 'createdBy', label: 'Created By' },
-  { value: 'createdAt', label: 'Created At' },
-  { value: 'updatedBy', label: 'Updated By' },
-  { value: 'updatedAt', label: 'Updated At' },
-  { value: 'approvedBy', label: 'Approved By' },
-  { value: 'approvedAt', label: 'Approved At' },
-  { value: 'sentForReviewTo', label: 'Sent For Review To' },
-  { value: 'sentForReviewAt', label: 'Sent For Review At' },
-  { value: 'reviewedBackTo', label: 'Reviewed Back To' },
-  { value: 'reviewedBackAt', label: 'Reviewed Back At' },
-]
+  { value: "standardId", label: "Standard" },
+  { value: "subjectId", label: "Subject" },
+  { value: "chapterId", label: "Chapter" },
+  { value: "conceptId", label: "Concept" },
+  { value: "question", label: "Question" },
+  { value: "optionA", label: "Option A" },
+  { value: "optionB", label: "Option B" },
+  { value: "optionC", label: "Option C" },
+  { value: "optionD", label: "Option D" },
+  { value: "answer", label: "Answer" },
+  { value: "published", label: "Published" },
+  { value: "createdBy", label: "Created By" },
+  { value: "createdAt", label: "Created At" },
+  { value: "updatedBy", label: "Updated By" },
+  { value: "updatedAt", label: "Updated At" },
+  { value: "approvedBy", label: "Approved By" },
+  { value: "approvedAt", label: "Approved At" },
+];
 
 // ----------------------------------------------------------------------
 
 export default function QuestionListComponent() {
-
   // Extract info from link
-  const rawParameters = window.location.href.replaceAll(window.location.origin + window.location.pathname, '').substring(1).split('&');
+  const rawParameters = window.location.href
+    .replaceAll(window.location.origin + window.location.pathname, "")
+    .substring(1)
+    .split("&");
   var tempParameters = {};
   for (let i in rawParameters) {
-    if (i !== '') {
-      const x = rawParameters[i].split('=');
+    if (i !== "") {
+      const x = rawParameters[i].split("=");
       tempParameters[x[0]] = x[1];
     }
   }
 
   const [parameters, setParameters] = useState(tempParameters);
   const [filterWindowOpen, setFilterWindowOpen] = useState(false);
-  const [currentParameter, setCurrentParameter] = useState('');
-  const [currentValue, setCurrentValue] = useState('');
+  const [currentParameter, setCurrentParameter] = useState("");
+  const [currentValue, setCurrentValue] = useState("");
   const [expanded, setExpanded] = useState(true);
 
   // Create parameter component
@@ -90,151 +130,177 @@ export default function QuestionListComponent() {
   for (let i in parameters) {
     const key = i;
     const value = parameters[i];
-    if (key === 'standardId') {
+    if (key === "standardId") {
       ParametersComponent.push(
         <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
+          <Stack direction="row" sx={{ m: 2 }}>
             <Typography sx={{ mr: 1 }}>Standard - </Typography>
             <StandardDisplayUI id={value} />
           </Stack>
         </Grid>
-      )
-    } else if (key === 'subjectId') {
+      );
+    } else if (key === "subjectId") {
       ParametersComponent.push(
         <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
+          <Stack direction="row" sx={{ m: 2 }}>
             <Typography sx={{ mr: 1 }}>Subject - </Typography>
             <SubjectDisplayUI id={value} />
           </Stack>
         </Grid>
-      )
-    } else if (key === 'chapterId') {
+      );
+    } else if (key === "chapterId") {
       ParametersComponent.push(
         <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
+          <Stack direction="row" sx={{ m: 2 }}>
             <Typography sx={{ mr: 1 }}>Chapter - </Typography>
             <ChapterDisplayUI id={value} />
           </Stack>
         </Grid>
-      )
-    } else if (key === 'conceptId') {
+      );
+    } else if (key === "conceptId") {
       ParametersComponent.push(
         <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
+          <Stack direction="row" sx={{ m: 2 }}>
             <Typography sx={{ mr: 1 }}>Concept - </Typography>
             <ConceptDisplayUI id={value} />
           </Stack>
         </Grid>
-      )
-    } else if (key === 'status') {
+      );
+    } else if (key === "question") {
       ParametersComponent.push(
         <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
-            <Typography sx={{ mr: 1 }}>Status - </Typography>
-            <StatusDisplayUI status={value} />
+          <Stack direction="row" sx={{ m: 2 }}>
+            <Typography sx={{ mr: 1 }}>Question - </Typography>
+            <Typography variant="body2">{value}</Typography>
           </Stack>
         </Grid>
-      )
-    } else if (key === 'createdBy') {
+      );
+    } else if (key === "optionA") {
       ParametersComponent.push(
         <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
+          <Stack direction="row" sx={{ m: 2 }}>
+            <Typography sx={{ mr: 1 }}>Option A - </Typography>
+            <Typography variant="body2">{value}</Typography>
+          </Stack>
+        </Grid>
+      );
+    } else if (key === "optionB") {
+      ParametersComponent.push(
+        <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
+          <Stack direction="row" sx={{ m: 2 }}>
+            <Typography sx={{ mr: 1 }}>Option B - </Typography>
+            <Typography variant="body2">{value}</Typography>
+          </Stack>
+        </Grid>
+      );
+    } else if (key === "optionC") {
+      ParametersComponent.push(
+        <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
+          <Stack direction="row" sx={{ m: 2 }}>
+            <Typography sx={{ mr: 1 }}>Option C - </Typography>
+            <Typography variant="body2">{value}</Typography>
+          </Stack>
+        </Grid>
+      );
+    } else if (key === "optionD") {
+      ParametersComponent.push(
+        <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
+          <Stack direction="row" sx={{ m: 2 }}>
+            <Typography sx={{ mr: 1 }}>Option D - </Typography>
+            <Typography variant="body2">{value}</Typography>
+          </Stack>
+        </Grid>
+      );
+    } else if (key === "answer") {
+      ParametersComponent.push(
+        <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
+          <Stack direction="row" sx={{ m: 2 }}>
+            <Typography sx={{ mr: 1 }}>Answer - </Typography>
+            <Typography variant="body2">{value}</Typography>
+          </Stack>
+        </Grid>
+      );
+    } else if (key === "published") {
+      ParametersComponent.push(
+        <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
+          <Stack direction="row" sx={{ m: 2 }}>
+            <Typography sx={{ mr: 1 }}>Published - </Typography>
+            {value === "true" ? <CheckIcon /> : <UnpublishedIcon />}
+          </Stack>
+        </Grid>
+      );
+    } else if (key === "createdBy") {
+      ParametersComponent.push(
+        <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
+          <Stack direction="row" sx={{ m: 2 }}>
             <Typography sx={{ mr: 1 }}>Created By - </Typography>
             <SarthakUserDisplayUI userId={value} />
           </Stack>
         </Grid>
-      )
-    } else if (key === 'createdAt') {
-      const dates = value.split('to');
+      );
+    } else if (key === "createdAt") {
+      const dates = value.split("to");
       ParametersComponent.push(
         <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
+          <Stack direction="row" sx={{ m: 2 }}>
             <Typography sx={{ mr: 1 }}>Created At - </Typography>
-            <Typography variant="body2">{fDate(dates[0], 'dd/MM/yyyy HH:mm:ss') + ' - ' + fDate(dates[1], 'dd/MM/yyyy HH:mm:ss')}</Typography>
+            <Typography variant="body2">
+              {fDate(dates[0], "dd/MM/yyyy HH:mm:ss") +
+                " - " +
+                fDate(dates[1], "dd/MM/yyyy HH:mm:ss")}
+            </Typography>
             <Typography id={value} />
           </Stack>
         </Grid>
-      )
-    } else if (key === 'updatedBy') {
+      );
+    } else if (key === "updatedBy") {
       ParametersComponent.push(
         <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
+          <Stack direction="row" sx={{ m: 2 }}>
             <Typography sx={{ mr: 1 }}>Updated By - </Typography>
             <SarthakUserDisplayUI userId={value} />
           </Stack>
         </Grid>
-      )
-    } else if (key === 'updatedAt') {
-      const dates = value.split('to');
+      );
+    } else if (key === "updatedAt") {
+      const dates = value.split("to");
       ParametersComponent.push(
         <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
+          <Stack direction="row" sx={{ m: 2 }}>
             <Typography sx={{ mr: 1 }}>Updated At - </Typography>
-            <Typography variant="body2">{fDate(dates[0], 'dd/MM/yyyy HH:mm:ss') + ' - ' + fDate(dates[1], 'dd/MM/yyyy HH:mm:ss')}</Typography>
+            <Typography variant="body2">
+              {fDate(dates[0], "dd/MM/yyyy HH:mm:ss") +
+                " - " +
+                fDate(dates[1], "dd/MM/yyyy HH:mm:ss")}
+            </Typography>
             <Typography id={value} />
           </Stack>
         </Grid>
-      )
-    } else if (key === 'approvedBy') {
+      );
+    } else if (key === "approvedBy") {
       ParametersComponent.push(
         <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
+          <Stack direction="row" sx={{ m: 2 }}>
             <Typography sx={{ mr: 1 }}>Approved By - </Typography>
             <SarthakUserDisplayUI userId={value} />
           </Stack>
         </Grid>
-      )
-    } else if (key === 'approvedAt') {
-      const dates = value.split('to');
+      );
+    } else if (key === "approvedAt") {
+      const dates = value.split("to");
       ParametersComponent.push(
         <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
+          <Stack direction="row" sx={{ m: 2 }}>
             <Typography sx={{ mr: 1 }}>Approved At - </Typography>
-            <Typography variant="body2">{fDate(dates[0], 'dd/MM/yyyy HH:mm:ss') + ' - ' + fDate(dates[1], 'dd/MM/yyyy HH:mm:ss')}</Typography>
+            <Typography variant="body2">
+              {fDate(dates[0], "dd/MM/yyyy HH:mm:ss") +
+                " - " +
+                fDate(dates[1], "dd/MM/yyyy HH:mm:ss")}
+            </Typography>
             <Typography id={value} />
           </Stack>
         </Grid>
-      )
-    } else if (key === 'sentForReviewTo') {
-      ParametersComponent.push(
-        <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
-            <Typography sx={{ mr: 1 }}>Sent For Review To - </Typography>
-            <SarthakUserDisplayUI userId={value} />
-          </Stack>
-        </Grid>
-      )
-    } else if (key === 'sentForReviewAt') {
-      const dates = value.split('to');
-      ParametersComponent.push(
-        <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
-            <Typography sx={{ mr: 1 }}>Sent For Review At - </Typography>
-            <Typography variant="body2">{fDate(dates[0], 'dd/MM/yyyy HH:mm:ss') + ' - ' + fDate(dates[1], 'dd/MM/yyyy HH:mm:ss')}</Typography>
-            <Typography id={value} />
-          </Stack>
-        </Grid>
-      )
-    } else if (key === 'reviewedBackTo') {
-      ParametersComponent.push(
-        <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
-            <Typography sx={{ mr: 1 }}>Reviewed Back To - </Typography>
-            <SarthakUserDisplayUI userId={value} />
-          </Stack>
-        </Grid>
-      )
-    } else if (key === 'reviewedBackAt') {
-      const dates = value.split('to');
-      ParametersComponent.push(
-        <Grid item xs={12} sm={12} md={6} xl={6} lg={4} key={key + value}>
-          <Stack direction='row' sx={{ m: 2 }}>
-            <Typography sx={{ mr: 1 }}>Reviewed Back At - </Typography>
-            <Typography variant="body2">{fDate(dates[0], 'dd/MM/yyyy HH:mm:ss') + ' - ' + fDate(dates[1], 'dd/MM/yyyy HH:mm:ss')}</Typography>
-            <Typography id={value} />
-          </Stack>
-        </Grid>
-      )
+      );
     }
   }
 
@@ -244,19 +310,15 @@ export default function QuestionListComponent() {
   const pickerInput = useDateRangePicker(d1, d2);
   const { enqueueSnackbar } = useSnackbar();
 
-  const [standard, setStandard] = useState([]);
   const [standardList, setStandardList] = useState([]);
   const [isStandardListLoading, setIsStandardListLoading] = useState(false);
 
-  const [subject, setSubject] = useState([]);
   const [subjectList, setSubjectList] = useState([]);
   const [isSubjectListLoading, setIsSubjectListLoading] = useState(false);
 
-  const [chapter, setChapter] = useState([]);
   const [chapterList, setChapterList] = useState([]);
   const [isChapterListLoading, setIsChapterListLoading] = useState(false);
 
-  const [concept, setConcept] = useState([]);
   const [conceptList, setConceptList] = useState([]);
   const [isConceptListLoading, setIsConceptListLoading] = useState(false);
 
@@ -276,11 +338,15 @@ export default function QuestionListComponent() {
     try {
       setIsFetchingData(true);
       setCurrentPage(newPage);
-      const data = await Question.getQuestionList(tempParameters, newPage * rowsPerPage, rowsPerPage);
-      setTableData(data.documents)
+      const data = await Question.getQuestionList(
+        tempParameters,
+        newPage * rowsPerPage,
+        rowsPerPage
+      );
+      setTableData(data.documents);
       setIsFetchingData(false);
     } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
+      enqueueSnackbar(error.message, { variant: "error" });
     }
   };
   const handleChangeRowsPerPage = async (event) => {
@@ -288,11 +354,15 @@ export default function QuestionListComponent() {
       setIsFetchingData(true);
       setRowsPerPage(parseInt(event.target.value, 10));
       setCurrentPage(0);
-      const data = await Question.getQuestionList(tempParameters, 0, rowsPerPage);
-      setTableData(data.documents)
+      const data = await Question.getQuestionList(
+        tempParameters,
+        0,
+        rowsPerPage
+      );
+      setTableData(data.documents);
       setIsFetchingData(false);
     } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
+      enqueueSnackbar(error.message, { variant: "error" });
     }
   };
 
@@ -300,37 +370,48 @@ export default function QuestionListComponent() {
     const fetchData = async () => {
       setIsFetchingData(true);
       try {
-        const data = await Question.getQuestionList(tempParameters, 0, rowsPerPage);
-        setTotalCount(data.total)
-        setTableData(data.documents)
+        const data = await Question.getQuestionList(
+          tempParameters,
+          0,
+          rowsPerPage
+        );
+        setTotalCount(data.total);
+        setTableData(data.documents);
       } catch (error) {
-        enqueueSnackbar(error.message, { variant: 'error' });
+        enqueueSnackbar(error.message, { variant: "error" });
       }
       setIsFetchingData(false);
-    }
+    };
     fetchData();
-  }, [setIsFetchingData, enqueueSnackbar, rowsPerPage])
+  }, [setIsFetchingData, enqueueSnackbar, rowsPerPage]);
 
   const applyFilter = async () => {
-    var filterUrl = '';
+    var filterUrl = "";
     for (let key in parameters) {
-      if (key !== '') {
-        if (filterUrl === '') {
-          filterUrl += key + '=' + parameters[key];
+      if (key !== "") {
+        if (filterUrl === "") {
+          filterUrl += key + "=" + parameters[key];
         } else {
-          filterUrl += '&' + key + '=' + parameters[key];
+          filterUrl += "&" + key + "=" + parameters[key];
         }
       }
     }
-    if (filterUrl !== '') {
-      filterUrl = '?' + filterUrl;
+    if (filterUrl !== "") {
+      filterUrl = "?" + filterUrl;
     }
-    window.open(window.location.origin + '/dashboard/question/list' + filterUrl, '_self')
-  }
+    window.open(
+      window.location.origin + "/dashboard/question/list" + filterUrl,
+      "_self"
+    );
+  };
 
   const FilterMenuItem = searchParameterOptions.map((value) => {
-    return <MenuItem key={value.value} value={value.value}>{value.label}</MenuItem>
-  })
+    return (
+      <MenuItem key={value.value} value={value.value}>
+        {value.label}
+      </MenuItem>
+    );
+  });
 
   return (
     <>
@@ -347,12 +428,12 @@ export default function QuestionListComponent() {
 
             <Select
               labelId="parameters"
-              defaultValue={''}
+              defaultValue={""}
               value={currentParameter}
               label="Parameter"
               onChange={(event) => {
-                setCurrentParameter(event.target.value)
-                setCurrentValue(parameters[event.target.value])
+                setCurrentParameter(event.target.value);
+                setCurrentValue(parameters[event.target.value]);
               }}
             >
               <MenuItem value="">
@@ -361,44 +442,57 @@ export default function QuestionListComponent() {
               {FilterMenuItem}
             </Select>
 
-            {currentParameter === 'standardId' &&
+            {(currentParameter === "question" ||
+              currentParameter === "optionA" ||
+              currentParameter === "optionB" ||
+              currentParameter === "optionC" ||
+              currentParameter === "optionD" ||
+              currentParameter === "answer") && (
+              <TextField
+                id="outlined-textarea"
+                placeholder="Type here......."
+                sx={{ mt: 2 }}
+                multiline
+                fullWidth
+                variant="outlined"
+                minRows={5}
+                maxRows={10}
+                onChange={(event) => setCurrentValue(event.target.value)}
+              />
+            )}
+
+            {currentParameter === "standardId" && (
               <Autocomplete
                 fullWidth
                 autoComplete
-                value={standard}
                 loading={isStandardListLoading}
                 options={standardList}
                 onFocus={async (event, value) => {
+                  setIsStandardListLoading(true);
                   try {
-                    setIsStandardListLoading(true);
-                    const tem = await Question.getStandardList(value?.$id ? value?.name : value);
+                    const tem = await Question.getStandardList(value);
                     setStandardList(tem);
-                    setIsStandardListLoading(false);
                   } catch (error) {
                     console.log(error);
                   }
+                  setIsStandardListLoading(false);
                 }}
                 onInputChange={async (event, value) => {
+                  setIsStandardListLoading(true);
                   try {
-                    setIsStandardListLoading(true);
-                    const tem = await Question.getStandardList(value?.$id ? value?.name : value);
+                    const tem = await Question.getStandardList(value);
                     setStandardList(tem);
-                    setIsStandardListLoading(false);
                   } catch (error) {
                     console.log(error);
                   }
+                  setIsStandardListLoading(false);
                 }}
                 onChange={async (event, value) => {
-                  setStandard(value?.name);
-                  setCurrentValue(value?.$id);
+                  setCurrentValue(await Question.getStandardId(value));
                 }}
-                getOptionLabel={(option) => {
-                  if (typeof (option) === 'string') return option;
-                  else return option.name || '';
-                }}
-                renderOption={(props, option, { selected }) => (
-                  <li {...props}>
-                    {option?.name}
+                renderOption={(props, option) => (
+                  <li {...props} key={props.key}>
+                    {option}
                   </li>
                 )}
                 renderInput={(params) => (
@@ -406,46 +500,40 @@ export default function QuestionListComponent() {
                 )}
                 sx={{ mt: 2 }}
               />
-            }
+            )}
 
-            {currentParameter === 'subjectId' &&
+            {currentParameter === "subjectId" && (
               <Autocomplete
                 fullWidth
                 autoComplete
-                value={subject}
                 loading={isSubjectListLoading}
                 options={subjectList}
                 onFocus={async (event, value) => {
+                  setIsSubjectListLoading(true);
                   try {
-                    setIsSubjectListLoading(true);
-                    const tem = await Question.getSubjectList(value?.$id ? value?.name : value);
+                    const tem = await Question.getSubjectList(value, null);
                     setSubjectList(tem);
-                    setIsSubjectListLoading(false);
                   } catch (error) {
                     console.log(error);
                   }
+                  setIsSubjectListLoading(false);
                 }}
                 onInputChange={async (event, value) => {
+                  setIsSubjectListLoading(true);
                   try {
-                    setIsSubjectListLoading(true);
-                    const tem = await Question.getSubjectList(value?.$id ? value?.name : value);
+                    const tem = await Question.getSubjectList(value, null);
                     setSubjectList(tem);
-                    setIsSubjectListLoading(false);
                   } catch (error) {
                     console.log(error);
                   }
+                  setIsSubjectListLoading(false);
                 }}
-                onChange={(event, value) => {
-                  setCurrentValue(value?.$id);
-                  setSubject(value?.name);
+                onChange={async (event, value) => {
+                  setCurrentValue(await Question.getSubjectId(value));
                 }}
-                getOptionLabel={(option) => {
-                  if (typeof (option) === 'string') return option;
-                  else return option.name || '';
-                }}
-                renderOption={(props, option, { selected }) => (
-                  <li {...props}>
-                    {option?.name}
+                renderOption={(props, option) => (
+                  <li {...props} key={props.key}>
+                    {option}
                   </li>
                 )}
                 renderInput={(params) => (
@@ -453,46 +541,48 @@ export default function QuestionListComponent() {
                 )}
                 sx={{ mt: 2 }}
               />
-            }
+            )}
 
-            {currentParameter === 'chapterId' &&
+            {currentParameter === "chapterId" && (
               <Autocomplete
                 fullWidth
                 autoComplete
-                value={chapter}
                 loading={isChapterListLoading}
                 options={chapterList}
                 onFocus={async (event, value) => {
+                  setIsChapterListLoading(true);
                   try {
-                    setIsChapterListLoading(true);
-                    const tem = await Question.getChapterList(value?.$id ? value?.name : value);
+                    const tem = await Question.getChapterList(
+                      value,
+                      null,
+                      null
+                    );
                     setChapterList(tem);
-                    setIsChapterListLoading(false);
                   } catch (error) {
                     console.log(error);
                   }
+                  setIsChapterListLoading(false);
                 }}
                 onInputChange={async (event, value) => {
+                  setIsChapterListLoading(true);
                   try {
-                    setIsChapterListLoading(true);
-                    const tem = await Question.getChapterList(value?.$id ? value?.name : value);
+                    const tem = await Question.getChapterList(
+                      value,
+                      null,
+                      null
+                    );
                     setChapterList(tem);
-                    setIsChapterListLoading(false);
                   } catch (error) {
                     console.log(error);
                   }
+                  setIsChapterListLoading(false);
                 }}
-                onChange={(event, value) => {
-                  setCurrentValue(value?.$id);
-                  setChapter(value?.name);
+                onChange={async (event, value) => {
+                  setCurrentValue(await Question.getChapterId(value));
                 }}
-                getOptionLabel={(option) => {
-                  if (typeof (option) === 'string') return option;
-                  else return option.name || '';
-                }}
-                renderOption={(props, option, { selected }) => (
-                  <li {...props}>
-                    {option?.name}
+                renderOption={(props, option) => (
+                  <li {...props} key={props.key}>
+                    {option}
                   </li>
                 )}
                 renderInput={(params) => (
@@ -500,47 +590,51 @@ export default function QuestionListComponent() {
                 )}
                 sx={{ mt: 2 }}
               />
-            }
+            )}
 
-            {currentParameter === 'conceptId' &&
+            {currentParameter === "conceptId" && (
               <Autocomplete
                 fullWidth
                 autoComplete
-                value={concept}
                 loading={isConceptListLoading}
                 filterSelectedOptions
                 options={conceptList}
                 onFocus={async (event, value) => {
+                  setIsConceptListLoading(true);
                   try {
-                    setIsConceptListLoading(true);
-                    const tem = await Question.getConceptList(value?.$id ? value?.name : value);
+                    const tem = await Question.getConceptList(
+                      value,
+                      null,
+                      null,
+                      null
+                    );
                     setConceptList(tem);
-                    setIsConceptListLoading(false);
                   } catch (error) {
                     console.log(error);
                   }
+                  setIsConceptListLoading(false);
                 }}
                 onInputChange={async (event, value) => {
+                  setIsConceptListLoading(true);
                   try {
-                    setIsConceptListLoading(true);
-                    const tem = await Question.getConceptList(value?.$id ? value?.name : value);
+                    const tem = await Question.getConceptList(
+                      value,
+                      null,
+                      null,
+                      null
+                    );
                     setConceptList(tem);
-                    setIsConceptListLoading(false);
                   } catch (error) {
                     console.log(error);
                   }
+                  setIsConceptListLoading(false);
                 }}
-                onChange={(event, value) => {
-                  setCurrentValue(value?.$id);
-                  setConcept(value?.name);
+                onChange={async (event, value) => {
+                  setCurrentValue(await Question.getConceptId(value));
                 }}
-                getOptionLabel={(option) => {
-                  if (typeof (option) === 'string') return option;
-                  else return option.name || '';
-                }}
-                renderOption={(props, option, { selected }) => (
-                  <li {...props}>
-                    {option?.name}
+                renderOption={(props, option) => (
+                  <li {...props} key={props.key}>
+                    {option}
                   </li>
                 )}
                 renderInput={(params) => (
@@ -548,68 +642,66 @@ export default function QuestionListComponent() {
                 )}
                 sx={{ mt: 2 }}
               />
-            }
+            )}
 
-            {currentParameter === 'status' &&
+            {currentParameter === "published" && (
               <FormControl sx={{ mt: 2, minWidth: 500 }}>
-                <InputLabel id="statusId">Status</InputLabel>
-                <Select
-                  labelId="statusId"
-                  value={currentValue}
-                  label="Status"
-                  onChange={(event) => {
-                    setCurrentValue(event.target.value)
-                  }}
-                >
-                  <MenuItem value="Initialize">Initialize</MenuItem>
-                  <MenuItem value="SentForReview">SentForReview</MenuItem>
-                  <MenuItem value="ReviewedBack">ReviewedBack</MenuItem>
-                  <MenuItem value="Approved">Approved</MenuItem>
-                  <MenuItem value="Active">Active</MenuItem>
-                </Select>
+                <Stack direction="row">
+                  <Typography sx={{ mt: 0.5 }}>Unpublished</Typography>
+                  <Switch
+                    onChange={(event, checked) =>
+                      setCurrentValue(checked.toString())
+                    }
+                  />
+                  <Typography sx={{ mt: 0.5 }}>Published</Typography>
+                </Stack>
               </FormControl>
-            }
+            )}
 
-            {(currentParameter === 'createdBy' ||
-              currentParameter === 'updatedBy' ||
-              currentParameter === 'approvedBy' ||
-              currentParameter === 'sentForReviewTo' ||
-              currentParameter === 'reviewedBackTo') &&
+            {(currentParameter === "createdBy" ||
+              currentParameter === "updatedBy" ||
+              currentParameter === "approvedBy") && (
               <Autocomplete
                 fullWidth
                 autoComplete
-                value={users[currentParameter]}
                 loading={isUserListLoading}
                 options={userList}
                 onFocus={async (event, value) => {
+                  setIsUserListLoading(true);
                   try {
-                    setIsUserListLoading(true);
-                    const tem = await User.getUserList(value?.$id ? value?.name : value);
+                    const tem = await User.getUserList(value);
                     setUserList(tem);
-                    setIsUserListLoading(false);
                   } catch (error) {
                     console.log(error);
                   }
+                  setIsUserListLoading(false);
                 }}
                 onInputChange={async (event, value) => {
+                  setIsUserListLoading(true);
                   try {
-                    setIsUserListLoading(true);
-                    const tem = await User.getUserList(value?.$id ? value?.name : value);
+                    const tem = await User.getUserList(value);
                     setUserList(tem);
-                    setIsUserListLoading(false);
                   } catch (error) {
                     console.log(error);
                   }
+                  setIsUserListLoading(false);
                 }}
                 onChange={async (event, value) => {
-                  users[currentParameter] = value?.name;
+                  users[currentParameter] = value;
                   setUsers(users);
-                  setCurrentValue(value?.$id);
+                  setCurrentValue(
+                    (
+                      await appwriteDatabases.listDocuments(
+                        APPWRITE_API.databaseId,
+                        APPWRITE_API.collections.adminUsers,
+                        [Query.equal("empId", value.match(/\w{3}\d{4}/g))]
+                      )
+                    ).documents[0].$id
+                  );
                 }}
-                getOptionLabel={(option) => option?.name || option}
-                renderOption={(props, option, { selected }) => (
-                  <li {...props}>
-                    {option?.name + ' (' + option?.empId + ')'}
+                renderOption={(props, option) => (
+                  <li {...props} key={props.key}>
+                    {option}
                   </li>
                 )}
                 renderInput={(params) => (
@@ -617,55 +709,72 @@ export default function QuestionListComponent() {
                 )}
                 sx={{ mt: 2 }}
               />
-            }
+            )}
 
-            {(currentParameter === 'createdAt' ||
-              currentParameter === 'updatedAt' ||
-              currentParameter === 'approvedAt' ||
-              currentParameter === 'sentForReviewAt' ||
-              currentParameter === 'reviewedBackAt') &&
+            {(currentParameter === "createdAt" ||
+              currentParameter === "updatedAt" ||
+              currentParameter === "approvedAt") && (
               <TextField
                 fullWidth
-                label='Created date'
+                label="Created date"
                 placeholder="DD MMM YYYY-DD MMM YYYY"
-                value={pickerInput.startDate && fDate(pickerInput.startDate) + '-' + fDate(pickerInput.endDate)}
+                value={
+                  pickerInput.startDate &&
+                  fDate(pickerInput.startDate) +
+                    "-" +
+                    fDate(pickerInput.endDate)
+                }
                 onClick={pickerInput.onOpen}
                 sx={{ mt: 2 }}
               />
-            }
+            )}
           </FormControl>
         </DialogContent>
         <DialogActions>
-          {currentParameter && <Button onClick={() => {
-            delete parameters[currentParameter]
-            setParameters(parameters)
-            setCurrentValue(null);
-            setFilterWindowOpen(false)
-          }}>Delete</Button>}
+          {currentParameter && (
+            <Button
+              onClick={() => {
+                delete parameters[currentParameter];
+                setParameters(parameters);
+                setCurrentValue(null);
+                setFilterWindowOpen(false);
+              }}
+            >
+              Delete
+            </Button>
+          )}
           <Button onClick={() => setFilterWindowOpen(false)}>Discard</Button>
-          <Button onClick={() => {
-            if (currentParameter === 'createdAt' ||
-              currentParameter === 'updatedAt' ||
-              currentParameter === 'approvedAt' ||
-              currentParameter === 'sentForReviewAt' ||
-              currentParameter === 'reviewedBackAt') {
-              if (pickerInput.startDate && pickerInput.endDate) {
-                parameters[currentParameter] = pickerInput.startDate.toISOString() + 'to' + pickerInput.endDate.toISOString();
-                setParameters(parameters);
-              }
-            }
-            else {
-              if (currentValue) {
-                parameters[currentParameter] = currentValue;
-                setParameters(parameters);
+          <Button
+            onClick={() => {
+              if (
+                currentParameter === "createdAt" ||
+                currentParameter === "updatedAt" ||
+                currentParameter === "approvedAt" ||
+                currentParameter === "sentForReviewAt" ||
+                currentParameter === "reviewedBackAt"
+              ) {
+                if (pickerInput.startDate && pickerInput.endDate) {
+                  parameters[currentParameter] =
+                    pickerInput.startDate.toISOString() +
+                    "to" +
+                    pickerInput.endDate.toISOString();
+                  setParameters(parameters);
+                }
               } else {
-                delete parameters[currentParameter]
-                setParameters(parameters)
+                if (currentValue) {
+                  parameters[currentParameter] = currentValue;
+                  setParameters(parameters);
+                } else {
+                  delete parameters[currentParameter];
+                  setParameters(parameters);
+                }
               }
-            }
-            setCurrentValue(null);
-            setFilterWindowOpen(false)
-          }}>Add</Button>
+              setCurrentValue(null);
+              setFilterWindowOpen(false);
+            }}
+          >
+            Add
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -673,13 +782,19 @@ export default function QuestionListComponent() {
 
       <Card sx={{ mb: 2 }}>
         <CardHeader
-          title='Filter'
+          title="Filter"
           action={
             <>
-              <IconButton aria-label="edit" onClick={() => setFilterWindowOpen(true)}>
+              <IconButton
+                aria-label="edit"
+                onClick={() => setFilterWindowOpen(true)}
+              >
                 <EditIcon />
               </IconButton>
-              <IconButton aria-label="add" onClick={() => setFilterWindowOpen(true)}>
+              <IconButton
+                aria-label="add"
+                onClick={() => setFilterWindowOpen(true)}
+              >
                 <AddIcon />
               </IconButton>
               <ExpandMore
@@ -695,12 +810,10 @@ export default function QuestionListComponent() {
         />
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <CardContent>
-            <Grid container>
-              {ParametersComponent}
-            </Grid>
+            <Grid container>{ParametersComponent}</Grid>
           </CardContent>
         </Collapse>
-        <Box sx={{ textAlign: 'right', m: 2 }}>
+        <Box sx={{ textAlign: "right", m: 2 }}>
           <LoadingButton
             variant="contained"
             endIcon={<Iconify icon="majesticons:filter" />}
@@ -712,13 +825,15 @@ export default function QuestionListComponent() {
         </Box>
       </Card>
 
-      <Box sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexWrap: 'wrap',
-        '& > *': { my: 1 },
-      }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexWrap: "wrap",
+          "& > *": { my: 1 },
+        }}
+      >
         <TablePagination
           component="div"
           count={totalCount}
@@ -729,34 +844,48 @@ export default function QuestionListComponent() {
         />
       </Box>
 
-      <Card sx={{ mt: 2, bgcolor: theme?.palette.mode === 'dark' ? 'ActiveBorder' : '#DCDCDC' }}>
+      <Card
+        sx={{
+          mt: 2,
+          bgcolor: theme?.palette.mode === "dark" ? "ActiveBorder" : "#DCDCDC",
+        }}
+      >
         <Tabs
-          value='no-filter'
+          value="no-filter"
           sx={{
             mb: 2,
             px: 2,
-            bgcolor: 'background.neutral',
+            bgcolor: "background.neutral",
           }}
-        >
-        </Tabs>
+        ></Tabs>
 
         <Box sx={{ minHeight: 400 }}>
-          {isFetchingData &&
+          {isFetchingData && (
             <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={400} />
-          }
-          {tableData?.length === 0 && <Box sx={{ textAlign: 'center' }}><Typography variant="caption" color={"gray"}>No Question found</Typography></Box>}
-          {!isFetchingData && tableData?.map((item) => <QuestionRowComponent onSave={applyFilter} question={item} key={item?.$id} />)}
+          )}
+          {tableData?.length === 0 && (
+            <Box sx={{ textAlign: "center" }}>
+              <Typography variant="caption" color={"gray"}>
+                No Question found
+              </Typography>
+            </Box>
+          )}
+          {!isFetchingData &&
+            tableData?.map((item) => (
+              <QuestionRowComponent question={item} key={item?.$id} />
+            ))}
         </Box>
-
       </Card>
 
-      <Box sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexWrap: 'wrap',
-        '& > *': { my: 1 },
-      }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexWrap: "wrap",
+          "& > *": { my: 1 },
+        }}
+      >
         <TablePagination
           component="div"
           count={totalCount}
@@ -777,5 +906,5 @@ export default function QuestionListComponent() {
         isError={pickerInput.isError}
       />
     </>
-  )
+  );
 }

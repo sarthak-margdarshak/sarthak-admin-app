@@ -1,23 +1,23 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import { Helmet } from 'react-helmet-async';
-import { Link as RouterLink } from 'react-router-dom';
+import { Helmet } from "react-helmet-async";
+import { Link as RouterLink } from "react-router-dom";
 // @mui
-import { Button, Typography, Stack } from '@mui/material';
+import { Button, Typography, Stack } from "@mui/material";
 // assets
-import { MaintenanceIllustration } from '../assets/illustrations';
+import { MaintenanceIllustration } from "../assets/illustrations";
 
 // ----------------------------------------------------------------------
 
@@ -28,12 +28,12 @@ export default function MaintenancePage() {
         <title> Maintenance | Sarthak Admin</title>
       </Helmet>
 
-      <Stack sx={{ alignItems: 'center' }}>
+      <Stack sx={{ alignItems: "center" }}>
         <Typography variant="h3" paragraph>
           Website currently under maintenance
         </Typography>
 
-        <Typography sx={{ color: 'text.secondary' }}>
+        <Typography sx={{ color: "text.secondary" }}>
           We are currently working hard on this page!
         </Typography>
 

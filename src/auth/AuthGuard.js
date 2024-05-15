@@ -1,25 +1,25 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import PropTypes from 'prop-types';
-import { useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import PropTypes from "prop-types";
+import { useState } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 // components
-import LoadingScreen from '../components/loading-screen';
+import LoadingScreen from "../components/loading-screen";
 //
-import Login from '../pages/auth/LoginPage';
-import { useAuthContext } from './useAuthContext';
+import Login from "../pages/auth/LoginPage";
+import { useAuthContext } from "./useAuthContext";
 
 // ----------------------------------------------------------------------
 
@@ -30,17 +30,11 @@ AuthGuard.propTypes = {
 // ----------------------------------------------------------------------
 
 export default function AuthGuard({ children }) {
-  const { isAuthenticated, isInitialized, underMaintenance } = useAuthContext();
+  const { isAuthenticated, isInitialized } = useAuthContext();
 
   const { pathname } = useLocation();
 
   const [requestedLocation, setRequestedLocation] = useState(null);
-
-  if (underMaintenance) {
-    return (
-      <Navigate to={'/maintenance'} />
-    );
-  }
 
   if (!isInitialized) {
     return <LoadingScreen />;

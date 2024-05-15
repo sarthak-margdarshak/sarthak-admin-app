@@ -1,45 +1,52 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import PropTypes from 'prop-types';
-import { m } from 'framer-motion';
-import { useRef } from 'react';
+import PropTypes from "prop-types";
+import { m } from "framer-motion";
+import { useRef } from "react";
 // @mui
-import { useTheme, alpha } from '@mui/material/styles';
-import { Box, Stack, Card, Container, Typography, IconButton } from '@mui/material';
+import { useTheme, alpha } from "@mui/material/styles";
+import {
+  Box,
+  Stack,
+  Card,
+  Container,
+  Typography,
+  IconButton,
+} from "@mui/material";
 // _mock_
-import { _socials } from '../../_mock/arrays';
+import { _socials } from "../../_mock/arrays";
 // components
-import Image from '../../components/image';
-import Iconify from '../../components/iconify';
-import Carousel, { CarouselArrows } from '../../components/carousel';
-import { MotionViewport, varFade } from '../../components/animate';
+import Image from "../../components/image";
+import Iconify from "../../components/iconify";
+import Carousel, { CarouselArrows } from "../../components/carousel";
+import { MotionViewport, varFade } from "../../components/animate";
 
 // ----------------------------------------------------------------------
 
 const teamMembers = [
   {
-    id: 'EMP0001',
-    name: 'Suryamani Kumar',
-    role: 'Co-Founder/ CEO',
-    avatar: '/assets/images/portraits/portrait_2.jpg',
-    facebookId: '#',
-    instagramId: '#',
-    linkedinId: '#',
-    twitterId: '#',
-  }
-]
+    id: "EMP0001",
+    name: "Suryamani Kumar",
+    role: "Co-Founder/ CEO",
+    avatar: "/assets/images/portraits/portrait_2.jpg",
+    facebookId: "#",
+    instagramId: "#",
+    linkedinId: "#",
+    twitterId: "#",
+  },
+];
 
 // ----------------------------------------------------------------------
 
@@ -52,7 +59,7 @@ export default function AboutTeam() {
     infinite: false,
     arrows: false,
     slidesToShow: 4,
-    rtl: Boolean(theme.direction === 'rtl'),
+    rtl: Boolean(theme.direction === "rtl"),
     responsive: [
       {
         breakpoint: 1279,
@@ -78,9 +85,13 @@ export default function AboutTeam() {
   };
 
   return (
-    <Container component={MotionViewport} sx={{ pb: 10, textAlign: 'center' }}>
+    <Container component={MotionViewport} sx={{ pb: 10, textAlign: "center" }}>
       <m.div variants={varFade().inDown}>
-        <Typography component="p" variant="overline" sx={{ color: 'text.disabled' }}>
+        <Typography
+          component="p"
+          variant="overline"
+          sx={{ color: "text.disabled" }}
+        >
           Dream team
         </Typography>
       </m.div>
@@ -94,16 +105,19 @@ export default function AboutTeam() {
       <m.div variants={varFade().inUp}>
         <Typography
           sx={{
-            mx: 'auto',
+            mx: "auto",
             maxWidth: 640,
-            color: 'text.secondary',
+            color: "text.secondary",
           }}
         >
-          Teamwork is the ability to work together toward a common vision. The ability to direct individual accomplishments toward organizational objectives. It is the fuel that allows common people to attain uncommon results.
+          Teamwork is the ability to work together toward a common vision. The
+          ability to direct individual accomplishments toward organizational
+          objectives. It is the fuel that allows common people to attain
+          uncommon results.
         </Typography>
       </m.div>
 
-      <Box sx={{ position: 'relative' }}>
+      <Box sx={{ position: "relative" }}>
         <CarouselArrows
           filled
           shape="rounded"
@@ -112,13 +126,13 @@ export default function AboutTeam() {
           leftButtonProps={{
             sx: {
               left: 24,
-              ...(teamMembers.length < 5 && { display: 'none' }),
+              ...(teamMembers.length < 5 && { display: "none" }),
             },
           }}
           rightButtonProps={{
             sx: {
               right: 24,
-              ...(teamMembers.length < 5 && { display: 'none' }),
+              ...(teamMembers.length < 5 && { display: "none" }),
             },
           }}
         >
@@ -155,7 +169,8 @@ MemberCard.propTypes = {
 };
 
 function MemberCard({ member }) {
-  const { name, role, avatar, facebookId, instagramId, linkedinId, twitterId } = member;
+  const { name, role, avatar, facebookId, instagramId, linkedinId, twitterId } =
+    member;
 
   return (
     <Card key={name}>
@@ -163,7 +178,7 @@ function MemberCard({ member }) {
         {name}
       </Typography>
 
-      <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+      <Typography variant="body2" sx={{ mb: 2, color: "text.secondary" }}>
         {role}
       </Typography>
 
@@ -171,18 +186,27 @@ function MemberCard({ member }) {
         <Image alt={name} src={avatar} ratio="1/1" sx={{ borderRadius: 2 }} />
       </Box>
 
-      <Stack direction="row" alignItems="center" justifyContent="center" sx={{ p: 2 }}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="center"
+        sx={{ p: 2 }}
+      >
         {_socials.map((social) => (
           <IconButton
             key={social.name}
-            href={social.name==='FaceBook'?facebookId:(
-              social.name==='Instagram'?instagramId:(
-                social.name==='Linkedin'?linkedinId:twitterId
-              )
-            )}
+            href={
+              social.name === "FaceBook"
+                ? facebookId
+                : social.name === "Instagram"
+                ? instagramId
+                : social.name === "Linkedin"
+                ? linkedinId
+                : twitterId
+            }
             sx={{
               color: social.color,
-              '&:hover': {
+              "&:hover": {
                 bgcolor: alpha(social.color, 0.08),
               },
             }}

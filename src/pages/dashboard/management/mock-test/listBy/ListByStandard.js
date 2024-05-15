@@ -4,10 +4,10 @@ import CustomBreadcrumbs from "../../../../../components/custom-breadcrumbs";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
 import { useSettingsContext } from "../../../../../components/settings";
 import Iconify from "../../../../../components/iconify";
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from "react-router-dom";
 import MockTestTile from "../../../../../sections/@dashboard/mock-test/MockTestTile";
 import { useEffect, useState } from "react";
-import { MockTest } from "../../../../../auth/AppwriteContext";
+import { MockTest } from "../../../../../auth/MockTest";
 import MockLoaderSkeleton from "../../../../../sections/@dashboard/mock-test/MockLoaderSkeleton";
 
 export default function ListByStandard() {
@@ -17,13 +17,13 @@ export default function ListByStandard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true)
+      setLoading(true);
       const data = await MockTest.getMockTestStandardList();
       setStandardList(data);
-      setLoading(false)
-    }
+      setLoading(false);
+    };
     fetchData();
-  }, [])
+  }, []);
 
   return (
     <>
@@ -31,22 +31,22 @@ export default function ListByStandard() {
         <title> Mock-Test: List | Standard</title>
       </Helmet>
 
-      <Container maxWidth={themeStretch ? false : 'lg'}>
+      <Container maxWidth={themeStretch ? false : "lg"}>
         <CustomBreadcrumbs
           heading="Mock Test - Standards"
           links={[
             {
-              name: 'Dashboard',
+              name: "Dashboard",
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Mock-Test',
-            }
+              name: "Mock-Test",
+            },
           ]}
           action={
             <Button
               component={RouterLink}
-              to={PATH_DASHBOARD.question.list+"?status=Active"}
+              to={PATH_DASHBOARD.question.list + "?status=Active"}
               variant="contained"
             >
               View Available Question
@@ -54,38 +54,33 @@ export default function ListByStandard() {
           }
         />
 
-        {
-          loading
-            ?
-            <MockLoaderSkeleton />
-            :
-            <Grid container spacing={3}>
-              {
-                standardList.map((value) =>
-                  <Grid item key={value.id}>
-                    <MockTestTile
-                      tileValue={value.name}
-                      tileLink={PATH_DASHBOARD.mockTest.subjectList(value.id)}
-                      cnt={value.mockTestCnt}
-                    />
-                  </Grid>
-                )
-              }
-              <Grid item>
-                <Button
-                  sx={{ width: 128, height: 128 }}
-                  variant="contained"
-                  component={RouterLink}
-                  to={PATH_DASHBOARD.mockTest.new}
-                  startIcon={<Iconify icon="eva:plus-fill" />}
-                >
-                  Add New
-                </Button>
+        {loading ? (
+          <MockLoaderSkeleton />
+        ) : (
+          <Grid container spacing={3}>
+            {standardList.map((value) => (
+              <Grid item key={value.id}>
+                <MockTestTile
+                  tileValue={value.name}
+                  tileLink={PATH_DASHBOARD.mockTest.subjectList(value.id)}
+                  cnt={value.mockTestCnt}
+                />
               </Grid>
+            ))}
+            <Grid item>
+              <Button
+                sx={{ width: 128, height: 128 }}
+                variant="contained"
+                component={RouterLink}
+                to={PATH_DASHBOARD.mockTest.new}
+                startIcon={<Iconify icon="eva:plus-fill" />}
+              >
+                Add New
+              </Button>
             </Grid>
-        }
-
-      </Container >
+          </Grid>
+        )}
+      </Container>
     </>
-  )
+  );
 }

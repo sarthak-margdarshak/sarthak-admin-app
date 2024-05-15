@@ -1,21 +1,21 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "react-helmet-async";
 // @mui
-import { alpha } from '@mui/material/styles';
-import { Container, Paper, Typography } from '@mui/material';
+import { alpha } from "@mui/material/styles";
+import { Container, Paper, Typography } from "@mui/material";
 import {
   Timeline,
   TimelineDot,
@@ -24,21 +24,21 @@ import {
   TimelineSeparator,
   TimelineConnector,
   TimelineOppositeContent,
-} from '@mui/lab';
+} from "@mui/lab";
 // Section
-import { Block } from '../sections/_examples/Block';
+import { Block } from "../sections/_examples/Block";
 // Cpmponents
-import Iconify from '../components/iconify/Iconify';
+import Iconify from "../components/iconify/Iconify";
 
 // ----------------------------------------------------------------------
 
 const TIMELINES = [
   {
     key: 1,
-    title: 'Initial',
-    des: 'Implemented User, Team and Question functionality.',
-    version: 'v-0.1.0',
-    color: 'error',
+    title: "Initial",
+    des: "Implemented User, Team and Question functionality.",
+    version: "v-0.1.0",
+    color: "error",
     icon: <Iconify icon="eva:folder-add-fill" width={24} />,
   },
   // {
@@ -96,7 +96,6 @@ const TIMELINES = [
 export default function ChangeLogPage() {
   return (
     <>
-
       <Helmet>
         <title> Change Log | Sarthak Admin</title>
       </Helmet>
@@ -107,7 +106,7 @@ export default function ChangeLogPage() {
             {TIMELINES.map((item) => (
               <TimelineItem key={item.key}>
                 <TimelineOppositeContent>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
                     {item.version}
                   </Typography>
                 </TimelineOppositeContent>
@@ -123,7 +122,10 @@ export default function ChangeLogPage() {
                     }}
                   >
                     <Typography variant="subtitle2">{item.title}</Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "text.secondary" }}
+                    >
                       {item.des}
                     </Typography>
                   </Paper>

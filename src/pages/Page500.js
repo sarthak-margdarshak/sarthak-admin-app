@@ -1,26 +1,26 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import { m } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
-import { Link as RouterLink } from 'react-router-dom';
+import { m } from "framer-motion";
+import { Helmet } from "react-helmet-async";
+import { Link as RouterLink } from "react-router-dom";
 // @mui
-import { Button, Typography } from '@mui/material';
+import { Button, Typography } from "@mui/material";
 // components
-import { MotionContainer, varBounce } from '../components/animate';
+import { MotionContainer, varBounce } from "../components/animate";
 // assets
-import { SeverErrorIllustration } from '../assets/illustrations';
+import { SeverErrorIllustration } from "../assets/illustrations";
 
 // ----------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ export default function Page500() {
         </m.div>
 
         <m.div variants={varBounce().in}>
-          <Typography sx={{ color: 'text.secondary' }}>
+          <Typography sx={{ color: "text.secondary" }}>
             There was an error, please try again later.
           </Typography>
         </m.div>

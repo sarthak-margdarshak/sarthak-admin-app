@@ -1,33 +1,33 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import { useLocation, Outlet } from 'react-router-dom';
+import { useLocation, Outlet } from "react-router-dom";
 // @mui
-import { Box } from '@mui/material';
+import { Box } from "@mui/material";
 //
-import Footer from './Footer';
-import Header from './Header';
+import Footer from "./Footer";
+import Header from "./Header";
 
 // ----------------------------------------------------------------------
 
 export default function MainLayout() {
   const { pathname } = useLocation();
 
-  const isHome = pathname === '/';
+  const isHome = pathname === "/";
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: 1 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", height: 1 }}>
       <Header />
 
       <Box

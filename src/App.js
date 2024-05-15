@@ -58,29 +58,29 @@ import { AuthProvider } from './auth/AppwriteContext';
 
 function App() {
   return (
-    <AuthProvider>
-      <HelmetProvider>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <SettingsProvider>
-            <BrowserRouter>
-              <ScrollToTop />
-              <MotionLazyContainer>
-                <ThemeProvider>
-                  <ThemeSettings>
-                    <ThemeLocalization>
-                      <SnackbarProvider>
+    <HelmetProvider>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <SettingsProvider>
+          <BrowserRouter>
+            <ScrollToTop />
+            <MotionLazyContainer>
+              <ThemeProvider>
+                <ThemeSettings>
+                  <ThemeLocalization>
+                    <SnackbarProvider>
+                      <AuthProvider>
                         <StyledChart />
                         <Router />
-                      </SnackbarProvider>
-                    </ThemeLocalization>
-                  </ThemeSettings>
-                </ThemeProvider>
-              </MotionLazyContainer>
-            </BrowserRouter>
-          </SettingsProvider>
-        </LocalizationProvider>
-      </HelmetProvider>
-    </AuthProvider>
+                      </AuthProvider>
+                    </SnackbarProvider>
+                  </ThemeLocalization>
+                </ThemeSettings>
+              </ThemeProvider>
+            </MotionLazyContainer>
+          </BrowserRouter>
+        </SettingsProvider>
+      </LocalizationProvider>
+    </HelmetProvider>
   );
 }
 

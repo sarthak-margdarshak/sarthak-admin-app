@@ -1,32 +1,33 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import * as Yup from 'yup';
+import * as Yup from "yup";
 // form
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
 // @mui
-import { Alert, Stack, Card } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+import { Alert, Stack, Card } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 // components
-import Iconify from '../../../../components/iconify';
-import { useSnackbar } from '../../../../components/snackbar';
-import FormProvider, { RHFTextField } from '../../../../components/hook-form';
+import Iconify from "../../../../components/iconify";
+import { useSnackbar } from "../../../../components/snackbar";
+import FormProvider, { RHFTextField } from "../../../../components/hook-form";
 // Auth
-import { useAuthContext } from '../../../../auth/useAuthContext';
+import { useAuthContext } from "../../../../auth/useAuthContext";
 // locales
-import { useLocales } from '../../../../locales';
+import { useLocales } from "../../../../locales";
+import { appwriteAccount } from "../../../../auth/AppwriteContext";
 
 // ----------------------------------------------------------------------
 
@@ -34,21 +35,36 @@ export default function AccountChangePassword() {
   const { enqueueSnackbar } = useSnackbar();
   const { translate } = useLocales();
 
-  const { user, updatePassword } = useAuthContext();
+  const { user } = useAuthContext();
 
   const ChangePassWordSchema = Yup.object().shape({
-    oldPassword: Yup.string().required(translate('old')+' '+translate('password')+' '+translate('is_required')),
+    oldPassword: Yup.string().required(
+      translate("old") +
+        " " +
+        translate("password") +
+        " " +
+        translate("is_required")
+    ),
     newPassword: Yup.string()
-      .min(8, translate('password_8_char'))
-      .required(translate('new')+' '+translate('password')+' '+translate('is_required')),
-    confirmNewPassword: Yup.string().oneOf([Yup.ref('newPassword'), null], translate('password_match')),
+      .min(8, translate("password_8_char"))
+      .required(
+        translate("new") +
+          " " +
+          translate("password") +
+          " " +
+          translate("is_required")
+      ),
+    confirmNewPassword: Yup.string().oneOf(
+      [Yup.ref("newPassword"), null],
+      translate("password_match")
+    ),
   });
 
   const defaultValues = {
     email: user?.email,
-    oldPassword: '',
-    newPassword: '',
-    confirmNewPassword: '',
+    oldPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
   };
 
   const methods = useForm({
@@ -65,12 +81,14 @@ export default function AccountChangePassword() {
 
   const onSubmit = async (data) => {
     try {
-      await updatePassword(data.oldPassword, data.newPassword);
+      await appwriteAccount.updatePassword(data.newPassword, data.oldPassword);
       reset();
-      enqueueSnackbar(translate('update_success')+' !!!', {variant: 'success'});
+      enqueueSnackbar(translate("update_success") + " !!!", {
+        variant: "success",
+      });
     } catch (error) {
       reset();
-      setError('afterSubmit', {
+      setError("afterSubmit", {
         ...error,
         message: error.message || error,
       });
@@ -81,27 +99,47 @@ export default function AccountChangePassword() {
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Card>
         <Stack spacing={3} alignItems="flex-end" sx={{ p: 3 }}>
-          {!!errors.afterSubmit && <Alert severity="error">{errors.afterSubmit.message}</Alert>}
+          {!!errors.afterSubmit && (
+            <Alert severity="error">{errors.afterSubmit.message}</Alert>
+          )}
 
-          <RHFTextField name="email" type="email" label={translate('email')} disabled />
+          <RHFTextField
+            name="email"
+            type="email"
+            label={translate("email")}
+            disabled
+          />
 
-          <RHFTextField name="oldPassword" type="password" label={translate('old')+' '+translate('password')} />
+          <RHFTextField
+            name="oldPassword"
+            type="password"
+            label={translate("old") + " " + translate("password")}
+          />
 
           <RHFTextField
             name="newPassword"
             type="password"
-            label={translate('new')+' '+translate('password')}
+            label={translate("new") + " " + translate("password")}
             helperText={
               <Stack component="span" direction="row" alignItems="center">
-                <Iconify icon="eva:info-fill" width={16} sx={{ mr: 0.5 }} /> {translate('password_8_char')}
+                <Iconify icon="eva:info-fill" width={16} sx={{ mr: 0.5 }} />{" "}
+                {translate("password_8_char")}
               </Stack>
             }
           />
 
-          <RHFTextField name="confirmNewPassword" type="password" label={translate('password_confirm')} />
+          <RHFTextField
+            name="confirmNewPassword"
+            type="password"
+            label={translate("password_confirm")}
+          />
 
-          <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-          {translate('save_changes')}
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            loading={isSubmitting}
+          >
+            {translate("save_changes")}
           </LoadingButton>
         </Stack>
       </Card>

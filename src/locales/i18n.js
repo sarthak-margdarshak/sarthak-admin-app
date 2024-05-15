@@ -1,27 +1,27 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import i18n from 'i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
-import { initReactI18next } from 'react-i18next';
+import i18n from "i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
+import { initReactI18next } from "react-i18next";
 // utils
-import localStorageAvailable from '../utils/localStorageAvailable';
+import localStorageAvailable from "../utils/localStorageAvailable";
 //
-import { defaultLang } from './config-lang';
+import { defaultLang } from "./config-lang";
 //
-import enLocales from './langs/en';
-import hiLocales from './langs/hi';
+import enLocales from "./langs/en";
+import hiLocales from "./langs/hi";
 
 // ----------------------------------------------------------------------
 
@@ -30,7 +30,7 @@ let lng = defaultLang.value;
 const storageAvailable = localStorageAvailable();
 
 if (storageAvailable) {
-  lng = localStorage.getItem('i18nextLng') || defaultLang.value;
+  lng = localStorage.getItem("i18nextLng") || defaultLang.value;
 }
 
 i18n
@@ -44,8 +44,8 @@ i18n
     lng,
     fallbackLng: defaultLang.value,
     debug: false,
-    ns: ['translations'],
-    defaultNS: 'translations',
+    ns: ["translations"],
+    defaultNS: "translations",
     interpolation: {
       escapeValue: false,
     },

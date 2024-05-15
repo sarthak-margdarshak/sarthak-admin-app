@@ -1,27 +1,24 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import { Helmet } from 'react-helmet-async';
-import { m, useScroll, useSpring } from 'framer-motion';
+import { Helmet } from "react-helmet-async";
+import { m, useScroll, useSpring } from "framer-motion";
 // @mui
-import { useTheme } from '@mui/material/styles';
-import { Box } from '@mui/material';
+import { useTheme } from "@mui/material/styles";
+import { Box } from "@mui/material";
 // sections
-import {
-  HomeHero,
-  HomeMinimal,
-} from '../sections/home';
+import { HomeHero, HomeMinimal } from "../sections/home";
 
 // ----------------------------------------------------------------------
 
@@ -44,8 +41,8 @@ export default function HomePage() {
         right: 0,
         height: 3,
         zIndex: 1999,
-        position: 'fixed',
-        transformOrigin: '0%',
+        position: "fixed",
+        transformOrigin: "0%",
         backgroundColor: theme.palette.primary.main,
         scaleX,
       }}
@@ -64,13 +61,12 @@ export default function HomePage() {
 
       <Box
         sx={{
-          overflow: 'hidden',
-          position: 'relative',
-          bgcolor: 'background.default',
+          overflow: "hidden",
+          position: "relative",
+          bgcolor: "background.default",
         }}
       >
         <HomeMinimal />
-
       </Box>
     </>
   );

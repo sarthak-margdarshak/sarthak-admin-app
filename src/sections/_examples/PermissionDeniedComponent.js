@@ -1,15 +1,15 @@
-import { m } from 'framer-motion';
+import { m } from "framer-motion";
 // @mui
-import { Container, Typography } from '@mui/material';
+import { Container, Typography } from "@mui/material";
 // components
-import { MotionContainer, varBounce } from '../../components/animate';
+import { MotionContainer, varBounce } from "../../components/animate";
 // assets
-import { ForbiddenIllustration } from '../../assets/illustrations';
+import { ForbiddenIllustration } from "../../assets/illustrations";
 
 export default function PermissionDeniedComponent() {
   return (
     <>
-      <Container component={MotionContainer} sx={{ textAlign: 'center' }}>
+      <Container component={MotionContainer} sx={{ textAlign: "center" }}>
         <m.div variants={varBounce().in}>
           <Typography variant="h3" paragraph>
             Permission Denied
@@ -17,7 +17,7 @@ export default function PermissionDeniedComponent() {
         </m.div>
 
         <m.div variants={varBounce().in}>
-          <Typography sx={{ color: 'text.secondary' }}>
+          <Typography sx={{ color: "text.secondary" }}>
             You do not have permission to access this page
           </Typography>
         </m.div>
@@ -27,5 +27,5 @@ export default function PermissionDeniedComponent() {
         </m.div>
       </Container>
     </>
-  )
+  );
 }

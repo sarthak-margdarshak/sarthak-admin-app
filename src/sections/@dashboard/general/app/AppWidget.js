@@ -1,12 +1,12 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 // @mui
-import { useTheme } from '@mui/material/styles';
-import { Typography, Box, Stack } from '@mui/material';
+import { useTheme } from "@mui/material/styles";
+import { Typography, Box, Stack } from "@mui/material";
 // utils
-import { fNumber } from '../../../../utils/formatNumber';
+import { fNumber } from "../../../../utils/formatNumber";
 // components
-import Iconify from '../../../../components/iconify';
-import Chart, { useChart } from '../../../../components/chart';
+import Iconify from "../../../../components/iconify";
+import Chart, { useChart } from "../../../../components/chart";
 
 // ----------------------------------------------------------------------
 
@@ -19,7 +19,15 @@ AppWidget.propTypes = {
   icon: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
 };
 
-export default function AppWidget({ title, total, icon, color = 'primary', chart, sx, ...other }) {
+export default function AppWidget({
+  title,
+  total,
+  icon,
+  color = "primary",
+  chart,
+  sx,
+  ...other
+}) {
   const theme = useTheme();
 
   const { series, options } = chart;
@@ -37,7 +45,7 @@ export default function AppWidget({ title, total, icon, color = 'primary', chart
     plotOptions: {
       radialBar: {
         hollow: {
-          size: '78%',
+          size: "78%",
         },
         track: {
           margin: 0,
@@ -64,15 +72,21 @@ export default function AppWidget({ title, total, icon, color = 'primary', chart
       sx={{
         p: 3,
         borderRadius: 2,
-        overflow: 'hidden',
-        position: 'relative',
-        color: 'common.white',
+        overflow: "hidden",
+        position: "relative",
+        color: "common.white",
         bgcolor: `${color}.dark`,
         ...sx,
       }}
       {...other}
     >
-      <Chart type="radialBar" series={[series]} options={chartOptions} width={86} height={86} />
+      <Chart
+        type="radialBar"
+        series={[series]}
+        options={chartOptions}
+        width={86}
+        height={86}
+      />
 
       <Box sx={{ ml: 3 }}>
         <Typography variant="h4"> {fNumber(total)}</Typography>
@@ -88,7 +102,7 @@ export default function AppWidget({ title, total, icon, color = 'primary', chart
           width: 120,
           height: 120,
           opacity: 0.12,
-          position: 'absolute',
+          position: "absolute",
           right: theme.spacing(-3),
         }}
       />

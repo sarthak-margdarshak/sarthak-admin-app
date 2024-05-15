@@ -1,42 +1,42 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
 // routes
-import { PATH_PAGE } from '../../../routes/paths';
+import { PATH_PAGE } from "../../../routes/paths";
 // components
-import Iconify from '../../../components/iconify';
+import Iconify from "../../../components/iconify";
 
 // ----------------------------------------------------------------------
 
 const navConfig = [
   {
-    title: 'Home',
+    title: "Home",
     icon: <Iconify icon="eva:home-fill" />,
-    path: '/',
+    path: "/",
   },
   {
-    title: 'About us',
+    title: "About us",
     icon: <Iconify icon="mdi:about" />,
-    path: PATH_PAGE.about
+    path: PATH_PAGE.about,
   },
   {
-    title: 'Contact us',
+    title: "Contact us",
     icon: <Iconify icon="mdi:contact" />,
-    path: PATH_PAGE.contact
+    path: PATH_PAGE.contact,
   },
   {
-    title: 'FAQs',
+    title: "FAQs",
     icon: <Iconify icon="wpf:faq" />,
     path: PATH_PAGE.faqs,
   },

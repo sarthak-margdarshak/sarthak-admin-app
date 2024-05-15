@@ -1,20 +1,20 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 // utils
-import localStorageAvailable from '../utils/localStorageAvailable';
+import localStorageAvailable from "../utils/localStorageAvailable";
 
 // ----------------------------------------------------------------------
 
@@ -33,16 +33,17 @@ export default function useLocalStorage(key, defaultValue) {
         setValue(e.newValue ? JSON.parse(e.newValue) : e.newValue);
       }
     };
-    window.addEventListener('storage', listener);
+    window.addEventListener("storage", listener);
 
     return () => {
-      window.removeEventListener('storage', listener);
+      window.removeEventListener("storage", listener);
     };
   }, [key, defaultValue]);
 
   const setValueInLocalStorage = (newValue) => {
     setValue((currentValue) => {
-      const result = typeof newValue === 'function' ? newValue(currentValue) : newValue;
+      const result =
+        typeof newValue === "function" ? newValue(currentValue) : newValue;
 
       if (storageAvailable) {
         localStorage.setItem(key, JSON.stringify(result));

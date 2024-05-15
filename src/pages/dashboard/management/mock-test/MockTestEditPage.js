@@ -1,5 +1,3 @@
 export default function MockTestEditPage() {
-  return (
-    <div>Mock Test Edit</div>
-  )
+  return <div>Mock Test Edit</div>;
 }

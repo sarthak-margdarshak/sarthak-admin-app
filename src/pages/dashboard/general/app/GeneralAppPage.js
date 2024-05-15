@@ -1,47 +1,45 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import { Helmet } from 'react-helmet-async';
-import { Link as RouterLink } from 'react-router-dom';
+import { Helmet } from "react-helmet-async";
+import { Link as RouterLink } from "react-router-dom";
 // @mui
-import { Container, Grid, Button } from '@mui/material';
+import { Container, Grid, Button } from "@mui/material";
 // auth
-import { useAuthContext } from '../../../../auth/useAuthContext';
+import { useAuthContext } from "../../../../auth/useAuthContext";
 // _mock_
-import {
-  _appFeatured,
-} from '../../../../_mock/arrays';
+import { _appFeatured } from "../../../../_mock/arrays";
 // components
-import { useSettingsContext } from '../../../../components/settings';
+import { useSettingsContext } from "../../../../components/settings";
 // sections
 import {
   AppWelcome,
   AppFeatured,
   QuestionTypedChart,
   CategoryChart,
-} from '../../../../sections/@dashboard/general/app';
+} from "../../../../sections/@dashboard/general/app";
 // assets
-import { SeoIllustration } from '../../../../assets/illustrations';
-import { useEffect } from 'react';
-import { useState } from 'react';
-import { Question } from '../../../../auth/AppwriteContext';
-import { PATH_DASHBOARD } from '../../../../routes/paths';
+import { SeoIllustration } from "../../../../assets/illustrations";
+import { useEffect } from "react";
+import { useState } from "react";
+import { Question } from "../../../../auth/Question";
+import { PATH_DASHBOARD } from "../../../../routes/paths";
 
 // ----------------------------------------------------------------------
 
 export default function GeneralAppPage() {
-  const { user } = useAuthContext();
+  const { user, isInitialized } = useAuthContext();
 
   const { themeStretch } = useSettingsContext();
 
@@ -55,20 +53,22 @@ export default function GeneralAppPage() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      var data = await Question.getTotalQuestionStandardWise();
-      setStandardWise(data);
-      data = await Question.getTotalQuestionSubjectWise();
-      setSubjectWise(data);
-      data = await Question.getTotalQuestionChapterWise();
-      setChapterWise(data);
-      data = await Question.getTotalQuestionConceptWise();
-      setConceptWise(data);
-      data = await Question.getQuestionTypedData();
-      setQuestionCount(data);
+      try {
+        var data = await Question.getTotalQuestionStandardWise();
+        setStandardWise(data);
+        data = await Question.getTotalQuestionSubjectWise();
+        setSubjectWise(data);
+        data = await Question.getTotalQuestionChapterWise();
+        setChapterWise(data);
+        data = await Question.getTotalQuestionConceptWise();
+        setConceptWise(data);
+        data = await Question.getQuestionTypedData();
+        setQuestionCount(data);
+      } catch (error) {}
       setLoading(false);
-    }
+    };
     fetchData();
-  }, [user])
+  }, [isInitialized]);
 
   return (
     <>
@@ -76,7 +76,7 @@ export default function GeneralAppPage() {
         <title> General: App | Sarthak Admin</title>
       </Helmet>
 
-      <Container maxWidth={themeStretch ? false : 'xl'}>
+      <Container maxWidth={themeStretch ? false : "xl"}>
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
             <AppWelcome
@@ -87,11 +87,19 @@ export default function GeneralAppPage() {
                   sx={{
                     p: 3,
                     width: 360,
-                    margin: { xs: 'auto', md: 'inherit' },
+                    margin: { xs: "auto", md: "inherit" },
                   }}
                 />
               }
-              action={<Button component={RouterLink} variant="contained" to={PATH_DASHBOARD.question.new}>Enter The magic world</Button>}
+              action={
+                <Button
+                  component={RouterLink}
+                  variant="contained"
+                  to={PATH_DASHBOARD.question.new}
+                >
+                  Enter The magic world
+                </Button>
+              }
             />
           </Grid>
 
@@ -135,14 +143,14 @@ export default function GeneralAppPage() {
             />
           </Grid>
 
-          {!loading &&
+          {!loading && (
             <Grid item xs={12} md={6} lg={8}>
               <QuestionTypedChart
                 title="Question Typed"
                 questionCount={questionCount}
               />
             </Grid>
-          }
+          )}
         </Grid>
       </Container>
     </>

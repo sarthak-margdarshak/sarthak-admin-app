@@ -1,30 +1,30 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 // @mui
-import { useTheme } from '@mui/material/styles';
-import { IconButton } from '@mui/material';
+import { useTheme } from "@mui/material/styles";
+import { IconButton } from "@mui/material";
 // hooks
-import useResponsive from '../../../hooks/useResponsive';
+import useResponsive from "../../../hooks/useResponsive";
 // utils
-import { bgBlur } from '../../../utils/cssStyles';
+import { bgBlur } from "../../../utils/cssStyles";
 // config
-import { NAV } from '../../../config-global';
+import { NAV } from "../../../config-global";
 // components
-import Iconify from '../../../components/iconify';
-import { useSettingsContext } from '../../../components/settings';
+import Iconify from "../../../components/iconify";
+import { useSettingsContext } from "../../../components/settings";
 
 // ----------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ export default function NavToggleButton({ sx, ...other }) {
 
   const { themeLayout, onToggleLayout } = useSettingsContext();
 
-  const isDesktop = useResponsive('up', 'lg');
+  const isDesktop = useResponsive("up", "lg");
 
   if (!isDesktop) {
     return null;
@@ -52,13 +52,13 @@ export default function NavToggleButton({ sx, ...other }) {
       sx={{
         p: 0.5,
         top: 32,
-        position: 'fixed',
+        position: "fixed",
         left: NAV.W_DASHBOARD - 12,
         zIndex: theme.zIndex.appBar + 1,
         border: `dashed 1px ${theme.palette.divider}`,
         ...bgBlur({ opacity: 0.48, color: theme.palette.background.default }),
-        '&:hover': {
-          bgcolor: 'background.default',
+        "&:hover": {
+          bgcolor: "background.default",
         },
         ...sx,
       }}
@@ -66,7 +66,11 @@ export default function NavToggleButton({ sx, ...other }) {
     >
       <Iconify
         width={16}
-        icon={themeLayout === 'vertical' ? 'eva:arrow-ios-back-fill' : 'eva:arrow-ios-forward-fill'}
+        icon={
+          themeLayout === "vertical"
+            ? "eva:arrow-ios-back-fill"
+            : "eva:arrow-ios-forward-fill"
+        }
       />
     </IconButton>
   );

@@ -1,41 +1,44 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 // React
-import { useState } from 'react';
+import { useState } from "react";
 // @mui
-import { LoadingButton } from '@mui/lab';
+import { LoadingButton } from "@mui/lab";
 import {
   TextField,
   Autocomplete,
   Dialog,
   DialogTitle,
   Button,
-  DialogActions
-} from '@mui/material';
+  DialogActions,
+} from "@mui/material";
 // sections
-import { Block } from '../../../../sections/_examples/Block';
+import { Block } from "../../../../sections/_examples/Block";
 // Components
-import Iconify from '../../../../components/iconify';
-import { useSnackbar } from '../../../../components/snackbar';
+import Iconify from "../../../../components/iconify";
+import { useSnackbar } from "../../../../components/snackbar";
 // Auth
+import { User } from "../../../../auth/User";
 import {
-  Team,
-  User,
-} from '../../../../auth/AppwriteContext';
-import { useAuthContext } from '../../../../auth/useAuthContext';
+  appwriteDatabases,
+  appwriteTeams,
+} from "../../../../auth/AppwriteContext";
+import { APPWRITE_API } from "../../../../config-global";
+import { PATH_AUTH } from "../../../../routes/paths";
+import { Query } from "appwrite";
 
 // ----------------------------------------------------------------------
 
@@ -49,12 +52,17 @@ UserInviteDialoge.propTypes = {
 
 // ----------------------------------------------------------------------
 
-export default function UserInviteDialoge({ open, onClose, onUpdate, teamName, teamId, ...other }) {
-
+export default function UserInviteDialoge({
+  open,
+  onClose,
+  onUpdate,
+  teamName,
+  teamId,
+  ...other
+}) {
   const { enqueueSnackbar } = useSnackbar();
 
-  const [selectedUser, setSelectedUser] = useState({});
-  const { userProfile } = useAuthContext();
+  const [selectedUser, setSelectedUser] = useState("");
   const [role, setRole] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userList, setUserList] = useState([]);
@@ -63,29 +71,28 @@ export default function UserInviteDialoge({ open, onClose, onUpdate, teamName, t
   const sendInvite = async () => {
     setIsSubmitting(true);
     try {
-      await Team.sendTeamInvitationEmail(
-        selectedUser.email,
-        selectedUser.$id,
-        teamName,
-        selectedUser.name,
-        userProfile.name,
-        userProfile.designation,
-        userProfile.email,
-        userProfile.phoneNumber,
-        role,
+      const x = (
+        await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.adminUsers,
+          [Query.equal("empId", selectedUser.match(/\w{3}\d{4}/g))]
+        )
+      ).documents[0];
+      await appwriteTeams.createMembership(
         teamId,
-        userProfile.$id,
+        [role],
+        window.location.origin + PATH_AUTH.acceptInvite,
+        undefined,
+        x.$id
       );
-      await new Promise((resolve) => setTimeout(resolve, 5000));
       onClose();
       onUpdate();
-      enqueueSnackbar('Invite sent successfully');
+      enqueueSnackbar("Invite sent successfully");
     } catch (error) {
-      console.error(error);
-      enqueueSnackbar(error.message, { variant: 'error' });
+      enqueueSnackbar(error.message, { variant: "error" });
     }
     setIsSubmitting(false);
-  }
+  };
 
   return (
     <Dialog fullWidth maxWidth="md" open={open} {...other}>
@@ -94,49 +101,46 @@ export default function UserInviteDialoge({ open, onClose, onUpdate, teamName, t
         <Autocomplete
           fullWidth
           autoComplete
-          value={selectedUser?.name}
           loading={isUserListLoading}
           options={userList}
-          onFocus={async (event, value) => {
+          onFocus={async (event) => {
+            setIsUserListLoading(true);
             try {
-              setIsUserListLoading(true);
-              const tem = await User.getUserList(value?.$id ? value?.name : value);
+              const tem = await User.getUserList(event.currentTarget.value);
               setUserList(tem);
-              setIsUserListLoading(false);
             } catch (error) {
               console.log(error);
             }
+            setIsUserListLoading(false);
           }}
-          onInputChange={async (event, value) => {
+          onInputChange={async (event) => {
+            setIsUserListLoading(true);
             try {
-              setIsUserListLoading(true);
-              const tem = await User.getUserList(value?.$id ? value?.name : value);
+              const tem = await User.getUserList(event.currentTarget.value);
               setUserList(tem);
-              setIsUserListLoading(false);
             } catch (error) {
               console.log(error);
             }
+            setIsUserListLoading(false);
           }}
-          onChange={async (event, value) => {
-            setSelectedUser(value);
+          onChange={async (event) => {
+            setSelectedUser(event.currentTarget.innerHTML);
           }}
-          getOptionLabel={(option) => option?.name ? option?.name + ' (' + option?.empId + ')' : option}
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              {option?.name + ' (' + option?.empId + ')'}
+          renderOption={(props, option) => (
+            <li {...props} key={props.key}>
+              {option}
             </li>
           )}
-          renderInput={(params) => (
-            <TextField {...params} label="Value" />
-          )}
+          renderInput={(params) => <TextField {...params} label="Value" />}
           sx={{ mt: 2 }}
         />
 
         <TextField
           fullWidth
           onChange={(event) => setRole(event.target.value)}
-          placeholder='Role'
-          label='Role of Selected User'
+          placeholder="Role"
+          label="Role of Selected User"
+          helperText="Role of the selected User only in the current team."
           sx={{ mt: 3 }}
         />
 

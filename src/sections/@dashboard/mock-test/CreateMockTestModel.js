@@ -1,26 +1,35 @@
-import { Autocomplete, Card, CardContent, CardHeader, Grid, Paper, TextField } from "@mui/material";
-import { alpha } from '@mui/material/styles';
+import {
+  Autocomplete,
+  Card,
+  CardContent,
+  CardHeader,
+  Grid,
+  Paper,
+  TextField,
+} from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { useEffect, useState } from "react";
-import { MockTest, Question } from "../../../auth/AppwriteContext";
+import { Question } from "../../../auth/Question";
+import { MockTest } from "../../../auth/MockTest";
 import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { PATH_DASHBOARD } from "../../../routes/paths";
 
 export default function CreateMockTestModel() {
-  const searchParams = window.location.search.split('?');
+  const searchParams = window.location.search.split("?");
   var id1 = "";
   var id2 = "";
   var id3 = "";
-  if(searchParams.length===2) {
-    const searchMap = searchParams[1].split('&');
-    for(let i=0; i<searchMap.length; i++) {
-      const x = searchMap[i].split('=');
-      if(x[0] === 'standardId') {
-        id1 = x[1]
-      } else if(x[0] === 'subjectId') {
-        id2 = x[1]
-      } else if(x[0] === 'chapterId') {
-        id3 = x[1]
+  if (searchParams.length === 2) {
+    const searchMap = searchParams[1].split("&");
+    for (let i = 0; i < searchMap.length; i++) {
+      const x = searchMap[i].split("=");
+      if (x[0] === "standardId") {
+        id1 = x[1];
+      } else if (x[0] === "subjectId") {
+        id2 = x[1];
+      } else if (x[0] === "chapterId") {
+        id3 = x[1];
       }
     }
   }
@@ -29,11 +38,10 @@ export default function CreateMockTestModel() {
   const [standard, setStandard] = useState("");
   const [subject, setSubject] = useState("");
   const [chapter, setChapter] = useState("");
-  const [concept, setConcept] = useState("");
+  const [concept, setConcept] = useState([]);
   const [standardId, setStandardId] = useState(id1);
   const [subjectId, setSubjectId] = useState(id2);
   const [chapterId, setChapterId] = useState(id3);
-  const [conceptId, setConceptId] = useState("");
   const [time, setTime] = useState(0);
   const [questionCount, setQuestionCount] = useState(0);
 
@@ -65,45 +73,68 @@ export default function CreateMockTestModel() {
         const data = await Question.getChapterName(chapterId);
         setChapter(data);
       }
-    }
-    fetchData()
-  })
+    };
+    fetchData();
+  });
 
   const createQuestion = async () => {
     if (standard.length === 0) {
-      enqueueSnackbar('Standard cannot be empty', { variant: 'error' });
+      enqueueSnackbar("Standard cannot be empty", { variant: "error" });
       return;
     }
     if (subject.length === 0) {
-      enqueueSnackbar('Subject cannot be empty', { variant: 'error' });
+      enqueueSnackbar("Subject cannot be empty", { variant: "error" });
       return;
     }
     if (chapter.length === 0) {
-      enqueueSnackbar('Chapter cannot be empty', { variant: 'error' });
+      enqueueSnackbar("Chapter cannot be empty", { variant: "error" });
       return;
     }
     if (concept.length === 0) {
-      enqueueSnackbar('Concept cannot be empty', { variant: 'error' });
+      enqueueSnackbar("Concept cannot be empty", { variant: "error" });
       return;
     }
     if (time <= 0) {
-      enqueueSnackbar('Duration cannot less than or equal to 0', { variant: 'error' });
+      enqueueSnackbar("Duration cannot less than or equal to 0", {
+        variant: "error",
+      });
       return;
     }
     if (questionCount <= 0) {
-      enqueueSnackbar('Number of Question cannot less than or equal to 0', { variant: 'error' });
+      enqueueSnackbar("Number of Question cannot less than or equal to 0", {
+        variant: "error",
+      });
       return;
     }
     setCreating(true);
     try {
-      await MockTest.createMockTestDriver(standardId, subjectId, chapterId, conceptId, time, questionCount);
+      const x = concept.map((value) => value.$id);
+      x.sort((a, b) => a > b);
+      var conceptIds = x[0];
+      for (let i = 1; i < x.length; i++) {
+        conceptIds += "," + x[i];
+      }
+      console.log(conceptIds);
+      await MockTest.createMockTestDriver(
+        standardId,
+        subjectId,
+        chapterId,
+        conceptIds,
+        time,
+        questionCount
+      );
       setCreating(false);
-      window.location.href = PATH_DASHBOARD.mockTest.list(standardId, subjectId, chapterId, conceptId);
+      window.location.href = PATH_DASHBOARD.mockTest.list(
+        standardId,
+        subjectId,
+        chapterId,
+        conceptIds
+      );
     } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' })
+      enqueueSnackbar(error.message, { variant: "error" });
       setCreating(false);
     }
-  }
+  };
 
   return (
     <Paper
@@ -115,7 +146,10 @@ export default function CreateMockTestModel() {
       }}
     >
       <Card>
-        <CardHeader title="Create a mock-test" subheader="Information enterd here cannot be edited in future. Please enter the data carefully" />
+        <CardHeader
+          title="Create a mock-test"
+          subheader="Information enterd here cannot be edited in future. Please enter the data carefully"
+        />
         <CardContent sx={{ mt: 2 }}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={12}>
@@ -123,8 +157,8 @@ export default function CreateMockTestModel() {
                 fullWidth
                 disabled
                 value={mockTestId}
-                label='ID'
-                helperText='ID is automatically generated by the system.'
+                label="ID"
+                helperText="ID is automatically generated by the system."
               />
             </Grid>
 
@@ -138,7 +172,9 @@ export default function CreateMockTestModel() {
                 onFocus={async (event, value) => {
                   try {
                     setIsStandardListLoading(true);
-                    const tem = await Question.getStandardList(value?.$id ? value?.name : value);
+                    const tem = await Question.getStandardList(
+                      value?.$id ? value?.name : value
+                    );
                     setStandardList(tem);
                     setIsStandardListLoading(false);
                   } catch (error) {
@@ -148,7 +184,9 @@ export default function CreateMockTestModel() {
                 onInputChange={async (event, value) => {
                   try {
                     setIsStandardListLoading(true);
-                    const tem = await Question.getStandardList(value?.$id ? value?.name : value);
+                    const tem = await Question.getStandardList(
+                      value?.$id ? value?.name : value
+                    );
                     setStandardList(tem);
                     setIsStandardListLoading(false);
                   } catch (error) {
@@ -156,17 +194,15 @@ export default function CreateMockTestModel() {
                   }
                 }}
                 onChange={async (event, value) => {
-                  setStandardId(value?.$id)
+                  setStandardId(value?.$id);
                   setStandard(value?.name);
                 }}
                 getOptionLabel={(option) => {
-                  if (typeof (option) === 'string') return option;
-                  else return option.name || '';
+                  if (typeof option === "string") return option;
+                  else return option.name || "";
                 }}
                 renderOption={(props, option, { selected }) => (
-                  <li {...props}>
-                    {option?.name}
-                  </li>
+                  <li {...props}>{option?.name}</li>
                 )}
                 renderInput={(params) => (
                   <TextField {...params} label="Standard" />
@@ -185,7 +221,10 @@ export default function CreateMockTestModel() {
                 onFocus={async (event, value) => {
                   try {
                     setIsSubjectListLoading(true);
-                    const tem = await Question.getSubjectList(value?.$id ? value?.name : value, standardId);
+                    const tem = await Question.getSubjectList(
+                      value?.$id ? value?.name : value,
+                      standardId
+                    );
                     setSubjectList(tem);
                     setIsSubjectListLoading(false);
                   } catch (error) {
@@ -195,7 +234,10 @@ export default function CreateMockTestModel() {
                 onInputChange={async (event, value) => {
                   try {
                     setIsSubjectListLoading(true);
-                    const tem = await Question.getSubjectList(value?.$id ? value?.name : value, standardId);
+                    const tem = await Question.getSubjectList(
+                      value?.$id ? value?.name : value,
+                      standardId
+                    );
                     setSubjectList(tem);
                     setIsSubjectListLoading(false);
                   } catch (error) {
@@ -203,17 +245,15 @@ export default function CreateMockTestModel() {
                   }
                 }}
                 onChange={(event, value) => {
-                  setSubjectId(value?.$id)
+                  setSubjectId(value?.$id);
                   setSubject(value?.name);
                 }}
                 getOptionLabel={(option) => {
-                  if (typeof (option) === 'string') return option;
-                  else return option.name || '';
+                  if (typeof option === "string") return option;
+                  else return option.name || "";
                 }}
                 renderOption={(props, option, { selected }) => (
-                  <li {...props}>
-                    {option?.name}
-                  </li>
+                  <li {...props}>{option?.name}</li>
                 )}
                 renderInput={(params) => (
                   <TextField {...params} label="Subject" />
@@ -232,7 +272,11 @@ export default function CreateMockTestModel() {
                 onFocus={async (event, value) => {
                   try {
                     setIsChapterListLoading(true);
-                    const tem = await Question.getChapterList(value?.$id ? value?.name : value, standardId, subjectId);
+                    const tem = await Question.getChapterList(
+                      value?.$id ? value?.name : value,
+                      standardId,
+                      subjectId
+                    );
                     setChapterList(tem);
                     setIsChapterListLoading(false);
                   } catch (error) {
@@ -242,7 +286,11 @@ export default function CreateMockTestModel() {
                 onInputChange={async (event, value) => {
                   try {
                     setIsChapterListLoading(true);
-                    const tem = await Question.getChapterList(value?.$id ? value?.name : value, standardId, subjectId);
+                    const tem = await Question.getChapterList(
+                      value?.$id ? value?.name : value,
+                      standardId,
+                      subjectId
+                    );
                     setChapterList(tem);
                     setIsChapterListLoading(false);
                   } catch (error) {
@@ -250,17 +298,15 @@ export default function CreateMockTestModel() {
                   }
                 }}
                 onChange={(event, value) => {
-                  setChapterId(value?.$id)
+                  setChapterId(value?.$id);
                   setChapter(value?.name);
                 }}
                 getOptionLabel={(option) => {
-                  if (typeof (option) === 'string') return option;
-                  else return option.name || '';
+                  if (typeof option === "string") return option;
+                  else return option.name || "";
                 }}
                 renderOption={(props, option, { selected }) => (
-                  <li {...props}>
-                    {option?.name}
-                  </li>
+                  <li {...props}>{option?.name}</li>
                 )}
                 renderInput={(params) => (
                   <TextField {...params} label="Chapter" />
@@ -272,14 +318,21 @@ export default function CreateMockTestModel() {
             <Grid item xs={12} md={12}>
               <Autocomplete
                 fullWidth
+                multiple
+                filterSelectedOptions
                 autoComplete
-                value={concept}
+                defaultValue={concept}
                 loading={isConceptListLoading}
                 options={conceptList}
                 onFocus={async (event, value) => {
                   try {
                     setIsConceptListLoading(true);
-                    const tem = await Question.getConceptList(value?.$id ? value?.name : value, standardId, subjectId, chapterId);
+                    const tem = await Question.getConceptList(
+                      value?.$id ? value?.name : value,
+                      standardId,
+                      subjectId,
+                      chapterId
+                    );
                     setConceptList(tem);
                     setIsConceptListLoading(false);
                   } catch (error) {
@@ -289,7 +342,12 @@ export default function CreateMockTestModel() {
                 onInputChange={async (event, value) => {
                   try {
                     setIsConceptListLoading(true);
-                    const tem = await Question.getConceptList(value?.$id ? value?.name : value, standardId, subjectId, chapterId);
+                    const tem = await Question.getConceptList(
+                      value?.$id ? value?.name : value,
+                      standardId,
+                      subjectId,
+                      chapterId
+                    );
                     setChapterList(tem);
                     setIsConceptListLoading(false);
                   } catch (error) {
@@ -297,20 +355,17 @@ export default function CreateMockTestModel() {
                   }
                 }}
                 onChange={(event, value) => {
-                  setConceptId(value?.$id)
-                  setConcept(value?.name);
+                  setConcept(value);
                 }}
                 getOptionLabel={(option) => {
-                  if (typeof (option) === 'string') return option;
-                  else return option.name || '';
+                  if (typeof option === "string") return option;
+                  else return option.name || "";
                 }}
                 renderOption={(props, option, { selected }) => (
-                  <li {...props}>
-                    {option?.name}
-                  </li>
+                  <li {...props}>{option?.name}</li>
                 )}
                 renderInput={(params) => (
-                  <TextField {...params} label="Concept" />
+                  <TextField {...params} label="Concept" variant="standard" />
                 )}
                 sx={{ mt: 2 }}
               />
@@ -320,9 +375,9 @@ export default function CreateMockTestModel() {
               <TextField
                 fullWidth
                 value={time}
-                label='Duration'
+                label="Duration"
                 type="number"
-                helperText='Number of minutes as duration of test.'
+                helperText="Number of minutes as duration of test."
                 onChange={(event) => {
                   setTime(event.target.value);
                 }}
@@ -333,9 +388,9 @@ export default function CreateMockTestModel() {
               <TextField
                 fullWidth
                 value={questionCount}
-                label='No Of Questions'
+                label="No Of Questions"
                 type="number"
-                helperText='Number of questions in one test.'
+                helperText="Number of questions in one test."
                 onChange={(event) => {
                   setQuestionCount(event.target.value);
                 }}
@@ -356,5 +411,5 @@ export default function CreateMockTestModel() {
         </CardContent>
       </Card>
     </Paper>
-  )
+  );
 }

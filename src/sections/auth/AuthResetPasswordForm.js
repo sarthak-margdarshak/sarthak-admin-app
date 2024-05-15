@@ -1,39 +1,48 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import * as Yup from 'yup';
+import * as Yup from "yup";
 // form
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
 // @mui
-import { LoadingButton } from '@mui/lab';
+import { LoadingButton } from "@mui/lab";
 // components
-import FormProvider, { RHFTextField } from '../../components/hook-form';
+import FormProvider, { RHFTextField } from "../../components/hook-form";
 // Appwrite
-import { Client, Account } from "appwrite";
-import { APPWRITE_API } from '../../config-global';
+import { appwriteAccount } from "../../auth/AppwriteContext";
+import { PATH_AUTH } from "../../routes/paths";
+import { useSnackbar } from "../../components/snackbar";
 
 // ----------------------------------------------------------------------
 
 export default function AuthResetPasswordForm() {
+  const { enqueueSnackbar } = useSnackbar();
 
   const ResetPasswordSchema = Yup.object().shape({
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
+    email: Yup.string()
+      .required("Email is required")
+      .email("Email must be a valid email address"),
   });
+
+  const defaultValues = {
+    email: "",
+  };
 
   const methods = useForm({
     resolver: yupResolver(ResetPasswordSchema),
+    defaultValues,
   });
 
   const {
@@ -42,19 +51,15 @@ export default function AuthResetPasswordForm() {
   } = methods;
 
   const onSubmit = async (data) => {
-    const client = new Client()
-    .setEndpoint(APPWRITE_API.backendUrl)
-    .setProject(APPWRITE_API.projectId);
-
-    const account = new Account(client);
-
-    const promise = account.createRecovery(data.email,'http://localhost:3000/auth');
-
-    promise.then(function (response) {
-        console.log(response);
-    }, function (error) {
-        console.error(error);
-    });
+    try {
+      await appwriteAccount.createRecovery(
+        data.email,
+        window.location.origin + PATH_AUTH.newPassword
+      );
+      enqueueSnackbar("Email sent successfully!!!");
+    } catch (error) {
+      enqueueSnackbar(error.message, { variant: "error" });
+    }
   };
 
   return (

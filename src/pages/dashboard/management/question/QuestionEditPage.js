@@ -1,20 +1,20 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "react-helmet-async";
 // @mui
-import { Container } from '@mui/material';
+import { Container } from "@mui/material";
 // routes
-import { PATH_DASHBOARD } from '../../../../routes/paths';
+import { PATH_DASHBOARD } from "../../../../routes/paths";
 // components
-import { useSettingsContext } from '../../../../components/settings';
-import CustomBreadcrumbs from '../../../../components/custom-breadcrumbs';
+import { useSettingsContext } from "../../../../components/settings";
+import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs";
 // sections
-import { QuestionNewCreateForm } from '../../../../sections/@dashboard/question/create';
+import { QuestionNewCreateForm } from "../../../../sections/@dashboard/question/create";
 
 // ----------------------------------------------------------------------
 
 export default function QuestionEditPage() {
   const { themeStretch } = useSettingsContext();
 
-  const questionId = window.location.pathname.split('/')[3];
+  const questionId = window.location.pathname.split("/")[3];
 
   return (
     <>
@@ -22,16 +22,16 @@ export default function QuestionEditPage() {
         <title> Question: Edit | Sarthak Admin</title>
       </Helmet>
 
-      <Container maxWidth={themeStretch ? false : 'lg'}>
+      <Container maxWidth={themeStretch ? false : "lg"}>
         <CustomBreadcrumbs
           heading="Edit Question"
           links={[
             {
-              name: 'Dashboard',
+              name: "Dashboard",
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Question',
+              name: "Question",
               href: PATH_DASHBOARD.question.list,
             },
             {
@@ -39,7 +39,7 @@ export default function QuestionEditPage() {
               href: PATH_DASHBOARD.question.view(questionId),
             },
             {
-              name: 'Edit',
+              name: "Edit",
             },
           ]}
         />

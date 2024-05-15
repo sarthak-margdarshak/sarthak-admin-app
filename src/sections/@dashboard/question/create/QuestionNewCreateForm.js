@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
-import { forwardRef, useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import PropTypes from "prop-types";
+import { forwardRef, useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 // @mui
-import { styled, alpha } from '@mui/material/styles';
-import { LoadingButton } from '@mui/lab';
-import CloseIcon from '@mui/icons-material/Close';
+import { styled, alpha } from "@mui/material/styles";
+import { LoadingButton } from "@mui/lab";
+import CloseIcon from "@mui/icons-material/Close";
 import {
   Box,
   Step,
@@ -33,51 +33,49 @@ import {
   Skeleton,
   FormControlLabel,
   Checkbox,
-  DialogTitle,
-  DialogContent,
-  FormControl,
-  FormLabel,
-  RadioGroup,
-  DialogActions,
-  Radio,
   StepButton,
-} from '@mui/material';
+} from "@mui/material";
 // components
-import Iconify from '../../../../components/iconify';
-import { useSnackbar } from '../../../../components/snackbar';
-import { Upload } from '../../../../components/upload';
+import Iconify from "../../../../components/iconify";
+import { useSnackbar } from "../../../../components/snackbar";
+import { Upload } from "../../../../components/upload";
 // Auth
-import { useAuthContext } from '../../../../auth/useAuthContext';
-import {
-  Question, Team,
-} from '../../../../auth/AppwriteContext';
+import { useAuthContext } from "../../../../auth/useAuthContext";
+import { Question } from "../../../../auth/Question";
 // Routes
-import { PATH_DASHBOARD } from '../../../../routes/paths';
+import { PATH_DASHBOARD } from "../../../../routes/paths";
 // Animation
-import { MotionContainer, varFade, varZoom } from '../../../../components/animate';
-import { m } from 'framer-motion';
+import {
+  MotionContainer,
+  varFade,
+  varZoom,
+} from "../../../../components/animate";
+import { m } from "framer-motion";
 // Latex
 import MathInput from "react-math-keyboard";
-import 'katex/dist/katex.min.css';
-import ReactKatex from '@pkasila/react-katex';
+import "katex/dist/katex.min.css";
+import ReactKatex from "@pkasila/react-katex";
 
-import PermissionDeniedComponent from '../../../_examples/PermissionDeniedComponent';
-import { fDate } from '../../../../utils/formatTime';
-import Image from '../../../../components/image/Image';
-import { SarthakUserDisplayUI } from '../../user/profile';
-import SarthakTeamDisplayUI from '../../team/teamView/SarthakTeamDisplayUI';
+import PermissionDeniedComponent from "../../../_examples/PermissionDeniedComponent";
+import Image from "../../../../components/image/Image";
+import { SarthakUserDisplayUI } from "../../user/profile";
+import TimeAgo from "javascript-time-ago";
+import en from "javascript-time-ago/locale/en";
+
+TimeAgo.addDefaultLocale(en);
+const timeAgo = new TimeAgo("en-US");
 
 // ----------------------------------------------------------------------
 
-const STEPS = ['Meta', 'Q', 'A', 'B', 'C', 'D', 'Ans'];
+const STEPS = ["Meta", "Q", "A", "B", "C", "D", "Ans"];
 
 // ----------------------------------------------------------------------
 
 const QontoConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
     top: 10,
-    left: 'calc(-50% + 16px)',
-    right: 'calc(50% + 16px)',
+    left: "calc(-50% + 16px)",
+    right: "calc(50% + 16px)",
   },
   [`&.${stepConnectorClasses.active}`]: {
     [`& .${stepConnectorClasses.line}`]: {
@@ -98,24 +96,24 @@ const QontoConnector = styled(StepConnector)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-const QontoStepIconRoot = styled('div')(({ theme, ownerState }) => ({
+const QontoStepIconRoot = styled("div")(({ theme, ownerState }) => ({
   height: 22,
-  display: 'flex',
-  alignItems: 'center',
+  display: "flex",
+  alignItems: "center",
   color: theme.palette.text.disabled,
   ...(ownerState.active && {
     color: theme.palette.success.main,
   }),
-  '& .QontoStepIcon-completedIcon': {
+  "& .QontoStepIcon-completedIcon": {
     zIndex: 1,
     fontSize: 18,
     color: theme.palette.success.main,
   },
-  '& .QontoStepIcon-circle': {
+  "& .QontoStepIcon-circle": {
     width: 8,
     height: 8,
-    borderRadius: '50%',
-    backgroundColor: 'currentColor',
+    borderRadius: "50%",
+    backgroundColor: "currentColor",
   },
 }));
 
@@ -157,28 +155,27 @@ const Transition = forwardRef(function Transition(props, ref) {
 // ----------------------------------------------------------------------
 
 export default function QuestionNewCreateForm({ inComingQuestionId }) {
-
   const { enqueueSnackbar } = useSnackbar();
-  const { user } = useAuthContext();
+  const { user, sarthakInfoData } = useAuthContext();
   const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState(0);
   const [completedStep, setCompletedStep] = useState({});
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
 
-  const [questionId, setQuestionId] = useState('');
-  const [question, setQuestion] = useState('');
+  const [questionId, setQuestionId] = useState("");
+  const [question, setQuestion] = useState("");
   const [coverQuestion, setCoverQuestion] = useState(null);
-  const [optionA, setOptionA] = useState('');
+  const [optionA, setOptionA] = useState("");
   const [coverOptionA, setCoverOptionA] = useState(null);
-  const [optionB, setOptionB] = useState('');
+  const [optionB, setOptionB] = useState("");
   const [coverOptionB, setCoverOptionB] = useState(null);
-  const [optionC, setOptionC] = useState('');
+  const [optionC, setOptionC] = useState("");
   const [coverOptionC, setCoverOptionC] = useState(null);
-  const [optionD, setOptionD] = useState('');
+  const [optionD, setOptionD] = useState("");
   const [coverOptionD, setCoverOptionD] = useState(null);
-  const [answerOption, setAnswerOption] = useState('');
-  const [contentAnswer, setContentAnswer] = useState('');
+  const [answerOption, setAnswerOption] = useState("");
+  const [contentAnswer, setContentAnswer] = useState("");
   const [coverAnswer, setCoverAnswer] = useState(null);
 
   const [correctOptionA, setCorrectOptionA] = useState(false);
@@ -186,26 +183,15 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
   const [correctOptionC, setCorrectOptionC] = useState(false);
   const [correctOptionD, setCorrectOptionD] = useState(false);
 
-  const [standard, setStandard] = useState('');
-  const [subject, setSubject] = useState('');
-  const [chapter, setChapter] = useState('');
-  const [concept, setConcept] = useState('');
-  const [standardId, setStandardId] = useState('');
-  const [subjectId, setSubjectId] = useState('');
-  const [chapterId, setChapterId] = useState('');
+  const [standard, setStandard] = useState("");
+  const [subject, setSubject] = useState("");
+  const [chapter, setChapter] = useState("");
+  const [concept, setConcept] = useState("");
 
-  const [status, setStatus] = useState('');
   const [createdBy, setCreatedBy] = useState();
   const [createdAt, setCreatedAt] = useState();
   const [updatedBy, setUpdatedBy] = useState();
   const [updatedAt, setUpdatedAt] = useState();
-  const [approvedBy, setApprovedBy] = useState();
-  const [approvedAt, setApprovedAt] = useState();
-  const [sentForReviewTo, setSentForReviewTo] = useState();
-  const [sentForReviewAt, setSentForReviewAt] = useState();
-  const [reviewBackTo, setReviewBackTo] = useState();
-  const [reviewBackAt, setReviewBackAt] = useState();
-  const [reviewComment, setReviewComment] = useState('');
 
   const [standardList, setStandardList] = useState([]);
   const [subjectList, setSubjectList] = useState([]);
@@ -214,18 +200,18 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [motionKey, setMotionKey] = useState(0);
-  const [motion, setMotion] = useState('fadeInRight');
+  const [motion, setMotion] = useState("fadeInRight");
 
   const [mathDialogOpen, setMathDialogOpen] = useState(false);
-  const [latex, setLatex] = useState("")
+  const [latex, setLatex] = useState("");
 
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState({ active: false, message: 'This is an error' })
+  const [error, setError] = useState({
+    active: false,
+    message: "This is an error",
+  });
 
   const [canEdit, setCanEdit] = useState(true);
-  const [openOwernsDialogue, setOpenOwnersDialogue] = useState(false);
-  const [ownTeams, setOwnTeams] = useState([]);
-  const [approvingTeam, setApprovingTeam] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -234,44 +220,56 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
           const data = await Question.getQuestion(inComingQuestionId);
           setQuestionId(data?.$id);
 
-          setCanEdit(await Question.canAction(data?.$id, user?.$id));
+          setCanEdit(!data?.published);
 
-          setQuestion(data?.contentQuestion);
-          var fileData = await Question.getQuestionContentForPreview(data?.coverQuestion);
+          setQuestion(data?.contentQuestion || "");
+          var fileData = await Question.getQuestionContentForPreview(
+            data?.coverQuestion
+          );
           setCoverQuestion(fileData);
 
-          setOptionA(data?.contentOptionA);
-          fileData = await Question.getQuestionContentForPreview(data?.coverOptionA);
+          setOptionA(data?.contentOptionA || "");
+          fileData = await Question.getQuestionContentForPreview(
+            data?.coverOptionA
+          );
           setCoverOptionA(fileData);
 
-          setOptionB(data?.contentOptionB);
-          fileData = await Question.getQuestionContentForPreview(data?.coverOptionB);
+          setOptionB(data?.contentOptionB || "");
+          fileData = await Question.getQuestionContentForPreview(
+            data?.coverOptionB
+          );
           setCoverOptionB(fileData);
 
-          setOptionC(data?.contentOptionC);
-          fileData = await Question.getQuestionContentForPreview(data?.coverOptionC);
+          setOptionC(data?.contentOptionC || "");
+          fileData = await Question.getQuestionContentForPreview(
+            data?.coverOptionC
+          );
           setCoverOptionC(fileData);
 
-          setOptionD(data?.contentOptionD);
-          fileData = await Question.getQuestionContentForPreview(data?.coverOptionD);
+          setOptionD(data?.contentOptionD || "");
+          fileData = await Question.getQuestionContentForPreview(
+            data?.coverOptionD
+          );
           setCoverOptionD(fileData);
 
           var tmpData = data?.answerOption;
           for (let i in tmpData) {
-            if (tmpData[i] === 'A') {
+            if (tmpData[i] === "A") {
               setCorrectOptionA(true);
-            } else if (tmpData[i] === 'B') {
+            } else if (tmpData[i] === "B") {
               setCorrectOptionB(true);
-            } else if (tmpData[i] === 'C') {
+            } else if (tmpData[i] === "C") {
               setCorrectOptionC(true);
-            } else if (tmpData[i] === 'D') {
+            } else if (tmpData[i] === "D") {
               setCorrectOptionD(true);
             }
           }
 
           setAnswerOption(data?.answerOption);
           setContentAnswer(data?.contentAnswer);
-          fileData = await Question.getQuestionContentForPreview(data?.coverAnswer);
+          fileData = await Question.getQuestionContentForPreview(
+            data?.coverAnswer
+          );
           setCoverAnswer(fileData);
 
           tmpData = await Question.getStandardName(data?.standardId);
@@ -283,245 +281,295 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
           tmpData = await Question.getConceptName(data?.conceptId);
           setConcept(tmpData);
 
-          setStatus(data?.status);
           setCreatedAt(data?.$createdAt);
-          setCreatedBy(data?.createdBy)
+          setCreatedBy(data?.createdBy);
           setUpdatedAt(data?.$updatedAt);
           setUpdatedBy(data?.updatedBy);
-          setApprovedAt(data?.approvedAt);
-          setApprovedBy(data?.approvedBy);
-          setSentForReviewAt(data?.sentForReviewAt);
-          setSentForReviewTo(data?.sentForReviewTo);
-          setReviewBackAt(data?.reviewBackAt);
-          setReviewBackTo(data?.reviewdBackTo);
-          setReviewComment(data?.reviewComment);
         }
-        var dt = await Question.getStandardList();
-        dt = await Question.getChapterList()
-        setChapterList(dt);
-        dt = await Question.getConceptList()
-        setConceptList(dt);
-        const data = await Team.getMyTeamData(user?.$id);
-        setOwnTeams(data.documents);
       } catch (error) {
-        enqueueSnackbar(error.message, { variant: 'error' });
+        enqueueSnackbar(error.message, { variant: "error" });
       }
-      setIsLoadingData(false)
-    }
+      setIsLoadingData(false);
+    };
     fetchData();
-  }, [inComingQuestionId, enqueueSnackbar, user])
+  }, [inComingQuestionId, enqueueSnackbar, user]);
 
   const saveMetaData = async (moveTo) => {
     setIsSaving(true);
-    if (standard === null || standard === '') {
-      setError({ active: true, message: 'Standard cannot be empty. — check it out!' });
+    if (standard === null || standard === "") {
+      setError({
+        active: true,
+        message: "Standard cannot be empty. — check it out!",
+      });
       setIsSaving(false);
       return false;
     }
-    if (subject === null || subject === '') {
-      setError({ active: true, message: 'Subject cannot be empty. — check it out!' });
+    if (subject === null || subject === "") {
+      setError({
+        active: true,
+        message: "Subject cannot be empty. — check it out!",
+      });
       setIsSaving(false);
       return false;
     }
-    if (chapter === null || chapter === '') {
-      setError({ active: true, message: 'Chapter cannot be empty. — check it out!' });
+    if (chapter === null || chapter === "") {
+      setError({
+        active: true,
+        message: "Chapter cannot be empty. — check it out!",
+      });
       setIsSaving(false);
       return false;
     }
-    if (concept === null || concept === '') {
-      setError({ active: true, message: 'Concept cannot be empty. — check it out!' });
+    if (concept === null || concept === "") {
+      setError({
+        active: true,
+        message: "Concept cannot be empty. — check it out!",
+      });
       setIsSaving(false);
       return false;
     }
-    try {
-      const savedQuestion = await Question.uploadMetaDataQuestion(questionId, standard, subject, chapter, concept, user?.$id);
-      setQuestionId(savedQuestion?.$id);
-      displaySection(moveTo);
-      setMotionKey(motionKey + 1)
-      setMotion('zoomOut')
-      setActiveStep(moveTo);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setMotionKey(motionKey + 2)
-      setMotion('fadeInRight');
-    } catch (error) {
-      setError({ active: true, message: error.message });
-    }
+    Question.uploadMetaDataQuestion(
+      questionId,
+      standard,
+      subject,
+      chapter,
+      concept,
+      sarthakInfoData.adminTeamId
+    )
+      .then((value) => {
+        setQuestionId(value?.$id);
+      })
+      .catch((reason) => {
+        setError({ active: true, message: reason.message });
+      })
+      .finally(() => {});
+    displaySection(moveTo);
+    setMotionKey(motionKey + 1);
+    setMotion("zoomOut");
+    setActiveStep(moveTo);
+    setMotionKey(motionKey + 2);
+    setMotion("fadeInRight");
     setIsSaving(false);
     setMotionKey(motionKey + 1);
-  }
+  };
 
   const saveQuestion = async (moveTo) => {
     setQuestion(content);
     setIsSaving(true);
-    if (content === null || content === '') {
-      setError({ active: true, message: 'Question cannot be empty. — check it out!' });
-      setIsSaving(false);
-      return false;
+    if (content === null || content === "") {
+      setError({
+        active: true,
+        message: "You have left question empty. — check it out!",
+      });
+    } else {
+      Question.uploadQuestionContent(questionId, content, coverQuestion)
+        .then((response) => {
+          Question.getQuestionContentForPreview(response?.coverQuestion)
+            .then((response) => {
+              setCoverQuestion(response);
+            })
+            .catch((reason) => {
+              setError({ active: true, message: reason });
+            })
+            .finally(() => {});
+        })
+        .catch((reason) => {
+          setError({ active: true, message: reason });
+        })
+        .finally(() => {});
     }
-    try {
-      const data = await Question.uploadQuestionContent(questionId, content, coverQuestion, user?.$id);
-      const fileData = await Question.getQuestionContentForPreview(data?.coverQuestion);
-      setCoverQuestion(fileData);
-
-      displaySection(moveTo)
-      setMotionKey(motionKey + 1)
-      setMotion('zoomOut')
-      setActiveStep(moveTo);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setMotionKey(motionKey + 2)
-      setMotion('fadeInRight')
-    } catch (error) {
-      setError({ active: true, message: error.message });
-    }
+    displaySection(moveTo);
+    setMotionKey(motionKey + 1);
+    setMotion("zoomOut");
+    setActiveStep(moveTo);
+    setMotionKey(motionKey + 2);
+    setMotion("fadeInRight");
     setIsSaving(false);
-  }
+  };
 
   const saveOptionA = async (moveTo) => {
     setIsSaving(true);
     setOptionA(content);
-    if (content === null || content === '') {
-      setError({ active: true, message: 'Option A cannot be empty. — check it out!' });
-      setIsSaving(false);
-      return false;
+    if (content === null || content === "") {
+      setError({
+        active: true,
+        message: "You have left option A empty. — check it out!",
+      });
+    } else {
+      Question.uploadOptionAContent(questionId, content, coverOptionA)
+        .then((response) => {
+          Question.getQuestionContentForPreview(response?.coverOptionA)
+            .then((response) => {
+              setCoverOptionA(response);
+            })
+            .catch((reason) => {
+              setError({ active: true, message: reason });
+            })
+            .finally(() => {});
+        })
+        .catch((reason) => {
+          setError({ active: true, message: reason });
+        })
+        .finally(() => {});
     }
-    try {
-      const data = await Question.uploadOptionAContent(questionId, content, coverOptionA, user?.$id);
-      const fileData = await Question.getQuestionContentForPreview(data?.coverOptionA);
-      setCoverOptionA(fileData);
-      displaySection(moveTo)
-      setMotionKey(motionKey + 1)
-      setMotion('zoomOut')
-      setActiveStep(moveTo);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setMotionKey(motionKey + 2)
-      setMotion('fadeInRight')
-    } catch (error) {
-      setError({ active: true, message: error.message });
-    }
+    displaySection(moveTo);
+    setMotionKey(motionKey + 1);
+    setMotion("zoomOut");
+    setActiveStep(moveTo);
+    setMotionKey(motionKey + 2);
+    setMotion("fadeInRight");
     setIsSaving(false);
-  }
+  };
 
   const saveOptionB = async (moveTo) => {
     setIsSaving(true);
     setOptionB(content);
-    if (content === null || content === '') {
-      setError({ active: true, message: 'Option B cannot be empty. — check it out!' });
-      setIsSaving(false);
-      return false;
+    if (content === null || content === "") {
+      setError({
+        active: true,
+        message: "You have left option B empty. — check it out!",
+      });
+    } else {
+      Question.uploadOptionBContent(questionId, content, coverOptionB)
+        .then((response) => {
+          Question.getQuestionContentForPreview(response?.coverOptionB)
+            .then((response) => {
+              setCoverOptionB(response);
+            })
+            .catch((reason) => {
+              setError({ active: true, message: reason });
+            })
+            .finally(() => {});
+        })
+        .catch((reason) => {
+          setError({ active: true, message: reason });
+        })
+        .finally(() => {});
     }
-    try {
-      const data = await Question.uploadOptionBContent(questionId, content, coverOptionB, user?.$id);
-      const fileData = await Question.getQuestionContentForPreview(data?.coverOptionB);
-      setCoverOptionB(fileData);
-      displaySection(moveTo)
-      setMotionKey(motionKey + 1)
-      setMotion('zoomOut')
-      setActiveStep(moveTo);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setMotionKey(motionKey + 2)
-      setMotion('fadeInRight')
-    } catch (error) {
-      setError({ active: true, message: error.message });
-    }
+    displaySection(moveTo);
+    setMotionKey(motionKey + 1);
+    setMotion("zoomOut");
+    setActiveStep(moveTo);
+    setMotionKey(motionKey + 2);
+    setMotion("fadeInRight");
     setIsSaving(false);
-  }
+  };
 
   const saveOptionC = async (moveTo) => {
     setIsSaving(true);
     setOptionC(content);
-    if (content === null || content === '') {
-      setError({ active: true, message: 'Option C cannot be empty. — check it out!' });
-      setIsSaving(false);
-      return false;
+    if (content === null || content === "") {
+      setError({
+        active: true,
+        message: "You have left option C empty. — check it out!",
+      });
+    } else {
+      Question.uploadOptionCContent(questionId, content, coverOptionC)
+        .then((response) => {
+          Question.getQuestionContentForPreview(response?.coverOptionC)
+            .then((response) => {
+              setCoverOptionC(response);
+            })
+            .catch((reason) => {
+              setError({ active: true, message: reason });
+            })
+            .finally(() => {});
+        })
+        .catch((reason) => {
+          setError({ active: true, message: reason });
+        })
+        .finally(() => {});
     }
-    try {
-      const data = await Question.uploadOptionCContent(questionId, content, coverOptionC, user?.$id);
-      const fileData = await Question.getQuestionContentForPreview(data?.coverOptionC);
-      setCoverOptionC(fileData);
-      displaySection(moveTo)
-      setMotionKey(motionKey + 1)
-      setMotion('zoomOut')
-      setActiveStep(moveTo);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setMotionKey(motionKey + 2)
-      setMotion('fadeInRight')
-    } catch (error) {
-      setError({ active: true, message: error.message });
-    }
+    displaySection(moveTo);
+    setMotionKey(motionKey + 1);
+    setMotion("zoomOut");
+    setActiveStep(moveTo);
+    setMotionKey(motionKey + 2);
+    setMotion("fadeInRight");
     setIsSaving(false);
-  }
+  };
 
   const saveOptionD = async (moveTo) => {
     setIsSaving(true);
     setOptionD(content);
-    if (content === null || content === '') {
-      setError({ active: true, message: 'Option D cannot be empty. — check it out!' });
-      setIsSaving(false);
-      return false;
+    if (content === null || content === "") {
+      setError({
+        active: true,
+        message: "You have left option D empty. — check it out!",
+      });
+    } else {
+      Question.uploadOptionDContent(questionId, content, coverOptionD)
+        .then((response) => {
+          Question.getQuestionContentForPreview(response?.coverOptionD)
+            .then((response) => {
+              setCoverOptionD(response);
+            })
+            .catch((reason) => {
+              setError({ active: true, message: reason });
+            })
+            .finally(() => {});
+        })
+        .catch((reason) => {
+          setError({ active: true, message: reason });
+        })
+        .finally(() => {});
     }
-    try {
-      const data = await Question.uploadOptionDContent(questionId, content, coverOptionD, user?.$id);
-      const fileData = await Question.getQuestionContentForPreview(data?.coverOptionD);
-      setCoverOptionD(fileData);
-      displaySection(moveTo)
-      setMotionKey(motionKey + 1);
-      setMotion('zoomOut');
-      setActiveStep(moveTo);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setMotionKey(motionKey + 2);
-      setMotion('fadeInRight');
-    } catch (error) {
-      setError({ active: true, message: error.message });
-    }
+    displaySection(moveTo);
+    setMotionKey(motionKey + 1);
+    setMotion("zoomOut");
+    setActiveStep(moveTo);
+    setMotionKey(motionKey + 2);
+    setMotion("fadeInRight");
     setIsSaving(false);
-  }
+  };
 
   const saveAnswer = async (moveTo) => {
     setIsSaving(true);
     setContentAnswer(content);
-    var tmp = '';
-    if (correctOptionA) tmp += 'A';
-    if (correctOptionB) tmp += 'B';
-    if (correctOptionC) tmp += 'C';
-    if (correctOptionD) tmp += 'D';
+    var tmp = "";
+    if (correctOptionA) tmp += "A";
+    if (correctOptionB) tmp += "B";
+    if (correctOptionC) tmp += "C";
+    if (correctOptionD) tmp += "D";
     setAnswerOption(tmp);
-    if (content === null || content === '') {
-      setError({ active: true, message: 'Answer cannot be empty. — check it out!' });
-      setIsSaving(false);
-      return false;
+    if (content === null || content === "") {
+      setError({
+        active: true,
+        message: "You have left answer explanation empty. — check it out!",
+      });
     }
-    try {
-      const data = await Question.uploadAnswerContent(questionId, tmp, content, coverAnswer, user?.$id);
-      const fileData = await Question.getQuestionContentForPreview(data?.coverAnswer);
-      setCoverAnswer(fileData);
-      displaySection(moveTo)
-      setMotionKey(motionKey + 1);
-      setMotion('zoomOut');
-      setActiveStep(moveTo);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setMotionKey(motionKey + 2);
-      setMotion('fadeInRight');
-    } catch (error) {
-      setError({ active: true, message: error.message });
-    }
+    Question.uploadAnswerContent(questionId, tmp, content, coverAnswer)
+      .then((response) => {
+        Question.getQuestionContentForPreview(response?.coverAnswer)
+          .then((response) => {
+            setCoverAnswer(response);
+          })
+          .catch((reason) => {
+            setError({ active: true, message: reason });
+          })
+          .finally(() => {});
+      })
+      .catch((reason) => {
+        setError({ active: true, message: reason });
+      })
+      .finally(() => {});
+    displaySection(moveTo);
+    setMotionKey(motionKey + 1);
+    setMotion("zoomOut");
+    setActiveStep(moveTo);
+    setMotionKey(motionKey + 2);
+    setMotion("fadeInRight");
     setIsSaving(false);
-  }
-
-  const onSubmit = async () => {
-    setOpenOwnersDialogue(true);
   };
 
   const onFinalSubmit = async () => {
     setIsSaving(true);
-    try {
-      await Question.sendForApproval(questionId, user?.$id, approvingTeam);
-      enqueueSnackbar('Successfully Sent for Approval');
-      navigate(PATH_DASHBOARD.question.view(questionId))
-    } catch (error) {
-      setError({ active: true, message: error.message });
-    }
+    enqueueSnackbar(
+      "Successfully Saved. Required person will approve this question."
+    );
+    navigate(PATH_DASHBOARD.question.view(questionId));
     setIsSaving(false);
-  }
+  };
 
   const handleDropQuestion = useCallback(
     (acceptedFiles) => {
@@ -532,7 +580,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
       });
 
       if (file) {
-        setCoverQuestion(newFile)
+        setCoverQuestion(newFile);
       }
     },
     [setCoverQuestion]
@@ -547,7 +595,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
       });
 
       if (file) {
-        setCoverOptionA(newFile)
+        setCoverOptionA(newFile);
       }
     },
     [setCoverOptionA]
@@ -618,51 +666,92 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
   const [isChapterListLoading, setIsChapterListLoading] = useState(false);
   const [isConceptListLoading, setIsConceptListLoading] = useState(false);
 
+  const displaySection = (step) => {
+    if (step === 0) {
+      setContent("");
+    } else if (step === 1) {
+      setContent(question);
+    } else if (step === 2) {
+      setContent(optionA);
+    } else if (step === 3) {
+      setContent(optionB);
+    } else if (step === 4) {
+      setContent(optionC);
+    } else if (step === 5) {
+      setContent(optionD);
+    } else if (step === 6) {
+      setContent(contentAnswer);
+    } else {
+      setContent("");
+    }
+    const newCompleted = completedStep;
+    newCompleted[activeStep] = true;
+    setCompletedStep(newCompleted);
+  };
+
+  const handleStepChange = (index) => async () => {
+    if (activeStep !== index) {
+      if (activeStep === 0) {
+        saveMetaData(index);
+      } else if (activeStep === 1) {
+        saveQuestion(index);
+      } else if (activeStep === 2) {
+        saveOptionA(index);
+      } else if (activeStep === 3) {
+        saveOptionB(index);
+      } else if (activeStep === 4) {
+        saveOptionC(index);
+      } else if (activeStep === 5) {
+        saveOptionD(index);
+      } else if (activeStep === 6) {
+        saveAnswer(index);
+      } else {
+        setMotionKey(motionKey + 1);
+        setMotion("zoomOut");
+        displaySection(index);
+        setActiveStep(index);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setMotionKey(motionKey + 2);
+        setMotion("fadeInRight");
+      }
+    }
+  };
+
   if (isLoadingData) {
     return (
       <>
-        {inComingQuestionId &&
+        {inComingQuestionId && (
           <>
             <Divider>
-              <Chip label='Meta Data Section' />
+              <Chip label="Meta Data Section" />
             </Divider>
             <Paper
               sx={{
                 p: 1,
                 my: 1,
-                minHeight: 250,
+                minHeight: 150,
                 bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
               }}
             >
-
               <Grid container>
                 <Grid item xs>
-                  <Skeleton sx={{ m: 2 }} />
-                  <Skeleton sx={{ m: 2 }} />
-                  <Skeleton sx={{ m: 2 }} />
-                  <Skeleton sx={{ m: 2 }} />
-                  <Skeleton sx={{ m: 2 }} />
-                  <Skeleton sx={{ m: 2 }} />
+                  <Skeleton height={100} sx={{ m: 2 }} />
+                  <Skeleton height={50} sx={{ m: 2 }} />
                 </Grid>
 
                 <Divider orientation="vertical" flexItem />
 
                 <Grid item xs>
-                  <Skeleton sx={{ m: 2 }} />
-                  <Skeleton sx={{ m: 2 }} />
-                  <Skeleton sx={{ m: 2 }} />
-                  <Skeleton sx={{ m: 2 }} />
-                  <Skeleton sx={{ m: 2 }} />
-                  <Skeleton sx={{ m: 2 }} />
+                  <Skeleton height={100} sx={{ m: 2 }} />
+                  <Skeleton height={50} sx={{ m: 2 }} />
                 </Grid>
               </Grid>
-
             </Paper>
           </>
-        }
+        )}
 
         <Divider>
-          <Chip label='Edit Section' />
+          <Chip label="Edit Section" />
         </Divider>
 
         <Paper
@@ -680,7 +769,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
               <Skeleton sx={{ m: 2 }} height={30} width={150} />
               <Skeleton sx={{ m: 2 }} />
 
-              <Box sx={{ textAlign: 'right', mt: 2, mb: 2 }}>
+              <Box sx={{ textAlign: "right", mt: 2, mb: 2 }}>
                 <Skeleton sx={{ m: 2 }} height={50} width={150} />
               </Box>
 
@@ -690,13 +779,13 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
               <Grid container>
                 <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
-                  <Box sx={{ textAlign: 'left', mt: 1 }}>
+                  <Box sx={{ textAlign: "left", mt: 1 }}>
                     <Skeleton sx={{ m: 2 }} height={50} width={150} />
                   </Box>
                 </Grid>
 
                 <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
-                  <Box sx={{ textAlign: 'right', mt: 1 }}>
+                  <Box sx={{ textAlign: "right", mt: 1 }}>
                     <Skeleton sx={{ m: 2 }} height={50} width={150} />
                   </Box>
                 </Grid>
@@ -722,66 +811,15 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
   }
 
   if (!canEdit) {
-    return <PermissionDeniedComponent />
-  }
-
-  const displaySection = (step) => {
-    if (step === 0) {
-      setContent('');
-    } else if (step === 1) {
-      setContent(question);
-    } else if (step === 2) {
-      setContent(optionA);
-    } else if (step === 3) {
-      setContent(optionB);
-    } else if (step === 4) {
-      setContent(optionC);
-    } else if (step === 5) {
-      setContent(optionD);
-    } else if (step === 6) {
-      setContent(contentAnswer);
-    } else {
-      setContent('');
-    }
-    const newCompleted = completedStep;
-    newCompleted[activeStep] = true;
-    setCompletedStep(newCompleted);
-  }
-
-  const handleStepChange = (index) => async () => {
-    if (activeStep !== index) {
-      if (activeStep === 0) {
-        saveMetaData(index);
-      } else if (activeStep === 1) {
-        saveQuestion(index);
-      } else if (activeStep === 2) {
-        saveOptionA(index);
-      } else if (activeStep === 3) {
-        saveOptionB(index);
-      } else if (activeStep === 4) {
-        saveOptionC(index);
-      } else if (activeStep === 5) {
-        saveOptionD(index);
-      } else if (activeStep === 6) {
-        saveAnswer(index);
-      } else {
-        setMotionKey(motionKey + 1)
-        setMotion('zoomOut')
-        displaySection(index);
-        setActiveStep(index);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setMotionKey(motionKey + 2)
-        setMotion('fadeInRight')
-      }
-    }
+    return <PermissionDeniedComponent />;
   }
 
   return (
     <>
-      {inComingQuestionId &&
+      {inComingQuestionId && (
         <>
           <Divider>
-            <Chip label='Meta Data Section' />
+            <Chip label="Meta Data Section" />
           </Divider>
 
           <Paper
@@ -794,77 +832,49 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
           >
             <Grid container>
               <Grid item xs>
-                <Stack direction='row' sx={{ m: 2 }}>
-                  <Typography sx={{ mr: 1 }} variant="subtitle2">Status -</Typography>
-                  <Typography variant="body2">{status}</Typography>
-                </Stack>
-
-                <Stack direction='row' sx={{ m: 2 }}>
-                  <Typography sx={{ mr: 1 }} variant="subtitle2">Created By -</Typography>
+                <Stack direction="row" sx={{ m: 2 }}>
+                  <Typography sx={{ mr: 1 }} variant="subtitle2">
+                    Created By -
+                  </Typography>
                   <SarthakUserDisplayUI userId={createdBy} />
                 </Stack>
 
-                <Stack direction='row' sx={{ m: 2 }}>
-                  <Typography sx={{ mr: 1 }} variant="subtitle2">Created At -</Typography>
-                  <Typography variant="body2">{fDate(createdAt, 'dd/MM/yyyy HH:mm:ss')}</Typography>
-                </Stack>
-
-                <Stack direction='row' sx={{ m: 2 }}>
-                  <Typography sx={{ mr: 1 }} variant="subtitle2">Updated By -</Typography>
-                  <SarthakUserDisplayUI userId={updatedBy} />
-                </Stack>
-
-                <Stack direction='row' sx={{ m: 2 }}>
-                  <Typography sx={{ mr: 1 }} variant="subtitle2">Updated At -</Typography>
-                  <Typography variant="body2">{fDate(updatedAt, 'dd/MM/yyyy HH:mm:ss')}</Typography>
-                </Stack>
-
-                <Stack direction='row' sx={{ m: 2 }}>
-                  <Typography sx={{ mr: 1 }} variant="subtitle2">Approved By -</Typography>
-                  <SarthakUserDisplayUI userId={approvedBy} />
+                <Stack direction="row" sx={{ m: 2 }}>
+                  <Typography sx={{ mr: 1 }} variant="subtitle2">
+                    Created At -
+                  </Typography>
+                  <Typography variant="body2">
+                    {timeAgo.format(new Date(createdAt))}
+                  </Typography>
                 </Stack>
               </Grid>
 
               <Divider orientation="vertical" flexItem />
 
               <Grid item xs>
-                <Stack direction='row' sx={{ m: 2 }}>
-                  <Typography sx={{ mr: 1 }} variant="subtitle2">Approved At -</Typography>
-                  <Typography variant="body2">{fDate(approvedAt, 'dd/MM/yyyy HH:mm:ss')}</Typography>
+                <Stack direction="row" sx={{ m: 2 }}>
+                  <Typography sx={{ mr: 1 }} variant="subtitle2">
+                    Updated By -
+                  </Typography>
+                  <SarthakUserDisplayUI userId={updatedBy} />
                 </Stack>
 
-                <Stack direction='row' sx={{ m: 2 }}>
-                  <Typography sx={{ mr: 1 }} variant="subtitle2">Sent For Review To -</Typography>
-                  <SarthakUserDisplayUI userId={sentForReviewTo} />
-                </Stack>
-
-                <Stack direction='row' sx={{ m: 2 }}>
-                  <Typography sx={{ mr: 1 }} variant="subtitle2">Sent For Review At -</Typography>
-                  <Typography variant="body2">{fDate(sentForReviewAt, 'dd/MM/yyyy HH:mm:ss')}</Typography>
-                </Stack>
-
-                <Stack direction='row' sx={{ m: 2 }}>
-                  <Typography sx={{ mr: 1 }} variant="subtitle2">Review Back To -</Typography>
-                  <SarthakUserDisplayUI userId={reviewBackTo} />
-                </Stack>
-
-                <Stack direction='row' sx={{ m: 2 }}>
-                  <Typography sx={{ mr: 1 }} variant="subtitle2">Review Back At -</Typography>
-                  <Typography variant="body2">{fDate(reviewBackAt, 'dd/MM/yyyy HH:mm:ss')}</Typography>
-                </Stack>
-
-                <Stack direction='row' sx={{ m: 2 }}>
-                  <Typography sx={{ mr: 1 }} variant="subtitle2">Review Comment -</Typography>
-                  <Typography variant="body2">{reviewComment}</Typography>
+                <Stack direction="row" sx={{ m: 2 }}>
+                  <Typography sx={{ mr: 1 }} variant="subtitle2">
+                    Updated At -
+                  </Typography>
+                  <Typography variant="body2">
+                    {timeAgo.format(new Date(updatedAt))}
+                  </Typography>
                 </Stack>
               </Grid>
             </Grid>
           </Paper>
         </>
-      }
+      )}
 
       <Divider>
-        <Chip label='Edit Section' />
+        <Chip label="Edit Section" />
       </Divider>
 
       <Paper
@@ -875,13 +885,16 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
           bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
         }}
       >
-
         <Grid container spacing={4}>
           <Grid item xs>
-            <Stepper nonLinear activeStep={activeStep} connector={<QontoConnector />} >
+            <Stepper
+              nonLinear
+              activeStep={activeStep}
+              connector={<QontoConnector />}
+            >
               {STEPS.map((label, index) => (
                 <Step key={label} completed={completedStep[index]}>
-                  <StepButton color="inherit" onClick={handleStepChange(index)} StepIconComponent={QontoStepIcon}>
+                  <StepButton color="inherit" onClick={handleStepChange(index)}>
                     {label}
                   </StepButton>
                 </Step>
@@ -890,20 +903,20 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
             <Divider sx={{ m: 1 }} />
 
-            <Typography variant='h6' sx={{ m: 1 }}>
+            <Typography variant="h6" sx={{ m: 1 }}>
               Editor Playground
             </Typography>
 
-            <Typography variant='subtitle2' sx={{ m: 1 }}>
+            <Typography variant="subtitle2" sx={{ m: 1 }}>
               Use this editor to insert in the box of question and options
             </Typography>
 
-            <Box sx={{ textAlign: 'right', mt: 2, mb: 2 }}>
+            <Box sx={{ textAlign: "right", mt: 2, mb: 2 }}>
               <Button
                 sx={{ mr: 1 }}
                 onClick={() => setMathDialogOpen(true)}
-                color='info'
-                variant='outlined'
+                color="info"
+                variant="outlined"
                 disabled={activeStep === 0 || activeStep === 7}
                 startIcon={<Iconify icon="tabler:math" />}
               >
@@ -920,7 +933,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
               minRows={5}
               maxRows={10}
               disabled={activeStep === 0 || activeStep === 7}
-              value={content}
+              value={content || ""}
               onChange={(event) => setContent(event.target.value)}
             />
 
@@ -930,7 +943,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
               onClose={() => setMathDialogOpen(false)}
               TransitionComponent={Transition}
             >
-              <AppBar sx={{ position: 'relative' }}>
+              <AppBar sx={{ position: "relative" }}>
                 <Toolbar>
                   <IconButton
                     edge="start"
@@ -940,20 +953,24 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   >
                     <CloseIcon />
                   </IconButton>
-                  <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+                  <Typography
+                    sx={{ ml: 2, flex: 1 }}
+                    variant="h6"
+                    component="div"
+                  >
                     Math Editor
                   </Typography>
                   <Button
                     autoFocus
                     color="inherit"
                     onClick={() => {
-                      if (latex !== '') {
-                        setContent(content + ' $' + latex + '$');
+                      if (latex !== "") {
+                        setContent(content + " $" + latex + "$");
                       }
-                      setLatex('');
+                      setLatex("");
                       setMathDialogOpen(false);
-
-                    }}>
+                    }}
+                  >
                     save
                   </Button>
                 </Toolbar>
@@ -961,11 +978,13 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
               <MathInput setValue={setLatex} />
             </Dialog>
 
-            <Box sx={{ textAlign: 'right', mt: 2, mb: 2 }}>
+            <Box sx={{ textAlign: "right", mt: 2, mb: 2 }}>
               <Button
-                disabled={content === '' || activeStep === 0 || activeStep === 7}
+                disabled={
+                  content === "" || activeStep === 0 || activeStep === 7
+                }
                 sx={{ mr: 1 }}
-                onClick={() => setContent('')}
+                onClick={() => setContent("")}
                 startIcon={<Iconify icon="mdi:clear-outline" />}
               >
                 Clear
@@ -976,8 +995,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
             <Grid container>
               <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
-
-                <Box sx={{ textAlign: 'left', mt: 1 }}>
+                <Box sx={{ textAlign: "left", mt: 1 }}>
                   <LoadingButton
                     disabled={activeStep === 0}
                     variant="contained"
@@ -989,34 +1007,33 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                     Back
                   </LoadingButton>
                 </Box>
-
               </Grid>
 
               <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
-                <Box sx={{ textAlign: 'right', mt: 1 }}>
-                  {activeStep === STEPS.length ?
+                <Box sx={{ textAlign: "right", mt: 1 }}>
+                  {activeStep === STEPS.length ? (
                     <LoadingButton
                       variant="contained"
                       sx={{ mr: 1 }}
                       endIcon={<Iconify icon="iconoir:submit-document" />}
                       loading={isSaving}
-                      color='warning'
-                      onClick={onSubmit}
+                      color="warning"
+                      onClick={onFinalSubmit}
                     >
-                      Submit For Approval
+                      Save
                     </LoadingButton>
-                    :
+                  ) : (
                     <LoadingButton
                       variant="contained"
                       onClick={handleStepChange(activeStep + 1)}
                       sx={{ mr: 1 }}
                       endIcon={<Iconify icon="carbon:next-outline" />}
-                      color='success'
+                      color="success"
                       loading={isSaving}
                     >
                       Proceed to Next Step
                     </LoadingButton>
-                  }
+                  )}
                 </Box>
               </Grid>
             </Grid>
@@ -1046,19 +1063,28 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
           <Grid item xs>
             <Card>
-              <CardHeader title={activeStep === 7 ? 'Preview' : STEPS[activeStep]} />
+              <CardHeader
+                title={activeStep === 7 ? "Preview" : STEPS[activeStep]}
+              />
 
               <CardContent sx={{ mt: 2 }}>
-                <MotionContainer component={m.div} variants={getVariant(motion)}>
-                  <Grid container spacing={3} key={motionKey} sx={{ p: 1, display: activeStep === 0 ? 'block' : 'none' }}>
-
+                <MotionContainer
+                  component={m.div}
+                  variants={getVariant(motion)}
+                >
+                  <Grid
+                    container
+                    spacing={3}
+                    key={motionKey}
+                    sx={{ p: 1, display: activeStep === 0 ? "block" : "none" }}
+                  >
                     <Grid item xs={12} md={12}>
                       <TextField
                         fullWidth
                         disabled
                         value={questionId}
-                        label='ID'
-                        helperText='ID is automatically generated by the system.'
+                        label="ID"
+                        helperText="ID is automatically generated by the system."
                       />
                     </Grid>
 
@@ -1073,24 +1099,30 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                         options={standardList}
                         onFocus={async (event, value) => {
                           setIsStandardListLoading(true);
-                          const tem = await Question.getStandardList(value?.$id ? value?.name : value);
-                          setStandardList(tem);
+                          try {
+                            const tem = await Question.getStandardList(value);
+                            setStandardList(tem);
+                          } catch (error) {
+                            console.log(error);
+                          }
                           setIsStandardListLoading(false);
                         }}
                         onInputChange={async (event, value) => {
                           setIsStandardListLoading(true);
-                          const tem = await Question.getStandardList(value?.$id ? value?.name : value);
-                          setStandardList(tem);
+                          try {
+                            const tem = await Question.getStandardList(value);
+                            setStandardList(tem);
+                          } catch (error) {
+                            console.log(error);
+                          }
                           setIsStandardListLoading(false);
                         }}
                         onChange={async (event, value) => {
-                          setStandard(value?.$id ? value?.name : value);
-                          setStandardId(value?.$id)
+                          setStandard(value);
                         }}
-                        getOptionLabel={(option) => option?.name || option}
-                        renderOption={(props, option, { selected }) => (
-                          <li {...props}>
-                            {option?.name}
+                        renderOption={(props, option) => (
+                          <li {...props} key={props.key}>
+                            {option}
                           </li>
                         )}
                         renderInput={(params) => (
@@ -1110,24 +1142,36 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                         options={subjectList}
                         onFocus={async (event, value) => {
                           setIsSubjectListLoading(true);
-                          const tem = await Question.getSubjectList(value?.$id ? value?.name : value, standardId);
-                          setSubjectList(tem);
+                          try {
+                            const tem = await Question.getSubjectList(
+                              value,
+                              await Question.getStandardId(standard)
+                            );
+                            setSubjectList(tem);
+                          } catch (error) {
+                            console.log(error);
+                          }
                           setIsSubjectListLoading(false);
                         }}
                         onInputChange={async (event, value) => {
                           setIsSubjectListLoading(true);
-                          const tem = await Question.getSubjectList(value?.$id ? value?.name : value, standardId);
-                          setSubjectList(tem);
+                          try {
+                            const tem = await Question.getSubjectList(
+                              value,
+                              await Question.getStandardId(standard)
+                            );
+                            setSubjectList(tem);
+                          } catch (error) {
+                            console.log(error);
+                          }
                           setIsSubjectListLoading(false);
                         }}
                         onChange={(event, value) => {
-                          setSubject(value?.$id ? value?.name : value);
-                          setSubjectId(value?.$id)
+                          setSubject(value);
                         }}
-                        getOptionLabel={(option) => option?.name || option}
-                        renderOption={(props, option, { selected }) => (
-                          <li {...props}>
-                            {option?.name}
+                        renderOption={(props, option) => (
+                          <li {...props} key={props.key}>
+                            {option}
                           </li>
                         )}
                         renderInput={(params) => (
@@ -1147,24 +1191,39 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                         options={chapterList}
                         onFocus={async (event, value) => {
                           setIsChapterListLoading(true);
-                          const tem = await Question.getChapterList(value?.$id ? value?.name : value, standardId, subjectId);
-                          setChapterList(tem);
+                          try {
+                            const tem = await Question.getChapterList(
+                              value,
+                              await Question.getStandardId(standard),
+                              await Question.getSubjectId(subject)
+                            );
+                            setChapterList(tem);
+                          } catch (error) {
+                            console.log(error);
+                          }
                           setIsChapterListLoading(false);
                         }}
                         onInputChange={async (event, value) => {
                           setIsChapterListLoading(true);
-                          const tem = await Question.getChapterList(value?.$id ? value?.name : value, standardId, subjectId);
-                          setChapterList(tem);
+                          try {
+                            const tem = await Question.getChapterList(
+                              value,
+                              await Question.getStandardId(standard),
+                              await Question.getSubjectId(subject)
+                            );
+                            setChapterList(tem);
+                          } catch (error) {
+                            console.log(error);
+                          }
                           setIsChapterListLoading(false);
                         }}
                         onChange={(event, value) => {
-                          setChapter(value?.$id ? value?.name : value);
-                          setChapterId(value?.$id)
+                          setChapter(value);
                         }}
                         getOptionLabel={(option) => option?.name || option}
-                        renderOption={(props, option, { selected }) => (
-                          <li {...props}>
-                            {option?.name}
+                        renderOption={(props, option) => (
+                          <li {...props} key={props.key}>
+                            {option}
                           </li>
                         )}
                         renderInput={(params) => (
@@ -1181,28 +1240,43 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                         autoComplete
                         value={concept}
                         loading={isConceptListLoading}
-                        filterSelectedOptions
                         options={conceptList}
                         onFocus={async (event, value) => {
                           setIsConceptListLoading(true);
-                          const tem = await Question.getConceptList(value?.$id ? value?.name : value, standardId, subjectId, chapterId);
-                          setConceptList(tem);
+                          try {
+                            const tem = await Question.getConceptList(
+                              value,
+                              await Question.getStandardId(standard),
+                              await Question.getSubjectId(subject),
+                              await Question.getChapterId(chapter)
+                            );
+                            setConceptList(tem);
+                          } catch (error) {
+                            console.log(error);
+                          }
                           setIsConceptListLoading(false);
                         }}
                         onInputChange={async (event, value) => {
                           setIsConceptListLoading(true);
-                          const tem = await Question.getConceptList(value?.$id ? value?.name : value, standardId, subjectId, chapterId);
-                          setConceptList(tem);
+                          try {
+                            const tem = await Question.getConceptList(
+                              value,
+                              await Question.getStandardId(standard),
+                              await Question.getSubjectId(subject),
+                              await Question.getChapterId(chapter)
+                            );
+                            setConceptList(tem);
+                          } catch (error) {
+                            console.log(error);
+                          }
                           setIsConceptListLoading(false);
                         }}
                         onChange={(event, value) => {
-                          setConcept(value?.$id ? value?.name : value);
-                          setChapterId(value?.$id)
+                          setConcept(value);
                         }}
-                        getOptionLabel={(option) => option?.name || option}
-                        renderOption={(props, option, { selected }) => (
-                          <li {...props}>
-                            {option?.name}
+                        renderOption={(props, option) => (
+                          <li {...props} key={props.key}>
+                            {option}
                           </li>
                         )}
                         renderInput={(params) => (
@@ -1213,7 +1287,11 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   </Grid>
                 </MotionContainer>
 
-                <MotionContainer component={m.div} variants={getVariant(motion)} sx={{ display: activeStep === 1 ? 'block' : 'none' }}>
+                <MotionContainer
+                  component={m.div}
+                  variants={getVariant(motion)}
+                  sx={{ display: activeStep === 1 ? "block" : "none" }}
+                >
                   <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
                     <Grid item xs={12} md={12}>
                       <Paper
@@ -1221,7 +1299,8 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                           p: 1,
                           my: 1,
                           minHeight: 100,
-                          bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+                          bgcolor: (theme) =>
+                            alpha(theme.palette.grey[500], 0.12),
                         }}
                       >
                         <ReactKatex>{content}</ReactKatex>
@@ -1230,14 +1309,17 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
                     <Grid item xs={12} md={12}>
                       <Stack spacing={1}>
-                        <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ color: "text.secondary" }}
+                        >
                           Upload Image If Required
                         </Typography>
 
                         <Upload
-                          accept={{ 'image/*': [] }}
+                          accept={{ "image/*": [] }}
                           file={coverQuestion}
-                          maxSize={15360}
+                          maxSize={524288}
                           onDrop={handleDropQuestion}
                           onDelete={() => {
                             setCoverQuestion(null);
@@ -1248,7 +1330,11 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   </Grid>
                 </MotionContainer>
 
-                <MotionContainer component={m.div} variants={getVariant(motion)} sx={{ display: activeStep === 2 ? 'block' : 'none' }}>
+                <MotionContainer
+                  component={m.div}
+                  variants={getVariant(motion)}
+                  sx={{ display: activeStep === 2 ? "block" : "none" }}
+                >
                   <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
                     <Grid item xs={12} md={12}>
                       <Paper
@@ -1256,7 +1342,8 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                           p: 1,
                           my: 1,
                           minHeight: 100,
-                          bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+                          bgcolor: (theme) =>
+                            alpha(theme.palette.grey[500], 0.12),
                         }}
                       >
                         <ReactKatex>{content}</ReactKatex>
@@ -1265,14 +1352,17 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
                     <Grid item xs={12} md={12}>
                       <Stack spacing={1}>
-                        <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ color: "text.secondary" }}
+                        >
                           Upload Image If Required
                         </Typography>
 
                         <Upload
-                          accept={{ 'image/*': [] }}
+                          accept={{ "image/*": [] }}
                           file={coverOptionA}
-                          maxSize={15360}
+                          maxSize={524288}
                           onDrop={handleDropOptionA}
                           onDelete={() => {
                             setCoverOptionA(null);
@@ -1283,16 +1373,20 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   </Grid>
                 </MotionContainer>
 
-                <MotionContainer component={m.div} variants={getVariant(motion)} sx={{ display: activeStep === 3 ? 'block' : 'none' }}>
+                <MotionContainer
+                  component={m.div}
+                  variants={getVariant(motion)}
+                  sx={{ display: activeStep === 3 ? "block" : "none" }}
+                >
                   <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
-
                     <Grid item xs={12} md={12}>
                       <Paper
                         sx={{
                           p: 1,
                           my: 1,
                           minHeight: 100,
-                          bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+                          bgcolor: (theme) =>
+                            alpha(theme.palette.grey[500], 0.12),
                         }}
                       >
                         <ReactKatex>{content}</ReactKatex>
@@ -1301,35 +1395,41 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
                     <Grid item xs={12} md={12}>
                       <Stack spacing={1}>
-                        <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ color: "text.secondary" }}
+                        >
                           Upload Image If Required
                         </Typography>
 
                         <Upload
-                          accept={{ 'image/*': [] }}
+                          accept={{ "image/*": [] }}
                           file={coverOptionB}
-                          maxSize={15360}
+                          maxSize={524288}
                           onDrop={handleDropOptionB}
                           onDelete={() => {
-                            setCoverOptionB(null)
+                            setCoverOptionB(null);
                           }}
                         />
                       </Stack>
                     </Grid>
-
                   </Grid>
                 </MotionContainer>
 
-                <MotionContainer component={m.div} variants={getVariant(motion)} sx={{ display: activeStep === 4 ? 'block' : 'none' }}>
+                <MotionContainer
+                  component={m.div}
+                  variants={getVariant(motion)}
+                  sx={{ display: activeStep === 4 ? "block" : "none" }}
+                >
                   <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
-
                     <Grid item xs={12} md={12}>
                       <Paper
                         sx={{
                           p: 1,
                           my: 1,
                           minHeight: 100,
-                          bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+                          bgcolor: (theme) =>
+                            alpha(theme.palette.grey[500], 0.12),
                         }}
                       >
                         <ReactKatex>{content}</ReactKatex>
@@ -1338,26 +1438,32 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
                     <Grid item xs={12} md={12}>
                       <Stack spacing={1}>
-                        <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ color: "text.secondary" }}
+                        >
                           Upload Image If Required
                         </Typography>
 
                         <Upload
-                          accept={{ 'image/*': [] }}
+                          accept={{ "image/*": [] }}
                           file={coverOptionC}
-                          maxSize={15360}
+                          maxSize={524288}
                           onDrop={handleDropOptionC}
                           onDelete={() => {
-                            setCoverOptionC(null)
+                            setCoverOptionC(null);
                           }}
                         />
                       </Stack>
                     </Grid>
-
                   </Grid>
                 </MotionContainer>
 
-                <MotionContainer component={m.div} variants={getVariant(motion)} sx={{ display: activeStep === 5 ? 'block' : 'none' }}>
+                <MotionContainer
+                  component={m.div}
+                  variants={getVariant(motion)}
+                  sx={{ display: activeStep === 5 ? "block" : "none" }}
+                >
                   <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
                     <Grid item xs={12} md={12}>
                       <Paper
@@ -1365,7 +1471,8 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                           p: 1,
                           my: 1,
                           minHeight: 100,
-                          bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+                          bgcolor: (theme) =>
+                            alpha(theme.palette.grey[500], 0.12),
                         }}
                       >
                         <ReactKatex>{content}</ReactKatex>
@@ -1374,17 +1481,20 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
                     <Grid item xs={12} md={12}>
                       <Stack spacing={1}>
-                        <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ color: "text.secondary" }}
+                        >
                           Upload Image If Required
                         </Typography>
 
                         <Upload
-                          accept={{ 'image/*': [] }}
+                          accept={{ "image/*": [] }}
                           file={coverOptionD}
-                          maxSize={15360}
+                          maxSize={524288}
                           onDrop={handleDropOptionD}
                           onDelete={() => {
-                            setCoverOptionD(null)
+                            setCoverOptionD(null);
                           }}
                         />
                       </Stack>
@@ -1392,11 +1502,18 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   </Grid>
                 </MotionContainer>
 
-                <MotionContainer component={m.div} variants={getVariant(motion)} sx={{ display: activeStep === 6 ? 'block' : 'none' }}>
+                <MotionContainer
+                  component={m.div}
+                  variants={getVariant(motion)}
+                  sx={{ display: activeStep === 6 ? "block" : "none" }}
+                >
                   <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
                     <Grid item xs={12} md={12}>
                       <Stack spacing={1}>
-                        <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ color: "text.secondary" }}
+                        >
                           Select Correct Options
                         </Typography>
                         <Paper
@@ -1404,20 +1521,64 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                             p: 1,
                             my: 1,
                             minHeight: 50,
-                            bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+                            bgcolor: (theme) =>
+                              alpha(theme.palette.grey[500], 0.12),
                           }}
                         >
-                          <FormControlLabel control={<Checkbox checked={correctOptionA} onChange={() => setCorrectOptionA(!correctOptionA)} />} label="Option A" />
-                          <FormControlLabel control={<Checkbox checked={correctOptionB} onChange={() => setCorrectOptionB(!correctOptionB)} />} label="Option B" />
-                          <FormControlLabel control={<Checkbox checked={correctOptionC} onChange={() => setCorrectOptionC(!correctOptionC)} />} label="Option C" />
-                          <FormControlLabel control={<Checkbox checked={correctOptionD} onChange={() => setCorrectOptionD(!correctOptionD)} />} label="Option D" />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={correctOptionA}
+                                onChange={() =>
+                                  setCorrectOptionA(!correctOptionA)
+                                }
+                              />
+                            }
+                            label="Option A"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={correctOptionB}
+                                onChange={() =>
+                                  setCorrectOptionB(!correctOptionB)
+                                }
+                              />
+                            }
+                            label="Option B"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={correctOptionC}
+                                onChange={() =>
+                                  setCorrectOptionC(!correctOptionC)
+                                }
+                              />
+                            }
+                            label="Option C"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={correctOptionD}
+                                onChange={() =>
+                                  setCorrectOptionD(!correctOptionD)
+                                }
+                              />
+                            }
+                            label="Option D"
+                          />
                         </Paper>
                       </Stack>
                     </Grid>
 
                     <Grid item xs={12} md={12}>
                       <Stack spacing={1}>
-                        <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ color: "text.secondary" }}
+                        >
                           Explanation
                         </Typography>
                         <Paper
@@ -1425,7 +1586,8 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                             p: 1,
                             my: 1,
                             minHeight: 100,
-                            bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+                            bgcolor: (theme) =>
+                              alpha(theme.palette.grey[500], 0.12),
                           }}
                         >
                           <ReactKatex>{content}</ReactKatex>
@@ -1435,17 +1597,20 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
                     <Grid item xs={12} md={12}>
                       <Stack spacing={1}>
-                        <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ color: "text.secondary" }}
+                        >
                           Upload Image If Required
                         </Typography>
 
                         <Upload
-                          accept={{ 'image/*': [] }}
+                          accept={{ "image/*": [] }}
                           file={coverAnswer}
-                          maxSize={15360}
+                          maxSize={524288}
                           onDrop={handleDropAnswer}
                           onDelete={() => {
-                            setCoverAnswer(null)
+                            setCoverAnswer(null);
                           }}
                         />
                       </Stack>
@@ -1453,161 +1618,134 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   </Grid>
                 </MotionContainer>
 
-                <MotionContainer component={m.div} variants={getVariant(motion)} sx={{ display: activeStep === 7 ? 'block' : 'none' }}>
+                <MotionContainer
+                  component={m.div}
+                  variants={getVariant(motion)}
+                  sx={{ display: activeStep === 7 ? "block" : "none" }}
+                >
                   <Grid sx={{ p: 1 }} container spacing={3} key={motionKey}>
                     <Grid item xs={12} md={12}>
-                      <Stack direction='row'>
-                        <Typography sx={{ mr: 2 }} variant="h5">Q.</Typography>
+                      <Stack direction="row">
+                        <Typography sx={{ mr: 2 }} variant="h5">
+                          Q.
+                        </Typography>
                         <ReactKatex>{question}</ReactKatex>
                       </Stack>
-                      {coverQuestion &&
+                      {coverQuestion && (
                         <Image
                           disabledEffect
-                          alt='Question'
+                          alt="Question"
                           src={coverQuestion}
                           sx={{ borderRadius: 1, ml: 2, mt: 1, width: 300 }}
                         />
-                      }
+                      )}
                     </Grid>
 
                     <Grid sx={{ ml: 3 }} item xs={12} md={12}>
-                      <Stack direction='row'>
-                        <Typography sx={{ mr: 2 }} >A.</Typography>
+                      <Stack direction="row">
+                        <Typography sx={{ mr: 2 }}>A.</Typography>
                         <ReactKatex>{optionA}</ReactKatex>
                       </Stack>
-                      {coverOptionA &&
+                      {coverOptionA && (
                         <Image
                           disabledEffect
-                          alt='Option A'
+                          alt="Option A"
                           src={coverOptionA}
                           sx={{ borderRadius: 1, ml: 2, mt: 1, width: 300 }}
                         />
-                      }
+                      )}
                     </Grid>
 
                     <Grid sx={{ ml: 3 }} item xs={12} md={12}>
-                      <Stack direction='row'>
-                        <Typography sx={{ mr: 2 }} >B.</Typography>
+                      <Stack direction="row">
+                        <Typography sx={{ mr: 2 }}>B.</Typography>
                         <ReactKatex>{optionB}</ReactKatex>
                       </Stack>
-                      {coverOptionB &&
+                      {coverOptionB && (
                         <Image
                           disabledEffect
-                          alt='Option B'
+                          alt="Option B"
                           src={coverOptionB}
                           sx={{ borderRadius: 1, ml: 2, mt: 1, width: 300 }}
                         />
-                      }
+                      )}
                     </Grid>
 
                     <Grid sx={{ ml: 3 }} item xs={12} md={12}>
-                      <Stack direction='row'>
-                        <Typography sx={{ mr: 2 }} >C.</Typography>
+                      <Stack direction="row">
+                        <Typography sx={{ mr: 2 }}>C.</Typography>
                         <ReactKatex>{optionC}</ReactKatex>
                       </Stack>
-                      {coverOptionC &&
+                      {coverOptionC && (
                         <Image
                           disabledEffect
-                          alt='Option C'
+                          alt="Option C"
                           src={coverOptionC}
                           sx={{ borderRadius: 1, ml: 2, mt: 1, width: 300 }}
                         />
-                      }
+                      )}
                     </Grid>
 
                     <Grid sx={{ ml: 3 }} item xs={12} md={12}>
-                      <Stack direction='row'>
-                        <Typography sx={{ mr: 2 }} >D.</Typography>
+                      <Stack direction="row">
+                        <Typography sx={{ mr: 2 }}>D.</Typography>
                         <ReactKatex>{optionD}</ReactKatex>
                       </Stack>
-                      {coverOptionD &&
+                      {coverOptionD && (
                         <Image
                           disabledEffect
-                          alt='Option D'
+                          alt="Option D"
                           src={coverOptionD}
                           sx={{ borderRadius: 1, ml: 2, mt: 1, width: 300 }}
                         />
-                      }
+                      )}
                     </Grid>
 
                     <Divider />
 
                     <Grid item xs={12} md={12}>
-                      <Stack direction='row'>
-                        <Typography sx={{ mr: 2 }} variant="h5">Correct Option -</Typography>
-                        <Typography sx={{ mr: 1 }} variant="h5">{correctOptionA ? 'A' : ''}</Typography>
-                        <Typography sx={{ mr: 1 }} variant="h5">{correctOptionB ? 'B' : ''}</Typography>
-                        <Typography sx={{ mr: 1 }} variant="h5">{correctOptionC ? 'C' : ''}</Typography>
-                        <Typography sx={{ mr: 1 }} variant="h5">{correctOptionD ? 'D' : ''}</Typography>
+                      <Stack direction="row">
+                        <Typography sx={{ mr: 2 }} variant="h5">
+                          Correct Option -
+                        </Typography>
+                        <Typography sx={{ mr: 1 }} variant="h5">
+                          {correctOptionA ? "A" : ""}
+                        </Typography>
+                        <Typography sx={{ mr: 1 }} variant="h5">
+                          {correctOptionB ? "B" : ""}
+                        </Typography>
+                        <Typography sx={{ mr: 1 }} variant="h5">
+                          {correctOptionC ? "C" : ""}
+                        </Typography>
+                        <Typography sx={{ mr: 1 }} variant="h5">
+                          {correctOptionD ? "D" : ""}
+                        </Typography>
                       </Stack>
                     </Grid>
 
                     <Grid sx={{ ml: 3 }} item xs={12} md={12}>
-                      <Stack direction='row'>
-                        <Typography sx={{ mr: 2 }} >Answer Explanation -</Typography>
+                      <Stack direction="row">
+                        <Typography sx={{ mr: 2 }}>
+                          Answer Explanation -
+                        </Typography>
                         <ReactKatex>{contentAnswer}</ReactKatex>
                       </Stack>
-                      {coverAnswer &&
+                      {coverAnswer && (
                         <Image
                           disabledEffect
-                          alt='Answer'
+                          alt="Answer"
                           src={coverAnswer}
                           sx={{ borderRadius: 1, ml: 2, mt: 1, width: 300 }}
                         />
-                      }
+                      )}
                     </Grid>
                   </Grid>
                 </MotionContainer>
-
               </CardContent>
             </Card>
           </Grid>
-        </Grid >
-      </Paper >
-
-      <Dialog
-        open={openOwernsDialogue}
-        aria-labelledby="responsive-dialog-title"
-      >
-        <DialogTitle id="responsive-dialog-title">
-          {"Select one team and owner for approval"}
-        </DialogTitle>
-        <DialogContent>
-          <FormControl>
-            <FormLabel id="demo-radio-buttons-group-label">Select Approver</FormLabel>
-            <RadioGroup
-              aria-labelledby="demo-radio-buttons-group-label"
-              name="radio-buttons-group"
-            >
-              {
-                ownTeams.map((value, i) =>
-                  <FormControlLabel
-                    key={value?.$id}
-                    value={value?.$id}
-                    control={<Radio />}
-                    sx={{ mt: 2, mb: 2 }}
-                    onClick={(event) => setApprovingTeam(event.target.value)}
-                    label={
-                      <Stack direction='row' spacing={8}>
-                        <SarthakUserDisplayUI userId={value?.teamOwner} />
-                        <SarthakTeamDisplayUI teamId={value?.$id} />
-                      </Stack>
-                    }
-                  />
-                )
-              }
-            </RadioGroup>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <LoadingButton loading={isSaving} onClick={() => setOpenOwnersDialogue(false)}>
-            Close
-          </LoadingButton>
-          <LoadingButton variant='contained' loading={isSaving} onClick={onFinalSubmit} disabled={ownTeams.length === 0 || !approvingTeam}>
-            Submit
-          </LoadingButton>
-        </DialogActions>
-      </Dialog>
+        </Grid>
+      </Paper>
     </>
   );
 }

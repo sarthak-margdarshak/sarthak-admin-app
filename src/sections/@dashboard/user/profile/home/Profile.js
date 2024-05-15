@@ -1,56 +1,56 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import PropTypes from 'prop-types';
 // @mui
-import { Stack } from '@mui/material';
+import { Stack } from "@mui/material";
 //
-import ProfileAbout from './ProfileAbout';
-import ProfileTaskInfo from './ProfileTaskInfo';
-import ProfileSocialInfo from './ProfileSocialInfo';
+import ProfileAbout from "./ProfileAbout";
+import ProfileTaskInfo from "./ProfileTaskInfo";
+import ProfileSocialInfo from "./ProfileSocialInfo";
 // locales
-import { useLocales } from '../../../../../locales';
+import { useLocales } from "../../../../../locales";
+import { useAuthContext } from "../../../../../auth/useAuthContext";
 
 // ----------------------------------------------------------------------
 
-Profile.propTypes = {
-  infoGeneral: PropTypes.object,
-  infoProfile: PropTypes.object,
-  infoSocialLinks: PropTypes.object,
-};
-
-// ----------------------------------------------------------------------
-
-export default function Profile({ userId, infoGeneral, infoProfile, infoSocialLinks, team, question }) {
-
+export default function Profile({ userId, infoProfile, team, question }) {
   const { translate } = useLocales();
+  const { user } = useAuthContext();
 
   return (
     <Stack spacing={3}>
-      <ProfileTaskInfo team={team} question={question} />
+      {user?.$id === userId && (
+        <ProfileTaskInfo team={team} question={question} />
+      )}
 
       <ProfileAbout
-        quote={infoGeneral?.about}
+        quote={infoProfile?.about}
         userId={userId}
-        country={infoGeneral?.city+', '+infoGeneral?.state+', '+infoGeneral?.country}
+        country={
+          infoProfile?.city +
+          ", " +
+          infoProfile?.state +
+          ", " +
+          infoProfile?.country
+        }
         email={infoProfile?.email}
         role={infoProfile?.designation}
-        company={translate('sarthak_guidance_institute')}
-        school={infoGeneral?.schoolCollege}
+        company={translate("sarthak_guidance_institute")}
+        school={infoProfile?.schoolCollege}
       />
 
-      <ProfileSocialInfo userId={userId} socialLinks={infoSocialLinks} />
+      <ProfileSocialInfo userId={userId} infoProfile={infoProfile} />
     </Stack>
   );
 }

@@ -1,51 +1,54 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
 // @mui
-import { styled, alpha } from '@mui/material/styles';
-import { Paper, ListSubheader, ListItemButton } from '@mui/material';
+import { styled, alpha } from "@mui/material/styles";
+import { Paper, ListSubheader, ListItemButton } from "@mui/material";
 // utils
-import { bgBlur } from '../../../../utils/cssStyles';
+import { bgBlur } from "../../../../utils/cssStyles";
 
 // ----------------------------------------------------------------------
 
 export const ListItem = styled(ListItemButton, {
   shouldForwardProp: (prop) =>
-    prop !== 'active' && prop !== 'open' && prop !== 'isOffset' && prop !== 'subItem',
+    prop !== "active" &&
+    prop !== "open" &&
+    prop !== "isOffset" &&
+    prop !== "subItem",
 })(({ active, open, isOffset, subItem, theme }) => {
   const dotActive = {
     content: '""',
-    borderRadius: '50%',
-    position: 'absolute',
+    borderRadius: "50%",
+    position: "absolute",
     width: 6,
     height: 6,
     left: -14,
     opacity: 0.48,
-    backgroundColor: 'currentColor',
+    backgroundColor: "currentColor",
   };
 
   return {
     ...theme.typography.subtitle2,
     padding: 0,
-    height: '100%',
+    height: "100%",
     color: theme.palette.text.primary,
-    transition: theme.transitions.create('opacity', {
+    transition: theme.transitions.create("opacity", {
       duration: theme.transitions.duration.shorter,
     }),
-    '&:hover': {
+    "&:hover": {
       opacity: 0.48,
-      backgroundColor: 'transparent',
+      backgroundColor: "transparent",
     },
     // Sub item
     ...(subItem && {
@@ -59,14 +62,14 @@ export const ListItem = styled(ListItemButton, {
     // Active
     ...(active && {
       color: theme.palette.primary.main,
-      '&::before': dotActive,
+      "&::before": dotActive,
     }),
     // Active sub item
     ...(active &&
       subItem && {
         ...theme.typography.subtitle2,
         color: theme.palette.text.primary,
-        '&::before': {
+        "&::before": {
           ...dotActive,
           color: theme.palette.primary.main,
         },
@@ -88,15 +91,15 @@ export const StyledMenu = styled(Paper)(({ theme }) => ({
   top: 72,
   left: 0,
   right: 0,
-  margin: 'auto',
-  display: 'grid',
-  position: 'fixed',
-  alignItems: 'flex-start',
+  margin: "auto",
+  display: "grid",
+  position: "fixed",
+  alignItems: "flex-start",
   zIndex: theme.zIndex.modal,
   padding: theme.spacing(5, 1, 1, 3),
   boxShadow: theme.customShadows.dialog,
   maxWidth: theme.breakpoints.values.lg,
-  gridTemplateColumns: 'repeat(12, 1fr)',
+  gridTemplateColumns: "repeat(12, 1fr)",
   borderRadius: Number(theme.shape.borderRadius) * 2,
   border: `solid 1px ${alpha(theme.palette.grey[500], 0.16)}`,
 }));

@@ -1,8 +1,12 @@
-import { useEffect, useState } from "react"
-import { User } from "../../../../auth/AppwriteContext";
+import { useEffect, useState } from "react";
 import { CustomAvatar } from "../../../../components/custom-avatar";
 import { Link, Skeleton, Stack, Typography } from "@mui/material";
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from "react-router-dom";
+import {
+  appwriteDatabases,
+  appwriteStorage,
+} from "../../../../auth/AppwriteContext";
+import { APPWRITE_API } from "../../../../config-global";
 
 export default function SarthakUserDisplayUI({ userId }) {
   const [user, setUser] = useState();
@@ -13,11 +17,22 @@ export default function SarthakUserDisplayUI({ userId }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (userId && userId !== '') {
-          const data = await User.getProfileData(userId);
+        if (userId && userId !== "") {
+          const data = await appwriteDatabases.getDocument(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.adminUsers,
+            userId
+          );
           setUser(data);
-          if (data?.photoUrl && data?.photoUrl !== '') {
-            const tempSrc = await User.getImageProfileLink(data?.photoUrl);
+          if (data?.photoUrl && data?.photoUrl !== "") {
+            const tempSrc = appwriteStorage.getFilePreview(
+              APPWRITE_API.buckets.adminUserImage,
+              data?.photoUrl,
+              undefined,
+              undefined,
+              undefined,
+              20
+            ).href;
             setSrc(tempSrc);
           }
         }
@@ -27,25 +42,25 @@ export default function SarthakUserDisplayUI({ userId }) {
         setLoading(false);
         setError(false);
       }
-    }
+    };
     fetchData();
-  }, [userId])
+  }, [userId]);
 
   if (loading) {
     return (
-      <Stack direction='row'>
+      <Stack direction="row">
         <Skeleton variant="circular" width={32} height={32} />
-        <Stack direction='column' sx={{ ml: 1 }}>
-          <Skeleton variant="text" width={100} sx={{ fontSize: '1rem' }} />
-          <Skeleton variant="text" width={100} sx={{ fontSize: '1rem' }} />
+        <Stack direction="column" sx={{ ml: 1 }}>
+          <Skeleton variant="text" width={100} sx={{ fontSize: "1rem" }} />
+          <Skeleton variant="text" width={100} sx={{ fontSize: "1rem" }} />
         </Stack>
       </Stack>
-    )
+    );
   }
 
   return (
-    <Stack direction='row'>
-      {error &&
+    <Stack direction="row">
+      {error && (
         <CustomAvatar
           key={24}
           alt="Travis Howard"
@@ -53,13 +68,13 @@ export default function SarthakUserDisplayUI({ userId }) {
           src={src}
           sx={{ width: 32, height: 32 }}
         />
-      }
-      <Link component={RouterLink} to={'/dashboard/user/profile/' + userId}>
-        <Stack direction='column' sx={{ ml: 1 }}>
+      )}
+      <Link component={RouterLink} to={"/dashboard/user/profile/" + userId}>
+        <Stack direction="column" sx={{ ml: 1 }}>
           <Typography variant="caption">{user?.name}</Typography>
           <Typography variant="caption">{user?.empId}</Typography>
         </Stack>
       </Link>
     </Stack>
-  )
+  );
 }
