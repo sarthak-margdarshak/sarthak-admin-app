@@ -147,7 +147,7 @@ export default function QuestionRowComponent({ question }) {
   return (
     <>
       <Divider>
-        <Chip label={question?.$id} />
+        <Chip label={question?.qnId} />
       </Divider>
 
       <Card sx={{ m: 1 }}>

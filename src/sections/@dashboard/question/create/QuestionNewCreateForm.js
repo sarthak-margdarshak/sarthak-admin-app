@@ -43,7 +43,7 @@ import { Upload } from "../../../../components/upload";
 import { useAuthContext } from "../../../../auth/useAuthContext";
 import { Question } from "../../../../auth/Question";
 // Routes
-import { PATH_DASHBOARD } from "../../../../routes/paths";
+import { PATH_DASHBOARD, PATH_PAGE } from "../../../../routes/paths";
 // Animation
 import {
   MotionContainer,
@@ -288,6 +288,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
         }
       } catch (error) {
         enqueueSnackbar(error.message, { variant: "error" });
+        if (error.code === 404) navigate(PATH_PAGE.page404);
       }
       setIsLoadingData(false);
     };

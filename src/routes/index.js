@@ -149,7 +149,10 @@ export default function Router() {
         {
           path: "mock-test",
           children: [
-            // { element: <Navigate to="/dashboard/mock-test/list" replace />, index: true },
+            {
+              element: <Navigate to="/dashboard/mock-test/list" replace />,
+              index: true,
+            },
             { element: <Navigate to="/maintenance" replace />, index: true },
             { path: "list", element: <MockTestListStandardPage /> },
             { path: "new", element: <MockTestNewPage /> },

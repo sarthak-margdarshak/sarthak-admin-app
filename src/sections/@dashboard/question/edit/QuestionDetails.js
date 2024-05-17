@@ -25,6 +25,8 @@ import ChapterDisplayUI from "../view/ChapterDisplayUI";
 import ConceptDisplayUI from "../view/ConceptDisplayUI";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
+import { useNavigate } from "react-router-dom";
+import { PATH_PAGE } from "../../../../routes/paths";
 
 TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo("en-US");
@@ -38,6 +40,7 @@ export default function QuestionDetails({ inComingQuestionId }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const [question, setQuestion] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,6 +50,7 @@ export default function QuestionDetails({ inComingQuestionId }) {
         setQuestion(data);
       } catch (error) {
         enqueueSnackbar(error.message, { variant: "error" });
+        if (error.code === 404) navigate(PATH_PAGE.page404);
       }
       setIsLoading(false);
     };
