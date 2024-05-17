@@ -765,11 +765,21 @@ export class Question {
 
   static async getQuestion(questionId) {
     if (questionId) {
-      return await appwriteDatabases.getDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.questions,
-        questionId
-      );
+      if (questionId.match(/QN\d{8}/g)) {
+        const x = await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.questions,
+          [Query.equal("qnId", questionId)]
+        );
+        if (x.total === 1) return x.documents[0];
+        else return null;
+      } else {
+        return await appwriteDatabases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.questions,
+          questionId
+        );
+      }
     }
     return null;
   }
