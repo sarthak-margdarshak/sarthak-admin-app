@@ -75,7 +75,11 @@ export class Question {
    * Function to get List of  Chapters
    * @returns List of Chapters
    */
-  static async getChapterList(name, standardId, subjectId) {
+  static async getChapterList(
+    name,
+    standardId = undefined,
+    subjectId = undefined
+  ) {
     var queries = [
       Query.limit(100),
       Query.orderDesc("$createdAt"),
@@ -116,7 +120,12 @@ export class Question {
    * Function to get List of  Concepts
    * @returns List of Concepts
    */
-  static async getConceptList(name, standardId, subjectId, chapterId) {
+  static async getConceptList(
+    name,
+    standardId = undefined,
+    subjectId = undefined,
+    chapterId = undefined
+  ) {
     var queries = [
       Query.limit(100),
       Query.orderDesc("$createdAt"),
@@ -295,7 +304,6 @@ export class Question {
    * @returns Question Id
    */
   static async createQuestionId(adminTeamId) {
-    console.log(Permission.read(Role.team(adminTeamId)));
     return (
       await appwriteDatabases.createDocument(
         APPWRITE_API.databaseId,
