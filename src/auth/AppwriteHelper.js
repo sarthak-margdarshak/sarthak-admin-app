@@ -14,7 +14,7 @@ export class AppwriteHelper {
     for (let i in queries) {
       tempQueries.push(queries[i]);
     }
-    tempQueries.push(Query.limit(2));
+    tempQueries.push(Query.limit(100));
     const page0 = await appwriteDatabases.listDocuments(
       databaseId,
       collectionId,
