@@ -55,7 +55,7 @@ export default function QuestionDetails({ inComingQuestionId }) {
       setIsLoading(false);
     };
     fetchData();
-  }, [inComingQuestionId, enqueueSnackbar, user]);
+  }, [inComingQuestionId, enqueueSnackbar, user, navigate]);
 
   if (isLoading)
     return (

@@ -10,7 +10,10 @@ export class AppwriteHelper {
    */
   static async listAllDocuments(databaseId, collectionId, queries) {
     var res = [];
-    var tempQueries = queries;
+    var tempQueries = [];
+    for (let i in queries) {
+      tempQueries.push(queries[i]);
+    }
     tempQueries.push(Query.limit(100));
     const page0 = await appwriteDatabases.listDocuments(
       databaseId,
@@ -22,7 +25,10 @@ export class AppwriteHelper {
     var availableNext = true;
     var lastId = page0.documents[page0.documents.length - 1].$id;
     while (availableNext) {
-      var tempQueries_2 = tempQueries;
+      var tempQueries_2 = [];
+      for (let i in tempQueries) {
+        tempQueries_2.push(tempQueries[i]);
+      }
       tempQueries_2.push(Query.cursorAfter(lastId));
       const nextPage = await appwriteDatabases.listDocuments(
         databaseId,
