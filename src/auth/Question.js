@@ -1,7 +1,6 @@
 // appwrite
 import { ID, Permission, Query, Role } from "appwrite";
 import { APPWRITE_API } from "../config-global";
-import { AppwriteHelper } from "./AppwriteHelper";
 import {
   appwriteAccount,
   appwriteDatabases,
@@ -16,18 +15,22 @@ export class Question {
    * @returns List of standards
    */
   static async getStandardList(name) {
-    var queries = [Query.orderDesc("$createdAt"), Query.orderAsc("name")];
+    var queries = [
+      Query.limit(100),
+      Query.orderDesc("$createdAt"),
+      Query.orderAsc("name"),
+    ];
     if (!name || name === "") {
     } else {
       queries.push(Query.search("name", name));
     }
-    const x = await AppwriteHelper.listAllDocuments(
+    const x = await appwriteDatabases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.collections.standards,
       queries
     );
 
-    return x.map((val) => val?.name);
+    return x.documents.map((val) => val?.name);
   }
 
   /**
@@ -35,12 +38,16 @@ export class Question {
    * @returns List of Subjects
    */
   static async getSubjectList(name, standardId) {
-    var queries = [Query.orderDesc("$createdAt"), Query.orderAsc("name")];
+    var queries = [
+      Query.limit(100),
+      Query.orderDesc("$createdAt"),
+      Query.orderAsc("name"),
+    ];
     if (!name || name === "") {
     } else {
       queries.push(Query.search("name", name));
     }
-    const x = await AppwriteHelper.listAllDocuments(
+    const x = await appwriteDatabases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.collections.subjects,
       queries
@@ -52,14 +59,14 @@ export class Question {
       subjectQueries.push(Query.equal("standardId", standardId));
     }
     const subjectList = (
-      await AppwriteHelper.listAllDocuments(
+      await appwriteDatabases.listDocuments(
         APPWRITE_API.databaseId,
         APPWRITE_API.collections.questions,
         subjectQueries
       )
-    ).map((val) => val.subjectId);
+    ).documents.map((val) => val.subjectId);
     const subjectSet = new Set(subjectList);
-    var ans = x.sort((a, b) => (subjectSet.has(a.$id) ? -1 : 1));
+    var ans = x.documents.sort((a, b) => (subjectSet.has(a.$id) ? -1 : 1));
     return ans.map((val) => val.name);
   }
 
@@ -68,12 +75,16 @@ export class Question {
    * @returns List of Chapters
    */
   static async getChapterList(name, standardId, subjectId) {
-    var queries = [Query.orderDesc("$createdAt"), Query.orderAsc("name")];
+    var queries = [
+      Query.limit(100),
+      Query.orderDesc("$createdAt"),
+      Query.orderAsc("name"),
+    ];
     if (!name || name === "") {
     } else {
       queries.push(Query.search("name", name));
     }
-    const x = await AppwriteHelper.listAllDocuments(
+    const x = await appwriteDatabases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.collections.chapters,
       queries
@@ -89,14 +100,14 @@ export class Question {
       chapterQueries.push(Query.equal("subjectId", subjectId));
     }
     const chapterList = (
-      await AppwriteHelper.listAllDocuments(
+      await appwriteDatabases.listDocuments(
         APPWRITE_API.databaseId,
         APPWRITE_API.collections.questions,
         chapterQueries
       )
-    ).map((val) => val.chapterId);
+    ).documents.map((val) => val.chapterId);
     const chapterSet = new Set(chapterList);
-    var ans = x.sort((a, b) => (chapterSet.has(a.$id) ? -1 : 1));
+    var ans = x.documents.sort((a, b) => (chapterSet.has(a.$id) ? -1 : 1));
     return ans.map((val) => val.name);
   }
 
@@ -105,12 +116,16 @@ export class Question {
    * @returns List of Concepts
    */
   static async getConceptList(name, standardId, subjectId, chapterId) {
-    var queries = [Query.orderDesc("$createdAt"), Query.orderAsc("name")];
+    var queries = [
+      Query.limit(100),
+      Query.orderDesc("$createdAt"),
+      Query.orderAsc("name"),
+    ];
     if (!name || name === "") {
     } else {
       queries.push(Query.search("name", name));
     }
-    const x = await AppwriteHelper.listAllDocuments(
+    const x = await appwriteDatabases.listDocuments(
       APPWRITE_API.databaseId,
       APPWRITE_API.collections.concepts,
       queries
@@ -130,14 +145,14 @@ export class Question {
       conceptQueries.push(Query.equal("chapterId", chapterId));
     }
     const conceptList = (
-      await AppwriteHelper.listAllDocuments(
+      await appwriteDatabases.listDocuments(
         APPWRITE_API.databaseId,
         APPWRITE_API.collections.questions,
         conceptQueries
       )
-    ).map((val) => val.conceptId);
+    ).documents.map((val) => val.conceptId);
     const conceptSet = new Set(conceptList);
-    var ans = x.sort((a, b) => (conceptSet.has(a.$id) ? -1 : 1));
+    var ans = x.documents.sort((a, b) => (conceptSet.has(a.$id) ? -1 : 1));
     return ans.map((val) => val.name);
   }
 
