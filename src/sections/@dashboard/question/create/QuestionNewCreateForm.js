@@ -174,7 +174,6 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
   const [coverOptionC, setCoverOptionC] = useState(null);
   const [optionD, setOptionD] = useState("");
   const [coverOptionD, setCoverOptionD] = useState(null);
-  const [answerOption, setAnswerOption] = useState("");
   const [contentAnswer, setContentAnswer] = useState("");
   const [coverAnswer, setCoverAnswer] = useState(null);
 
@@ -265,7 +264,6 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
             }
           }
 
-          setAnswerOption(data?.answerOption);
           setContentAnswer(data?.contentAnswer);
           fileData = await Question.getQuestionContentForPreview(
             data?.coverAnswer
@@ -293,7 +291,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
       setIsLoadingData(false);
     };
     fetchData();
-  }, [inComingQuestionId, enqueueSnackbar, user]);
+  }, [inComingQuestionId, enqueueSnackbar, user, navigate]);
 
   const saveMetaData = async (moveTo) => {
     setIsSaving(true);
@@ -532,7 +530,6 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
     if (correctOptionB) tmp += "B";
     if (correctOptionC) tmp += "C";
     if (correctOptionD) tmp += "D";
-    setAnswerOption(tmp);
     if (content === null || content === "") {
       setError({
         active: true,
