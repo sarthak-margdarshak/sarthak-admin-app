@@ -88,6 +88,9 @@ export const MockTestDriverListPage = Loadable(
     )
   )
 );
+export const MockTestNewPage = Loadable(
+  lazy(() => import("../pages/dashboard/management/mock-test/MockTestNewPage"))
+);
 
 // MAIN
 export const Page500 = Loadable(lazy(() => import("../pages/Page500")));

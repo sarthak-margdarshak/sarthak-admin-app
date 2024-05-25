@@ -58,6 +58,7 @@ import {
   PrivacyAndPolicyPage,
   TermsAndConditionsPage,
   MockTestDriverListPage,
+  MockTestNewPage,
 } from "./elements";
 
 // ----------------------------------------------------------------------
@@ -147,7 +148,7 @@ export default function Router() {
               index: true,
             },
             // { path: "list", element: <MockTestNewPage /> },
-            // { path: "new", element: <MockTestNewPage /> },
+            { path: "new", element: <MockTestNewPage /> },
             // { path: ":id", element: <MockTestNewPage /> },
             // { path: ":id/edit", element: <MockTestNewPage /> },
             { path: "driver", element: <MockTestDriverListPage /> },
