@@ -221,7 +221,7 @@ export default function MockTestNewPage() {
   return (
     <>
       <Helmet>
-        <title> Mock-Test : New | Standard</title>
+        <title> Mock-Test | New</title>
       </Helmet>
       <Container maxWidth={themeStretch ? false : "lg"}>
         <CustomBreadcrumbs

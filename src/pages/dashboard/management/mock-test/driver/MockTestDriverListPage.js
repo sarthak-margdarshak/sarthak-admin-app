@@ -133,7 +133,7 @@ export default function MockTestDriverListPage() {
   return (
     <>
       <Helmet>
-        <title> Mock-Test Driver: List | Standard</title>
+        <title> Mock-Test: Driver | List</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : "lg"}>
