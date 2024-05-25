@@ -16,11 +16,7 @@ export class Question {
    * @returns List of standards
    */
   static async getStandardList(name) {
-    var queries = [
-      Query.limit(100),
-      Query.orderDesc("$createdAt"),
-      Query.orderAsc("name"),
-    ];
+    var queries = [Query.orderDesc("$createdAt"), Query.orderAsc("name")];
     if (!name || name === "") {
     } else {
       queries.push(Query.search("name", name));
@@ -39,11 +35,7 @@ export class Question {
    * @returns List of Subjects
    */
   static async getSubjectList(name, standardId) {
-    var queries = [
-      Query.limit(100),
-      Query.orderDesc("$createdAt"),
-      Query.orderAsc("name"),
-    ];
+    var queries = [Query.orderDesc("$createdAt"), Query.orderAsc("name")];
     if (!name || name === "") {
     } else {
       queries.push(Query.search("name", name));
@@ -76,11 +68,7 @@ export class Question {
    * @returns List of Chapters
    */
   static async getChapterList(name, standardId, subjectId) {
-    var queries = [
-      Query.limit(100),
-      Query.orderDesc("$createdAt"),
-      Query.orderAsc("name"),
-    ];
+    var queries = [Query.orderDesc("$createdAt"), Query.orderAsc("name")];
     if (!name || name === "") {
     } else {
       queries.push(Query.search("name", name));
@@ -117,11 +105,7 @@ export class Question {
    * @returns List of Concepts
    */
   static async getConceptList(name, standardId, subjectId, chapterId) {
-    var queries = [
-      Query.limit(100),
-      Query.orderDesc("$createdAt"),
-      Query.orderAsc("name"),
-    ];
+    var queries = [Query.orderDesc("$createdAt"), Query.orderAsc("name")];
     if (!name || name === "") {
     } else {
       queries.push(Query.search("name", name));
