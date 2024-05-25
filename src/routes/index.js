@@ -60,6 +60,7 @@ import {
   MockTestDriverListPage,
   MockTestNewPage,
   MockTestViewPage,
+  MockTestEditPage,
 } from "./elements";
 
 // ----------------------------------------------------------------------
@@ -151,7 +152,7 @@ export default function Router() {
             // { path: "list", element: <MockTestNewPage /> },
             { path: "new", element: <MockTestNewPage /> },
             { path: ":id", element: <MockTestViewPage /> },
-            // { path: ":id/edit", element: <MockTestNewPage /> },
+            { path: ":id/edit", element: <MockTestEditPage /> },
             { path: "driver", element: <MockTestDriverListPage /> },
           ],
         },

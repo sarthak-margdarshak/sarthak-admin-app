@@ -43,11 +43,10 @@ export const APPWRITE_API = {
     questionFiles: process.env.REACT_APP_APPWRITE_BUCKET_QUESTION_FILES,
   },
   functions: {
-    onboardWelcome: process.env.REACT_APP_APPWRITE_FUCTION_ONBOARD_WELCOME,
     contactInstitute: process.env.REACT_APP_APPWRITE_FUCTION_CONTACT_INSTITUTE,
-    updateMockTests: process.env.REACT_APP_APPWRITE_FUCTION_CREATE_MOCK_TEST,
     toogleBlock: process.env.REACT_APP_APPWRITE_FUCTION_TOGGLE_BLOCK,
     publishQuestion: process.env.REACT_APP_APPWRITE_FUCTION_PUBLIC_QUESTION,
+    publishMockTest: process.env.REACT_APP_APPWRITE_FUCTION_PUBLISH_MOCK_TEST,
   },
 };
 

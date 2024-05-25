@@ -9,13 +9,8 @@ import {
   Chip,
   Container,
   Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Divider,
   FormControl,
-  FormHelperText,
   Grid,
   IconButton,
   InputLabel,
@@ -26,6 +21,7 @@ import {
   MenuItem,
   Paper,
   Select,
+  Skeleton,
   Slide,
   Stack,
   TextField,
@@ -37,13 +33,13 @@ import { Helmet } from "react-helmet-async";
 import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs/CustomBreadcrumbs";
 import { PATH_DASHBOARD } from "../../../../routes/paths";
 import { useSettingsContext } from "../../../../components/settings";
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef, useCallback, useEffect, useState } from "react";
 import { Reorder } from "framer-motion";
 import ReactKatex from "@pkasila/react-katex";
 import Image from "../../../../components/image/Image";
 import Iconify from "../../../../components/iconify";
 import { APPWRITE_API } from "../../../../config-global";
-import { ID, Permission, Query, Role } from "appwrite";
+import { Permission, Query, Role } from "appwrite";
 import { AppwriteHelper } from "../../../../auth/AppwriteHelper";
 import StandardDisplayUI from "../../../../sections/@dashboard/question/view/StandardDisplayUI";
 import SubjectDisplayUI from "../../../../sections/@dashboard/question/view/SubjectDisplayUI";
@@ -61,13 +57,14 @@ const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function MockTestNewPage() {
+export default function MockTestEditPage() {
+  const id = window.location.pathname.split("/")[3];
+
   const { themeStretch } = useSettingsContext();
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const { sarthakInfoData, userProfile } = useAuthContext();
   const [dragStarted, setDragStarted] = useState(false);
-  const [mockTestDriverList, setMockTestDriverList] = useState([]);
   const [mockTestDriverId, setMockTestDriverId] = useState("");
   const [standards, setStandards] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -80,153 +77,167 @@ export default function MockTestNewPage() {
   const [dialogeOpen, setDialogeOpen] = useState(false);
   const [allQuestions, setAllQuestions] = useState([]);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [currentValue, setCurrentValue] = useState(null);
-  const [changingDriver, setChangingDriver] = useState(false);
   const [level, setLevel] = useState("MEDIUM");
-  const [creating, setCreating] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const initiateChangeDriver = useCallback(
+    async (mtd) => {
+      try {
+        setMockTestDriverId(mtd.mtdId);
+        setStandards(mtd.standardIds);
+        setSubjects(mtd.subjectIds);
+        setChapters(mtd.chapterIds);
+        setConcepts(mtd.conceptIds);
+        var queries = [Query.equal("published", true)];
+        if (mtd.standardIds.length) {
+          queries.push(Query.equal("standardId", mtd.standardIds));
+        }
+        if (mtd.subjectIds.length) {
+          queries.push(Query.equal("subjectId", mtd.subjectIds));
+        }
+        if (mtd.chapterIds.length) {
+          queries.push(Query.equal("chapterId", mtd.chapterIds));
+        }
+        if (mtd.conceptIds.length) {
+          queries.push(Query.equal("conceptId", mtd.conceptIds));
+        }
+        var y = await AppwriteHelper.listAllDocuments(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.questions,
+          queries
+        );
+        for (let i in y) {
+          y[i].coverQuestion = await Question.getQuestionContentForPreview(
+            y[i]?.coverQuestion
+          );
+
+          y[i].coverOptionA = await Question.getQuestionContentForPreview(
+            y[i]?.coverOptionA
+          );
+
+          y[i].coverOptionB = await Question.getQuestionContentForPreview(
+            y[i]?.coverOptionB
+          );
+
+          y[i].coverOptionC = await Question.getQuestionContentForPreview(
+            y[i]?.coverOptionC
+          );
+
+          y[i].coverOptionD = await Question.getQuestionContentForPreview(
+            y[i]?.coverOptionD
+          );
+
+          y[i].coverAnswer = await Question.getQuestionContentForPreview(
+            y[i]?.coverAnswer
+          );
+        }
+        setAllQuestions(y);
+      } catch (error) {
+        enqueueSnackbar(error.message, { variant: "error" });
+      }
+    },
+    [enqueueSnackbar]
+  );
 
   useEffect(() => {
     const fetchData = async () => {
-      const x = await getMockTestDriverList();
-      setMockTestDriverList(x);
+      setLoading(true);
+      try {
+        var x = await appwriteDatabases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.mockTest,
+          id
+        );
+        var mtd = await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.mockTestDriver,
+          [Query.equal("mtdId", x.mockTestDriverId)]
+        );
+        x.mockTestDriverId = mtd.documents[0];
+        var questions = [];
+        for (let i in x.questions) {
+          var qus = await appwriteDatabases.getDocument(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.questions,
+            x.questions[i]
+          );
+          qus.coverQuestion = await Question.getQuestionContentForPreview(
+            qus?.coverQuestion
+          );
+
+          qus.coverOptionA = await Question.getQuestionContentForPreview(
+            qus?.coverOptionA
+          );
+
+          qus.coverOptionB = await Question.getQuestionContentForPreview(
+            qus?.coverOptionB
+          );
+
+          qus.coverOptionC = await Question.getQuestionContentForPreview(
+            qus?.coverOptionC
+          );
+
+          qus.coverOptionD = await Question.getQuestionContentForPreview(
+            qus?.coverOptionD
+          );
+
+          qus.coverAnswer = await Question.getQuestionContentForPreview(
+            qus?.coverAnswer
+          );
+          questions.push(qus);
+        }
+        x.questions = questions;
+        setMockTestName(x.name);
+        setDescription(x.description);
+        setSelectedQuestions(x.questions);
+        setMockTestDriverId(x.mockTestDriverId.mtdId);
+        setMockTestId(x.mtId);
+        setDuration(x.duration);
+        setLevel(x.level);
+        await initiateChangeDriver(x.mockTestDriverId);
+      } catch (error) {
+        console.log(error);
+
+        enqueueSnackbar(error.message, { variant: "error" });
+      }
+      setLoading(false);
     };
     fetchData();
-  }, [setMockTestDriverList]);
-
-  const getMockTestDriverList = async () => {
-    var queries = [Query.limit(100), Query.orderDesc("$createdAt")];
-    const x = await AppwriteHelper.listAllDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.mockTestDriver,
-      queries
-    );
-    return x;
-  };
-
-  const changeDriver = async (event) => {
-    if (event.target.value !== mockTestDriverId) {
-      setCurrentValue(event.target.value);
-      setConfirmDialogOpen(true);
-    }
-  };
-
-  const initiateChangeDriver = async () => {
-    setChangingDriver(true);
-    try {
-      setMockTestDriverId(currentValue);
-      const x = mockTestDriverList.findIndex(
-        (value) => value.mtdId === currentValue
-      );
-      setStandards(mockTestDriverList[x].standardIds);
-      setSubjects(mockTestDriverList[x].subjectIds);
-      setChapters(mockTestDriverList[x].chapterIds);
-      setConcepts(mockTestDriverList[x].conceptIds);
-      var queries = [Query.equal("published", true)];
-      if (mockTestDriverList[x].standardIds.length) {
-        queries.push(
-          Query.equal("standardId", mockTestDriverList[x].standardIds)
-        );
-      }
-      if (mockTestDriverList[x].subjectIds.length) {
-        queries.push(
-          Query.equal("subjectId", mockTestDriverList[x].subjectIds)
-        );
-      }
-      if (mockTestDriverList[x].chapterIds.length) {
-        queries.push(
-          Query.equal("chapterId", mockTestDriverList[x].chapterIds)
-        );
-      }
-      if (mockTestDriverList[x].conceptIds.length) {
-        queries.push(
-          Query.equal("conceptId", mockTestDriverList[x].conceptIds)
-        );
-      }
-      var y = await AppwriteHelper.listAllDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.questions,
-        queries
-      );
-      for (let i in y) {
-        y[i].coverQuestion = await Question.getQuestionContentForPreview(
-          y[i]?.coverQuestion
-        );
-
-        y[i].coverOptionA = await Question.getQuestionContentForPreview(
-          y[i]?.coverOptionA
-        );
-
-        y[i].coverOptionB = await Question.getQuestionContentForPreview(
-          y[i]?.coverOptionB
-        );
-
-        y[i].coverOptionC = await Question.getQuestionContentForPreview(
-          y[i]?.coverOptionC
-        );
-
-        y[i].coverOptionD = await Question.getQuestionContentForPreview(
-          y[i]?.coverOptionD
-        );
-
-        y[i].coverAnswer = await Question.getQuestionContentForPreview(
-          y[i]?.coverAnswer
-        );
-      }
-      setAllQuestions(y);
-      setSelectedQuestions([]);
-      setConfirmDialogOpen(false);
-    } catch (error) {
-      enqueueSnackbar(error.message, { variant: "error" });
-    }
-    setChangingDriver(false);
-  };
+  }, [enqueueSnackbar, id]);
 
   const onsubmit = async () => {
-    setCreating(true);
+    setSaving(true);
     const questions = selectedQuestions.map((value) => value?.$id);
     try {
-      const x =
-        (
-          await appwriteDatabases.listDocuments(
-            APPWRITE_API.databaseId,
-            APPWRITE_API.collections.mockTest,
-            [Query.limit(1)]
-          )
-        ).total + 1;
-      const id = "MT" + x.toString().padStart(8, 0);
-      setMockTestId(id);
-
-      const y = await appwriteDatabases.createDocument(
+      const y = await appwriteDatabases.updateDocument(
         APPWRITE_API.databaseId,
         APPWRITE_API.collections.mockTest,
-        ID.unique(),
+        id,
         {
           name: mockTestName,
           description: description,
           questions: questions,
-          mockTestDriverId: mockTestDriverId,
-          mtId: id,
           duration: duration,
           level: level,
-          createdBy: userProfile.$id,
           updatedBy: userProfile.$id,
         },
         [Permission.update(Role.team(sarthakInfoData.adminTeamId))]
       );
       setMockTestId(id);
-      enqueueSnackbar("Successfully Created");
+      enqueueSnackbar("Successfully Saved");
       navigate(PATH_DASHBOARD.mockTest.view(y.$id));
     } catch (error) {
+      console.log(error);
       enqueueSnackbar(error.message, { variant: "error" });
     }
-    setCreating(false);
+    setSaving(false);
   };
 
   return (
     <>
       <Helmet>
-        <title> Mock-Test | New</title>
+        <title> Mock-Test: Edit</title>
       </Helmet>
       <Container maxWidth={themeStretch ? false : "lg"}>
         <CustomBreadcrumbs
@@ -241,90 +252,124 @@ export default function MockTestNewPage() {
               href: PATH_DASHBOARD.mockTest.root,
             },
             {
-              name: "new",
+              name: mockTestDriverId,
+              href: PATH_DASHBOARD.mockTest.view(id),
+            },
+            {
+              name: "edit",
             },
           ]}
           action={
             <LoadingButton
-              loading={creating}
+              loading={saving}
               variant="contained"
               onClick={onsubmit}
             >
-              Create
+              Save
             </LoadingButton>
           }
         />
 
-        <Paper
-          variant="outlined"
-          sx={{
-            p: 1,
-            my: 1,
-            bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
-          }}
-        >
-          <Grid container>
-            <Grid item xs={12} sm={12} md={2.4} lg={2.4} xl={2.4} padding={1}>
-              <FormControl fullWidth>
-                <InputLabel id="mock-test-driver-select">
-                  Mock Test Driver Id
-                </InputLabel>
-                <Select
-                  labelId="mock-test-driver-select"
-                  id="mock-test-driver-select"
-                  value={mockTestDriverId}
-                  label="Mock Test Driver Id"
-                  onChange={changeDriver}
-                >
-                  {mockTestDriverList.map((value) => (
-                    <MenuItem key={value.$id} value={value.mtdId}>
-                      {value.mtdId}
-                    </MenuItem>
+        {loading ? (
+          <Skeleton height={150} />
+        ) : (
+          <Paper
+            variant="outlined"
+            sx={{
+              p: 1,
+              my: 1,
+              mb: 2,
+              bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+            }}
+          >
+            <Grid container>
+              <Grid item xs={12} sm={12} md={2.3} lg={2.3} xl={2.3} padding={1}>
+                <Stack direction="column">
+                  <Typography variant="subtitle1">
+                    Mock Test Driver Id -
+                  </Typography>
+                  <Typography variant="body2">{mockTestDriverId}</Typography>
+                </Stack>
+              </Grid>
+
+              <Divider orientation="vertical" flexItem />
+
+              <Grid
+                item
+                xs={5.9}
+                sm={5.9}
+                md={2.3}
+                lg={2.3}
+                xl={2.3}
+                padding={1}
+              >
+                <Stack direction="column">
+                  <Typography variant="subtitle1">Standards -</Typography>
+                  {standards.map((value) => (
+                    <StandardDisplayUI key={value} id={value} />
                   ))}
-                </Select>
-                <FormHelperText>
-                  Pick the Id of driver. Look at the list page to get the id.
-                </FormHelperText>
-              </FormControl>
-            </Grid>
+                </Stack>
+              </Grid>
 
-            <Grid item xs={6} sm={6} md={2.4} lg={2.4} xl={2.4} padding={1}>
-              <Stack direction="column">
-                <Typography variant="subtitle1">Standards</Typography>
-                {standards.map((value) => (
-                  <StandardDisplayUI key={value} id={value} />
-                ))}
-              </Stack>
-            </Grid>
+              <Divider orientation="vertical" flexItem />
 
-            <Grid item xs={6} sm={6} md={2.4} lg={2.4} xl={2.4} padding={1}>
-              <Stack direction="column">
-                <Typography variant="subtitle1">Subjects</Typography>
-                {subjects.map((value) => (
-                  <SubjectDisplayUI key={value} id={value} />
-                ))}
-              </Stack>
-            </Grid>
+              <Grid
+                item
+                xs={5.9}
+                sm={5.9}
+                md={2.3}
+                lg={2.3}
+                xl={2.3}
+                padding={1}
+              >
+                <Stack direction="column">
+                  <Typography variant="subtitle1">Subjects -</Typography>
+                  {subjects.map((value) => (
+                    <SubjectDisplayUI key={value} id={value} />
+                  ))}
+                </Stack>
+              </Grid>
 
-            <Grid item xs={6} sm={6} md={2.4} lg={2.4} xl={2.4} padding={1}>
-              <Stack direction="column">
-                <Typography variant="subtitle1">Chapters</Typography>
-                {chapters.map((value) => (
-                  <ChapterDisplayUI key={value} id={value} />
-                ))}
-              </Stack>
-            </Grid>
+              <Divider orientation="vertical" flexItem />
 
-            <Grid item xs={6} sm={6} md={2.4} lg={2.4} xl={2.4} padding={1}>
-              <Stack direction="column">
-                <Typography variant="subtitle1">Concepts</Typography>
-                {concepts.map((value) => (
-                  <ConceptDisplayUI key={value} id={value} />
-                ))}
-              </Stack>
+              <Grid
+                item
+                xs={5.9}
+                sm={5.9}
+                md={2.3}
+                lg={2.3}
+                xl={2.3}
+                padding={1}
+              >
+                <Stack direction="column">
+                  <Typography variant="subtitle1">Chapters -</Typography>
+                  {chapters.map((value) => (
+                    <ChapterDisplayUI key={value} id={value} />
+                  ))}
+                </Stack>
+              </Grid>
+
+              <Divider orientation="vertical" flexItem />
+
+              <Grid
+                item
+                xs={5.9}
+                sm={5.9}
+                md={2.3}
+                lg={2.3}
+                xl={2.3}
+                padding={1}
+              >
+                <Stack direction="column">
+                  <Typography variant="subtitle1">Concepts -</Typography>
+                  {concepts.map((value) => (
+                    <ConceptDisplayUI key={value} id={value} />
+                  ))}
+                </Stack>
+              </Grid>
             </Grid>
-          </Grid>
-        </Paper>
+          </Paper>
+        )}
 
         <Grid container>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -806,31 +851,6 @@ export default function MockTestNewPage() {
               </Grid>
             </Grid>
           </Paper>
-        </Dialog>
-
-        <Dialog
-          open={confirmDialogOpen}
-          onClose={() => setConfirmDialogOpen(false)}
-        >
-          <DialogTitle>Please Confirm</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Are you sure, you want to change driver id? If you click ok, you
-              will loose currently saved questions.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <LoadingButton onClick={() => setConfirmDialogOpen(false)}>
-              Disagree
-            </LoadingButton>
-            <LoadingButton
-              loading={changingDriver}
-              onClick={initiateChangeDriver}
-              autoFocus
-            >
-              Agree
-            </LoadingButton>
-          </DialogActions>
         </Dialog>
       </Container>
     </>

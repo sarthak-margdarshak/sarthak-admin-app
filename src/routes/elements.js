@@ -94,6 +94,9 @@ export const MockTestNewPage = Loadable(
 export const MockTestViewPage = Loadable(
   lazy(() => import("../pages/dashboard/management/mock-test/MockTestViewPage"))
 );
+export const MockTestEditPage = Loadable(
+  lazy(() => import("../pages/dashboard/management/mock-test/MockTestEditPage"))
+);
 
 // MAIN
 export const Page500 = Loadable(lazy(() => import("../pages/Page500")));
