@@ -30,32 +30,30 @@ TeamTableRow.propTypes = {
 
 export default function TeamTableRow({ index, row, onViewRow }) {
   return (
-    <>
-      <TableRow hover>
-        <TableCell align="left">{index}</TableCell>
+    <TableRow hover>
+      <TableCell align="left">{index}</TableCell>
 
-        <TableCell>
-          <Typography variant="subtitle2" noWrap>
-            {row?.name}
-          </Typography>
-        </TableCell>
+      <TableCell>
+        <Typography variant="subtitle2" noWrap>
+          {row?.name}
+        </Typography>
+      </TableCell>
 
-        <TableCell align="left">
-          {new Date(row?.$createdAt).toLocaleDateString("en-US")}
-        </TableCell>
+      <TableCell align="left">
+        {new Date(row?.$createdAt).toLocaleDateString("en-US")}
+      </TableCell>
 
-        <TableCell align="left" sx={{ textTransform: "capitalize" }}>
-          {row?.total}
-        </TableCell>
+      <TableCell align="left" sx={{ textTransform: "capitalize" }}>
+        {row?.total}
+      </TableCell>
 
-        <TableCell align="left">{row?.$id}</TableCell>
+      <TableCell align="left">{row?.$id}</TableCell>
 
-        <TableCell align="left">
-          <IconButton onClick={onViewRow}>
-            <Iconify icon="carbon:view" />
-          </IconButton>
-        </TableCell>
-      </TableRow>
-    </>
+      <TableCell align="left">
+        <IconButton onClick={onViewRow}>
+          <Iconify icon="carbon:view" />
+        </IconButton>
+      </TableCell>
+    </TableRow>
   );
 }

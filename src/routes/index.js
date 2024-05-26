@@ -57,15 +57,11 @@ import {
   ChangeLogPage,
   PrivacyAndPolicyPage,
   TermsAndConditionsPage,
-  MockTestListStandardPage,
-  MockTestPage,
+  MockTestDriverListPage,
+  MockTestNewPage,
+  MockTestViewPage,
   MockTestEditPage,
-  MockTestListBySubjectPage,
-  MockTestListByChapterPage,
-  MockTestListByConceptPage,
-  MockTestListPage,
 } from "./elements";
-import MockTestNewPage from "../pages/dashboard/management/mock-test/MockTestNewPage";
 
 // ----------------------------------------------------------------------
 
@@ -153,27 +149,10 @@ export default function Router() {
               element: <Navigate to="/dashboard/mock-test/list" replace />,
               index: true,
             },
-            { element: <Navigate to="/maintenance" replace />, index: true },
-            { path: "list", element: <MockTestListStandardPage /> },
             { path: "new", element: <MockTestNewPage /> },
-            {
-              path: "list/standard/:standardId",
-              element: <MockTestListBySubjectPage />,
-            },
-            {
-              path: "list/standard/:standardId/subject/:subjectId",
-              element: <MockTestListByChapterPage />,
-            },
-            {
-              path: "list/standard/:standardId/subject/:subjectId/chapter/:chapterId",
-              element: <MockTestListByConceptPage />,
-            },
-            {
-              path: "list/standard/:standardId/subject/:subjectId/chapter/:chapterId/concept/:conceptId",
-              element: <MockTestListPage />,
-            },
-            { path: ":id", element: <MockTestPage /> },
+            { path: ":id", element: <MockTestViewPage /> },
             { path: ":id/edit", element: <MockTestEditPage /> },
+            { path: "driver", element: <MockTestDriverListPage /> },
           ],
         },
       ],

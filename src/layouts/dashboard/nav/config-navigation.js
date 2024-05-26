@@ -87,7 +87,10 @@ const navConfig = [
         icon: ICONS.mockTest,
         children: [
           { title: "new", path: PATH_DASHBOARD.mockTest.new },
-          { title: "list", path: PATH_DASHBOARD.mockTest.standardList },
+          {
+            title: "driver",
+            path: PATH_DASHBOARD.mockTest.driver,
+          },
         ],
       },
     ],

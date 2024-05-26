@@ -34,6 +34,7 @@ import {
   FormControlLabel,
   Checkbox,
   StepButton,
+  Tooltip,
 } from "@mui/material";
 // components
 import Iconify from "../../../../components/iconify";
@@ -841,9 +842,17 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   <Typography sx={{ mr: 1 }} variant="subtitle2">
                     Created At -
                   </Typography>
-                  <Typography variant="body2">
-                    {timeAgo.format(new Date(createdAt))}
-                  </Typography>
+                  <Tooltip title={new Date(createdAt).toUTCString()}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        textDecorationLine: "underline",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {timeAgo.format(new Date(createdAt))}
+                    </Typography>
+                  </Tooltip>
                 </Stack>
               </Grid>
 
@@ -861,9 +870,17 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                   <Typography sx={{ mr: 1 }} variant="subtitle2">
                     Updated At -
                   </Typography>
-                  <Typography variant="body2">
-                    {timeAgo.format(new Date(updatedAt))}
-                  </Typography>
+                  <Tooltip title={new Date(updatedAt).toUTCString()}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        textDecorationLine: "underline",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {timeAgo.format(new Date(updatedAt))}
+                    </Typography>
+                  </Tooltip>
                 </Stack>
               </Grid>
             </Grid>

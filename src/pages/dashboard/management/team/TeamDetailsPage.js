@@ -83,55 +83,57 @@ export default function TeamDetailsPage() {
   const [openConfirm, setOpenConfirm] = useState(false);
   const [openInvite, setOpenInvite] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
-
-  async function fetchData() {
-    setUpdate(true);
-    try {
-      // Get Team Data
-      const membershipData = await appwriteTeams.listMemberships(teamId, [
-        Query.limit(100),
-      ]);
-      const tempTeam = await appwriteTeams.get(teamId);
-      setTeam(tempTeam);
-      // Get Team members data
-      var f_data = [];
-      var count = 1;
-      for (let i in membershipData.memberships) {
-        if (
-          membershipData.memberships[i].userId === user.$id &&
-          membershipData.memberships[i].roles.find((val) => val === "owner") !==
-            undefined
-        ) {
-          setIsOwner(true);
-        }
-        var tempRowUser = null;
-        try {
-          tempRowUser = await appwriteDatabases.getDocument(
-            APPWRITE_API.databaseId,
-            APPWRITE_API.collections.adminUsers,
-            membershipData.memberships[i]?.userId
-          );
-        } catch (error) {}
-        f_data.push({
-          sn: count,
-          ...membershipData.memberships[i],
-          blocked: tempRowUser?.blocked || false,
-          photoUrl: tempRowUser?.photoUrl,
-          createTeam: tempRowUser?.createTeam || false,
-        });
-        count++;
-      }
-      setTableData(f_data);
-    } catch (error) {
-      console.error(error);
-      enqueueSnackbar(error.message, { variant: "error" });
-    }
-    setUpdate(false);
-  }
+  const [updated, setUpdated] = useState(0);
 
   useEffect(() => {
+    const fetchData = async () => {
+      setUpdate(true);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      try {
+        // Get Team Data
+        const membershipData = await appwriteTeams.listMemberships(teamId, [
+          Query.limit(100),
+        ]);
+        const tempTeam = await appwriteTeams.get(teamId);
+        setTeam(tempTeam);
+        // Get Team members data
+        var f_data = [];
+        var count = 1;
+        for (let i in membershipData.memberships) {
+          if (
+            membershipData.memberships[i].userId === user.$id &&
+            membershipData.memberships[i].roles.find(
+              (val) => val === "owner"
+            ) !== undefined
+          ) {
+            setIsOwner(true);
+          }
+          var tempRowUser = null;
+          try {
+            tempRowUser = await appwriteDatabases.getDocument(
+              APPWRITE_API.databaseId,
+              APPWRITE_API.collections.adminUsers,
+              membershipData.memberships[i]?.userId
+            );
+          } catch (error) {}
+          f_data.push({
+            sn: count,
+            ...membershipData.memberships[i],
+            blocked: tempRowUser?.blocked || false,
+            photoUrl: tempRowUser?.photoUrl,
+            createTeam: tempRowUser?.createTeam || false,
+          });
+          count++;
+        }
+        setTableData(f_data);
+      } catch (error) {
+        console.error(error);
+        enqueueSnackbar(error.message, { variant: "error" });
+      }
+      setUpdate(false);
+    };
     fetchData();
-  }, []);
+  }, [enqueueSnackbar, updated, teamId, user.$id]);
 
   const {
     page,
@@ -165,7 +167,7 @@ export default function TeamDetailsPage() {
       } else {
         enqueueSnackbar("Successfully Blocked");
       }
-      fetchData();
+      setUpdated(updated + 1);
     } catch (error) {
       console.log(error);
       enqueueSnackbar(error.message, { variant: "error" });

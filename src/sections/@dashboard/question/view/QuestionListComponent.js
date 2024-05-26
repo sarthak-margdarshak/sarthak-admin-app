@@ -370,11 +370,7 @@ export default function QuestionListComponent() {
     const fetchData = async () => {
       setIsFetchingData(true);
       try {
-        const data = await Question.getQuestionList(
-          tempParameters,
-          0,
-          rowsPerPage
-        );
+        const data = await Question.getQuestionList(parameters, 0, rowsPerPage);
         setTotalCount(data.total);
         setTableData(data.documents);
       } catch (error) {
@@ -383,7 +379,7 @@ export default function QuestionListComponent() {
       setIsFetchingData(false);
     };
     fetchData();
-  }, [setIsFetchingData, enqueueSnackbar, rowsPerPage]);
+  }, [setIsFetchingData, enqueueSnackbar, rowsPerPage, parameters]);
 
   const applyFilter = async () => {
     var filterUrl = "";

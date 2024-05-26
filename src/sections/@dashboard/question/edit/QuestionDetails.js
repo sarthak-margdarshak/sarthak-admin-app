@@ -9,6 +9,7 @@ import {
   Paper,
   Skeleton,
   Stack,
+  Tooltip,
   Typography,
   alpha,
 } from "@mui/material";
@@ -275,9 +276,17 @@ export default function QuestionDetails({ inComingQuestionId }) {
             <Typography sx={{ mr: 1 }} variant="subtitle2">
               Created At -
             </Typography>
-            <Typography variant="body2">
-              {timeAgo.format(new Date(question?.$createdAt))}
-            </Typography>
+            <Tooltip title={new Date(question?.$createdAt).toUTCString()}>
+              <Typography
+                variant="body2"
+                sx={{
+                  textDecorationLine: "underline",
+                  cursor: "pointer",
+                }}
+              >
+                {timeAgo.format(new Date(question?.$createdAt))}
+              </Typography>
+            </Tooltip>
           </Stack>
 
           {question.published && (
@@ -325,9 +334,17 @@ export default function QuestionDetails({ inComingQuestionId }) {
             <Typography sx={{ mr: 1 }} variant="subtitle2">
               Updated At -
             </Typography>
-            <Typography variant="body2">
-              {timeAgo.format(new Date(question?.$updatedAt))}
-            </Typography>
+            <Tooltip title={new Date(question?.$updatedAt).toUTCString()}>
+              <Typography
+                variant="body2"
+                sx={{
+                  textDecorationLine: "underline",
+                  cursor: "pointer",
+                }}
+              >
+                {timeAgo.format(new Date(question?.$updatedAt))}
+              </Typography>
+            </Tooltip>
           </Stack>
 
           {question.published && (
@@ -335,9 +352,17 @@ export default function QuestionDetails({ inComingQuestionId }) {
               <Typography sx={{ mr: 1 }} variant="subtitle2">
                 Approved At -
               </Typography>
-              <Typography variant="body2">
-                {timeAgo.format(new Date(question?.approvedAt))}
-              </Typography>
+              <Tooltip title={new Date(question?.approvedAt).toUTCString()}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    textDecorationLine: "underline",
+                    cursor: "pointer",
+                  }}
+                >
+                  {timeAgo.format(new Date(question?.approvedAt))}
+                </Typography>
+              </Tooltip>
             </Stack>
           )}
         </Grid>
