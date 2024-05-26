@@ -37,11 +37,13 @@ import MockTestDriverTableRow from "../../../../../sections/@dashboard/mock-test
 import { Question } from "../../../../../auth/Question";
 
 const TABLE_HEAD = [
+  { id: "view" },
   { id: "id", label: "ID", align: "left" },
   { id: "standard", label: "Standard", align: "left" },
   { id: "subject", label: "Subject", align: "left" },
   { id: "chapter", label: "Chapter", align: "left" },
   { id: "concept", label: "Concept", align: "left" },
+  { id: "count", label: "Mock Test Count", align: "center" },
 ];
 
 const Transition = forwardRef(function Transition(props, ref) {
