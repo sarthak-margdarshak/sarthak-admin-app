@@ -33,7 +33,7 @@ import { Helmet } from "react-helmet-async";
 import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs/CustomBreadcrumbs";
 import { PATH_DASHBOARD } from "../../../../routes/paths";
 import { useSettingsContext } from "../../../../components/settings";
-import { forwardRef, useCallback, useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { Reorder } from "framer-motion";
 import ReactKatex from "@pkasila/react-katex";
 import Image from "../../../../components/image/Image";
@@ -81,9 +81,62 @@ export default function MockTestEditPage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const initiateChangeDriver = useCallback(
-    async (mtd) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
       try {
+        var x = await appwriteDatabases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.mockTest,
+          id
+        );
+        var mtd_1 = await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.mockTestDriver,
+          [Query.equal("mtdId", x.mockTestDriverId)]
+        );
+        x.mockTestDriverId = mtd_1.documents[0];
+        var questions = [];
+        for (let i in x.questions) {
+          var qus = await appwriteDatabases.getDocument(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.questions,
+            x.questions[i]
+          );
+          qus.coverQuestion = await Question.getQuestionContentForPreview(
+            qus?.coverQuestion
+          );
+
+          qus.coverOptionA = await Question.getQuestionContentForPreview(
+            qus?.coverOptionA
+          );
+
+          qus.coverOptionB = await Question.getQuestionContentForPreview(
+            qus?.coverOptionB
+          );
+
+          qus.coverOptionC = await Question.getQuestionContentForPreview(
+            qus?.coverOptionC
+          );
+
+          qus.coverOptionD = await Question.getQuestionContentForPreview(
+            qus?.coverOptionD
+          );
+
+          qus.coverAnswer = await Question.getQuestionContentForPreview(
+            qus?.coverAnswer
+          );
+          questions.push(qus);
+        }
+        x.questions = questions;
+        setMockTestName(x.name);
+        setDescription(x.description);
+        setSelectedQuestions(x.questions);
+        setMockTestDriverId(x.mockTestDriverId.mtdId);
+        setMockTestId(x.mtId);
+        setDuration(x.duration);
+        setLevel(x.level);
+        const mtd = x.mockTestDriverId;
         setMockTestDriverId(mtd.mtdId);
         setStandards(mtd.standardIds);
         setSubjects(mtd.subjectIds);
@@ -133,69 +186,6 @@ export default function MockTestEditPage() {
           );
         }
         setAllQuestions(y);
-      } catch (error) {
-        enqueueSnackbar(error.message, { variant: "error" });
-      }
-    },
-    [enqueueSnackbar]
-  );
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        var x = await appwriteDatabases.getDocument(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.collections.mockTest,
-          id
-        );
-        var mtd = await appwriteDatabases.listDocuments(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.collections.mockTestDriver,
-          [Query.equal("mtdId", x.mockTestDriverId)]
-        );
-        x.mockTestDriverId = mtd.documents[0];
-        var questions = [];
-        for (let i in x.questions) {
-          var qus = await appwriteDatabases.getDocument(
-            APPWRITE_API.databaseId,
-            APPWRITE_API.collections.questions,
-            x.questions[i]
-          );
-          qus.coverQuestion = await Question.getQuestionContentForPreview(
-            qus?.coverQuestion
-          );
-
-          qus.coverOptionA = await Question.getQuestionContentForPreview(
-            qus?.coverOptionA
-          );
-
-          qus.coverOptionB = await Question.getQuestionContentForPreview(
-            qus?.coverOptionB
-          );
-
-          qus.coverOptionC = await Question.getQuestionContentForPreview(
-            qus?.coverOptionC
-          );
-
-          qus.coverOptionD = await Question.getQuestionContentForPreview(
-            qus?.coverOptionD
-          );
-
-          qus.coverAnswer = await Question.getQuestionContentForPreview(
-            qus?.coverAnswer
-          );
-          questions.push(qus);
-        }
-        x.questions = questions;
-        setMockTestName(x.name);
-        setDescription(x.description);
-        setSelectedQuestions(x.questions);
-        setMockTestDriverId(x.mockTestDriverId.mtdId);
-        setMockTestId(x.mtId);
-        setDuration(x.duration);
-        setLevel(x.level);
-        await initiateChangeDriver(x.mockTestDriverId);
       } catch (error) {
         console.log(error);
 
