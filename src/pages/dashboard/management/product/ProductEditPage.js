@@ -314,21 +314,11 @@ export default function ProductEditPage() {
           );
         }
 
-        const x =
-          (
-            await appwriteDatabases.listDocuments(
-              APPWRITE_API.databaseId,
-              APPWRITE_API.collections.products
-            )
-          ).total + 1;
-        setProductId("PR" + x.toString().padStart(8, 0));
-
         const y = await appwriteDatabases.updateDocument(
           APPWRITE_API.databaseId,
           APPWRITE_API.collections.products,
           id,
           {
-            productId: "PR" + x.toString().padStart(8, 0),
             name: productName,
             description: description,
             type: productType,
@@ -347,14 +337,9 @@ export default function ProductEditPage() {
           [Permission.update(Role.team(sarthakInfoData.adminTeamId))]
         );
 
-        enqueueSnackbar(
-          "Successfully Updated the product - " +
-            "PR" +
-            x.toString().padStart(8, 0),
-          {
-            variant: "success",
-          }
-        );
+        enqueueSnackbar("Successfully Updated the product - " + productId, {
+          variant: "success",
+        });
 
         navigate(PATH_DASHBOARD.product.view(y.$id));
       } catch (error) {
