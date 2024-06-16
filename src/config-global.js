@@ -33,6 +33,7 @@ export const APPWRITE_API = {
       process.env.REACT_APP_APPWRITE_COLLECTION_SARTHAK_INFO_DATA,
     standards: process.env.REACT_APP_APPWRITE_COLLECTION_STANDARDS,
     subjects: process.env.REACT_APP_APPWRITE_COLLECTION_SUBJECTS,
+    products: process.env.REACT_APP_APPWRITE_COLLECTION_PRODUCTS,
   },
   documents: {
     sarthak: process.env.REACT_APP_APPWRITE_DOCUMENT_SARTHAK,
@@ -41,12 +42,14 @@ export const APPWRITE_API = {
   buckets: {
     adminUserImage: process.env.REACT_APP_APPWRITE_BUCKET_ADMIN_USER_IMAGE,
     questionFiles: process.env.REACT_APP_APPWRITE_BUCKET_QUESTION_FILES,
+    productFiles: process.env.REACT_APP_APPWRITE_BUCKET_PRODUCT_FILES,
   },
   functions: {
     contactInstitute: process.env.REACT_APP_APPWRITE_FUCTION_CONTACT_INSTITUTE,
     toogleBlock: process.env.REACT_APP_APPWRITE_FUCTION_TOGGLE_BLOCK,
     publishQuestion: process.env.REACT_APP_APPWRITE_FUCTION_PUBLIC_QUESTION,
     publishMockTest: process.env.REACT_APP_APPWRITE_FUCTION_PUBLISH_MOCK_TEST,
+    publishProduct: process.env.REACT_APP_APPWRITE_FUCTION_PUBLISH_PRODUCT,
   },
 };
 

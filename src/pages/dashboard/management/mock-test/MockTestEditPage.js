@@ -14,10 +14,6 @@ import {
   Grid,
   IconButton,
   InputLabel,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
   MenuItem,
   Paper,
   Select,
@@ -295,9 +291,13 @@ export default function MockTestEditPage() {
               >
                 <Stack direction="column">
                   <Typography variant="subtitle1">Standards -</Typography>
-                  {standards.map((value) => (
-                    <StandardDisplayUI key={value} id={value} />
-                  ))}
+                  {standards.length === 0 ? (
+                    <Typography variant="body2">All</Typography>
+                  ) : (
+                    standards.map((value) => (
+                      <StandardDisplayUI key={value} id={value} />
+                    ))
+                  )}
                 </Stack>
               </Grid>
 
@@ -314,9 +314,13 @@ export default function MockTestEditPage() {
               >
                 <Stack direction="column">
                   <Typography variant="subtitle1">Subjects -</Typography>
-                  {subjects.map((value) => (
-                    <SubjectDisplayUI key={value} id={value} />
-                  ))}
+                  {subjects.length === 0 ? (
+                    <Typography variant="body2">All</Typography>
+                  ) : (
+                    subjects.map((value) => (
+                      <SubjectDisplayUI key={value} id={value} />
+                    ))
+                  )}
                 </Stack>
               </Grid>
 
@@ -333,9 +337,13 @@ export default function MockTestEditPage() {
               >
                 <Stack direction="column">
                   <Typography variant="subtitle1">Chapters -</Typography>
-                  {chapters.map((value) => (
-                    <ChapterDisplayUI key={value} id={value} />
-                  ))}
+                  {chapters.length === 0 ? (
+                    <Typography variant="body2">All</Typography>
+                  ) : (
+                    chapters.map((value) => (
+                      <ChapterDisplayUI key={value} id={value} />
+                    ))
+                  )}
                 </Stack>
               </Grid>
 
@@ -352,9 +360,13 @@ export default function MockTestEditPage() {
               >
                 <Stack direction="column">
                   <Typography variant="subtitle1">Concepts -</Typography>
-                  {concepts.map((value) => (
-                    <ConceptDisplayUI key={value} id={value} />
-                  ))}
+                  {concepts.length === 0 ? (
+                    <Typography variant="body2">All</Typography>
+                  ) : (
+                    concepts.map((value) => (
+                      <ConceptDisplayUI key={value} id={value} />
+                    ))
+                  )}
                 </Stack>
               </Grid>
             </Grid>
@@ -815,30 +827,6 @@ export default function MockTestEditPage() {
                 ))}
               </Grid>
               <Divider orientation="vertical" flexItem />
-
-              <Grid
-                item
-                xs={12}
-                sm={12}
-                md={1.9}
-                lg={1.9}
-                xl={1.9}
-                padding={1}
-                style={{ position: "fixed", right: 40, top: 80 }}
-              >
-                <Divider>
-                  <Chip label="Selected Questions Id" />
-                </Divider>
-                {selectedQuestions.map((question) => (
-                  <List key={question.$id}>
-                    <ListItem disablePadding>
-                      <ListItemButton>
-                        <ListItemText>{question.qnId}</ListItemText>
-                      </ListItemButton>
-                    </ListItem>
-                  </List>
-                ))}
-              </Grid>
             </Grid>
           </Paper>
         </Dialog>

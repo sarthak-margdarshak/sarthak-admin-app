@@ -77,10 +77,16 @@ export const PATH_DASHBOARD = {
   },
   mockTest: {
     root: path(ROOTS_DASHBOARD, "/mock-test"),
-    list: path(ROOTS_DASHBOARD, "/mock-test/list"),
     new: path(ROOTS_DASHBOARD, "/mock-test/new"),
     view: (id) => path(ROOTS_DASHBOARD, `/mock-test/${id}`),
     edit: (id) => path(ROOTS_DASHBOARD, `/mock-test/${id}/edit`),
     driver: path(ROOTS_DASHBOARD, "/mock-test/driver"),
+  },
+  product: {
+    root: path(ROOTS_DASHBOARD, "/product"),
+    list: path(ROOTS_DASHBOARD, "/product/list"),
+    new: path(ROOTS_DASHBOARD, "/product/new"),
+    view: (id) => path(ROOTS_DASHBOARD, `/product/${id}`),
+    edit: (id) => path(ROOTS_DASHBOARD, `/product/${id}/edit`),
   },
 };
