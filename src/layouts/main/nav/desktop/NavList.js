@@ -13,7 +13,7 @@
 // IMPORT ---------------------------------------------------------------
 
 import PropTypes from "prop-types";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 // @mui
 import { Stack, Fade, Portal } from "@mui/material";
@@ -59,7 +59,7 @@ export default function NavList({ item, isOffset }) {
   };
 
   return (
-    <>
+    <React.Fragment>
       <NavItem
         item={item}
         isOffset={isOffset}
@@ -90,7 +90,7 @@ export default function NavList({ item, isOffset }) {
           </Fade>
         </Portal>
       )}
-    </>
+    </React.Fragment>
   );
 }
 

@@ -20,6 +20,7 @@ import { PATH_DASHBOARD } from "../routes/paths";
 import LoadingScreen from "../components/loading-screen";
 //
 import { useAuthContext } from "./useAuthContext";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -38,5 +39,5 @@ export default function GuestGuard({ children }) {
     return <LoadingScreen />;
   }
 
-  return <> {children} </>;
+  return <React.Fragment> {children} </React.Fragment>;
 }

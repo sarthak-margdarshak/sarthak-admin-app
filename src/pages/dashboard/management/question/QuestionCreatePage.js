@@ -8,6 +8,7 @@ import { useSettingsContext } from "../../../../components/settings";
 import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs";
 // sections
 import { QuestionNewCreateForm } from "../../../../sections/@dashboard/question/create";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -15,7 +16,7 @@ export default function QuestionCreatePage() {
   const { themeStretch } = useSettingsContext();
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Question: Create | Sarthak Admin</title>
       </Helmet>
@@ -40,6 +41,6 @@ export default function QuestionCreatePage() {
 
         <QuestionNewCreateForm />
       </Container>
-    </>
+    </React.Fragment>
   );
 }

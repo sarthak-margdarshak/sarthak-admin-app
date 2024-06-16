@@ -12,7 +12,7 @@
 
 // IMPORT ---------------------------------------------------------------
 
-import { useState } from "react";
+import React, { useState } from "react";
 // @mui
 import { MenuItem, Stack } from "@mui/material";
 // locales
@@ -43,7 +43,7 @@ export default function LanguagePopover() {
   };
 
   return (
-    <>
+    <React.Fragment>
       <IconButtonAnimate
         onClick={handleOpenPopover}
         sx={{
@@ -81,6 +81,6 @@ export default function LanguagePopover() {
           ))}
         </Stack>
       </MenuPopover>
-    </>
+    </React.Fragment>
   );
 }

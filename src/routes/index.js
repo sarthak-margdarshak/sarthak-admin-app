@@ -61,7 +61,11 @@ import {
   MockTestNewPage,
   MockTestViewPage,
   MockTestEditPage,
+  ProductViewPage,
 } from "./elements";
+import ProductNewPage from "../pages/dashboard/management/product/ProductNewPage";
+import ProductEditPage from "../pages/dashboard/management/product/ProductEditPage";
+import ProductListPage from "../pages/dashboard/management/product/ProductListPage";
 
 // ----------------------------------------------------------------------
 
@@ -146,13 +150,27 @@ export default function Router() {
           path: "mock-test",
           children: [
             {
-              element: <Navigate to="/dashboard/mock-test/list" replace />,
+              element: <Navigate to="/dashboard/mock-test/driver" replace />,
               index: true,
             },
             { path: "new", element: <MockTestNewPage /> },
             { path: ":id", element: <MockTestViewPage /> },
             { path: ":id/edit", element: <MockTestEditPage /> },
             { path: "driver", element: <MockTestDriverListPage /> },
+          ],
+        },
+        // Dashboard: Product
+        {
+          path: "product",
+          children: [
+            {
+              element: <Navigate to="/dashboard/product/list" replace />,
+              index: true,
+            },
+            { path: "new", element: <ProductNewPage /> },
+            { path: ":id", element: <ProductViewPage /> },
+            { path: ":id/edit", element: <ProductEditPage /> },
+            { path: "list", element: <ProductListPage /> },
           ],
         },
       ],

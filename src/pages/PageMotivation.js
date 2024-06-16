@@ -21,12 +21,13 @@ import { Button, Typography } from "@mui/material";
 import { MotionContainer, varBounce } from "../components/animate";
 // assets
 import { MotivationIllustration } from "../assets/illustrations";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
 export default function PageMotivation() {
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Success | Sarthak Admin</title>
       </Helmet>
@@ -53,6 +54,6 @@ export default function PageMotivation() {
           Go to Home
         </Button>
       </MotionContainer>
-    </>
+    </React.Fragment>
   );
 }

@@ -16,6 +16,7 @@ import PropTypes from "prop-types";
 import { Container, Paper, Stack, Typography } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import { Block } from "../sections/_examples/Block";
+import React from "react";
 
 const TYPOGRAPHYS = [
   {
@@ -71,7 +72,7 @@ const TYPOGRAPHYS = [
 
 export default function PrivacyAndPolicyPage() {
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Privacy And Policy | Sarthak Admin</title>
       </Helmet>
@@ -84,7 +85,7 @@ export default function PrivacyAndPolicyPage() {
           </Stack>
         </Block>
       </Container>
-    </>
+    </React.Fragment>
   );
 }
 

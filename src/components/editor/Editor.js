@@ -1,9 +1,10 @@
-import PropTypes from 'prop-types';
-import '../../utils/highlight';
-import ReactQuill from 'react-quill';
+import PropTypes from "prop-types";
+import "../../utils/highlight";
+import ReactQuill from "react-quill";
 //
-import { StyledEditor } from './styles';
-import EditorToolbar, { formats } from './EditorToolbar';
+import { StyledEditor } from "./styles";
+import EditorToolbar, { formats } from "./EditorToolbar";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -18,7 +19,7 @@ Editor.propTypes = {
 };
 
 export default function Editor({
-  id = 'minimal-quill',
+  id = "minimal-quill",
   error,
   value,
   onChange,
@@ -43,7 +44,7 @@ export default function Editor({
   };
 
   return (
-    <>
+    <React.Fragment>
       <StyledEditor
         sx={{
           ...(error && {
@@ -65,6 +66,6 @@ export default function Editor({
       </StyledEditor>
 
       {helperText && helperText}
-    </>
+    </React.Fragment>
   );
 }

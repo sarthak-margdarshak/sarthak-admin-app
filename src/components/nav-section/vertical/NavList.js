@@ -1,12 +1,12 @@
-import PropTypes from 'prop-types';
-import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import PropTypes from "prop-types";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 // @mui
-import { Collapse } from '@mui/material';
+import { Collapse } from "@mui/material";
 // hooks
-import useActiveLink from '../../../hooks/useActiveLink';
+import useActiveLink from "../../../hooks/useActiveLink";
 //
-import NavItem from './NavItem';
+import NavItem from "./NavItem";
 
 // ----------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ export default function NavList({ data, depth, hasChild }) {
   };
 
   return (
-    <>
+    <React.Fragment>
       <NavItem
         item={data}
         depth={depth}
@@ -54,7 +54,7 @@ export default function NavList({ data, depth, hasChild }) {
           <NavSubList data={data.children} depth={depth} />
         </Collapse>
       )}
-    </>
+    </React.Fragment>
   );
 }
 
@@ -67,7 +67,7 @@ NavSubList.propTypes = {
 
 function NavSubList({ data, depth }) {
   return (
-    <>
+    <React.Fragment>
       {data.map((list) => (
         <NavList
           key={list.title + list.path}
@@ -76,6 +76,6 @@ function NavSubList({ data, depth }) {
           hasChild={!!list.children}
         />
       ))}
-    </>
+    </React.Fragment>
   );
 }

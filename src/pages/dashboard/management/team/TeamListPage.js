@@ -13,7 +13,7 @@
 // IMPORT ---------------------------------------------------------------
 
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 // @mui
 import {
@@ -118,7 +118,7 @@ export default function TeamListPage() {
   });
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title>Team: List | Sarthak Admin</title>
       </Helmet>
@@ -246,7 +246,7 @@ export default function TeamListPage() {
           <Button type="submit">Create</Button>
         </DialogActions>
       </Dialog>
-    </>
+    </React.Fragment>
   );
 }
 

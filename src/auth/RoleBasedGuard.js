@@ -22,6 +22,7 @@ import { MotionContainer, varBounce } from "../components/animate";
 import { ForbiddenIllustration } from "../assets/illustrations";
 //
 import { useAuthContext } from "./useAuthContext";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -62,5 +63,5 @@ export default function RoleBasedGuard({ hasContent, roles, children }) {
     ) : null;
   }
 
-  return <> {children} </>;
+  return <React.Fragment> {children} </React.Fragment>;
 }

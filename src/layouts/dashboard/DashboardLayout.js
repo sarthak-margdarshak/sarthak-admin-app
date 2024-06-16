@@ -12,7 +12,7 @@
 
 // IMPORT ---------------------------------------------------------------
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 // @mui
 import { Box } from "@mui/material";
@@ -54,7 +54,7 @@ export default function DashboardLayout() {
 
   if (isNavHorizontal) {
     return (
-      <>
+      <React.Fragment>
         <Header onOpenNav={handleOpen} />
 
         {isDesktop ? <NavHorizontal /> : renderNavVertical}
@@ -62,13 +62,13 @@ export default function DashboardLayout() {
         <Main>
           <Outlet />
         </Main>
-      </>
+      </React.Fragment>
     );
   }
 
   if (isNavMini) {
     return (
-      <>
+      <React.Fragment>
         <Header onOpenNav={handleOpen} />
 
         <Box
@@ -83,12 +83,12 @@ export default function DashboardLayout() {
             <Outlet />
           </Main>
         </Box>
-      </>
+      </React.Fragment>
     );
   }
 
   return (
-    <>
+    <React.Fragment>
       <Header onOpenNav={handleOpen} />
 
       <Box
@@ -103,6 +103,6 @@ export default function DashboardLayout() {
           <Outlet />
         </Main>
       </Box>
-    </>
+    </React.Fragment>
   );
 }

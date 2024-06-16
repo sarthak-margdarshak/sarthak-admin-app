@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
-import { memo } from 'react';
+import PropTypes from "prop-types";
+import React, { memo } from "react";
 // @mui
-import { Box, Stack } from '@mui/material';
+import { Box, Stack } from "@mui/material";
 //
-import NavList from './NavList';
+import NavList from "./NavList";
 
 // ----------------------------------------------------------------------
 
@@ -24,7 +24,11 @@ function NavSectionMini({ data, sx, ...other }) {
       {...other}
     >
       {data.map((group, index) => (
-        <Items key={group.subheader} items={group.items} isLastGroup={index + 1 === data.length} />
+        <Items
+          key={group.subheader}
+          items={group.items}
+          isLastGroup={index + 1 === data.length}
+        />
       ))}
     </Stack>
   );
@@ -41,21 +45,26 @@ Items.propTypes = {
 
 function Items({ items, isLastGroup }) {
   return (
-    <>
+    <React.Fragment>
       {items.map((list) => (
-        <NavList key={list.title + list.path} data={list} depth={1} hasChild={!!list.children} />
+        <NavList
+          key={list.title + list.path}
+          data={list}
+          depth={1}
+          hasChild={!!list.children}
+        />
       ))}
 
       {!isLastGroup && (
         <Box
           sx={{
             width: 24,
-            height: '1px',
-            bgcolor: 'divider',
-            my: '8px !important',
+            height: "1px",
+            bgcolor: "divider",
+            my: "8px !important",
           }}
         />
       )}
-    </>
+    </React.Fragment>
   );
 }

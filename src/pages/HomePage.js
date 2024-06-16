@@ -19,6 +19,7 @@ import { useTheme } from "@mui/material/styles";
 import { Box } from "@mui/material";
 // sections
 import { HomeHero, HomeMinimal } from "../sections/home";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -50,7 +51,7 @@ export default function HomePage() {
   );
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Home | Sarthak Admin</title>
       </Helmet>
@@ -68,6 +69,6 @@ export default function HomePage() {
       >
         <HomeMinimal />
       </Box>
-    </>
+    </React.Fragment>
   );
 }

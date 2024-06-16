@@ -14,7 +14,7 @@
 
 import PropTypes from "prop-types";
 import * as Yup from "yup";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 // @mui
 import {
   Stack,
@@ -147,7 +147,7 @@ export default function UserTableRow({
   };
 
   return (
-    <>
+    <React.Fragment>
       <TableRow hover>
         <TableCell align="left">{index}</TableCell>
 
@@ -215,7 +215,7 @@ export default function UserTableRow({
           View
         </MenuItem>
         {sarthakInfoData.adminTeamId === teamId && isCEO && (
-          <>
+          <React.Fragment>
             <MenuItem
               disabled={row?.userId === APPWRITE_API.documents.ceoId}
               onClick={() => {
@@ -237,7 +237,7 @@ export default function UserTableRow({
               <Iconify icon="material-symbols:block" />
               {row?.blocked ? "Unblock" : "Block"}
             </MenuItem>
-          </>
+          </React.Fragment>
         )}
       </MenuPopover>
 
@@ -288,6 +288,6 @@ export default function UserTableRow({
           </Grid>
         </FormProvider>
       </Dialog>
-    </>
+    </React.Fragment>
   );
 }

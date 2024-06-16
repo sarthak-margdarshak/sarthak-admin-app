@@ -23,6 +23,7 @@ import Iconify from "../../../../../components/iconify";
 import { useLocales } from "../../../../../locales";
 import { useAuthContext } from "../../../../../auth/useAuthContext";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -44,7 +45,7 @@ export default function ProfileSocialInfo({ userId, infoProfile }) {
               <Iconify icon="ic:baseline-edit" />
             </IconButton>
           ) : (
-            <></>
+            <React.Fragment></React.Fragment>
           )
         }
       />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 // Auth
 import { Question } from "../../../../auth/Question";
 // @mui
@@ -60,7 +60,7 @@ export default function QuestionDetails({ inComingQuestionId }) {
 
   if (isLoading)
     return (
-      <>
+      <React.Fragment>
         <Paper
           sx={{
             p: 1,
@@ -235,11 +235,11 @@ export default function QuestionDetails({ inComingQuestionId }) {
             </Paper>
           </Grid>
         </Grid>
-      </>
+      </React.Fragment>
     );
 
   return (
-    <>
+    <React.Fragment>
       <QuestionRowComponent question={question} />
 
       <Grid container>
@@ -367,6 +367,6 @@ export default function QuestionDetails({ inComingQuestionId }) {
           )}
         </Grid>
       </Grid>
-    </>
+    </React.Fragment>
   );
 }

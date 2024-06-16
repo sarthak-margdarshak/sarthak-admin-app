@@ -33,6 +33,7 @@ import Iconify from "../components/iconify";
 import { CustomTextField } from "../components/custom-input";
 // assets
 import { ComingSoonIllustration } from "../assets/illustrations";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -42,7 +43,7 @@ export default function ComingSoonPage() {
   );
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Coming Soon | Sarthak Admin</title>
       </Helmet>
@@ -108,7 +109,7 @@ export default function ComingSoonPage() {
           </IconButton>
         ))}
       </Stack>
-    </>
+    </React.Fragment>
   );
 }
 

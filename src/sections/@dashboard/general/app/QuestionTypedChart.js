@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
+import React, { useState } from "react";
 // @mui
 import { Card, CardHeader, Box, IconButton } from "@mui/material";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
@@ -558,7 +558,7 @@ export default function QuestionTypedChart({
         title={title}
         subheader={currSubHeader}
         action={
-          <>
+          <React.Fragment>
             <IconButton
               aria-label="left"
               sx={{ mr: 1 }}
@@ -589,7 +589,7 @@ export default function QuestionTypedChart({
                 </option>
               ))}
             </CustomSmallSelect>
-          </>
+          </React.Fragment>
         }
       />
 

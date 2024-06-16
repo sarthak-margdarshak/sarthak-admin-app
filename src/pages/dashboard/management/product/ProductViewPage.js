@@ -1,3 +1,6 @@
+import React, { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
+import { useSettingsContext } from "../../../../components/settings";
 import {
   Alert,
   Button,
@@ -13,125 +16,114 @@ import {
   DialogTitle,
   Divider,
   Grid,
+  IconButton,
+  Link,
   Paper,
   Skeleton,
   Stack,
   Tooltip,
   Typography,
   alpha,
+  useTheme,
 } from "@mui/material";
-import { Helmet } from "react-helmet-async";
 import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs/CustomBreadcrumbs";
 import { PATH_DASHBOARD } from "../../../../routes/paths";
-import { useSettingsContext } from "../../../../components/settings";
-import React, { useEffect, useState } from "react";
-import ReactKatex from "@pkasila/react-katex";
-import Image from "../../../../components/image/Image";
+import { useAuthContext } from "../../../../auth/useAuthContext";
+import { useSnackbar } from "notistack";
 import Iconify from "../../../../components/iconify";
-import { APPWRITE_API } from "../../../../config-global";
-import { Query } from "appwrite";
+import { Link as RouterLink } from "react-router-dom";
+import { LoadingButton } from "@mui/lab";
+import PermissionDeniedComponent from "../../../../sections/_examples/PermissionDeniedComponent";
 import StandardDisplayUI from "../../../../sections/@dashboard/question/view/StandardDisplayUI";
 import SubjectDisplayUI from "../../../../sections/@dashboard/question/view/SubjectDisplayUI";
 import ChapterDisplayUI from "../../../../sections/@dashboard/question/view/ChapterDisplayUI";
 import ConceptDisplayUI from "../../../../sections/@dashboard/question/view/ConceptDisplayUI";
-import { useSnackbar } from "notistack";
+import { SarthakUserDisplayUI } from "../../../../sections/@dashboard/user/profile";
+import TimeAgo from "javascript-time-ago";
+import en from "javascript-time-ago/locale/en";
 import {
   appwriteDatabases,
   appwriteFunctions,
+  appwriteStorage,
 } from "../../../../auth/AppwriteContext";
-import { Link as RouterLink } from "react-router-dom";
-import { useAuthContext } from "../../../../auth/useAuthContext";
-import { LoadingButton } from "@mui/lab";
-import PermissionDeniedComponent from "../../../../sections/_examples/PermissionDeniedComponent";
-import { Question } from "../../../../auth/Question";
-import TimeAgo from "javascript-time-ago";
-import en from "javascript-time-ago/locale/en";
-import { SarthakUserDisplayUI } from "../../../../sections/@dashboard/user/profile";
+import { APPWRITE_API } from "../../../../config-global";
+import ReactKatex from "@pkasila/react-katex";
+import { CarouselAnimation } from "../../../../components/carousel";
 
 TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo("en-US");
 
-export default function MockTestViewPage() {
+export default function ProductViewPage() {
   const id = window.location.pathname.split("/")[3];
 
+  const theme = useTheme();
   const { themeStretch } = useSettingsContext();
   const { userProfile } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
-  const [mockTest, setMockTest] = useState(null);
+  const [product, setProduct] = useState({});
   const [loading, setLoading] = useState(true);
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [activeMockTest, setActiveMockTest] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      try {
-        var x = await appwriteDatabases.getDocument(
+      var x = await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.products,
+        id
+      );
+      for (let i in x.mockTestIds) {
+        var tmpMockTest = await appwriteDatabases.getDocument(
           APPWRITE_API.databaseId,
           APPWRITE_API.collections.mockTest,
-          id
+          x.mockTestIds[i]
         );
-        var mtd = await appwriteDatabases.listDocuments(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.collections.mockTestDriver,
-          [Query.equal("mtdId", x.mockTestDriverId)]
-        );
-        x.mockTestDriverId = mtd.documents[0];
-        var questions = [];
-        for (let i in x.questions) {
-          var qus = await appwriteDatabases.getDocument(
+        var tmpQuestions = [];
+        for (let j in tmpMockTest.questions) {
+          const y = await appwriteDatabases.getDocument(
             APPWRITE_API.databaseId,
             APPWRITE_API.collections.questions,
-            x.questions[i]
+            tmpMockTest.questions[j]
           );
-          qus.coverQuestion = await Question.getQuestionContentForPreview(
-            qus?.coverQuestion
-          );
-
-          qus.coverOptionA = await Question.getQuestionContentForPreview(
-            qus?.coverOptionA
-          );
-
-          qus.coverOptionB = await Question.getQuestionContentForPreview(
-            qus?.coverOptionB
-          );
-
-          qus.coverOptionC = await Question.getQuestionContentForPreview(
-            qus?.coverOptionC
-          );
-
-          qus.coverOptionD = await Question.getQuestionContentForPreview(
-            qus?.coverOptionD
-          );
-
-          qus.coverAnswer = await Question.getQuestionContentForPreview(
-            qus?.coverAnswer
-          );
-          questions.push(qus);
+          tmpQuestions.push(y);
         }
-        x.questions = questions;
-        setMockTest(x);
-      } catch (error) {
-        enqueueSnackbar(error.message, { variant: "error" });
+        tmpMockTest.questions = tmpQuestions;
+        x.mockTestIds[i] = tmpMockTest;
       }
+
+      var tmpImages = [];
+      for (let i in x.images) {
+        const y = appwriteStorage.getFileDownload(
+          APPWRITE_API.buckets.productFiles,
+          x.images[i]
+        ).href;
+        tmpImages.push({
+          id: x.images[i],
+          image: y,
+        });
+      }
+      x.images = tmpImages;
+      setProduct(x);
       setLoading(false);
     };
     fetchData();
-  }, [id, enqueueSnackbar]);
+  }, [id]);
 
-  const publishMockTest = async () => {
+  const publishProduct = async () => {
     setPublishing(true);
     try {
       await appwriteFunctions.createExecution(
-        APPWRITE_API.functions.publishMockTest,
+        APPWRITE_API.functions.publishProduct,
         JSON.stringify({
-          mockTestId: id,
+          productId: id,
           userId: userProfile.$id,
         })
       );
       setOpenPublishDialog(false);
-      setMockTest({
-        ...mockTest,
+      setProduct({
+        ...product,
         published: true,
         publishedBy: userProfile.$id,
         publishedAt: new Date(),
@@ -146,11 +138,12 @@ export default function MockTestViewPage() {
   return (
     <React.Fragment>
       <Helmet>
-        <title>{"Mock-Test : View | " + mockTest?.mtId}</title>
+        <title>{"Product : View | " + id}</title>
       </Helmet>
+
       <Container maxWidth={themeStretch ? false : "lg"}>
         <CustomBreadcrumbs
-          heading="Mock-Test"
+          heading="Product"
           links={[
             {
               name: "Dashboard",
@@ -158,16 +151,16 @@ export default function MockTestViewPage() {
             },
             {
               name: "Mock-Test",
-              href: PATH_DASHBOARD.mockTest.root,
+              href: PATH_DASHBOARD.product.root,
             },
             {
-              name: mockTest?.name,
+              name: product?.name,
             },
           ]}
           action={
             !loading && (
               <React.Fragment>
-                {mockTest?.published ? (
+                {product?.published ? (
                   <Alert
                     icon={<Iconify icon="icon-park-solid:correct" />}
                     severity="success"
@@ -186,12 +179,12 @@ export default function MockTestViewPage() {
                     Publish
                   </Button>
                 )}
-                {!mockTest?.published && (
+                {!product?.published && (
                   <Button
                     startIcon={<Iconify icon="ic:baseline-edit" />}
                     variant="contained"
                     sx={{ m: 1 }}
-                    to={PATH_DASHBOARD.mockTest.edit(mockTest?.$id)}
+                    to={PATH_DASHBOARD.product.edit(id)}
                     component={RouterLink}
                   >
                     Edit
@@ -223,16 +216,19 @@ export default function MockTestViewPage() {
                       textDecorationLine: "underline",
                     }}
                   >
-                    Mock Test Driver Id -
+                    Mock Test Driver Ids -
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      alignSelf: "center",
-                    }}
-                  >
-                    {mockTest?.mockTestDriverId.mtdId}
-                  </Typography>
+                  {product?.mockTestDriverIds?.map((driver) => (
+                    <Typography
+                      key={driver}
+                      variant="body2"
+                      sx={{
+                        alignSelf: "center",
+                      }}
+                    >
+                      {driver}
+                    </Typography>
+                  ))}
                 </Stack>
               </Grid>
 
@@ -256,10 +252,10 @@ export default function MockTestViewPage() {
                   >
                     Standards -
                   </Typography>
-                  {mockTest?.mockTestDriverId.standardIds.length === 0 ? (
+                  {product?.standards.length === 0 ? (
                     <Typography variant="body2">All</Typography>
                   ) : (
-                    mockTest?.mockTestDriverId.standardIds.map((value) => (
+                    product?.standards.map((value) => (
                       <StandardDisplayUI key={value} id={value} />
                     ))
                   )}
@@ -286,10 +282,10 @@ export default function MockTestViewPage() {
                   >
                     Subjects -
                   </Typography>
-                  {mockTest?.mockTestDriverId.subjectIds.length === 0 ? (
+                  {product?.subjects.length === 0 ? (
                     <Typography variant="body2">All</Typography>
                   ) : (
-                    mockTest?.mockTestDriverId.subjectIds.map((value) => (
+                    product?.subjects.map((value) => (
                       <SubjectDisplayUI key={value} id={value} />
                     ))
                   )}
@@ -316,10 +312,10 @@ export default function MockTestViewPage() {
                   >
                     Chapters -
                   </Typography>
-                  {mockTest?.mockTestDriverId.chapterIds.length === 0 ? (
+                  {product?.chapters.length === 0 ? (
                     <Typography variant="body2">All</Typography>
                   ) : (
-                    mockTest?.mockTestDriverId.chapterIds.map((value) => (
+                    product?.chapters.map((value) => (
                       <ChapterDisplayUI key={value} id={value} />
                     ))
                   )}
@@ -346,10 +342,10 @@ export default function MockTestViewPage() {
                   >
                     Concepts -
                   </Typography>
-                  {mockTest?.mockTestDriverId.conceptIds.length === 0 ? (
+                  {product?.concepts.length === 0 ? (
                     <Typography variant="body2">All</Typography>
                   ) : (
-                    mockTest?.mockTestDriverId.conceptIds.map((value) => (
+                    product?.concepts.map((value) => (
                       <ConceptDisplayUI key={value} id={value} />
                     ))
                   )}
@@ -372,7 +368,7 @@ export default function MockTestViewPage() {
                     >
                       Created By -
                     </Typography>
-                    <SarthakUserDisplayUI userId={mockTest?.createdBy} />
+                    <SarthakUserDisplayUI userId={product?.createdBy} />
                   </Stack>
 
                   <Stack direction="row" sx={{ alignSelf: "center" }}>
@@ -386,7 +382,7 @@ export default function MockTestViewPage() {
                       Created At -
                     </Typography>
                     <Tooltip
-                      title={new Date(mockTest?.$createdAt).toUTCString()}
+                      title={new Date(product?.$createdAt).toUTCString()}
                     >
                       <Typography
                         variant="body2"
@@ -395,7 +391,7 @@ export default function MockTestViewPage() {
                           cursor: "pointer",
                         }}
                       >
-                        {timeAgo.format(new Date(mockTest?.$createdAt))}
+                        {timeAgo.format(new Date(product?.$createdAt))}
                       </Typography>
                     </Tooltip>
                   </Stack>
@@ -416,7 +412,7 @@ export default function MockTestViewPage() {
                     >
                       Updated By -
                     </Typography>
-                    <SarthakUserDisplayUI userId={mockTest?.updatedBy} />
+                    <SarthakUserDisplayUI userId={product?.updatedBy} />
                   </Stack>
 
                   <Stack direction="row" sx={{ alignSelf: "center" }}>
@@ -430,7 +426,7 @@ export default function MockTestViewPage() {
                       Updated At -
                     </Typography>
                     <Tooltip
-                      title={new Date(mockTest?.$updatedAt).toUTCString()}
+                      title={new Date(product?.$updatedAt).toUTCString()}
                     >
                       <Typography
                         variant="body2"
@@ -439,7 +435,7 @@ export default function MockTestViewPage() {
                           cursor: "pointer",
                         }}
                       >
-                        {timeAgo.format(new Date(mockTest?.$updatedAt))}
+                        {timeAgo.format(new Date(product?.$updatedAt))}
                       </Typography>
                     </Tooltip>
                   </Stack>
@@ -449,7 +445,7 @@ export default function MockTestViewPage() {
               <Divider orientation="vertical" flexItem />
 
               <Grid item xs={12} sm={12} md={3.9} lg={3.9} xl={3.9}>
-                {mockTest.published && (
+                {product.published && (
                   <Stack direction="column" sx={{ m: 2 }}>
                     <Stack direction="row" sx={{ alignSelf: "center" }}>
                       <Typography
@@ -461,7 +457,7 @@ export default function MockTestViewPage() {
                       >
                         Published By -
                       </Typography>
-                      <SarthakUserDisplayUI userId={mockTest?.publishedBy} />
+                      <SarthakUserDisplayUI userId={product?.publishedBy} />
                     </Stack>
 
                     <Stack direction="row" sx={{ alignSelf: "center" }}>
@@ -475,7 +471,7 @@ export default function MockTestViewPage() {
                         Published At -
                       </Typography>
                       <Tooltip
-                        title={new Date(mockTest?.publishedAt).toUTCString()}
+                        title={new Date(product?.publishedAt).toUTCString()}
                       >
                         <Typography
                           variant="body2"
@@ -484,7 +480,7 @@ export default function MockTestViewPage() {
                             cursor: "pointer",
                           }}
                         >
-                          {timeAgo.format(new Date(mockTest?.publishedAt))}
+                          {timeAgo.format(new Date(product?.publishedAt))}
                         </Typography>
                       </Tooltip>
                     </Stack>
@@ -500,8 +496,8 @@ export default function MockTestViewPage() {
                 <Grid container>
                   <Grid
                     item
-                    xs={12}
-                    sm={12}
+                    xs={5.9}
+                    sm={5.9}
                     md={5.9}
                     lg={5.9}
                     xl={5.9}
@@ -515,9 +511,9 @@ export default function MockTestViewPage() {
                           textDecorationLine: "underline",
                         }}
                       >
-                        Mock Test Name -
+                        Product Name -
                       </Typography>
-                      <Typography variant="body2">{mockTest?.name}</Typography>
+                      <Typography variant="body2">{product?.name}</Typography>
                     </Stack>
                   </Grid>
 
@@ -525,8 +521,8 @@ export default function MockTestViewPage() {
 
                   <Grid
                     item
-                    xs={12}
-                    sm={12}
+                    xs={5.9}
+                    sm={5.9}
                     md={5.9}
                     lg={5.9}
                     xl={5.9}
@@ -540,9 +536,11 @@ export default function MockTestViewPage() {
                           textDecorationLine: "underline",
                         }}
                       >
-                        Level -
+                        Product Id -
                       </Typography>
-                      <Typography variant="body2">{mockTest?.level}</Typography>
+                      <Typography variant="body2">
+                        {product?.productId}
+                      </Typography>
                     </Stack>
                   </Grid>
                 </Grid>
@@ -552,11 +550,11 @@ export default function MockTestViewPage() {
                 <Grid container>
                   <Grid
                     item
-                    xs={6}
-                    sm={6}
-                    md={5.9}
-                    lg={5.9}
-                    xl={5.9}
+                    xs={3.9}
+                    sm={3.9}
+                    md={3.9}
+                    lg={3.9}
+                    xl={3.9}
                     padding={1}
                   >
                     <Stack direction="column" sx={{ alignItems: "center" }}>
@@ -567,9 +565,9 @@ export default function MockTestViewPage() {
                           textDecorationLine: "underline",
                         }}
                       >
-                        Mock Test Id -
+                        Type -
                       </Typography>
-                      <Typography variant="body2">{mockTest?.mtId}</Typography>
+                      <Typography variant="body2">{product?.type}</Typography>
                     </Stack>
                   </Grid>
 
@@ -577,11 +575,11 @@ export default function MockTestViewPage() {
 
                   <Grid
                     item
-                    xs={6}
-                    sm={6}
-                    md={5.9}
-                    lg={5.9}
-                    xl={5.9}
+                    xs={3.9}
+                    sm={3.9}
+                    md={3.9}
+                    lg={3.9}
+                    xl={3.9}
                     padding={1}
                   >
                     <Stack direction="column" sx={{ alignItems: "center" }}>
@@ -592,10 +590,35 @@ export default function MockTestViewPage() {
                           textDecorationLine: "underline",
                         }}
                       >
-                        Duration -
+                        MRP -
+                      </Typography>
+                      <Typography variant="body2">{product?.mrp}</Typography>
+                    </Stack>
+                  </Grid>
+
+                  <Divider orientation="vertical" flexItem />
+
+                  <Grid
+                    item
+                    xs={3.9}
+                    sm={3.9}
+                    md={3.9}
+                    lg={3.9}
+                    xl={3.9}
+                    padding={1}
+                  >
+                    <Stack direction="column" sx={{ alignItems: "center" }}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          mr: 1,
+                          textDecorationLine: "underline",
+                        }}
+                      >
+                        Sell Price -
                       </Typography>
                       <Typography variant="body2">
-                        {mockTest?.duration}
+                        {product?.sellPrice}
                       </Typography>
                     </Stack>
                   </Grid>
@@ -616,7 +639,7 @@ export default function MockTestViewPage() {
                     Description -
                   </Typography>
                   <Typography variant="body2">
-                    {mockTest?.description}
+                    {product?.description}
                   </Typography>
                 </Stack>
               </Grid>
@@ -624,140 +647,241 @@ export default function MockTestViewPage() {
           </Paper>
         )}
 
-        <Divider>
-          <Chip label="Questions" />
+        <Grid container>
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={6}
+            lg={6}
+            xl={6}
+            sx={{
+              p: 1,
+            }}
+          >
+            <Card>
+              <CardHeader title="Product Images" />
+              <CardContent>
+                <CarouselAnimation data={product?.images} />
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={6}
+            lg={6}
+            xl={6}
+            sx={{
+              p: 1,
+            }}
+          >
+            <Card>
+              <CardHeader title="Product Publish Info" />
+              <CardContent>
+                <Button fullWidth sx={{ height: 300 }} disabled>
+                  To be displayed soon. Working hard on it
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        <Divider sx={{ mt: 1 }}>
+          <Chip label="Mock Tests / Products" />
         </Divider>
 
-        {mockTest?.questions?.map((question) => (
-          <Card sx={{ m: 1 }} key={question?.$id}>
-            <Divider sx={{ mt: 1 }}>
-              <Chip label={question?.qnId} />
-            </Divider>
-            <CardHeader
-              title={<ReactKatex>{question?.contentQuestion || ""}</ReactKatex>}
-            ></CardHeader>
-            <CardContent>
-              {question?.coverQuestion && (
-                <Image
-                  disabledEffect
-                  alt="Question"
-                  src={question?.coverQuestion}
-                  sx={{ borderRadius: 1, ml: 2, width: 300 }}
+        <Grid container>
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={6}
+            lg={6}
+            xl={6}
+            sx={{
+              p: 1,
+            }}
+          >
+            {product?.mockTestIds?.map((mockTest) => (
+              <Card
+                variant="outlined"
+                key={mockTest?.$id}
+                sx={{
+                  m: 1,
+                  pb: 2.5,
+                  mr: mockTest?.$id === activeMockTest?.$id ? -5 : 2,
+                }}
+              >
+                <CardHeader
+                  title={mockTest.name + " (" + mockTest.mtId + ")"}
+                  subheader={mockTest.description}
+                  action={
+                    mockTest === activeMockTest ? (
+                      <IconButton onClick={() => setActiveMockTest(null)}>
+                        <Iconify
+                          icon="icon-park-solid:view-list"
+                          style={{
+                            color: theme.palette.primary.main,
+                          }}
+                        />
+                      </IconButton>
+                    ) : (
+                      <IconButton onClick={() => setActiveMockTest(mockTest)}>
+                        <Iconify icon="icon-park-outline:view-list" />
+                      </IconButton>
+                    )
+                  }
                 />
+              </Card>
+            ))}
+          </Grid>
+
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <Stack direction="row" sx={{ m: 3 }}>
+              <Typography variant="h6">{"Mock Test Id - "}</Typography>
+              <Link
+                component={RouterLink}
+                onClick={() =>
+                  window.open(
+                    window.location.origin +
+                      "/dashboard/mock-test/" +
+                      activeMockTest?.$id,
+                    "_blank"
+                  )
+                }
+              >
+                <Typography variant="h6">{activeMockTest?.mtId}</Typography>
+              </Link>
+            </Stack>
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 1,
+                m: 2,
+                bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
+              }}
+            >
+              {activeMockTest === null ? (
+                <Button
+                  fullWidth
+                  disabled
+                  variant="outlined"
+                  sx={{ height: 200 }}
+                >
+                  Select the Icon of mock test to view its questions
+                </Button>
+              ) : (
+                <div>
+                  {activeMockTest?.questions?.map((question) => (
+                    <Card sx={{ m: 1 }} key={question.$id}>
+                      <Divider sx={{ mt: 1 }}>
+                        <Chip label={question?.qnId} />
+                      </Divider>
+                      <CardHeader
+                        title={
+                          <ReactKatex>
+                            {question?.contentQuestion || ""}
+                          </ReactKatex>
+                        }
+                      ></CardHeader>
+
+                      <CardContent>
+                        <Grid container>
+                          <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
+                            <Alert
+                              variant={
+                                question?.answerOption?.includes("A")
+                                  ? "filled"
+                                  : "outlined"
+                              }
+                              severity={
+                                question?.answerOption?.includes("A")
+                                  ? "success"
+                                  : "info"
+                              }
+                              icon={<Iconify icon="mdi:alphabet-a-box" />}
+                              sx={{ m: 0.5 }}
+                            >
+                              <ReactKatex>
+                                {question?.contentOptionA || ""}
+                              </ReactKatex>
+                            </Alert>
+                          </Grid>
+
+                          <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
+                            <Alert
+                              variant={
+                                question?.answerOption?.includes("B")
+                                  ? "filled"
+                                  : "outlined"
+                              }
+                              severity={
+                                question?.answerOption?.includes("B")
+                                  ? "success"
+                                  : "info"
+                              }
+                              icon={<Iconify icon="mdi:alphabet-b-box" />}
+                              sx={{ m: 0.5 }}
+                            >
+                              <ReactKatex>
+                                {question?.contentOptionB || ""}
+                              </ReactKatex>
+                            </Alert>
+                          </Grid>
+
+                          <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
+                            <Alert
+                              variant={
+                                question?.answerOption?.includes("C")
+                                  ? "filled"
+                                  : "outlined"
+                              }
+                              severity={
+                                question?.answerOption?.includes("C")
+                                  ? "success"
+                                  : "info"
+                              }
+                              icon={<Iconify icon="mdi:alphabet-c-box" />}
+                              sx={{ m: 0.5 }}
+                            >
+                              <ReactKatex>
+                                {question?.contentOptionC || ""}
+                              </ReactKatex>
+                            </Alert>
+                          </Grid>
+
+                          <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
+                            <Alert
+                              variant={
+                                question?.answerOption?.includes("D")
+                                  ? "filled"
+                                  : "outlined"
+                              }
+                              severity={
+                                question?.answerOption?.includes("D")
+                                  ? "success"
+                                  : "info"
+                              }
+                              icon={<Iconify icon="mdi:alphabet-d-box" />}
+                              sx={{ m: 0.5 }}
+                            >
+                              <ReactKatex>
+                                {question?.contentOptionD || ""}
+                              </ReactKatex>
+                            </Alert>
+                          </Grid>
+                        </Grid>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               )}
-
-              <Grid container>
-                <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
-                  <Alert
-                    variant={
-                      question?.answerOption?.includes("A")
-                        ? "filled"
-                        : "outlined"
-                    }
-                    severity={
-                      question?.answerOption?.includes("A") ? "success" : "info"
-                    }
-                    icon={<Iconify icon="mdi:alphabet-a-box" />}
-                    sx={{ m: 0.5 }}
-                  >
-                    <Stack direction="column">
-                      <ReactKatex>{question?.contentOptionA || ""}</ReactKatex>
-                      {question?.coverOptionA && (
-                        <Image
-                          disabledEffect
-                          alt="option A"
-                          src={question?.coverOptionA}
-                          sx={{ borderRadius: 1, ml: 2, width: 400 }}
-                        />
-                      )}
-                    </Stack>
-                  </Alert>
-                </Grid>
-
-                <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
-                  <Alert
-                    variant={
-                      question?.answerOption?.includes("B")
-                        ? "filled"
-                        : "outlined"
-                    }
-                    severity={
-                      question?.answerOption?.includes("B") ? "success" : "info"
-                    }
-                    icon={<Iconify icon="mdi:alphabet-b-box" />}
-                    sx={{ m: 0.5 }}
-                  >
-                    <Stack direction="column">
-                      <ReactKatex>{question?.contentOptionB || ""}</ReactKatex>
-                      {question?.coverOptionB && (
-                        <Image
-                          disabledEffect
-                          alt="option B"
-                          src={question?.coverOptionB}
-                          sx={{ borderRadius: 1, ml: 2, width: 400 }}
-                        />
-                      )}
-                    </Stack>
-                  </Alert>
-                </Grid>
-
-                <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
-                  <Alert
-                    variant={
-                      question?.answerOption?.includes("C")
-                        ? "filled"
-                        : "outlined"
-                    }
-                    severity={
-                      question?.answerOption?.includes("C") ? "success" : "info"
-                    }
-                    icon={<Iconify icon="mdi:alphabet-c-box" />}
-                    sx={{ m: 0.5 }}
-                  >
-                    <Stack direction="column">
-                      <ReactKatex>{question?.contentOptionC || ""}</ReactKatex>
-                      {question?.coverOptionC && (
-                        <Image
-                          disabledEffect
-                          alt="option C"
-                          src={question?.coverOptionC}
-                          sx={{ borderRadius: 1, ml: 2, width: 400 }}
-                        />
-                      )}
-                    </Stack>
-                  </Alert>
-                </Grid>
-
-                <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
-                  <Alert
-                    variant={
-                      question?.answerOption?.includes("D")
-                        ? "filled"
-                        : "outlined"
-                    }
-                    severity={
-                      question?.answerOption?.includes("D") ? "success" : "info"
-                    }
-                    icon={<Iconify icon="mdi:alphabet-d-box" />}
-                    sx={{ m: 0.5 }}
-                  >
-                    <Stack direction="column">
-                      <ReactKatex>{question?.contentOptionD || ""}</ReactKatex>
-                      {question?.coverOptionD && (
-                        <Image
-                          disabledEffect
-                          alt="option D"
-                          src={question?.coverOptionD}
-                          sx={{ borderRadius: 1, ml: 2, width: 400 }}
-                        />
-                      )}
-                    </Stack>
-                  </Alert>
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-        ))}
+            </Paper>
+          </Grid>
+        </Grid>
       </Container>
 
       <Dialog
@@ -787,7 +911,7 @@ export default function MockTestViewPage() {
               </Button>
               <LoadingButton
                 loading={publishing}
-                onClick={publishMockTest}
+                onClick={publishProduct}
                 autoFocus
               >
                 Agree

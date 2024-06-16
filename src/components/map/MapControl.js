@@ -1,7 +1,12 @@
-import PropTypes from 'prop-types';
-import { NavigationControl, FullscreenControl, ScaleControl, GeolocateControl } from 'react-map-gl';
+import PropTypes from "prop-types";
+import {
+  NavigationControl,
+  FullscreenControl,
+  ScaleControl,
+  GeolocateControl,
+} from "react-map-gl";
 //
-import { StyledMapControls } from './styles';
+import { StyledMapControls } from "./styles";
 
 // ----------------------------------------------------------------------
 
@@ -19,11 +24,14 @@ export default function MapControl({
   hideNavigationnControl,
 }) {
   return (
-    <>
+    <React.Fragment>
       <StyledMapControls />
 
       {!hideGeolocateControl && (
-        <GeolocateControl position="top-left" positionOptions={{ enableHighAccuracy: true }} />
+        <GeolocateControl
+          position="top-left"
+          positionOptions={{ enableHighAccuracy: true }}
+        />
       )}
 
       {!hideFullscreenControl && <FullscreenControl position="top-left" />}
@@ -31,6 +39,6 @@ export default function MapControl({
       {!hideScaleControl && <ScaleControl position="bottom-left" />}
 
       {!hideNavigationnControl && <NavigationControl position="bottom-left" />}
-    </>
+    </React.Fragment>
   );
 }

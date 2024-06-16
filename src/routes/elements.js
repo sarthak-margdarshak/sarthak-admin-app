@@ -80,7 +80,7 @@ export const QuestionEditPage = Loadable(
   lazy(() => import("../pages/dashboard/management/question/QuestionEditPage"))
 );
 
-// MOCK-TEST
+// DASHBOARD: MOCK-TEST
 export const MockTestDriverListPage = Loadable(
   lazy(() =>
     import(
@@ -96,6 +96,20 @@ export const MockTestViewPage = Loadable(
 );
 export const MockTestEditPage = Loadable(
   lazy(() => import("../pages/dashboard/management/mock-test/MockTestEditPage"))
+);
+
+// DASHBOARD: PRODUCT
+export const ProductNewPage = Loadable(
+  lazy(() => import("../pages/dashboard/management/product/ProductNewPage"))
+);
+export const ProductListPage = Loadable(
+  lazy(() => import("../pages/dashboard/management/product/ProductListPage"))
+);
+export const ProductViewPage = Loadable(
+  lazy(() => import("../pages/dashboard/management/product/ProductViewPage"))
+);
+export const ProductEditPage = Loadable(
+  lazy(() => import("../pages/dashboard/management/product/ProductEditPage"))
 );
 
 // MAIN

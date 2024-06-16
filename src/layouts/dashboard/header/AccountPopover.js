@@ -12,7 +12,7 @@
 
 // IMPORT ---------------------------------------------------------------
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 // @mui
 import { alpha } from "@mui/material/styles";
@@ -74,7 +74,7 @@ export default function AccountPopover() {
   };
 
   return (
-    <>
+    <React.Fragment>
       <IconButtonAnimate
         onClick={handleOpenPopover}
         sx={{
@@ -129,6 +129,6 @@ export default function AccountPopover() {
           Logout
         </MenuItem>
       </MenuPopover>
-    </>
+    </React.Fragment>
   );
 }

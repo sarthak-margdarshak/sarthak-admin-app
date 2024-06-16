@@ -18,12 +18,13 @@ import { Box, Container, Typography } from "@mui/material";
 // sections
 import { FaqsHero, FaqsList } from "../sections/faqs";
 import { ContactForm } from "../sections/contact";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
 export default function FaqsPage() {
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Faqs | Sarthak Admin</title>
       </Helmet>
@@ -48,6 +49,6 @@ export default function FaqsPage() {
           <ContactForm title="Haven't found the right help?" />
         </Box>
       </Container>
-    </>
+    </React.Fragment>
   );
 }

@@ -13,7 +13,7 @@
 // IMPORT ---------------------------------------------------------------
 
 import PropTypes from "prop-types";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 // components
 import LoadingScreen from "../components/loading-screen";
@@ -52,5 +52,5 @@ export default function AuthGuard({ children }) {
     return <Navigate to={requestedLocation} />;
   }
 
-  return <> {children} </>;
+  return <React.Fragment> {children} </React.Fragment>;
 }

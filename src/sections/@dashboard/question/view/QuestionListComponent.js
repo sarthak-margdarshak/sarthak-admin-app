@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 // @mui
 import {
   Autocomplete,
@@ -410,7 +410,7 @@ export default function QuestionListComponent() {
   });
 
   return (
-    <>
+    <React.Fragment>
       <Dialog
         open={filterWindowOpen}
         TransitionComponent={Transition}
@@ -780,7 +780,7 @@ export default function QuestionListComponent() {
         <CardHeader
           title="Filter"
           action={
-            <>
+            <React.Fragment>
               <IconButton
                 aria-label="edit"
                 onClick={() => setFilterWindowOpen(true)}
@@ -801,7 +801,7 @@ export default function QuestionListComponent() {
               >
                 <ExpandMoreIcon />
               </ExpandMore>
-            </>
+            </React.Fragment>
           }
         />
         <Collapse in={expanded} timeout="auto" unmountOnExit>
@@ -901,6 +901,6 @@ export default function QuestionListComponent() {
         onClose={pickerInput.onClose}
         isError={pickerInput.isError}
       />
-    </>
+    </React.Fragment>
   );
 }

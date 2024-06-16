@@ -18,12 +18,13 @@ import { Link as RouterLink } from "react-router-dom";
 import { Button, Typography, Stack } from "@mui/material";
 // assets
 import { MaintenanceIllustration } from "../assets/illustrations";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
 export default function MaintenancePage() {
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Maintenance | Sarthak Admin</title>
       </Helmet>
@@ -43,6 +44,6 @@ export default function MaintenancePage() {
           Go to Home
         </Button>
       </Stack>
-    </>
+    </React.Fragment>
   );
 }

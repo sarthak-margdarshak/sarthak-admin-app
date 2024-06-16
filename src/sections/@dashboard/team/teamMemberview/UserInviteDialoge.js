@@ -131,7 +131,7 @@ export default function UserInviteDialoge({
               {option}
             </li>
           )}
-          renderInput={(params) => <TextField {...params} label="Value" />}
+          renderInput={(params) => <TextField {...params} label="Users" />}
           sx={{ mt: 2 }}
         />
 

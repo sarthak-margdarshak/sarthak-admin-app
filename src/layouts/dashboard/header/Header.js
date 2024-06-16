@@ -31,6 +31,7 @@ import { useSettingsContext } from "../../../components/settings";
 import AccountPopover from "./AccountPopover";
 import LanguagePopover from "./LanguagePopover";
 import SvgColor from "../../../components/svg-color/SvgColor";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -54,7 +55,7 @@ export default function Header({ onOpenNav }) {
   const isOffset = useOffSetTop(HEADER.H_DASHBOARD_DESKTOP) && !isNavHorizontal;
 
   const renderContent = (
-    <>
+    <React.Fragment>
       {isDesktop && isNavHorizontal && <Logo sx={{ mr: 2.5 }} />}
 
       {!isDesktop && (
@@ -87,7 +88,7 @@ export default function Header({ onOpenNav }) {
 
         <AccountPopover />
       </Stack>
-    </>
+    </React.Fragment>
   );
 
   return (

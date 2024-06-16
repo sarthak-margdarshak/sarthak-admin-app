@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import Image from "../../../../components/image/Image";
 import ReactKatex from "@pkasila/react-katex";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Question } from "../../../../auth/Question";
 import Iconify from "../../../../components/iconify/Iconify";
 import { useAuthContext } from "../../../../auth/useAuthContext";
@@ -111,7 +111,7 @@ export default function QuestionRowComponent({ question }) {
 
   if (isDataLoading) {
     return (
-      <>
+      <React.Fragment>
         <Divider>
           <Chip label={question?.$id} />
         </Divider>
@@ -140,12 +140,12 @@ export default function QuestionRowComponent({ question }) {
           </Divider>
           <Skeleton sx={{ m: 2 }} variant="rounded" height={60} />
         </Card>
-      </>
+      </React.Fragment>
     );
   }
 
   return (
-    <>
+    <React.Fragment>
       <Divider>
         <Chip label={question?.qnId} />
       </Divider>
@@ -340,7 +340,7 @@ export default function QuestionRowComponent({ question }) {
         aria-describedby="alert-dialog-description"
       >
         {userProfile.createTeam ? (
-          <>
+          <React.Fragment>
             <DialogTitle id="alert-dialog-title">
               Are you sure to Publish it?
             </DialogTitle>
@@ -366,13 +366,13 @@ export default function QuestionRowComponent({ question }) {
                 Agree
               </LoadingButton>
             </DialogActions>
-          </>
+          </React.Fragment>
         ) : (
           <DialogContent>
             <PermissionDeniedComponent />
           </DialogContent>
         )}
       </Dialog>
-    </>
+    </React.Fragment>
   );
 }

@@ -55,6 +55,7 @@ import {
 } from "../../../../auth/AppwriteContext";
 import { Query } from "appwrite";
 import { APPWRITE_API } from "../../../../config-global";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -180,7 +181,7 @@ export default function TeamDetailsPage() {
   });
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title>{"Team: " + team?.name + " | Sarthak Admin"}</title>
       </Helmet>
@@ -194,7 +195,7 @@ export default function TeamDetailsPage() {
             { name: team?.name },
           ]}
           action={
-            <>
+            <React.Fragment>
               {team?.$id === sarthakInfoData?.adminTeamId &&
                 user?.$id === APPWRITE_API.documents.ceoId &&
                 !update && (
@@ -220,7 +221,7 @@ export default function TeamDetailsPage() {
                     Invite
                   </Button>
                 )}
-            </>
+            </React.Fragment>
           }
         />
 
@@ -297,7 +298,7 @@ export default function TeamDetailsPage() {
         onClose={() => setOpenInvite(false)}
         onUpdate={() => setUpdate(!update)}
       />
-    </>
+    </React.Fragment>
   );
 }
 

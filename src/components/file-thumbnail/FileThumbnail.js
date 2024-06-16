@@ -1,9 +1,10 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 // @mui
-import { Box, Tooltip, Stack } from '@mui/material';
+import { Box, Tooltip, Stack } from "@mui/material";
 //
-import { fileData, fileFormat, fileThumb } from './utils';
-import DownloadButton from './DownloadButton';
+import { fileData, fileFormat, fileThumb } from "./utils";
+import DownloadButton from "./DownloadButton";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -16,13 +17,20 @@ FileThumbnail.propTypes = {
   file: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
-export default function FileThumbnail({ file, tooltip, imageView, onDownload, sx, imgSx }) {
-  const { name = '', path = '', preview = '' } = fileData(file);
+export default function FileThumbnail({
+  file,
+  tooltip,
+  imageView,
+  onDownload,
+  sx,
+  imgSx,
+}) {
+  const { name = "", path = "", preview = "" } = fileData(file);
 
   const format = fileFormat(path || preview);
 
   const renderContent =
-    format === 'image' && imageView ? (
+    format === "image" && imageView ? (
       <Box
         component="img"
         src={preview}
@@ -30,7 +38,7 @@ export default function FileThumbnail({ file, tooltip, imageView, onDownload, sx
           width: 1,
           height: 1,
           flexShrink: 0,
-          objectFit: 'cover',
+          objectFit: "cover",
           ...imgSx,
         }}
       />
@@ -56,8 +64,8 @@ export default function FileThumbnail({ file, tooltip, imageView, onDownload, sx
           alignItems="center"
           justifyContent="center"
           sx={{
-            width: 'fit-content',
-            height: 'inherit',
+            width: "fit-content",
+            height: "inherit",
           }}
         >
           {renderContent}
@@ -68,9 +76,9 @@ export default function FileThumbnail({ file, tooltip, imageView, onDownload, sx
   }
 
   return (
-    <>
+    <React.Fragment>
       {renderContent}
       {onDownload && <DownloadButton onDownload={onDownload} />}
-    </>
+    </React.Fragment>
   );
 }

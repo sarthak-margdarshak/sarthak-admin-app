@@ -21,6 +21,7 @@ import useOffSetTop from "../../hooks/useOffSetTop";
 import { HEADER } from "../../config-global";
 //
 import Header from "./Header";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -28,7 +29,7 @@ export default function CompactLayout() {
   const isOffset = useOffSetTop(HEADER.H_MAIN_DESKTOP);
 
   return (
-    <>
+    <React.Fragment>
       <Header isOffset={isOffset} />
 
       <Container component="main">
@@ -45,6 +46,6 @@ export default function CompactLayout() {
           <Outlet />
         </Stack>
       </Container>
-    </>
+    </React.Fragment>
   );
 }

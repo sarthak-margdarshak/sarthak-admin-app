@@ -19,10 +19,6 @@ import {
   Grid,
   IconButton,
   InputLabel,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
   MenuItem,
   Paper,
   Select,
@@ -37,7 +33,7 @@ import { Helmet } from "react-helmet-async";
 import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs/CustomBreadcrumbs";
 import { PATH_DASHBOARD } from "../../../../routes/paths";
 import { useSettingsContext } from "../../../../components/settings";
-import { forwardRef, useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import { Reorder } from "framer-motion";
 import ReactKatex from "@pkasila/react-katex";
 import Image from "../../../../components/image/Image";
@@ -224,7 +220,7 @@ export default function MockTestNewPage() {
   };
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Mock-Test | New</title>
       </Helmet>
@@ -291,36 +287,52 @@ export default function MockTestNewPage() {
             <Grid item xs={6} sm={6} md={2.4} lg={2.4} xl={2.4} padding={1}>
               <Stack direction="column">
                 <Typography variant="subtitle1">Standards</Typography>
-                {standards.map((value) => (
-                  <StandardDisplayUI key={value} id={value} />
-                ))}
+                {mockTestDriverId !== "" && standards.length === 0 ? (
+                  <Typography variant="body2">All</Typography>
+                ) : (
+                  standards.map((value) => (
+                    <StandardDisplayUI key={value} id={value} />
+                  ))
+                )}
               </Stack>
             </Grid>
 
             <Grid item xs={6} sm={6} md={2.4} lg={2.4} xl={2.4} padding={1}>
               <Stack direction="column">
                 <Typography variant="subtitle1">Subjects</Typography>
-                {subjects.map((value) => (
-                  <SubjectDisplayUI key={value} id={value} />
-                ))}
+                {mockTestDriverId !== "" && subjects.length === 0 ? (
+                  <Typography variant="body2">All</Typography>
+                ) : (
+                  subjects.map((value) => (
+                    <SubjectDisplayUI key={value} id={value} />
+                  ))
+                )}
               </Stack>
             </Grid>
 
             <Grid item xs={6} sm={6} md={2.4} lg={2.4} xl={2.4} padding={1}>
               <Stack direction="column">
                 <Typography variant="subtitle1">Chapters</Typography>
-                {chapters.map((value) => (
-                  <ChapterDisplayUI key={value} id={value} />
-                ))}
+                {mockTestDriverId !== "" && chapters.length === 0 ? (
+                  <Typography variant="body2">All</Typography>
+                ) : (
+                  chapters.map((value) => (
+                    <ChapterDisplayUI key={value} id={value} />
+                  ))
+                )}
               </Stack>
             </Grid>
 
             <Grid item xs={6} sm={6} md={2.4} lg={2.4} xl={2.4} padding={1}>
               <Stack direction="column">
                 <Typography variant="subtitle1">Concepts</Typography>
-                {concepts.map((value) => (
-                  <ConceptDisplayUI key={value} id={value} />
-                ))}
+                {mockTestDriverId !== "" && concepts.length === 0 ? (
+                  <Typography variant="body2">All</Typography>
+                ) : (
+                  concepts.map((value) => (
+                    <ConceptDisplayUI key={value} id={value} />
+                  ))
+                )}
               </Stack>
             </Grid>
           </Grid>
@@ -420,144 +432,143 @@ export default function MockTestNewPage() {
                     <ReactKatex>{question?.contentQuestion || ""}</ReactKatex>
                   }
                 ></CardHeader>
-                {
-                  <CardContent>
-                    {question?.coverQuestion && (
-                      <Image
-                        disabledEffect
-                        alt="Question"
-                        src={question?.coverQuestion}
-                        sx={{ borderRadius: 1, ml: 2, width: 300 }}
-                      />
-                    )}
 
-                    <Grid container>
-                      <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
-                        <Alert
-                          variant={
-                            question?.answerOption?.includes("A")
-                              ? "filled"
-                              : "outlined"
-                          }
-                          severity={
-                            question?.answerOption?.includes("A")
-                              ? "success"
-                              : "info"
-                          }
-                          icon={<Iconify icon="mdi:alphabet-a-box" />}
-                          sx={{ m: 0.5 }}
-                        >
-                          <Stack direction="column">
-                            <ReactKatex>
-                              {question?.contentOptionA || ""}
-                            </ReactKatex>
-                            {question?.coverOptionA && (
-                              <Image
-                                disabledEffect
-                                alt="option A"
-                                src={question?.coverOptionA}
-                                sx={{ borderRadius: 1, ml: 2, width: 400 }}
-                              />
-                            )}
-                          </Stack>
-                        </Alert>
-                      </Grid>
+                <CardContent>
+                  {question?.coverQuestion && (
+                    <Image
+                      disabledEffect
+                      alt="Question"
+                      src={question?.coverQuestion}
+                      sx={{ borderRadius: 1, ml: 2, width: 300 }}
+                    />
+                  )}
 
-                      <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
-                        <Alert
-                          variant={
-                            question?.answerOption?.includes("B")
-                              ? "filled"
-                              : "outlined"
-                          }
-                          severity={
-                            question?.answerOption?.includes("B")
-                              ? "success"
-                              : "info"
-                          }
-                          icon={<Iconify icon="mdi:alphabet-b-box" />}
-                          sx={{ m: 0.5 }}
-                        >
-                          <Stack direction="column">
-                            <ReactKatex>
-                              {question?.contentOptionB || ""}
-                            </ReactKatex>
-                            {question?.coverOptionB && (
-                              <Image
-                                disabledEffect
-                                alt="option B"
-                                src={question?.coverOptionB}
-                                sx={{ borderRadius: 1, ml: 2, width: 400 }}
-                              />
-                            )}
-                          </Stack>
-                        </Alert>
-                      </Grid>
-
-                      <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
-                        <Alert
-                          variant={
-                            question?.answerOption?.includes("C")
-                              ? "filled"
-                              : "outlined"
-                          }
-                          severity={
-                            question?.answerOption?.includes("C")
-                              ? "success"
-                              : "info"
-                          }
-                          icon={<Iconify icon="mdi:alphabet-c-box" />}
-                          sx={{ m: 0.5 }}
-                        >
-                          <Stack direction="column">
-                            <ReactKatex>
-                              {question?.contentOptionC || ""}
-                            </ReactKatex>
-                            {question?.coverOptionC && (
-                              <Image
-                                disabledEffect
-                                alt="option C"
-                                src={question?.coverOptionC}
-                                sx={{ borderRadius: 1, ml: 2, width: 400 }}
-                              />
-                            )}
-                          </Stack>
-                        </Alert>
-                      </Grid>
-
-                      <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
-                        <Alert
-                          variant={
-                            question?.answerOption?.includes("D")
-                              ? "filled"
-                              : "outlined"
-                          }
-                          severity={
-                            question?.answerOption?.includes("D")
-                              ? "success"
-                              : "info"
-                          }
-                          icon={<Iconify icon="mdi:alphabet-d-box" />}
-                          sx={{ m: 0.5 }}
-                        >
-                          <Stack direction="column">
-                            <ReactKatex>
-                              {question?.contentOptionD || ""}
-                            </ReactKatex>
-                            {question?.coverOptionD && (
-                              <Image
-                                disabledEffect
-                                alt="option D"
-                                src={question?.coverOptionD}
-                                sx={{ borderRadius: 1, ml: 2, width: 400 }}
-                              />
-                            )}
-                          </Stack>
-                        </Alert>
-                      </Grid>
+                  <Grid container>
+                    <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
+                      <Alert
+                        variant={
+                          question?.answerOption?.includes("A")
+                            ? "filled"
+                            : "outlined"
+                        }
+                        severity={
+                          question?.answerOption?.includes("A")
+                            ? "success"
+                            : "info"
+                        }
+                        icon={<Iconify icon="mdi:alphabet-a-box" />}
+                        sx={{ m: 0.5 }}
+                      >
+                        <Stack direction="column">
+                          <ReactKatex>
+                            {question?.contentOptionA || ""}
+                          </ReactKatex>
+                          {question?.coverOptionA && (
+                            <Image
+                              disabledEffect
+                              alt="option A"
+                              src={question?.coverOptionA}
+                              sx={{ borderRadius: 1, ml: 2, width: 400 }}
+                            />
+                          )}
+                        </Stack>
+                      </Alert>
                     </Grid>
-                  </CardContent>
-                }
+
+                    <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
+                      <Alert
+                        variant={
+                          question?.answerOption?.includes("B")
+                            ? "filled"
+                            : "outlined"
+                        }
+                        severity={
+                          question?.answerOption?.includes("B")
+                            ? "success"
+                            : "info"
+                        }
+                        icon={<Iconify icon="mdi:alphabet-b-box" />}
+                        sx={{ m: 0.5 }}
+                      >
+                        <Stack direction="column">
+                          <ReactKatex>
+                            {question?.contentOptionB || ""}
+                          </ReactKatex>
+                          {question?.coverOptionB && (
+                            <Image
+                              disabledEffect
+                              alt="option B"
+                              src={question?.coverOptionB}
+                              sx={{ borderRadius: 1, ml: 2, width: 400 }}
+                            />
+                          )}
+                        </Stack>
+                      </Alert>
+                    </Grid>
+
+                    <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
+                      <Alert
+                        variant={
+                          question?.answerOption?.includes("C")
+                            ? "filled"
+                            : "outlined"
+                        }
+                        severity={
+                          question?.answerOption?.includes("C")
+                            ? "success"
+                            : "info"
+                        }
+                        icon={<Iconify icon="mdi:alphabet-c-box" />}
+                        sx={{ m: 0.5 }}
+                      >
+                        <Stack direction="column">
+                          <ReactKatex>
+                            {question?.contentOptionC || ""}
+                          </ReactKatex>
+                          {question?.coverOptionC && (
+                            <Image
+                              disabledEffect
+                              alt="option C"
+                              src={question?.coverOptionC}
+                              sx={{ borderRadius: 1, ml: 2, width: 400 }}
+                            />
+                          )}
+                        </Stack>
+                      </Alert>
+                    </Grid>
+
+                    <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
+                      <Alert
+                        variant={
+                          question?.answerOption?.includes("D")
+                            ? "filled"
+                            : "outlined"
+                        }
+                        severity={
+                          question?.answerOption?.includes("D")
+                            ? "success"
+                            : "info"
+                        }
+                        icon={<Iconify icon="mdi:alphabet-d-box" />}
+                        sx={{ m: 0.5 }}
+                      >
+                        <Stack direction="column">
+                          <ReactKatex>
+                            {question?.contentOptionD || ""}
+                          </ReactKatex>
+                          {question?.coverOptionD && (
+                            <Image
+                              disabledEffect
+                              alt="option D"
+                              src={question?.coverOptionD}
+                              sx={{ borderRadius: 1, ml: 2, width: 400 }}
+                            />
+                          )}
+                        </Stack>
+                      </Alert>
+                    </Grid>
+                  </Grid>
+                </CardContent>
               </Card>
             </Reorder.Item>
           ))}
@@ -780,30 +791,6 @@ export default function MockTestNewPage() {
                 ))}
               </Grid>
               <Divider orientation="vertical" flexItem />
-
-              <Grid
-                item
-                xs={12}
-                sm={12}
-                md={1.9}
-                lg={1.9}
-                xl={1.9}
-                padding={1}
-                style={{ position: "fixed", right: 40, top: 80 }}
-              >
-                <Divider>
-                  <Chip label="Selected Questions Id" />
-                </Divider>
-                {selectedQuestions.map((question) => (
-                  <List key={question.$id}>
-                    <ListItem disablePadding>
-                      <ListItemButton>
-                        <ListItemText>{question.qnId}</ListItemText>
-                      </ListItemButton>
-                    </ListItem>
-                  </List>
-                ))}
-              </Grid>
             </Grid>
           </Paper>
         </Dialog>
@@ -833,6 +820,6 @@ export default function MockTestNewPage() {
           </DialogActions>
         </Dialog>
       </Container>
-    </>
+    </React.Fragment>
   );
 }

@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
-import { useState } from 'react';
+import PropTypes from "prop-types";
+import { useState } from "react";
 // @mui
-import { Typography, IconButton, MenuItem, Card, Avatar } from '@mui/material';
+import { Typography, IconButton, MenuItem, Card, Avatar } from "@mui/material";
 //
-import Iconify from '../../iconify';
-import MenuPopover from '../../menu-popover';
+import Iconify from "../../iconify";
+import MenuPopover from "../../menu-popover";
 
 // ----------------------------------------------------------------------
 
@@ -27,31 +27,31 @@ export default function StandardNode({ node, onEdit, onDelete, sx }) {
   };
 
   return (
-    <>
+    <React.Fragment>
       <Card
         sx={{
           p: 2,
           minWidth: 200,
           borderRadius: 1.5,
-          textAlign: 'left',
-          position: 'relative',
-          display: 'inline-flex',
-          flexDirection: 'column',
-          textTransform: 'capitalize',
+          textAlign: "left",
+          position: "relative",
+          display: "inline-flex",
+          flexDirection: "column",
+          textTransform: "capitalize",
           ...sx,
         }}
       >
         <IconButton
-          color={openPopover ? 'inherit' : 'default'}
+          color={openPopover ? "inherit" : "default"}
           onClick={handleOpenPopover}
-          sx={{ position: 'absolute', top: 8, right: 8 }}
+          sx={{ position: "absolute", top: 8, right: 8 }}
         >
           <Iconify icon="eva:more-horizontal-fill" />
         </IconButton>
 
         <Avatar
           alt={node.name}
-          src={node.avatar || ''}
+          src={node.avatar || ""}
           sx={{ mr: 2, mb: 1, width: 48, height: 48 }}
         />
 
@@ -59,7 +59,12 @@ export default function StandardNode({ node, onEdit, onDelete, sx }) {
           {node.name}
         </Typography>
 
-        <Typography variant="caption" component="div" noWrap sx={{ color: 'text.secondary' }}>
+        <Typography
+          variant="caption"
+          component="div"
+          noWrap
+          sx={{ color: "text.secondary" }}
+        >
           {node.role}
         </Typography>
       </Card>
@@ -67,8 +72,8 @@ export default function StandardNode({ node, onEdit, onDelete, sx }) {
       <MenuPopover
         open={openPopover}
         onClose={handleClosePopover}
-        anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'center', horizontal: 'left' }}
+        anchorOrigin={{ vertical: "center", horizontal: "right" }}
+        transformOrigin={{ vertical: "center", horizontal: "left" }}
         arrow="left-center"
         sx={{ width: 160 }}
       >
@@ -78,7 +83,7 @@ export default function StandardNode({ node, onEdit, onDelete, sx }) {
               handleClosePopover();
               onDelete();
             }}
-            sx={{ color: 'error.main' }}
+            sx={{ color: "error.main" }}
           >
             <Iconify icon="eva:trash-2-outline" />
             Delete
@@ -97,6 +102,6 @@ export default function StandardNode({ node, onEdit, onDelete, sx }) {
           </MenuItem>
         )}
       </MenuPopover>
-    </>
+    </React.Fragment>
   );
 }

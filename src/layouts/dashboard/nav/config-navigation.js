@@ -93,6 +93,13 @@ const navConfig = [
           },
         ],
       },
+
+      // PRODUCT
+      {
+        title: "Product",
+        path: PATH_DASHBOARD.product.root,
+        icon: ICONS.invoice,
+      },
     ],
   },
 

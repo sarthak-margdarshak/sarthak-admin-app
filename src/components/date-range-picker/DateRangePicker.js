@@ -1,4 +1,4 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 // @mui
 import {
   Paper,
@@ -10,10 +10,11 @@ import {
   DialogActions,
   DialogContent,
   FormHelperText,
-} from '@mui/material';
-import { DatePicker, CalendarPicker } from '@mui/x-date-pickers';
+} from "@mui/material";
+import { DatePicker, CalendarPicker } from "@mui/x-date-pickers";
 // hooks
-import useResponsive from '../../hooks/useResponsive';
+import useResponsive from "../../hooks/useResponsive";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -24,14 +25,22 @@ DateRangePicker.propTypes = {
   title: PropTypes.string,
   onChangeEndDate: PropTypes.func,
   onChangeStartDate: PropTypes.func,
-  variant: PropTypes.oneOf(['input', 'calendar']),
-  startDate: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.instanceOf(Date)]),
-  endDate: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.instanceOf(Date)]),
+  variant: PropTypes.oneOf(["input", "calendar"]),
+  startDate: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+    PropTypes.instanceOf(Date),
+  ]),
+  endDate: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+    PropTypes.instanceOf(Date),
+  ]),
 };
 
 export default function DateRangePicker({
-  title = 'Select date range',
-  variant = 'input',
+  title = "Select date range",
+  variant = "input",
   //
   startDate,
   endDate,
@@ -44,14 +53,14 @@ export default function DateRangePicker({
   //
   isError,
 }) {
-  const isDesktop = useResponsive('up', 'md');
+  const isDesktop = useResponsive("up", "md");
 
-  const isCalendarView = variant === 'calendar';
+  const isCalendarView = variant === "calendar";
 
   return (
     <Dialog
       fullWidth
-      maxWidth={isCalendarView ? false : 'xs'}
+      maxWidth={isCalendarView ? false : "xs"}
       open={open}
       onClose={onClose}
       PaperProps={{
@@ -68,41 +77,49 @@ export default function DateRangePicker({
         sx={{
           ...(isCalendarView &&
             isDesktop && {
-              overflow: 'unset',
+              overflow: "unset",
             }),
         }}
       >
         <Stack
           spacing={isCalendarView ? 3 : 2}
-          direction={isCalendarView && isDesktop ? 'row' : 'column'}
+          direction={isCalendarView && isDesktop ? "row" : "column"}
           justifyContent="center"
           sx={{
             pt: 1,
-            '& .MuiCalendarPicker-root': {
+            "& .MuiCalendarPicker-root": {
               ...(!isDesktop && {
-                width: 'auto',
+                width: "auto",
               }),
             },
           }}
         >
           {isCalendarView ? (
-            <>
+            <React.Fragment>
               <Paper
                 variant="outlined"
-                sx={{ borderRadius: 2, borderColor: 'divider', borderStyle: 'dashed' }}
+                sx={{
+                  borderRadius: 2,
+                  borderColor: "divider",
+                  borderStyle: "dashed",
+                }}
               >
                 <CalendarPicker date={startDate} onChange={onChangeStartDate} />
               </Paper>
 
               <Paper
                 variant="outlined"
-                sx={{ borderRadius: 2, borderColor: 'divider', borderStyle: 'dashed' }}
+                sx={{
+                  borderRadius: 2,
+                  borderColor: "divider",
+                  borderStyle: "dashed",
+                }}
               >
                 <CalendarPicker date={endDate} onChange={onChangeEndDate} />
               </Paper>
-            </>
+            </React.Fragment>
           ) : (
-            <>
+            <React.Fragment>
               <DatePicker
                 label="Start date"
                 value={startDate}
@@ -116,7 +133,7 @@ export default function DateRangePicker({
                 onChange={onChangeEndDate}
                 renderInput={(params) => <TextField {...params} />}
               />
-            </>
+            </React.Fragment>
           )}
         </Stack>
 
