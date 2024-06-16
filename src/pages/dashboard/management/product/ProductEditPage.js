@@ -324,15 +324,9 @@ export default function ProductEditPage() {
             type: productType,
             mockTestIds: selectedMockTests.map((mockTest) => mockTest.$id),
             images: arrUploadedFiles,
-            createdBy: user.$id,
             updatedBy: user.$id,
-            mockTestDriverIds: mockTestDriverIds,
             mrp: productMRP,
             sellPrice: productSellPrice,
-            standards: standards,
-            subjects: subjects,
-            chapters: chapters,
-            concepts: concepts,
           },
           [Permission.update(Role.team(sarthakInfoData.adminTeamId))]
         );
