@@ -13,7 +13,7 @@
 // IMPORT ---------------------------------------------------------------
 
 import PropTypes from "prop-types";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 // @mui
 import { Collapse } from "@mui/material";
@@ -42,7 +42,7 @@ export default function NavList({ item }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <>
+    <React.Fragment>
       <NavItem
         item={item}
         open={open}
@@ -70,6 +70,6 @@ export default function NavList({ item }) {
           />
         </Collapse>
       )}
-    </>
+    </React.Fragment>
   );
 }

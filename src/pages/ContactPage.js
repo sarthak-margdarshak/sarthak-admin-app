@@ -17,12 +17,13 @@ import { Helmet } from "react-helmet-async";
 import { Container, Box } from "@mui/material";
 // sections
 import { ContactHero, ContactForm } from "../sections/contact";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
 export default function ContactPage() {
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Contact us | Sarthak Admin</title>
       </Helmet>
@@ -41,6 +42,6 @@ export default function ContactPage() {
           <ContactForm title="Feel free to contact us.   We will be glad to hear from you, buddy." />
         </Box>
       </Container>
-    </>
+    </React.Fragment>
   );
 }

@@ -24,12 +24,13 @@ import Iconify from "../../components/iconify";
 import AuthResetPasswordForm from "../../sections/auth/AuthResetPasswordForm";
 // assets
 import { PasswordIcon } from "../../assets/icons";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
 export default function ResetPasswordPage() {
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Reset Password | Sarthak Admin</title>
       </Helmet>
@@ -62,6 +63,6 @@ export default function ResetPasswordPage() {
         <Iconify icon="eva:chevron-left-fill" width={16} />
         Return to sign in
       </Link>
-    </>
+    </React.Fragment>
   );
 }

@@ -1,14 +1,14 @@
-import PropTypes from 'prop-types';
-import { useRef } from 'react';
-import { SnackbarProvider as NotistackProvider } from 'notistack';
+import PropTypes from "prop-types";
+import React, { useRef } from "react";
+import { SnackbarProvider as NotistackProvider } from "notistack";
 // @mui
-import { alpha } from '@mui/material/styles';
-import { Box, Collapse, IconButton } from '@mui/material';
+import { alpha } from "@mui/material/styles";
+import { Box, Collapse, IconButton } from "@mui/material";
 //
-import { useSettingsContext } from '../settings';
-import Iconify from '../iconify';
+import { useSettingsContext } from "../settings";
+import Iconify from "../iconify";
 //
-import StyledNotistack from './styles';
+import StyledNotistack from "./styles";
 
 // ----------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ SnackbarProvider.propTypes = {
 export default function SnackbarProvider({ children }) {
   const { themeDirection } = useSettingsContext();
 
-  const isRTL = themeDirection === 'rtl';
+  const isRTL = themeDirection === "rtl";
 
   const notistackRef = useRef(null);
 
@@ -28,7 +28,7 @@ export default function SnackbarProvider({ children }) {
   };
 
   return (
-    <>
+    <React.Fragment>
       <StyledNotistack />
 
       <NotistackProvider
@@ -39,11 +39,15 @@ export default function SnackbarProvider({ children }) {
         autoHideDuration={3000}
         TransitionComponent={isRTL ? Collapse : undefined}
         variant="success" // Set default variant
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
         iconVariant={{
           info: <SnackbarIcon icon="eva:info-fill" color="info" />,
-          success: <SnackbarIcon icon="eva:checkmark-circle-2-fill" color="success" />,
-          warning: <SnackbarIcon icon="eva:alert-triangle-fill" color="warning" />,
+          success: (
+            <SnackbarIcon icon="eva:checkmark-circle-2-fill" color="success" />
+          ),
+          warning: (
+            <SnackbarIcon icon="eva:alert-triangle-fill" color="warning" />
+          ),
           error: <SnackbarIcon icon="eva:alert-circle-fill" color="error" />,
         }}
         // With close as default
@@ -55,7 +59,7 @@ export default function SnackbarProvider({ children }) {
       >
         {children}
       </NotistackProvider>
-    </>
+    </React.Fragment>
   );
 }
 
@@ -63,7 +67,14 @@ export default function SnackbarProvider({ children }) {
 
 SnackbarIcon.propTypes = {
   icon: PropTypes.string,
-  color: PropTypes.oneOf(['primary', 'secondary', 'info', 'success', 'warning', 'error']),
+  color: PropTypes.oneOf([
+    "primary",
+    "secondary",
+    "info",
+    "success",
+    "warning",
+    "error",
+  ]),
 };
 
 function SnackbarIcon({ icon, color }) {
@@ -74,10 +85,10 @@ function SnackbarIcon({ icon, color }) {
         mr: 1.5,
         width: 40,
         height: 40,
-        display: 'flex',
+        display: "flex",
         borderRadius: 1.5,
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: "center",
+        justifyContent: "center",
         color: `${color}.main`,
         bgcolor: (theme) => alpha(theme.palette[color].main, 0.16),
       }}

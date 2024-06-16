@@ -1,31 +1,32 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 // @mui
-import { styled } from '@mui/material/styles';
-import { Box, Stack } from '@mui/material';
+import { styled } from "@mui/material/styles";
+import { Box, Stack } from "@mui/material";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
 const StyledRoot = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'rounded',
+  shouldForwardProp: (prop) => prop !== "rounded",
 })(({ rounded, theme }) => ({
   zIndex: 9,
   padding: 0,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
   color: theme.palette.primary.main,
-  '& li': {
+  "& li": {
     width: 18,
     height: 18,
     opacity: 0.32,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    '&.slick-active': {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    "&.slick-active": {
       opacity: 1,
       ...(rounded && {
-        '& span': {
+        "& span": {
           width: 16,
           borderRadius: 6,
         },
@@ -34,11 +35,11 @@ const StyledRoot = styled(Box, {
   },
 }));
 
-const StyledDot = styled('span')(({ theme }) => ({
+const StyledDot = styled("span")(({ theme }) => ({
   width: 8,
   height: 8,
-  borderRadius: '50%',
-  transition: theme.transitions.create('width', {
+  borderRadius: "50%",
+  transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.short,
   }),
@@ -53,11 +54,11 @@ export default function CarouselDots(props) {
 
   return {
     appendDots: (dots) => (
-      <>
+      <React.Fragment>
         <StyledRoot component="ul" rounded={rounded} sx={sx} {...props}>
           {dots}
         </StyledRoot>
-      </>
+      </React.Fragment>
     ),
     customPaging: () => (
       <Stack
@@ -68,7 +69,7 @@ export default function CarouselDots(props) {
       >
         <StyledDot
           sx={{
-            bgcolor: 'currentColor',
+            bgcolor: "currentColor",
           }}
         />
       </Stack>

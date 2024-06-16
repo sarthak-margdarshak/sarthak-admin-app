@@ -159,7 +159,7 @@ export default function ProductViewPage() {
           ]}
           action={
             !loading && (
-              <>
+              <React.Fragment>
                 {product?.published ? (
                   <Alert
                     icon={<Iconify icon="icon-park-solid:correct" />}
@@ -190,7 +190,7 @@ export default function ProductViewPage() {
                     Edit
                   </Button>
                 )}
-              </>
+              </React.Fragment>
             )
           }
         />
@@ -252,9 +252,13 @@ export default function ProductViewPage() {
                   >
                     Standards -
                   </Typography>
-                  {product?.standards.map((value) => (
-                    <StandardDisplayUI key={value} id={value} />
-                  ))}
+                  {product?.standards.length === 0 ? (
+                    <Typography variant="body2">All</Typography>
+                  ) : (
+                    product?.standards.map((value) => (
+                      <StandardDisplayUI key={value} id={value} />
+                    ))
+                  )}
                 </Stack>
               </Grid>
 
@@ -278,9 +282,13 @@ export default function ProductViewPage() {
                   >
                     Subjects -
                   </Typography>
-                  {product?.subjects.map((value) => (
-                    <SubjectDisplayUI key={value} id={value} />
-                  ))}
+                  {product?.subjects.length === 0 ? (
+                    <Typography variant="body2">All</Typography>
+                  ) : (
+                    product?.subjects.map((value) => (
+                      <SubjectDisplayUI key={value} id={value} />
+                    ))
+                  )}
                 </Stack>
               </Grid>
 
@@ -304,9 +312,13 @@ export default function ProductViewPage() {
                   >
                     Chapters -
                   </Typography>
-                  {product?.chapters.map((value) => (
-                    <ChapterDisplayUI key={value} id={value} />
-                  ))}
+                  {product?.chapters.length === 0 ? (
+                    <Typography variant="body2">All</Typography>
+                  ) : (
+                    product?.chapters.map((value) => (
+                      <ChapterDisplayUI key={value} id={value} />
+                    ))
+                  )}
                 </Stack>
               </Grid>
 
@@ -330,9 +342,13 @@ export default function ProductViewPage() {
                   >
                     Concepts -
                   </Typography>
-                  {product?.concepts.map((value) => (
-                    <ConceptDisplayUI key={value} id={value} />
-                  ))}
+                  {product?.concepts.length === 0 ? (
+                    <Typography variant="body2">All</Typography>
+                  ) : (
+                    product?.concepts.map((value) => (
+                      <ConceptDisplayUI key={value} id={value} />
+                    ))
+                  )}
                 </Stack>
               </Grid>
             </Grid>

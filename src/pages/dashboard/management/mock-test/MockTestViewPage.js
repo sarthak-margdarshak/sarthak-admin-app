@@ -24,7 +24,7 @@ import { Helmet } from "react-helmet-async";
 import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs/CustomBreadcrumbs";
 import { PATH_DASHBOARD } from "../../../../routes/paths";
 import { useSettingsContext } from "../../../../components/settings";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactKatex from "@pkasila/react-katex";
 import Image from "../../../../components/image/Image";
 import Iconify from "../../../../components/iconify";
@@ -144,7 +144,7 @@ export default function MockTestViewPage() {
   };
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title>{"Mock-Test : View | " + mockTest?.mtId}</title>
       </Helmet>
@@ -166,7 +166,7 @@ export default function MockTestViewPage() {
           ]}
           action={
             !loading && (
-              <>
+              <React.Fragment>
                 {mockTest?.published ? (
                   <Alert
                     icon={<Iconify icon="icon-park-solid:correct" />}
@@ -197,7 +197,7 @@ export default function MockTestViewPage() {
                     Edit
                   </Button>
                 )}
-              </>
+              </React.Fragment>
             )
           }
         />
@@ -256,9 +256,13 @@ export default function MockTestViewPage() {
                   >
                     Standards -
                   </Typography>
-                  {mockTest?.mockTestDriverId.standardIds.map((value) => (
-                    <StandardDisplayUI key={value} id={value} />
-                  ))}
+                  {mockTest?.mockTestDriverId.standardIds.length === 0 ? (
+                    <Typography variant="body2">All</Typography>
+                  ) : (
+                    mockTest?.mockTestDriverId.standardIds.map((value) => (
+                      <StandardDisplayUI key={value} id={value} />
+                    ))
+                  )}
                 </Stack>
               </Grid>
 
@@ -282,9 +286,13 @@ export default function MockTestViewPage() {
                   >
                     Subjects -
                   </Typography>
-                  {mockTest?.mockTestDriverId.subjectIds.map((value) => (
-                    <SubjectDisplayUI key={value} id={value} />
-                  ))}
+                  {mockTest?.mockTestDriverId.subjectIds.length === 0 ? (
+                    <Typography variant="body2">All</Typography>
+                  ) : (
+                    mockTest?.mockTestDriverId.subjectIds.map((value) => (
+                      <SubjectDisplayUI key={value} id={value} />
+                    ))
+                  )}
                 </Stack>
               </Grid>
 
@@ -308,9 +316,13 @@ export default function MockTestViewPage() {
                   >
                     Chapters -
                   </Typography>
-                  {mockTest?.mockTestDriverId.chapterIds.map((value) => (
-                    <ChapterDisplayUI key={value} id={value} />
-                  ))}
+                  {mockTest?.mockTestDriverId.chapterIds.length === 0 ? (
+                    <Typography variant="body2">All</Typography>
+                  ) : (
+                    mockTest?.mockTestDriverId.chapterIds.map((value) => (
+                      <ChapterDisplayUI key={value} id={value} />
+                    ))
+                  )}
                 </Stack>
               </Grid>
 
@@ -334,9 +346,13 @@ export default function MockTestViewPage() {
                   >
                     Concepts -
                   </Typography>
-                  {mockTest?.mockTestDriverId.conceptIds.map((value) => (
-                    <ConceptDisplayUI key={value} id={value} />
-                  ))}
+                  {mockTest?.mockTestDriverId.conceptIds.length === 0 ? (
+                    <Typography variant="body2">All</Typography>
+                  ) : (
+                    mockTest?.mockTestDriverId.conceptIds.map((value) => (
+                      <ConceptDisplayUI key={value} id={value} />
+                    ))
+                  )}
                 </Stack>
               </Grid>
             </Grid>
@@ -751,7 +767,7 @@ export default function MockTestViewPage() {
         aria-describedby="alert-dialog-description"
       >
         {userProfile.createTeam ? (
-          <>
+          <React.Fragment>
             <DialogTitle id="alert-dialog-title">
               Are you sure to Publish it?
             </DialogTitle>
@@ -777,13 +793,13 @@ export default function MockTestViewPage() {
                 Agree
               </LoadingButton>
             </DialogActions>
-          </>
+          </React.Fragment>
         ) : (
           <DialogContent>
             <PermissionDeniedComponent />
           </DialogContent>
         )}
       </Dialog>
-    </>
+    </React.Fragment>
   );
 }

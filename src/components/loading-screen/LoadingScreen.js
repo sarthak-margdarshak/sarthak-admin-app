@@ -1,31 +1,32 @@
-import { m } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
+import { m } from "framer-motion";
+import { useLocation } from "react-router-dom";
 // @mui
-import { alpha, styled } from '@mui/material/styles';
-import { Box, LinearProgress } from '@mui/material';
+import { alpha, styled } from "@mui/material/styles";
+import { Box, LinearProgress } from "@mui/material";
 // hooks
-import useResponsive from '../../hooks/useResponsive';
+import useResponsive from "../../hooks/useResponsive";
 // config
-import { NAV } from '../../config-global';
+import { NAV } from "../../config-global";
 // auth
-import { useAuthContext } from '../../auth/useAuthContext';
+import { useAuthContext } from "../../auth/useAuthContext";
 //
-import Logo from '../logo';
-import ProgressBar from '../progress-bar';
-import { useSettingsContext } from '../settings';
+import Logo from "../logo";
+import ProgressBar from "../progress-bar";
+import { useSettingsContext } from "../settings";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
-const StyledRoot = styled('div')(({ theme }) => ({
+const StyledRoot = styled("div")(({ theme }) => ({
   right: 0,
   bottom: 0,
   zIndex: 9998,
-  width: '100%',
-  height: '100%',
-  position: 'fixed',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  width: "100%",
+  height: "100%",
+  position: "fixed",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
   backgroundColor: theme.palette.background.default,
 }));
 
@@ -34,28 +35,29 @@ const StyledRoot = styled('div')(({ theme }) => ({
 export default function LoadingScreen() {
   const { pathname } = useLocation();
 
-  const isDesktop = useResponsive('up', 'lg');
+  const isDesktop = useResponsive("up", "lg");
 
   const { isInitialized } = useAuthContext();
 
   const { themeLayout } = useSettingsContext();
 
-  const isDashboard = isInitialized && pathname.includes('/dashboard') && isDesktop;
+  const isDashboard =
+    isInitialized && pathname.includes("/dashboard") && isDesktop;
 
   const size =
-    (themeLayout === 'mini' && NAV.W_DASHBOARD_MINI) ||
-    (themeLayout === 'vertical' && NAV.W_DASHBOARD) ||
+    (themeLayout === "mini" && NAV.W_DASHBOARD_MINI) ||
+    (themeLayout === "vertical" && NAV.W_DASHBOARD) ||
     128;
 
   return (
-    <>
+    <React.Fragment>
       <ProgressBar />
 
       <StyledRoot
         sx={{
           ...(isDashboard && {
             width: `calc(100% - ${size}px)`,
-            ...(themeLayout === 'horizontal' && {
+            ...(themeLayout === "horizontal" && {
               width: 1,
               height: `calc(100% - ${size}px)`,
             }),
@@ -65,7 +67,7 @@ export default function LoadingScreen() {
         {isDashboard ? (
           <LinearProgress color="inherit" sx={{ width: 1, maxWidth: 360 }} />
         ) : (
-          <>
+          <React.Fragment>
             <m.div
               animate={{
                 scale: [1, 0.9, 0.9, 1, 1],
@@ -73,7 +75,7 @@ export default function LoadingScreen() {
               }}
               transition={{
                 duration: 2,
-                ease: 'easeInOut',
+                ease: "easeInOut",
                 repeatDelay: 1,
                 repeat: Infinity,
               }}
@@ -87,14 +89,15 @@ export default function LoadingScreen() {
                 scale: [1.6, 1, 1, 1.6, 1.6],
                 rotate: [270, 0, 0, 270, 270],
                 opacity: [0.25, 1, 1, 1, 0.25],
-                borderRadius: ['25%', '25%', '50%', '50%', '25%'],
+                borderRadius: ["25%", "25%", "50%", "50%", "25%"],
               }}
-              transition={{ ease: 'linear', duration: 3.2, repeat: Infinity }}
+              transition={{ ease: "linear", duration: 3.2, repeat: Infinity }}
               sx={{
                 width: 100,
                 height: 100,
-                position: 'absolute',
-                border: (theme) => `solid 3px ${alpha(theme.palette.primary.dark, 0.24)}`,
+                position: "absolute",
+                border: (theme) =>
+                  `solid 3px ${alpha(theme.palette.primary.dark, 0.24)}`,
               }}
             />
 
@@ -104,23 +107,24 @@ export default function LoadingScreen() {
                 scale: [1, 1.2, 1.2, 1, 1],
                 rotate: [0, 270, 270, 0, 0],
                 opacity: [1, 0.25, 0.25, 0.25, 1],
-                borderRadius: ['25%', '25%', '50%', '50%', '25%'],
+                borderRadius: ["25%", "25%", "50%", "50%", "25%"],
               }}
               transition={{
-                ease: 'linear',
+                ease: "linear",
                 duration: 3.2,
                 repeat: Infinity,
               }}
               sx={{
                 width: 120,
                 height: 120,
-                position: 'absolute',
-                border: (theme) => `solid 8px ${alpha(theme.palette.primary.dark, 0.24)}`,
+                position: "absolute",
+                border: (theme) =>
+                  `solid 8px ${alpha(theme.palette.primary.dark, 0.24)}`,
               }}
             />
-          </>
+          </React.Fragment>
         )}
       </StyledRoot>
-    </>
+    </React.Fragment>
   );
 }

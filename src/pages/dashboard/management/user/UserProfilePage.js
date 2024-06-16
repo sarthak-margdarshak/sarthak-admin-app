@@ -13,7 +13,7 @@
 // IMPORT ---------------------------------------------------------------
 
 import { Helmet } from "react-helmet-async";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 // @mui
 import { Tab, Card, Tabs, Container, Box } from "@mui/material";
 // routes
@@ -106,7 +106,7 @@ export default function UserProfilePage() {
   ];
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title>User: Profile | Sarthak Admin</title>
       </Helmet>
@@ -170,6 +170,6 @@ export default function UserProfilePage() {
             )
         )}
       </Container>
-    </>
+    </React.Fragment>
   );
 }

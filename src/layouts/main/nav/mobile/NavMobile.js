@@ -1,30 +1,30 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
-import PropTypes from 'prop-types';
-import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import PropTypes from "prop-types";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 // @mui
-import { List, Drawer, IconButton } from '@mui/material';
+import { List, Drawer, IconButton } from "@mui/material";
 // config
-import { NAV } from '../../../../config-global';
+import { NAV } from "../../../../config-global";
 // components
-import Logo from '../../../../components/logo';
-import Iconify from '../../../../components/iconify';
-import Scrollbar from '../../../../components/scrollbar';
+import Logo from "../../../../components/logo";
+import Iconify from "../../../../components/iconify";
+import Scrollbar from "../../../../components/scrollbar";
 //
-import NavList from './NavList';
+import NavList from "./NavList";
 
 // ----------------------------------------------------------------------
 
@@ -56,13 +56,13 @@ export default function NavMobile({ isOffset, data }) {
   };
 
   return (
-    <>
+    <React.Fragment>
       <IconButton
         onClick={handleOpen}
         sx={{
           ml: 1,
           ...(isOffset && {
-            color: 'text.primary',
+            color: "text.primary",
           }),
         }}
       >
@@ -89,6 +89,6 @@ export default function NavMobile({ isOffset, data }) {
           </List>
         </Scrollbar>
       </Drawer>
-    </>
+    </React.Fragment>
   );
 }

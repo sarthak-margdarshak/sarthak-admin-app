@@ -21,12 +21,13 @@ import { Button, Typography } from "@mui/material";
 import { MotionContainer, varBounce } from "../components/animate";
 // assets
 import { ForbiddenIllustration } from "../assets/illustrations";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
 export default function Page403() {
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> 403 Forbidden | Sarthak Admin</title>
       </Helmet>
@@ -54,6 +55,6 @@ export default function Page403() {
           Go to Home
         </Button>
       </MotionContainer>
-    </>
+    </React.Fragment>
   );
 }

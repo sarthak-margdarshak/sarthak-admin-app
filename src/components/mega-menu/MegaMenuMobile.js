@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
-import { useState, useEffect, forwardRef } from 'react';
-import { NavLink as RouterLink, useLocation } from 'react-router-dom';
+import PropTypes from "prop-types";
+import { useState, useEffect, forwardRef } from "react";
+import { NavLink as RouterLink, useLocation } from "react-router-dom";
 // @mui
 import {
   Box,
@@ -15,13 +15,13 @@ import {
   ListItemText,
   ListItemIcon,
   ListItemButton,
-} from '@mui/material';
+} from "@mui/material";
 // config
-import { NAV, ICON } from '../../config-global';
+import { NAV, ICON } from "../../config-global";
 //
-import Logo from '../logo';
-import Iconify from '../iconify';
-import Scrollbar from '../scrollbar';
+import Logo from "../logo";
+import Iconify from "../iconify";
+import Scrollbar from "../scrollbar";
 
 // ----------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ export default function MegaMenuMobile({ data }) {
   };
 
   return (
-    <>
+    <React.Fragment>
       <Button
         variant="contained"
         onClick={handleOpenDrawer}
@@ -68,7 +68,10 @@ export default function MegaMenuMobile({ data }) {
         <Scrollbar>
           <Logo sx={{ mx: 2.5, my: 3 }} />
 
-          <Typography variant="h6" sx={{ px: 2, mb: 2, display: 'flex', alignItems: 'center' }}>
+          <Typography
+            variant="h6"
+            sx={{ px: 2, mb: 2, display: "flex", alignItems: "center" }}
+          >
             <Iconify icon="eva:list-fill" sx={{ mr: 1 }} /> Categories
           </Typography>
 
@@ -77,16 +80,22 @@ export default function MegaMenuMobile({ data }) {
           ))}
         </Scrollbar>
       </Drawer>
-    </>
+    </React.Fragment>
   );
 }
 
 // ----------------------------------------------------------------------
 
 const ParentItem = forwardRef(({ icon, title, hasSub, ...other }, ref) => (
-  <ListItemButton ref={ref} sx={{ textTransform: 'capitalize', height: 44 }} {...other}>
+  <ListItemButton
+    ref={ref}
+    sx={{ textTransform: "capitalize", height: 44 }}
+    {...other}
+  >
     <ListItemIcon sx={{ width: 22, height: 22 }}>{icon}</ListItemIcon>
-    <ListItemText primaryTypographyProps={{ typography: 'body2' }}>{title}</ListItemText>
+    <ListItemText primaryTypographyProps={{ typography: "body2" }}>
+      {title}
+    </ListItemText>
     {hasSub && <Iconify icon="eva:arrow-ios-forward-fill" />}
   </ListItemButton>
 ));
@@ -131,8 +140,13 @@ function SubMenu({ parent, pathname }) {
 
   if (children) {
     return (
-      <>
-        <ParentItem title={title} icon={icon} onClick={handleOpenDrawer} hasSub />
+      <React.Fragment>
+        <ParentItem
+          title={title}
+          icon={icon}
+          onClick={handleOpenDrawer}
+          hasSub
+        />
 
         <Drawer
           open={openDrawer}
@@ -151,7 +165,11 @@ function SubMenu({ parent, pathname }) {
               <Iconify icon="eva:arrow-ios-back-fill" />
             </IconButton>
 
-            <Typography noWrap variant="subtitle1" sx={{ ml: 1, textTransform: 'capitalize' }}>
+            <Typography
+              noWrap
+              variant="subtitle1"
+              sx={{ ml: 1, textTransform: "capitalize" }}
+            >
               {title}
             </Typography>
           </Stack>
@@ -167,7 +185,7 @@ function SubMenu({ parent, pathname }) {
                     <Typography
                       component="div"
                       variant="overline"
-                      sx={{ px: 2.5, mb: 1, color: 'text.secondary' }}
+                      sx={{ px: 2.5, mb: 1, color: "text.secondary" }}
                       noWrap
                     >
                       {subheader}
@@ -184,24 +202,27 @@ function SubMenu({ parent, pathname }) {
                             mr: 0.5,
                             width: ICON.NAV_ITEM,
                             height: ICON.NAV_ITEM,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                           }}
                         >
                           <Box
                             sx={{
                               width: 4,
                               height: 4,
-                              bgcolor: 'currentColor',
-                              borderRadius: '50%',
+                              bgcolor: "currentColor",
+                              borderRadius: "50%",
                             }}
                           />
                         </ListItemIcon>
 
                         <ListItemText
                           primary={link.title}
-                          primaryTypographyProps={{ noWrap: true, typography: 'body2' }}
+                          primaryTypographyProps={{
+                            noWrap: true,
+                            typography: "body2",
+                          }}
                         />
                       </ListItemButton>
                     ))}
@@ -211,12 +232,18 @@ function SubMenu({ parent, pathname }) {
             </Stack>
           </Scrollbar>
         </Drawer>
-      </>
+      </React.Fragment>
     );
   }
 
   return (
-    <Link to={path} component={RouterLink} color="inherit" underline="none" sx={{ bgcolor: 'red' }}>
+    <Link
+      to={path}
+      component={RouterLink}
+      color="inherit"
+      underline="none"
+      sx={{ bgcolor: "red" }}
+    >
       <ParentItem title={title} icon={icon} />
     </Link>
   );

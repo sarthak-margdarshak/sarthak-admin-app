@@ -1,17 +1,25 @@
-import PropTypes from 'prop-types';
-import { useState } from 'react';
-import { NavLink as RouterLink } from 'react-router-dom';
+import PropTypes from "prop-types";
+import { useState } from "react";
+import { NavLink as RouterLink } from "react-router-dom";
 // @mui
-import Masonry from '@mui/lab/Masonry';
-import { alpha } from '@mui/material/styles';
-import { Link, List, Paper, ListItem, Typography, Divider, Stack } from '@mui/material';
+import Masonry from "@mui/lab/Masonry";
+import { alpha } from "@mui/material/styles";
+import {
+  Link,
+  List,
+  Paper,
+  ListItem,
+  Typography,
+  Divider,
+  Stack,
+} from "@mui/material";
 // config
-import { NAV } from '../../config-global';
+import { NAV } from "../../config-global";
 // components
-import Iconify from '../iconify';
+import Iconify from "../iconify";
 //
-import MenuHotProducts from './MenuHotProducts';
-import MegaMenuCarousel from './MenuCarousel';
+import MenuHotProducts from "./MenuHotProducts";
+import MegaMenuCarousel from "./MenuCarousel";
 
 // ----------------------------------------------------------------------
 
@@ -53,7 +61,7 @@ function MegaMenuItem({ parent }) {
 
   if (children) {
     return (
-      <>
+      <React.Fragment>
         <ParentItem
           onMouseEnter={handleOpen}
           onMouseLeave={handleClose}
@@ -71,7 +79,7 @@ function MegaMenuItem({ parent }) {
               p: 3,
               top: -62,
               borderRadius: 2,
-              position: 'absolute',
+              position: "absolute",
               left: NAV.W_BASE,
               width: MENU_PAPER_WIDTH,
               boxShadow: (theme) => theme.customShadows.z20,
@@ -93,10 +101,10 @@ function MegaMenuItem({ parent }) {
                       underline="none"
                       sx={{
                         fontSize: 13,
-                        typography: 'body2',
-                        color: 'text.primary',
-                        transition: (theme) => theme.transitions.create('all'),
-                        '&:hover': { color: 'primary.main' },
+                        typography: "body2",
+                        color: "text.primary",
+                        transition: (theme) => theme.transitions.create("all"),
+                        "&:hover": { color: "primary.main" },
                       }}
                     >
                       {link.title}
@@ -111,7 +119,11 @@ function MegaMenuItem({ parent }) {
                 <Link
                   component={RouterLink}
                   to={more.path}
-                  sx={{ typography: 'body2', display: 'inline-flex', fontSize: 13 }}
+                  sx={{
+                    typography: "body2",
+                    display: "inline-flex",
+                    fontSize: 13,
+                  }}
                 >
                   {more.title}
                 </Link>
@@ -121,7 +133,7 @@ function MegaMenuItem({ parent }) {
                 <MegaMenuCarousel
                   products={products}
                   numberShow={6}
-                  sx={{ '& .controlsArrows': { mt: 5 } }}
+                  sx={{ "& .controlsArrows": { mt: 5 } }}
                 />
 
                 <Divider />
@@ -131,7 +143,7 @@ function MegaMenuItem({ parent }) {
             )}
           </Paper>
         )}
-      </>
+      </React.Fragment>
     );
   }
 
@@ -147,10 +159,11 @@ ParentItem.propTypes = {
   title: PropTypes.string,
 };
 
-function ParentItem({ path = '', title, open, hasSub, ...other }) {
+function ParentItem({ path = "", title, open, hasSub, ...other }) {
   const activeStyle = {
-    color: 'primary.main',
-    bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.action.hoverOpacity),
+    color: "primary.main",
+    bgcolor: (theme) =>
+      alpha(theme.palette.primary.main, theme.palette.action.hoverOpacity),
   };
 
   return (
@@ -161,13 +174,13 @@ function ParentItem({ path = '', title, open, hasSub, ...other }) {
         pl: 2.5,
         pr: 1.5,
         height: PARENT_ITEM_HEIGHT,
-        cursor: 'pointer',
-        color: 'text.primary',
-        typography: 'subtitle2',
-        textTransform: 'capitalize',
-        justifyContent: 'space-between',
-        transition: (theme) => theme.transitions.create('all'),
-        '&:hover': activeStyle,
+        cursor: "pointer",
+        color: "text.primary",
+        typography: "subtitle2",
+        textTransform: "capitalize",
+        justifyContent: "space-between",
+        transition: (theme) => theme.transitions.create("all"),
+        "&:hover": activeStyle,
         ...(open && activeStyle),
       }}
       {...other}

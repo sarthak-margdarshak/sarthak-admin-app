@@ -21,12 +21,13 @@ import { Button, Typography } from "@mui/material";
 import { MotionContainer, varBounce } from "../components/animate";
 // assets
 import { PageNotFoundIllustration } from "../assets/illustrations";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
 export default function Page404() {
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> 404 Page Not Found | Sarthak Admin</title>
       </Helmet>
@@ -58,6 +59,6 @@ export default function Page404() {
           Go to Home
         </Button>
       </MotionContainer>
-    </>
+    </React.Fragment>
   );
 }

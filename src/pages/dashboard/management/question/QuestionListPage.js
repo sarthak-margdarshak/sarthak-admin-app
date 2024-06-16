@@ -10,6 +10,7 @@ import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs";
 import Iconify from "../../../../components/iconify/Iconify";
 // Sections
 import QuestionListComponent from "../../../../sections/@dashboard/question/view/QuestionListComponent";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -17,7 +18,7 @@ export default function QuestionEditPage() {
   const { themeStretch } = useSettingsContext();
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title>Question: List | Sarthak Admin</title>
       </Helmet>
@@ -48,6 +49,6 @@ export default function QuestionEditPage() {
 
         <QuestionListComponent />
       </Container>
-    </>
+    </React.Fragment>
   );
 }

@@ -20,11 +20,12 @@ import { PATH_DASHBOARD } from "../../../../routes/paths";
 import { Helmet } from "react-helmet-async";
 import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs/CustomBreadcrumbs";
 import { Link as RouterLink } from "react-router-dom";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Iconify from "../../../../components/iconify";
 import { AppwriteHelper } from "../../../../auth/AppwriteHelper";
 import { APPWRITE_API } from "../../../../config-global";
 import ProductTableRow from "../../../../sections/@dashboard/product/ProductTableRow";
+import { Query } from "appwrite";
 
 const TABLE_HEAD = [
   { id: "productId", label: "Product Id", align: "left" },
@@ -56,7 +57,8 @@ export default function ProductListPage() {
       setUpdate(true);
       const x = await AppwriteHelper.listAllDocuments(
         APPWRITE_API.databaseId,
-        APPWRITE_API.collections.products
+        APPWRITE_API.collections.products,
+        [Query.orderDesc("$createdAt")]
       );
       setAllProducts(x);
       setUpdate(false);
@@ -65,7 +67,7 @@ export default function ProductListPage() {
   }, [setUpdate, setAllProducts]);
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Product | List</title>
       </Helmet>
@@ -140,6 +142,6 @@ export default function ProductListPage() {
           />
         </Card>
       </Container>
-    </>
+    </React.Fragment>
   );
 }

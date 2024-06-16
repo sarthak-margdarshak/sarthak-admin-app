@@ -8,6 +8,7 @@ import { useSettingsContext } from "../../../../components/settings";
 import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs";
 // sections
 import { QuestionNewCreateForm } from "../../../../sections/@dashboard/question/create";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -17,7 +18,7 @@ export default function QuestionEditPage() {
   const questionId = window.location.pathname.split("/")[3];
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Question: Edit | Sarthak Admin</title>
       </Helmet>
@@ -46,6 +47,6 @@ export default function QuestionEditPage() {
 
         <QuestionNewCreateForm inComingQuestionId={questionId} />
       </Container>
-    </>
+    </React.Fragment>
   );
 }

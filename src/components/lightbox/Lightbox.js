@@ -1,19 +1,19 @@
 /* eslint-disable import/no-unresolved */
-import PropTypes from 'prop-types';
-import ReactLightbox from 'yet-another-react-lightbox';
-import Zoom from 'yet-another-react-lightbox/plugins/zoom';
-import Video from 'yet-another-react-lightbox/plugins/video';
-import Captions from 'yet-another-react-lightbox/plugins/captions';
-import Slideshow from 'yet-another-react-lightbox/plugins/slideshow';
-import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen';
-import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails';
-import { useLightboxState } from 'yet-another-react-lightbox/core';
+import PropTypes from "prop-types";
+import ReactLightbox from "yet-another-react-lightbox";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import Video from "yet-another-react-lightbox/plugins/video";
+import Captions from "yet-another-react-lightbox/plugins/captions";
+import Slideshow from "yet-another-react-lightbox/plugins/slideshow";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
+import { useLightboxState } from "yet-another-react-lightbox/core";
 // @mui
-import { Typography } from '@mui/material';
+import { Typography } from "@mui/material";
 //
-import Iconify from '../iconify';
+import Iconify from "../iconify";
 //
-import StyledLightbox from './styles';
+import StyledLightbox from "./styles";
 
 // ----------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ export default function Lightbox({
   const totalItems = slides ? slides.length : 0;
 
   return (
-    <>
+    <React.Fragment>
       <StyledLightbox />
 
       <ReactLightbox
@@ -77,23 +77,37 @@ export default function Lightbox({
               disabledTotal={disabledTotal}
               disabledCaptions={disabledCaptions}
             />,
-            'close',
+            "close",
           ],
         }}
         render={{
           iconClose: () => <Iconify width={ICON_SIZE} icon="carbon:close" />,
           iconZoomIn: () => <Iconify width={ICON_SIZE} icon="carbon:zoom-in" />,
-          iconZoomOut: () => <Iconify width={ICON_SIZE} icon="carbon:zoom-out" />,
-          iconSlideshowPlay: () => <Iconify width={ICON_SIZE} icon="carbon:play" />,
-          iconSlideshowPause: () => <Iconify width={ICON_SIZE} icon="carbon:pause" />,
-          iconPrev: () => <Iconify width={ICON_SIZE + 8} icon="carbon:chevron-left" />,
-          iconNext: () => <Iconify width={ICON_SIZE + 8} icon="carbon:chevron-right" />,
-          iconExitFullscreen: () => <Iconify width={ICON_SIZE} icon="carbon:center-to-fit" />,
-          iconEnterFullscreen: () => <Iconify width={ICON_SIZE} icon="carbon:fit-to-screen" />,
+          iconZoomOut: () => (
+            <Iconify width={ICON_SIZE} icon="carbon:zoom-out" />
+          ),
+          iconSlideshowPlay: () => (
+            <Iconify width={ICON_SIZE} icon="carbon:play" />
+          ),
+          iconSlideshowPause: () => (
+            <Iconify width={ICON_SIZE} icon="carbon:pause" />
+          ),
+          iconPrev: () => (
+            <Iconify width={ICON_SIZE + 8} icon="carbon:chevron-left" />
+          ),
+          iconNext: () => (
+            <Iconify width={ICON_SIZE + 8} icon="carbon:chevron-right" />
+          ),
+          iconExitFullscreen: () => (
+            <Iconify width={ICON_SIZE} icon="carbon:center-to-fit" />
+          ),
+          iconEnterFullscreen: () => (
+            <Iconify width={ICON_SIZE} icon="carbon:fit-to-screen" />
+          ),
         }}
         {...other}
       />
-    </>
+    </React.Fragment>
   );
 }
 
@@ -154,13 +168,13 @@ export function DisplayTotal({ totalItems, disabledTotal, disabledCaptions }) {
       sx={{
         pl: 3,
         left: 0,
-        position: 'fixed',
-        typography: 'body2',
+        position: "fixed",
+        typography: "body2",
         ...(!disabledCaptions && {
-          px: 'unset',
+          px: "unset",
           minWidth: 64,
-          position: 'unset',
-          textAlign: 'center',
+          position: "unset",
+          textAlign: "center",
         }),
       }}
     >

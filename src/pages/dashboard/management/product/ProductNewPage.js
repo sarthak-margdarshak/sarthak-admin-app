@@ -38,7 +38,7 @@ import { Helmet } from "react-helmet-async";
 import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs/CustomBreadcrumbs";
 import { useSettingsContext } from "../../../../components/settings";
 import { PATH_DASHBOARD } from "../../../../routes/paths";
-import { forwardRef, useCallback, useEffect, useState } from "react";
+import React, { forwardRef, useCallback, useEffect, useState } from "react";
 import { ID, Permission, Query, Role } from "appwrite";
 import { AppwriteHelper } from "../../../../auth/AppwriteHelper";
 import { APPWRITE_API } from "../../../../config-global";
@@ -398,7 +398,7 @@ export default function ProductNewPage() {
   };
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Product | New</title>
       </Helmet>
@@ -1001,7 +1001,7 @@ export default function ProductNewPage() {
                       title={mockTest.name + " (" + mockTest.mtId + ")"}
                       subheader={mockTest.description}
                       action={
-                        <>
+                        <React.Fragment>
                           <Checkbox
                             defaultChecked={
                               selectedMockTests.findIndex(
@@ -1041,7 +1041,7 @@ export default function ProductNewPage() {
                               <Iconify icon="icon-park-outline:view-list" />
                             </IconButton>
                           )}
-                        </>
+                        </React.Fragment>
                       }
                     />
                   </Card>
@@ -1201,6 +1201,6 @@ export default function ProductNewPage() {
           </Grid>
         </Paper>
       </Dialog>
-    </>
+    </React.Fragment>
   );
 }

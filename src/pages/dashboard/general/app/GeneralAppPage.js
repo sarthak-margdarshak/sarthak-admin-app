@@ -31,7 +31,7 @@ import {
 } from "../../../../sections/@dashboard/general/app";
 // assets
 import { SeoIllustration } from "../../../../assets/illustrations";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { Question } from "../../../../auth/Question";
 import { PATH_DASHBOARD } from "../../../../routes/paths";
@@ -71,7 +71,7 @@ export default function GeneralAppPage() {
   }, [isInitialized]);
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> General: App | Sarthak Admin</title>
       </Helmet>
@@ -153,6 +153,6 @@ export default function GeneralAppPage() {
           )}
         </Grid>
       </Container>
-    </>
+    </React.Fragment>
   );
 }

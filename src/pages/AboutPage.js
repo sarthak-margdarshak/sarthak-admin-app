@@ -22,12 +22,13 @@ import {
   AboutTeam,
   AboutVision,
 } from "../sections/about";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
 export default function AboutPage() {
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> About us | Sarthak Admin</title>
       </Helmet>
@@ -44,6 +45,6 @@ export default function AboutPage() {
       />
 
       <AboutTeam />
-    </>
+    </React.Fragment>
   );
 }

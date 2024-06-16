@@ -13,7 +13,7 @@
 // IMPORT ---------------------------------------------------------------
 
 import { Helmet } from "react-helmet-async";
-import { useState } from "react";
+import React, { useState } from "react";
 // @mui
 import { Container, Tab, Tabs, Box } from "@mui/material";
 // routes
@@ -80,7 +80,7 @@ export default function UserAccountPage() {
   ];
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title>User: Account Settings | Sarthak Admin</title>
       </Helmet>
@@ -118,6 +118,6 @@ export default function UserAccountPage() {
             )
         )}
       </Container>
-    </>
+    </React.Fragment>
   );
 }

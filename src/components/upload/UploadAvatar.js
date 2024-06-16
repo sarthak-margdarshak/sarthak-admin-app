@@ -1,44 +1,45 @@
-import PropTypes from 'prop-types';
-import { useDropzone } from 'react-dropzone';
+import PropTypes from "prop-types";
+import { useDropzone } from "react-dropzone";
 // @mui
-import { Typography } from '@mui/material';
-import { styled, alpha } from '@mui/material/styles';
+import { Typography } from "@mui/material";
+import { styled, alpha } from "@mui/material/styles";
 //
-import Iconify from '../iconify';
+import Iconify from "../iconify";
 //
-import RejectionFiles from './errors/RejectionFiles';
-import AvatarPreview from './preview/AvatarPreview';
-import { useLocales } from '../../locales';
+import RejectionFiles from "./errors/RejectionFiles";
+import AvatarPreview from "./preview/AvatarPreview";
+import { useLocales } from "../../locales";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
-const StyledDropZone = styled('div')(({ theme }) => ({
+const StyledDropZone = styled("div")(({ theme }) => ({
   width: 144,
   height: 144,
-  margin: 'auto',
-  display: 'flex',
-  cursor: 'pointer',
-  overflow: 'hidden',
-  borderRadius: '50%',
-  alignItems: 'center',
-  position: 'relative',
-  justifyContent: 'center',
+  margin: "auto",
+  display: "flex",
+  cursor: "pointer",
+  overflow: "hidden",
+  borderRadius: "50%",
+  alignItems: "center",
+  position: "relative",
+  justifyContent: "center",
   border: `1px dashed ${alpha(theme.palette.grey[500], 0.32)}`,
 }));
 
-const StyledPlaceholder = styled('div')(({ theme }) => ({
+const StyledPlaceholder = styled("div")(({ theme }) => ({
   zIndex: 7,
-  display: 'flex',
-  borderRadius: '50%',
-  position: 'absolute',
-  alignItems: 'center',
-  flexDirection: 'column',
-  justifyContent: 'center',
+  display: "flex",
+  borderRadius: "50%",
+  position: "absolute",
+  alignItems: "center",
+  flexDirection: "column",
+  justifyContent: "center",
   width: `calc(100% - 16px)`,
   height: `calc(100% - 16px)`,
   color: theme.palette.text.disabled,
   backgroundColor: theme.palette.background.neutral,
-  transition: theme.transitions.create('opacity', {
+  transition: theme.transitions.create("opacity", {
     easing: theme.transitions.easing.easeInOut,
     duration: theme.transitions.duration.shorter,
   }),
@@ -54,8 +55,21 @@ UploadAvatar.propTypes = {
   file: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
-export default function UploadAvatar({ error, file, disabled, helperText, sx, ...other }) {
-  const { getRootProps, getInputProps, isDragActive, isDragReject, fileRejections } = useDropzone({
+export default function UploadAvatar({
+  error,
+  file,
+  disabled,
+  helperText,
+  sx,
+  ...other
+}) {
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragReject,
+    fileRejections,
+  } = useDropzone({
     multiple: false,
     disabled,
     ...other,
@@ -68,7 +82,7 @@ export default function UploadAvatar({ error, file, disabled, helperText, sx, ..
   const isError = isDragReject || !!error;
 
   return (
-    <>
+    <React.Fragment>
       <StyledDropZone
         {...getRootProps()}
         sx={{
@@ -76,18 +90,18 @@ export default function UploadAvatar({ error, file, disabled, helperText, sx, ..
             opacity: 0.72,
           }),
           ...(isError && {
-            borderColor: 'error.light',
+            borderColor: "error.light",
             ...(hasFile && {
-              bgcolor: 'error.lighter',
+              bgcolor: "error.lighter",
             }),
           }),
           ...(disabled && {
             opacity: 0.48,
-            pointerEvents: 'none',
+            pointerEvents: "none",
           }),
           ...(hasFile && {
-            '&:hover': {
-              '& .placeholder': {
+            "&:hover": {
+              "& .placeholder": {
                 opacity: 1,
               },
             },
@@ -102,30 +116,32 @@ export default function UploadAvatar({ error, file, disabled, helperText, sx, ..
         <StyledPlaceholder
           className="placeholder"
           sx={{
-            '&:hover': {
+            "&:hover": {
               opacity: 0.72,
             },
             ...(hasFile && {
               zIndex: 9,
               opacity: 0,
-              color: 'common.white',
+              color: "common.white",
               bgcolor: (theme) => alpha(theme.palette.grey[900], 0.64),
             }),
             ...(isError && {
-              color: 'error.main',
-              bgcolor: 'error.lighter',
+              color: "error.main",
+              bgcolor: "error.lighter",
             }),
           }}
         >
           <Iconify icon="ic:round-add-a-photo" width={24} sx={{ mb: 1 }} />
 
-          <Typography variant="caption">{file ? translate('upload_photo') : translate('upload_photo')}</Typography>
+          <Typography variant="caption">
+            {file ? translate("upload_photo") : translate("upload_photo")}
+          </Typography>
         </StyledPlaceholder>
       </StyledDropZone>
 
       {helperText && helperText}
 
       <RejectionFiles fileRejections={fileRejections} />
-    </>
+    </React.Fragment>
   );
 }

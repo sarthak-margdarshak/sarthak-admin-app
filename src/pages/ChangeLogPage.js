@@ -29,6 +29,7 @@ import {
 import { Block } from "../sections/_examples/Block";
 // Cpmponents
 import Iconify from "../components/iconify/Iconify";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
@@ -95,7 +96,7 @@ const TIMELINES = [
 
 export default function ChangeLogPage() {
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Change Log | Sarthak Admin</title>
       </Helmet>
@@ -135,6 +136,6 @@ export default function ChangeLogPage() {
           </Timeline>
         </Block>
       </Container>
-    </>
+    </React.Fragment>
   );
 }

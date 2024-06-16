@@ -24,12 +24,13 @@ import Iconify from "../../components/iconify";
 import AuthNewPasswordForm from "../../sections/auth/AuthNewPasswordForm";
 // assets
 import { SentIcon } from "../../assets/icons";
+import React from "react";
 
 // ----------------------------------------------------------------------
 
 export default function NewPasswordPage() {
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> New Password | Sarthak Admin</title>
       </Helmet>
@@ -67,6 +68,6 @@ export default function NewPasswordPage() {
         <Iconify icon="eva:chevron-left-fill" width={16} />
         Return to sign in
       </Link>
-    </>
+    </React.Fragment>
   );
 }

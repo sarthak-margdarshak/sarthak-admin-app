@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { forwardRef, useCallback, useEffect, useState } from "react";
+import React, { forwardRef, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 // @mui
 import { styled, alpha } from "@mui/material/styles";
@@ -718,9 +718,9 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
 
   if (isLoadingData) {
     return (
-      <>
+      <React.Fragment>
         {inComingQuestionId && (
-          <>
+          <React.Fragment>
             <Divider>
               <Chip label="Meta Data Section" />
             </Divider>
@@ -746,7 +746,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
                 </Grid>
               </Grid>
             </Paper>
-          </>
+          </React.Fragment>
         )}
 
         <Divider>
@@ -805,7 +805,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
             </Grid>
           </Grid>
         </Paper>
-      </>
+      </React.Fragment>
     );
   }
 
@@ -814,9 +814,9 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
   }
 
   return (
-    <>
+    <React.Fragment>
       {inComingQuestionId && (
-        <>
+        <React.Fragment>
           <Divider>
             <Chip label="Meta Data Section" />
           </Divider>
@@ -885,7 +885,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
               </Grid>
             </Grid>
           </Paper>
-        </>
+        </React.Fragment>
       )}
 
       <Divider>
@@ -1761,7 +1761,7 @@ export default function QuestionNewCreateForm({ inComingQuestionId }) {
           </Grid>
         </Grid>
       </Paper>
-    </>
+    </React.Fragment>
   );
 }
 

@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
+import React, { useState } from "react";
 import { sentenceCase } from "change-case";
 // @mui
 import {
@@ -117,7 +117,7 @@ function AppNewInvoiceRow({ row }) {
   };
 
   return (
-    <>
+    <React.Fragment>
       <TableRow>
         <TableCell>{`INV-${row.id}`}</TableCell>
 
@@ -176,6 +176,6 @@ function AppNewInvoiceRow({ row }) {
           Delete
         </MenuItem>
       </MenuPopover>
-    </>
+    </React.Fragment>
   );
 }

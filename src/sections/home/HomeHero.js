@@ -13,7 +13,7 @@
 // IMPORT ---------------------------------------------------------------
 
 import { m, useScroll } from "framer-motion";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 // @mui
 import { styled, alpha } from "@mui/material/styles";
@@ -139,7 +139,7 @@ export default function HomeHero() {
   );
 
   return (
-    <>
+    <React.Fragment>
       <StyledRoot sx={{ ...(hide && { opacity: 0 }) }}>
         <Container component={MotionContainer} sx={{ height: 1 }}>
           <Grid container spacing={10} sx={{ height: 1 }}>
@@ -161,7 +161,7 @@ export default function HomeHero() {
       </StyledRoot>
 
       <Box sx={{ height: { md: "100vh" } }} />
-    </>
+    </React.Fragment>
   );
 }
 

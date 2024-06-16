@@ -29,7 +29,7 @@ import { Helmet } from "react-helmet-async";
 import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs/CustomBreadcrumbs";
 import { PATH_DASHBOARD } from "../../../../routes/paths";
 import { useSettingsContext } from "../../../../components/settings";
-import { forwardRef, useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import { Reorder } from "framer-motion";
 import ReactKatex from "@pkasila/react-katex";
 import Image from "../../../../components/image/Image";
@@ -221,7 +221,7 @@ export default function MockTestEditPage() {
   };
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title> Mock-Test: Edit</title>
       </Helmet>
@@ -831,6 +831,6 @@ export default function MockTestEditPage() {
           </Paper>
         </Dialog>
       </Container>
-    </>
+    </React.Fragment>
   );
 }
