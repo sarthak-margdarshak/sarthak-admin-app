@@ -12,9 +12,9 @@
 
 // IMPORT ---------------------------------------------------------------
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 // form
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -26,18 +26,25 @@ import Iconify from "../../components/iconify";
 import { useSnackbar } from "../../components/snackbar";
 import FormProvider, { RHFTextField } from "../../components/hook-form";
 import { appwriteAccount } from "../../auth/AppwriteContext";
+import { PATH_PAGE } from "../../routes/paths";
 
 // ----------------------------------------------------------------------
 
 export default function AuthNewPasswordForm() {
-  const navigate = useNavigate();
-
   const { enqueueSnackbar } = useSnackbar();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [resetSuccessful, setResetSuccessful] = useState(false);
   const [searchParams] = useSearchParams();
   const userId = searchParams.get("userId");
   const secret = searchParams.get("secret");
+
+  useEffect(() => {
+    const fun = async () => {
+      await appwriteAccount.deleteSessions();
+    };
+    fun();
+  }, [userId]);
 
   const VerifyCodeSchema = Yup.object().shape({
     password: Yup.string()
@@ -75,7 +82,7 @@ export default function AuthNewPasswordForm() {
         data.confirmPassword
       );
       enqueueSnackbar("Change password success!");
-      navigate(window.location.origin);
+      setResetSuccessful(true);
     } catch (error) {
       reset();
       setError("afterSubmit", {
@@ -83,6 +90,10 @@ export default function AuthNewPasswordForm() {
       });
     }
   };
+
+  if (resetSuccessful) {
+    return <Navigate to={PATH_PAGE.success} />;
+  }
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
