@@ -60,6 +60,7 @@ import { useAuthContext } from "../../../../auth/useAuthContext";
 import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import Image from "../../../../components/image";
+import PermissionDeniedComponent from "../../../../sections/_examples/PermissionDeniedComponent";
 
 const STEPS = ["Metadata", "Mock-Tests / Products", "Images", "Publish"];
 
@@ -175,6 +176,7 @@ export default function ProductEditPage() {
   const [productMRP, setProductMRP] = useState(0);
   const [productSellPrice, setProductSellPrice] = useState(0);
   const [creating, setCreating] = useState(false);
+  const [canEdit, setCanEdit] = useState(true);
   // TODO -
   // const [comingSoon, setComingSoon] = useState(false);
   // const [schedulePublish, setSchedulePublish] = useState(false);
@@ -189,6 +191,7 @@ export default function ProductEditPage() {
         APPWRITE_API.collections.products,
         id
       );
+      setCanEdit(!y?.published);
       setProductId(y?.productId);
       setProductName(y?.name);
       setDescription(y?.description);
@@ -377,6 +380,10 @@ export default function ProductEditPage() {
     setDeletedImage(x);
     setSavedImages(filesFiltered);
   };
+
+  if (!canEdit) {
+    return <PermissionDeniedComponent />;
+  }
 
   return (
     <React.Fragment>
