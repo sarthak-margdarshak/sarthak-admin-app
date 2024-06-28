@@ -48,6 +48,7 @@ import { useSnackbar } from "notistack";
 import { appwriteDatabases } from "../../../../auth/AppwriteContext";
 import { useAuthContext } from "../../../../auth/useAuthContext";
 import { useNavigate } from "react-router-dom";
+import PermissionDeniedComponent from "../../../../sections/_examples/PermissionDeniedComponent";
 
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -76,6 +77,7 @@ export default function MockTestEditPage() {
   const [level, setLevel] = useState("MEDIUM");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [canEdit, setCanEdit] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,6 +88,7 @@ export default function MockTestEditPage() {
           APPWRITE_API.collections.mockTest,
           id
         );
+        setCanEdit(!x?.published);
         var mtd_1 = await appwriteDatabases.listDocuments(
           APPWRITE_API.databaseId,
           APPWRITE_API.collections.mockTestDriver,
@@ -219,6 +222,10 @@ export default function MockTestEditPage() {
     }
     setSaving(false);
   };
+
+  if (!canEdit) {
+    return <PermissionDeniedComponent />;
+  }
 
   return (
     <React.Fragment>
