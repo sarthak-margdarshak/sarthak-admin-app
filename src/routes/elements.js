@@ -139,3 +139,9 @@ export const PrivacyAndPolicyPage = Loadable(
 export const TermsAndConditionsPage = Loadable(
   lazy(() => import("../pages/TermsAndConditionsPage"))
 );
+export const CancellationAndRefund = Loadable(
+  lazy(() => import("../pages/CancellationAndRefund"))
+);
+export const ShippingAndDelivery = Loadable(
+  lazy(() => import("../pages/ShippingAndDelivery"))
+);
