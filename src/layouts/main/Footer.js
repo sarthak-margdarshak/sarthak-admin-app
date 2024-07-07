@@ -58,6 +58,16 @@ const LINKS = [
         newTab: false,
       },
       { name: "Privacy Policy", href: PATH_PAGE.privacyPolicy, newTab: false },
+      {
+        name: "Cancellation and Refund",
+        href: PATH_PAGE.cancellationAndRefund,
+        newTab: false,
+      },
+      {
+        name: "Shipping And Delivery",
+        href: PATH_PAGE.shippingAndDelivery,
+        newTab: false,
+      },
     ],
   },
   {

@@ -62,10 +62,12 @@ import {
   MockTestViewPage,
   MockTestEditPage,
   ProductViewPage,
+  ProductNewPage,
+  ProductEditPage,
+  ProductListPage,
+  CancellationAndRefund,
+  ShippingAndDelivery,
 } from "./elements";
-import ProductNewPage from "../pages/dashboard/management/product/ProductNewPage";
-import ProductEditPage from "../pages/dashboard/management/product/ProductEditPage";
-import ProductListPage from "../pages/dashboard/management/product/ProductListPage";
 
 // ----------------------------------------------------------------------
 
@@ -187,6 +189,8 @@ export default function Router() {
         { path: "changelog", element: <ChangeLogPage /> },
         { path: "terms-and-conditions", element: <TermsAndConditionsPage /> },
         { path: "privacy-policy", element: <PrivacyAndPolicyPage /> },
+        { path: "cancellation-and-refund", element: <CancellationAndRefund /> },
+        { path: "shipping-and-delivery", element: <ShippingAndDelivery /> },
       ],
     },
 

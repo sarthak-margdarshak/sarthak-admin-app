@@ -48,6 +48,8 @@ export const PATH_PAGE = {
   changelog: "/changelog",
   termsAndConditions: "/terms-and-conditions",
   privacyPolicy: "/privacy-policy",
+  cancellationAndRefund: "/cancellation-and-refund",
+  shippingAndDelivery: "/shipping-and-delivery",
 };
 
 // ----------------------------------------------------------------------
