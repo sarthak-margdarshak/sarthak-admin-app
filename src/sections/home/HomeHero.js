@@ -224,7 +224,7 @@ function Description() {
           direction={{ xs: "column-reverse", sm: "row" }}
           sx={{ mb: 5 }}
         >
-          <Button
+          {/* <Button
             component={RouterLink}
             to="https://sarthakguidanceinstitute.ac.in/"
             color="inherit"
@@ -241,7 +241,7 @@ function Description() {
             }}
           >
             Student Web App
-          </Button>
+          </Button> */}
         </Stack>
       </m.div>
     </StyledDescription>
