@@ -38,11 +38,11 @@ const LINKS = [
   {
     headline: "Sarthak",
     children: [
-      {
-        name: "Student App",
-        href: "https://sarthakguidanceinstitute.ac.in",
-        newTab: true,
-      },
+      // {
+      //   name: "Student App",
+      //   href: "https://sarthakguidanceinstitute.ac.in",
+      //   newTab: true,
+      // },
       { name: "About us", href: PATH_PAGE.about, newTab: false },
       { name: "Contact us", href: PATH_PAGE.contact, newTab: false },
       { name: "FAQs", href: PATH_PAGE.faqs, newTab: false },
@@ -125,7 +125,7 @@ export default function Footer() {
               Engineering department of this insitute.
             </Typography>
 
-            <Stack
+            {/* <Stack
               spacing={1}
               direction="row"
               justifyContent={{ xs: "center", md: "flex-start" }}
@@ -139,7 +139,7 @@ export default function Footer() {
                   <Iconify icon={social.icon} />
                 </IconButton>
               ))}
-            </Stack>
+            </Stack> */}
           </Grid>
 
           <Grid item xs={12} md={7}>
