@@ -14,18 +14,9 @@
 
 import { m, useScroll } from "framer-motion";
 import React, { useEffect, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
 // @mui
 import { styled, alpha } from "@mui/material/styles";
-import {
-  Button,
-  Box,
-  Container,
-  Typography,
-  Stack,
-  Grid,
-  Rating,
-} from "@mui/material";
+import { Box, Container, Typography, Stack, Grid, Rating } from "@mui/material";
 // hooks
 import useResponsive from "../../hooks/useResponsive";
 // utils
@@ -33,7 +24,6 @@ import { textGradient, bgGradient } from "../../utils/cssStyles";
 // config
 import { HEADER } from "../../config-global";
 // components
-import Iconify from "../../components/iconify";
 import { MotionContainer, varFade } from "../../components/animate";
 
 // ----------------------------------------------------------------------
