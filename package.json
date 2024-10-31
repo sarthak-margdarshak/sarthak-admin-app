@@ -1,6 +1,6 @@
 {
-  "name": "sarthak-admin",
-  "version": "0.2.0",
+  "name": "sarthak-admin-app",
+  "version": "0.2.1",
   "private": true,
   "homepage": "https://admin.sarthakmargdarshak.in",
   "dependencies": {
@@ -78,13 +78,15 @@
     "stylis-plugin-rtl": "^2.1.1",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4",
+    "win-node-env": "^0.6.1",
     "worker-loader": "^3.0.8",
     "yet-another-react-lightbox": "^3.9.0",
     "yup": "^1.1.1"
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
+    "build:dev": "NODE_ENV=development react-app-rewired build",
+    "build:prod": "NODE_ENV=production react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject",
     "lint": "eslint --ext .js,.jsx .",
