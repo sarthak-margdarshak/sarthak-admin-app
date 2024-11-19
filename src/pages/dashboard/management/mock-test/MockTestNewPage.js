@@ -203,7 +203,7 @@ export default function MockTestNewPage() {
           questions: questions,
           mockTestDriverId: mockTestDriverId,
           mtId: id,
-          duration: duration,
+          duration: parseInt(duration),
           level: level,
           createdBy: userProfile.$id,
           updatedBy: userProfile.$id,
