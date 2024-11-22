@@ -56,7 +56,10 @@ export default function AuthResetPasswordForm() {
         data.email,
         window.location.origin + PATH_AUTH.newPassword
       );
-      enqueueSnackbar("Email sent successfully!!!");
+      enqueueSnackbar(
+        "We have sent you a link on your email id. Reset your password by clicking on it!!!",
+        { variant: "success" }
+      );
     } catch (error) {
       enqueueSnackbar(error.message, { variant: "error" });
     }

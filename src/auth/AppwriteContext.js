@@ -29,6 +29,7 @@ import {
   Functions,
   ID,
   Permission,
+  Query,
   Role,
   Storage,
   Teams,
@@ -58,6 +59,7 @@ const initialState = {
   login: async () => {},
   logout: () => {},
   updateUserProfile: () => {},
+  acceptInvite: () => {},
 };
 
 const reducer = (state, action) => {
@@ -96,6 +98,15 @@ const reducer = (state, action) => {
   if (action.type === "UPDATE_USER_PROFILE") {
     return {
       ...state,
+      profileImage: action.payload.profileImage,
+      userProfile: action.payload.userProfile,
+    };
+  }
+  if (action.type === "ACCEPT_INVITE") {
+    return {
+      ...state,
+      isAuthenticated: action.payload.isAuthenticated,
+      user: action.payload.user,
       profileImage: action.payload.profileImage,
       userProfile: action.payload.userProfile,
     };
@@ -194,6 +205,21 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(
     async (email, password) => {
+      const isAdminUser =
+        (
+          await appwriteDatabases.listDocuments(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.adminUsers,
+            [Query.equal("email", email)]
+          )
+        ).total === 1;
+      if (!isAdminUser) {
+        return {
+          success: false,
+          message:
+            "Unauthorised Login Attempt. Please contact administrator on support@sarthakmargdarshak.in",
+        };
+      }
       const sarthak = await appwriteDatabases.getDocument(
         APPWRITE_API.databaseId,
         APPWRITE_API.collections.sarthakInfoData,
@@ -208,7 +234,11 @@ export function AuthProvider({ children }) {
         );
         if (adminTeams.length !== 1) {
           appwriteAccount.deleteSessions();
-          return { success: false, message: "Unauthorised login attempt." };
+          return {
+            success: false,
+            message:
+              "Unauthorised login attempt. Please contact administrator on support@sarthakmargdarshak.in",
+          };
         }
         var adminUserProfile = null;
         try {
@@ -318,6 +348,111 @@ export function AuthProvider({ children }) {
     [state]
   );
 
+  const acceptInvite = useCallback(
+    async (userId, teamId, membershipId, secret) => {
+      try {
+        await appwriteTeams.updateMembershipStatus(
+          teamId,
+          membershipId,
+          userId,
+          secret
+        );
+
+        const user = await appwriteAccount.get();
+
+        const isAdminUser =
+          (
+            await appwriteDatabases.listDocuments(
+              APPWRITE_API.databaseId,
+              APPWRITE_API.collections.adminUsers,
+              [Query.equal("email", user.email)]
+            )
+          ).total === 1;
+
+        if (!isAdminUser && state?.sarthakInfoData?.adminTeamId === teamId) {
+          const totalUser =
+            (
+              await appwriteDatabases.listDocuments(
+                APPWRITE_API.databaseId,
+                APPWRITE_API.collections.adminUsers,
+                [Query.limit(1), Query.offset(1)]
+              )
+            ).total + 1;
+          var currentEmpId = "EMP";
+          if (totalUser.toString().length === 1) {
+            currentEmpId += "000" + totalUser.toString();
+          } else if (totalUser.toString().length === 2) {
+            currentEmpId += "00" + totalUser.toString();
+          } else if (totalUser.toString().length === 3) {
+            currentEmpId += "0" + totalUser.toString();
+          } else if (totalUser.toString().length === 4) {
+            currentEmpId += totalUser.toString();
+          }
+
+          await appwriteDatabases.createDocument(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.adminUsers,
+            userId,
+            {
+              name: user.name,
+              email: user.email,
+              phoneNumber: user.phone,
+              empId: currentEmpId,
+            }
+          );
+        }
+
+        var adminUserProfile = null;
+        try {
+          adminUserProfile = await appwriteDatabases.getDocument(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.adminUsers,
+            user.$id
+          );
+        } catch (error) {}
+        var profileImage = null;
+        if (adminUserProfile?.photoUrl) {
+          profileImage = appwriteStorage.getFilePreview(
+            APPWRITE_API.buckets.adminUserImage,
+            adminUserProfile?.photoUrl,
+            undefined,
+            undefined,
+            undefined,
+            20
+          ).href;
+        }
+
+        dispatch({
+          type: "ACCEPT_INVITE",
+          payload: {
+            isAuthenticated: true,
+            user: user,
+            profileImage: profileImage,
+            userProfile: adminUserProfile,
+          },
+        });
+        return {
+          success: true,
+        };
+      } catch (error) {
+        dispatch({
+          type: "ACCEPT_INVITE",
+          payload: {
+            isAuthenticated: false,
+            user: null,
+            profileImage: null,
+            userProfile: null,
+          },
+        });
+        return {
+          success: false,
+          message: error.message,
+        };
+      }
+    },
+    [state?.sarthakInfoData]
+  );
+
   const memoizedValue = useMemo(
     () => ({
       isInitialized: state.isInitialized,
@@ -332,6 +467,7 @@ export function AuthProvider({ children }) {
       logout,
       //update functions
       updateUserProfile,
+      acceptInvite,
     }),
     [
       state.isInitialized,
@@ -344,6 +480,7 @@ export function AuthProvider({ children }) {
       login,
       logout,
       updateUserProfile,
+      acceptInvite,
     ]
   );
 

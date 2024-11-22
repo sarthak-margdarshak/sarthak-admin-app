@@ -10,18 +10,17 @@
  *
  */
 
-import { useSearchParams, Navigate } from "react-router-dom";
-import {
-  appwriteAccount,
-  appwriteDatabases,
-  appwriteTeams,
-} from "../../auth/AppwriteContext";
-import { useEffect, useState } from "react";
+import { useSearchParams, Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import { PATH_PAGE } from "../../routes/paths";
-import LoadingScreen from "../../components/loading-screen/LoadingScreen";
-import { APPWRITE_API } from "../../config-global";
-import { Query } from "appwrite";
 import { useAuthContext } from "../../auth/useAuthContext";
+import { Helmet } from "react-helmet-async";
+import { EmailInboxIcon } from "../../assets/icons";
+import { Typography } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { Link as RouterLink } from "react-router-dom";
+import { useSnackbar } from "notistack";
+import PageMotivation from "../PageMotivation";
 
 export default function AcceptInvite() {
   const [searchParams] = useSearchParams();
@@ -30,68 +29,85 @@ export default function AcceptInvite() {
   const secret = searchParams.get("secret");
   const teamId = searchParams.get("teamId");
 
-  const { sarthakInfoData } = useAuthContext();
+  const { acceptInvite } = useAuthContext();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [status, setStatus] = useState(0);
+  const [acceptingInvite, setAcceptingInvite] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await appwriteAccount.deleteSessions();
-        await appwriteTeams.updateMembershipStatus(
-          teamId,
-          membershipId,
-          userId,
-          secret
-        );
-
-        if (sarthakInfoData?.adminTeamId === teamId) {
-          const totalUser =
-            (
-              await appwriteDatabases.listDocuments(
-                APPWRITE_API.databaseId,
-                APPWRITE_API.collections.adminUsers,
-                [Query.limit(1), Query.offset(1)]
-              )
-            ).total + 1;
-          var currentEmpId = "EMP";
-          if (totalUser.toString().length === 1) {
-            currentEmpId += "000" + totalUser.toString();
-          } else if (totalUser.toString().length === 2) {
-            currentEmpId += "00" + totalUser.toString();
-          } else if (totalUser.toString().length === 3) {
-            currentEmpId += "0" + totalUser.toString();
-          } else if (totalUser.toString().length === 4) {
-            currentEmpId += totalUser.toString();
-          }
-
-          const user = await appwriteAccount.get();
-
-          await appwriteDatabases.createDocument(
-            APPWRITE_API.databaseId,
-            APPWRITE_API.collections.adminUsers,
-            userId,
-            {
-              name: user.name,
-              email: user.email,
-              phoneNumber: user.phone,
-              empId: currentEmpId,
-            }
-          );
-        }
-        setStatus(1);
-      } catch (error) {
-        setStatus(-1);
-      }
-    };
+    const fetchData = async () => {};
     fetchData();
-  }, [membershipId, userId, secret, teamId, sarthakInfoData?.adminTeamId]);
+  }, [userId]);
 
-  if (status === 0) {
-    return <LoadingScreen />;
-  } else if (status === 1) {
-    return <Navigate to={PATH_PAGE.success} />;
-  } else {
-    return <Navigate to={PATH_PAGE.page410} />;
-  }
+  const startAcceptInvite = async () => {
+    setAcceptingInvite(true);
+    const res = await acceptInvite(userId, teamId, membershipId, secret);
+    if (res?.success) {
+      setStatus(1);
+    } else {
+      enqueueSnackbar(res?.message, { variant: "error" });
+    }
+    setAcceptingInvite(false);
+  };
+
+  return (
+    <React.Fragment>
+      <Helmet>
+        <title> Accept Invite | Sarthak Admin</title>
+      </Helmet>
+
+      <EmailInboxIcon sx={{ mb: 5, height: 96 }} />
+
+      {status === 1 ? (
+        <PageMotivation />
+      ) : (
+        <React.Fragment>
+          <Typography variant="h3" paragraph>
+            Excited to contribute to Sarthak Margdarshak?
+          </Typography>
+
+          {/* <Typography sx={{ color: "text.secondary", mb: 5 }}>
+            Hey, RITESH RANJAN
+          </Typography> */}
+
+          <Typography sx={{ color: "text.secondary", mb: 5 }}>
+            Please click below to accept invite to join Sarthak Margdarshak
+            team.
+          </Typography>
+
+          <Typography sx={{ color: "text.secondary", mb: 5 }}>
+            By clicking below button, you will agree to{" "}
+            <Link
+              to={PATH_PAGE.termsAndConditions}
+              target="_blank"
+              component={RouterLink}
+            >
+              terms and conditions
+            </Link>{" "}
+            provided by us. Please read the{" "}
+            <Link
+              to={PATH_PAGE.termsAndConditions}
+              target="_blank"
+              component={RouterLink}
+            >
+              terms and conditions
+            </Link>{" "}
+            carefully before joining us.
+          </Typography>
+
+          <LoadingButton
+            fullWidth
+            size="large"
+            variant="contained"
+            loading={acceptingInvite}
+            onClick={startAcceptInvite}
+            sx={{ mt: 3 }}
+          >
+            Accept Invite
+          </LoadingButton>
+        </React.Fragment>
+      )}
+    </React.Fragment>
+  );
 }

@@ -35,21 +35,12 @@ export const PATH_AUTH = {
 export const PATH_PAGE = {
   comingSoon: "/coming-soon",
   maintenance: "/maintenance",
-  pricing: "/pricing",
-  payment: "/payment",
-  about: "/about-us",
-  contact: "/contact-us",
-  faqs: "/faqs",
+  termsAndConditions: "/terms-and-conditions",
   page403: "/403",
   page404: "/404",
   page410: "/410",
   page500: "/500",
   success: "/success",
-  changelog: "/changelog",
-  termsAndConditions: "/terms-and-conditions",
-  privacyPolicy: "/privacy-policy",
-  cancellationAndRefund: "/cancellation-and-refund",
-  shippingAndDelivery: "/shipping-and-delivery",
 };
 
 // ----------------------------------------------------------------------

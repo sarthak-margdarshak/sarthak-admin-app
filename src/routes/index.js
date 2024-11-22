@@ -16,8 +16,6 @@ import { Navigate, useRoutes } from "react-router-dom";
 // auth
 import AuthGuard from "../auth/AuthGuard";
 import GuestGuard from "../auth/GuestGuard";
-// layouts
-import MainLayout from "../layouts/main";
 import CompactLayout from "../layouts/compact";
 import DashboardLayout from "../layouts/dashboard";
 // config
@@ -48,15 +46,8 @@ import {
   Page404,
   Page410,
   PageMotivation,
-  HomePage,
-  FaqsPage,
-  AboutPage,
-  Contact,
   ComingSoonPage,
   MaintenancePage,
-  ChangeLogPage,
-  PrivacyAndPolicyPage,
-  TermsAndConditionsPage,
   MockTestDriverListPage,
   MockTestNewPage,
   MockTestViewPage,
@@ -65,14 +56,14 @@ import {
   ProductNewPage,
   ProductEditPage,
   ProductListPage,
-  CancellationAndRefund,
-  ShippingAndDelivery,
 } from "./elements";
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
   return useRoutes([
+    { path: "/", element: <Navigate to="/dashboard" replace /> },
+
     // Auth
     {
       path: "auth",
@@ -175,22 +166,6 @@ export default function Router() {
             { path: "list", element: <ProductListPage /> },
           ],
         },
-      ],
-    },
-
-    // Main Routes
-    {
-      element: <MainLayout />,
-      children: [
-        { element: <HomePage />, index: true },
-        { path: "about-us", element: <AboutPage /> },
-        { path: "contact-us", element: <Contact /> }, // ERROR
-        { path: "faqs", element: <FaqsPage /> },
-        { path: "changelog", element: <ChangeLogPage /> },
-        { path: "terms-and-conditions", element: <TermsAndConditionsPage /> },
-        { path: "privacy-policy", element: <PrivacyAndPolicyPage /> },
-        { path: "cancellation-and-refund", element: <CancellationAndRefund /> },
-        { path: "shipping-and-delivery", element: <ShippingAndDelivery /> },
       ],
     },
 

@@ -12,7 +12,7 @@
 
 // IMPORT ---------------------------------------------------------------
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import * as Yup from "yup";
 import { Navigate, useSearchParams } from "react-router-dom";
 // form
@@ -38,13 +38,6 @@ export default function AuthNewPasswordForm() {
   const [searchParams] = useSearchParams();
   const userId = searchParams.get("userId");
   const secret = searchParams.get("secret");
-
-  useEffect(() => {
-    const fun = async () => {
-      await appwriteAccount.deleteSessions();
-    };
-    fun();
-  }, [userId]);
 
   const VerifyCodeSchema = Yup.object().shape({
     password: Yup.string()
