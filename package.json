@@ -1,6 +1,6 @@
 {
   "name": "sarthak-admin-app",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "private": true,
   "homepage": "https://admin.sarthakmargdarshak.in",
   "dependencies": {
