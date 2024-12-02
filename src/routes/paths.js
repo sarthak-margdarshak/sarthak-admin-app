@@ -74,6 +74,7 @@ export const PATH_DASHBOARD = {
     view: (id) => path(ROOTS_DASHBOARD, `/mock-test/${id}`),
     edit: (id) => path(ROOTS_DASHBOARD, `/mock-test/${id}/edit`),
     driver: path(ROOTS_DASHBOARD, "/mock-test/driver"),
+    list: (id) => path(ROOTS_DASHBOARD, `/mock-test/driver/${id}`),
   },
   product: {
     root: path(ROOTS_DASHBOARD, "/product"),
