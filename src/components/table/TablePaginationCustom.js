@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 // @mui
-import { Box, TablePagination } from '@mui/material';
+import { Box, TablePagination } from "@mui/material";
 
 // ----------------------------------------------------------------------
 
@@ -10,13 +10,17 @@ TablePaginationCustom.propTypes = {
 };
 
 export default function TablePaginationCustom({
-  rowsPerPageOptions = [5, 10, 25],
+  rowsPerPageOptions = [5, 10, 25, 50, 100],
   sx,
   ...other
 }) {
   return (
-    <Box sx={{ position: 'relative', ...sx }}>
-      <TablePagination rowsPerPageOptions={rowsPerPageOptions} component="div" {...other} />
+    <Box sx={{ position: "relative", ...sx }}>
+      <TablePagination
+        rowsPerPageOptions={rowsPerPageOptions}
+        component="div"
+        {...other}
+      />
     </Box>
   );
 }
