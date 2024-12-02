@@ -88,6 +88,13 @@ export const MockTestDriverListPage = Loadable(
     )
   )
 );
+export const MockTestDriverViewPage = Loadable(
+  lazy(() =>
+    import(
+      "../pages/dashboard/management/mock-test/driver/MockTestDriverViewPage"
+    )
+  )
+);
 export const MockTestNewPage = Loadable(
   lazy(() => import("../pages/dashboard/management/mock-test/MockTestNewPage"))
 );
