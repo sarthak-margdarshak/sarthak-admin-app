@@ -38,8 +38,6 @@ import { useSettingsContext } from "../../../../components/settings";
 import CustomBreadcrumbs from "../../../../components/custom-breadcrumbs";
 import Iconify from "../../../../components/iconify/Iconify";
 import { useSnackbar } from "../../../../components/snackbar";
-// locales
-import { useLocales } from "../../../../locales";
 // auth
 import { useAuthContext } from "../../../../auth/useAuthContext";
 import {
@@ -72,7 +70,6 @@ export default function TeamListPage() {
   const { themeStretch } = useSettingsContext();
   const { enqueueSnackbar } = useSnackbar();
   const { userProfile } = useAuthContext();
-  const { translate } = useLocales();
   const [createTeam, setCreateTeam] = useState(false);
   const [myTeam, setMyTeam] = useState([]);
   const [update, setUpdate] = useState(true);
@@ -127,7 +124,7 @@ export default function TeamListPage() {
         <CustomBreadcrumbs
           heading="Teams"
           links={[
-            { name: translate("dashboard"), href: PATH_DASHBOARD.root },
+            { name: "Dashboard", href: PATH_DASHBOARD.root },
             { name: "Teams" },
           ]}
           action={

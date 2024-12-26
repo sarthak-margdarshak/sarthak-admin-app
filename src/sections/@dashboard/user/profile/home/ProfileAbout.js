@@ -26,8 +26,6 @@ import {
 } from "@mui/material";
 // components
 import Iconify from "../../../../../components/iconify";
-// locales
-import { useLocales } from "../../../../../locales";
 import { useAuthContext } from "../../../../../auth/useAuthContext";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
 import React from "react";
@@ -65,13 +63,12 @@ export default function ProfileAbout({
   company,
   school,
 }) {
-  const { translate } = useLocales();
   const { user } = useAuthContext();
 
   return (
     <Card>
       <CardHeader
-        title={translate("about")}
+        title="About"
         action={
           userId === user?.$id ? (
             <IconButton
@@ -94,7 +91,7 @@ export default function ProfileAbout({
           <StyledIcon icon="eva:pin-fill" />
 
           <Typography variant="body2">
-            {translate("live_at") + " : "} &nbsp;
+            Live at : &nbsp;
             <Link component="span" variant="subtitle2" color="text.primary">
               {country}
             </Link>
@@ -121,7 +118,7 @@ export default function ProfileAbout({
           <StyledIcon icon="material-symbols:school" />
 
           <Typography variant="body2">
-            {translate("studied_at") + " : "} &nbsp;
+            Studied At : &nbsp;
             <Link component="span" variant="subtitle2" color="text.primary">
               {school}
             </Link>

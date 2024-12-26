@@ -18,14 +18,11 @@ import { Stack } from "@mui/material";
 import ProfileAbout from "./ProfileAbout";
 import ProfileTaskInfo from "./ProfileTaskInfo";
 import ProfileSocialInfo from "./ProfileSocialInfo";
-// locales
-import { useLocales } from "../../../../../locales";
 import { useAuthContext } from "../../../../../auth/useAuthContext";
 
 // ----------------------------------------------------------------------
 
 export default function Profile({ userId, infoProfile, team, question }) {
-  const { translate } = useLocales();
   const { user } = useAuthContext();
 
   return (
@@ -46,7 +43,7 @@ export default function Profile({ userId, infoProfile, team, question }) {
         }
         email={infoProfile?.email}
         role={infoProfile?.designation}
-        company={translate("sarthak_guidance_institute")}
+        company="Sarthak Guidance Institute"
         school={infoProfile?.schoolCollege}
       />
 

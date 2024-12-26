@@ -38,18 +38,14 @@ import { useSnackbar } from "notistack";
 import {
   appwriteDatabases,
   appwriteFunctions,
+  timeAgo,
 } from "../../../../auth/AppwriteContext";
 import { Link as RouterLink } from "react-router-dom";
 import { useAuthContext } from "../../../../auth/useAuthContext";
 import { LoadingButton } from "@mui/lab";
 import PermissionDeniedComponent from "../../../../sections/_examples/PermissionDeniedComponent";
 import { Question } from "../../../../auth/Question";
-import TimeAgo from "javascript-time-ago";
-import en from "javascript-time-ago/locale/en";
 import { SarthakUserDisplayUI } from "../../../../sections/@dashboard/user/profile";
-
-TimeAgo.addDefaultLocale(en);
-const timeAgo = new TimeAgo("en-US");
 
 export default function MockTestViewPage() {
   const id = window.location.pathname.split("/")[3];

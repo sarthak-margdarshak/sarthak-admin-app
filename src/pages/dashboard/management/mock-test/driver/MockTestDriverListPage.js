@@ -163,7 +163,7 @@ export default function MockTestDriverListPage() {
             }
             onRowsPerPageChange={(event) =>
               navigate(
-                PATH_DASHBOARD.product.list +
+                PATH_DASHBOARD.mockTest.driver +
                   "?page=0&row=" +
                   event.target.value
               )

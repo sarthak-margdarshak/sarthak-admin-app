@@ -25,8 +25,6 @@ import { useSnackbar } from "../../../../components/snackbar";
 import FormProvider, { RHFTextField } from "../../../../components/hook-form";
 // Auth
 import { useAuthContext } from "../../../../auth/useAuthContext";
-// locales
-import { useLocales } from "../../../../locales";
 
 // ----------------------------------------------------------------------
 
@@ -53,25 +51,24 @@ const SOCIAL_LINKS = [
 
 export default function AccountSocialLinks() {
   const { enqueueSnackbar } = useSnackbar();
-  const { translate } = useLocales();
   const { userProfile, updateUserProfile } = useAuthContext();
 
   const UpdateUserSchema = Yup.object().shape({
     facebookId: Yup.string().matches(
       /^(http:\/\/|https:\/\/)?(?:www\.)?facebook\.com\/(?:(?:\w\.)*#!\/)?(?:pages\/)?(?:[\w\-.]*\/)*([\w\-.]*)|^$/,
-      translate("invalid_fb")
+      "Invalid Facebook URL"
     ),
     instagramId: Yup.string().matches(
       /(?:(?:http|https):\/\/)?(?:www.)?(?:instagram.com|instagr.am|instagr.com)\/(\w+)|^$/,
-      translate("invalid_insta")
+      "Invalid Instagram URL"
     ),
     linkedinId: Yup.string().matches(
       /^(http(s)?:\/\/)?([\w]+\.)?linkedin\.com\/(pub|in|profile)|^$/,
-      translate("invalid_linked")
+      "Invalid LinkedIn URL"
     ),
     twitterId: Yup.string().matches(
       /(?:https?:)?\/\/(?:www\.|m\.)?twitter\.com\/(\w{2,15})\/?(?:\?\S+)?(?:#\S+)?$|^$/,
-      translate("invalid_twit")
+      "Invalid Twitter URL"
     ),
   });
 
@@ -98,7 +95,7 @@ export default function AccountSocialLinks() {
         linkedinId: data.linkedinId || null,
         twitterId: data.twitterId || null,
       });
-      enqueueSnackbar(translate("update_success") + " !!!", {
+      enqueueSnackbar("Update success!!!", {
         variant: "success",
       });
     } catch (error) {
@@ -128,7 +125,7 @@ export default function AccountSocialLinks() {
             variant="contained"
             loading={isSubmitting}
           >
-            {translate("save_changes")}
+            Save Changes
           </LoadingButton>
         </Stack>
       </Card>

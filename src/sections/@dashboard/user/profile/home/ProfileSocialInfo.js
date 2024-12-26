@@ -19,8 +19,6 @@ import { Link, Card, CardHeader, Stack, IconButton } from "@mui/material";
 import { _socials } from "../../../../../_mock/arrays";
 // components
 import Iconify from "../../../../../components/iconify";
-// locales
-import { useLocales } from "../../../../../locales";
 import { useAuthContext } from "../../../../../auth/useAuthContext";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
 import React from "react";
@@ -28,13 +26,12 @@ import React from "react";
 // ----------------------------------------------------------------------
 
 export default function ProfileSocialInfo({ userId, infoProfile }) {
-  const { translate } = useLocales();
   const { user } = useAuthContext();
 
   return (
     <Card>
       <CardHeader
-        title={translate("social")}
+        title="Social"
         action={
           userId === user?.$id ? (
             <IconButton

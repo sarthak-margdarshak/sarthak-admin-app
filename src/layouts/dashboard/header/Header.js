@@ -29,7 +29,6 @@ import Iconify from "../../../components/iconify";
 import { useSettingsContext } from "../../../components/settings";
 //
 import AccountPopover from "./AccountPopover";
-import LanguagePopover from "./LanguagePopover";
 import SvgColor from "../../../components/svg-color/SvgColor";
 import React from "react";
 
@@ -71,10 +70,6 @@ export default function Header({ onOpenNav }) {
         justifyContent="flex-end"
         spacing={{ xs: 0.5, sm: 1.5 }}
       >
-        <LanguagePopover />
-
-        {/* <NotificationsPopover /> */}
-
         <IconButton
           color={themeMode === "dark" ? "warning" : "default"}
           onClick={onToggleMode}

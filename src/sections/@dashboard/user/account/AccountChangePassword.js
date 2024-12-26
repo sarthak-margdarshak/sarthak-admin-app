@@ -25,38 +25,23 @@ import { useSnackbar } from "../../../../components/snackbar";
 import FormProvider, { RHFTextField } from "../../../../components/hook-form";
 // Auth
 import { useAuthContext } from "../../../../auth/useAuthContext";
-// locales
-import { useLocales } from "../../../../locales";
 import { appwriteAccount } from "../../../../auth/AppwriteContext";
 
 // ----------------------------------------------------------------------
 
 export default function AccountChangePassword() {
   const { enqueueSnackbar } = useSnackbar();
-  const { translate } = useLocales();
 
   const { user } = useAuthContext();
 
   const ChangePassWordSchema = Yup.object().shape({
-    oldPassword: Yup.string().required(
-      translate("old") +
-        " " +
-        translate("password") +
-        " " +
-        translate("is_required")
-    ),
+    oldPassword: Yup.string().required("Old Password is required"),
     newPassword: Yup.string()
-      .min(8, translate("password_8_char"))
-      .required(
-        translate("new") +
-          " " +
-          translate("password") +
-          " " +
-          translate("is_required")
-      ),
+      .min(8, "Password must be at least 8 characters.")
+      .required("New Password is required"),
     confirmNewPassword: Yup.string().oneOf(
       [Yup.ref("newPassword"), null],
-      translate("password_match")
+      "Passwords must match."
     ),
   });
 
@@ -83,7 +68,7 @@ export default function AccountChangePassword() {
     try {
       await appwriteAccount.updatePassword(data.newPassword, data.oldPassword);
       reset();
-      enqueueSnackbar(translate("update_success") + " !!!", {
+      enqueueSnackbar("Update Success !!!", {
         variant: "success",
       });
     } catch (error) {
@@ -103,27 +88,22 @@ export default function AccountChangePassword() {
             <Alert severity="error">{errors.afterSubmit.message}</Alert>
           )}
 
-          <RHFTextField
-            name="email"
-            type="email"
-            label={translate("email")}
-            disabled
-          />
+          <RHFTextField name="email" type="email" label="Email" disabled />
 
           <RHFTextField
             name="oldPassword"
             type="password"
-            label={translate("old") + " " + translate("password")}
+            label="Old Password"
           />
 
           <RHFTextField
             name="newPassword"
             type="password"
-            label={translate("new") + " " + translate("password")}
+            label="New Password"
             helperText={
               <Stack component="span" direction="row" alignItems="center">
                 <Iconify icon="eva:info-fill" width={16} sx={{ mr: 0.5 }} />{" "}
-                {translate("password_8_char")}
+                Password must be at least 8 characters.
               </Stack>
             }
           />
@@ -131,7 +111,7 @@ export default function AccountChangePassword() {
           <RHFTextField
             name="confirmNewPassword"
             type="password"
-            label={translate("password_confirm")}
+            label="Confirm New Password"
           />
 
           <LoadingButton
@@ -139,7 +119,7 @@ export default function AccountChangePassword() {
             variant="contained"
             loading={isSubmitting}
           >
-            {translate("save_changes")}
+            Save Changes
           </LoadingButton>
         </Stack>
       </Card>

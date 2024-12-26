@@ -1,30 +1,26 @@
 /**
  * Written By - Ritesh Ranjan
  * Website - https://sagittariusk2.github.io/
- * 
+ *
  *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
  * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
  *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
  *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
  *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- * 
+ *
  */
 
 // IMPORT ---------------------------------------------------------------
 
 // @mui
-import { Stack, Typography, Box } from '@mui/material';
+import { Stack, Typography, Box } from "@mui/material";
 // auth
-import { useAuthContext } from '../../../auth/useAuthContext';
-// locales
-import { useLocales } from '../../../locales';
+import { useAuthContext } from "../../../auth/useAuthContext";
 
 // ----------------------------------------------------------------------
 
 export default function NavDocs() {
   const { user } = useAuthContext();
-
-  const { translate } = useLocales();
 
   return (
     <Stack
@@ -34,15 +30,15 @@ export default function NavDocs() {
         pb: 5,
         mt: 10,
         width: 1,
-        display: 'block',
-        textAlign: 'center',
+        display: "block",
+        textAlign: "center",
       }}
     >
       <Box component="img" src="/assets/illustrations/illustration_docs.svg" />
 
       <div>
         <Typography gutterBottom variant="subtitle1">
-          {`${translate('hi')}, ${user?.name}`}
+          {`Hi, ${user?.name}`}
         </Typography>
       </div>
     </Stack>

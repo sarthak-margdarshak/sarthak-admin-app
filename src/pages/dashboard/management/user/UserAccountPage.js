@@ -31,8 +31,6 @@ import {
   AccountPermissions,
   AccountChangePassword,
 } from "../../../../sections/@dashboard/user/account";
-// locales
-import { useLocales } from "../../../../locales";
 
 // ----------------------------------------------------------------------
 
@@ -46,20 +44,18 @@ export default function UserAccountPage() {
     urlParams.has("tab") ? urlParams.get("tab") : "general"
   );
 
-  const { translate } = useLocales();
-
   const { user } = useAuthContext();
 
   const TABS = [
     {
       value: "general",
-      label: translate("general"),
+      label: "General",
       icon: <Iconify icon="ic:round-account-box" />,
       component: <AccountGeneral />,
     },
     {
       value: "permissions",
-      label: translate("permission"),
+      label: "Permission",
       icon: (
         <Iconify icon="streamline:computer-desktop-block-desktop-device-display-disable-permission-computer" />
       ),
@@ -67,13 +63,13 @@ export default function UserAccountPage() {
     },
     {
       value: "social_links",
-      label: translate("social_links"),
+      label: "Social Links",
       icon: <Iconify icon="eva:share-fill" />,
       component: <AccountSocialLinks />,
     },
     {
       value: "change_password",
-      label: translate("change_password"),
+      label: "Change Password",
       icon: <Iconify icon="ic:round-vpn-key" />,
       component: <AccountChangePassword />,
     },
@@ -87,11 +83,11 @@ export default function UserAccountPage() {
 
       <Container maxWidth={themeStretch ? false : "lg"}>
         <CustomBreadcrumbs
-          heading={translate("account")}
+          heading="account"
           links={[
-            { name: translate("dashboard"), href: PATH_DASHBOARD.root },
+            { name: "Dashboard", href: PATH_DASHBOARD.root },
             { name: user?.name, href: PATH_DASHBOARD.user.profile(user?.$id) },
-            { name: translate("account_settings") },
+            { name: "Account Settings" },
           ]}
         />
 

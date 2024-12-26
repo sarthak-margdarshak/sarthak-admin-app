@@ -24,6 +24,7 @@ export const APPWRITE_API = {
   databaseId: process.env.REACT_APP_APPWRITE_SARTHAK_DATABASE,
   collections: {
     adminUsers: process.env.REACT_APP_APPWRITE_COLLECTION_ADMIN_USERS,
+    bookIndex: process.env.REACT_APP_APPWRITE_COLLECTION_BOOK_INDEX,
     chapters: process.env.REACT_APP_APPWRITE_COLLECTION_CHAPTERS,
     concepts: process.env.REACT_APP_APPWRITE_COLLECTION_CONCEPTS,
     mockTest: process.env.REACT_APP_APPWRITE_COLLECTION_MOCKTEST,

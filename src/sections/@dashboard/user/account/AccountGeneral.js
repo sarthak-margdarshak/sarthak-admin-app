@@ -33,14 +33,11 @@ import FormProvider, {
   RHFTextField,
   RHFUploadAvatar,
 } from "../../../../components/hook-form";
-// locales
-import { useLocales } from "../../../../locales";
 
 // ----------------------------------------------------------------------
 
 export default function AccountGeneral() {
   const { enqueueSnackbar } = useSnackbar();
-  const { translate } = useLocales();
 
   const { user, userProfile, profileImage, updateUserProfile } =
     useAuthContext();
@@ -48,47 +45,19 @@ export default function AccountGeneral() {
   const [photoFile, setPhotoFile] = useState();
 
   const UpdateUserSchema = Yup.object().shape({
-    name: Yup.string().required(
-      translate("name") + " " + translate("is_required")
-    ),
+    name: Yup.string().required("Name is required"),
     email: Yup.string()
-      .required(translate("email") + " " + translate("is_required"))
-      .email(translate("valid_email")),
-    photoURL: Yup.string()
-      .required(translate("avatar") + " " + translate("is_required"))
-      .nullable(true),
-    phoneNumber: Yup.string().required(
-      translate("phone_number") + " " + translate("is_required")
-    ),
-    country: Yup.string().required(
-      translate("country") + " " + translate("is_required")
-    ),
-    address: Yup.string().required(
-      translate("address") + " " + translate("is_required")
-    ),
-    state: Yup.string().required(
-      translate("state") + " " + translate("is_required")
-    ),
-    city: Yup.string().required(
-      translate("city") + " " + translate("is_required")
-    ),
-    zipCode: Yup.string().required(
-      translate("zip") +
-        " " +
-        translate("code") +
-        " " +
-        translate("is_required")
-    ),
-    about: Yup.string().required(
-      translate("about") + " " + translate("is_required")
-    ),
-    schoolCollege: Yup.string().required(
-      translate("school") +
-        "/" +
-        translate("college") +
-        " " +
-        translate("is_required")
-    ),
+      .required("Email is required")
+      .email("Email must be a valid email address."),
+    photoURL: Yup.string().required("Avatar is required").nullable(true),
+    phoneNumber: Yup.string().required("Phone number is required"),
+    country: Yup.string().required("Country is required"),
+    address: Yup.string().required("Address is required"),
+    state: Yup.string().required("State is required"),
+    city: Yup.string().required("City is required"),
+    zipCode: Yup.string().required("Zip Code is required"),
+    about: Yup.string().required("About is required"),
+    schoolCollege: Yup.string().required("School/College is required"),
   });
 
   const methods = useForm({
@@ -128,7 +97,7 @@ export default function AccountGeneral() {
         },
         photoFile
       );
-      enqueueSnackbar(translate("update_success") + " !!!", {
+      enqueueSnackbar("Update Success!!!", {
         variant: "success",
       });
     } catch (error) {
@@ -173,8 +142,8 @@ export default function AccountGeneral() {
                     color: "text.secondary",
                   }}
                 >
-                  {translate("allowed")} *.jpeg, *.jpg, *.png, *.gif
-                  <br /> {translate("max_size")} {fData(3145728)}
+                  Allowed *.jpeg, *.jpg, *.png, *.gif
+                  <br /> {"Max Size of"} {fData(3145728)}
                 </Typography>
               }
             />
@@ -195,34 +164,34 @@ export default function AccountGeneral() {
               <RHFTextField
                 name="name"
                 disabled
-                label={translate("name")}
+                label="Name"
                 InputLabelProps={{ shrink: true }}
               />
 
               <RHFTextField
                 name="email"
                 disabled
-                label={translate("email")}
+                label="Email"
                 InputLabelProps={{ shrink: true }}
               />
 
               <RHFTextField
                 name="phoneNumber"
                 disabled
-                label={translate("phone_number")}
+                label="Phone Number"
                 InputLabelProps={{ shrink: true }}
               />
 
               <RHFTextField
                 name="address"
-                label={translate("address")}
+                label="Address"
                 InputLabelProps={{ shrink: true }}
               />
 
               <RHFSelect
                 native
                 name="country"
-                label={translate("country")}
+                label="Country"
                 placeholder="Country"
                 InputLabelProps={{ shrink: true }}
               >
@@ -236,25 +205,25 @@ export default function AccountGeneral() {
 
               <RHFTextField
                 name="state"
-                label={translate("state") + "/" + translate("region")}
+                label="State/Region"
                 InputLabelProps={{ shrink: true }}
               />
 
               <RHFTextField
                 name="city"
-                label={translate("city")}
+                label="City"
                 InputLabelProps={{ shrink: true }}
               />
 
               <RHFTextField
                 name="zipCode"
-                label={translate("zip") + "/" + translate("code")}
+                label="Zip/Code"
                 InputLabelProps={{ shrink: true }}
               />
 
               <RHFTextField
                 name="schoolCollege"
-                label={translate("school") + "/" + translate("college")}
+                label="School/College"
                 InputLabelProps={{ shrink: true }}
               />
             </Box>
@@ -264,7 +233,7 @@ export default function AccountGeneral() {
                 name="about"
                 multiline
                 rows={4}
-                label={translate("about")}
+                label="About"
                 InputLabelProps={{ shrink: true }}
               />
 
@@ -273,7 +242,7 @@ export default function AccountGeneral() {
                 variant="contained"
                 loading={isSubmitting}
               >
-                {translate("save_changes")}
+                Save Change
               </LoadingButton>
             </Stack>
           </Card>

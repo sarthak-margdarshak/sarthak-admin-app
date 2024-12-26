@@ -30,8 +30,6 @@ import {
   Profile,
   ProfileCover,
 } from "../../../../sections/@dashboard/user/profile";
-// locales
-import { useLocales } from "../../../../locales";
 import { APPWRITE_API } from "../../../../config-global";
 import {
   appwriteDatabases,
@@ -51,7 +49,6 @@ export default function UserProfilePage() {
 
   const { themeStretch } = useSettingsContext();
 
-  const { translate } = useLocales();
   const [teamCount, setTeamCount] = useState(0);
   const [questionCount, setQuestionCount] = useState(0);
   const [userProfile, setUserProfile] = useState(null);
@@ -92,7 +89,7 @@ export default function UserProfilePage() {
   const TABS = [
     {
       value: "profile",
-      label: translate("profile"),
+      label: "Profile",
       icon: <Iconify icon="ic:round-account-box" />,
       component: (
         <Profile
@@ -113,10 +110,10 @@ export default function UserProfilePage() {
 
       <Container maxWidth={themeStretch ? false : "lg"}>
         <CustomBreadcrumbs
-          heading={translate("profile")}
+          heading="Profile"
           links={[
-            { name: translate("dashboard"), href: PATH_DASHBOARD.root },
-            { name: translate("user"), href: PATH_DASHBOARD.user.root },
+            { name: "Dashboard", href: PATH_DASHBOARD.root },
+            { name: "User", href: PATH_DASHBOARD.user.root },
             { name: userProfile?.name },
           ]}
         />

@@ -657,7 +657,7 @@ export default function MockTestEditPage() {
             }}
           >
             <Grid container>
-              <Grid item xs={12} sm={12} md={10} lg={10} xl={10} padding={1}>
+              <Grid item xs={12} sm={12} md={6} lg={6} xl={6} padding={1}>
                 {allQuestions.map((question) => (
                   <div key={question?.$id}>
                     <Divider>

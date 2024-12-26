@@ -8,7 +8,6 @@ import Iconify from "../iconify";
 //
 import RejectionFiles from "./errors/RejectionFiles";
 import AvatarPreview from "./preview/AvatarPreview";
-import { useLocales } from "../../locales";
 import React from "react";
 
 // ----------------------------------------------------------------------
@@ -75,8 +74,6 @@ export default function UploadAvatar({
     ...other,
   });
 
-  const { translate } = useLocales();
-
   const hasFile = !!file;
 
   const isError = isDragReject || !!error;
@@ -133,9 +130,7 @@ export default function UploadAvatar({
         >
           <Iconify icon="ic:round-add-a-photo" width={24} sx={{ mb: 1 }} />
 
-          <Typography variant="caption">
-            {file ? translate("upload_photo") : translate("upload_photo")}
-          </Typography>
+          <Typography variant="caption">Upload Photo</Typography>
         </StyledPlaceholder>
       </StyledDropZone>
 

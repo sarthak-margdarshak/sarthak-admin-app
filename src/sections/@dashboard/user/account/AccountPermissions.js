@@ -20,14 +20,11 @@ import {
   Switch,
   FormControlLabel,
 } from "@mui/material";
-// locales
-import { useLocales } from "../../../../locales";
 import { useAuthContext } from "../../../../auth/useAuthContext";
 
 // ----------------------------------------------------------------------
 
 export default function AccountPermissions() {
-  const { translate } = useLocales();
   const { userProfile } = useAuthContext();
 
   return (
@@ -37,7 +34,7 @@ export default function AccountPermissions() {
         component="div"
         sx={{ color: "text.secondary" }}
       >
-        {translate("activity")}
+        Activity
       </Typography>
 
       <Stack alignItems="flex-start" sx={{ mt: 2, mb: 5 }}>
@@ -50,7 +47,7 @@ export default function AccountPermissions() {
               sx={{ m: 0 }}
             />
           }
-          label={translate("permission_createTeam")}
+          label="Permission to create team."
         />
       </Stack>
 
@@ -59,7 +56,7 @@ export default function AccountPermissions() {
         component="div"
         sx={{ color: "text.info" }}
       >
-        {translate("note")} :- {translate("permission_owner")}
+        Permissions can only be altered by Sarthak CEO/Owner.
       </Typography>
     </Card>
   );

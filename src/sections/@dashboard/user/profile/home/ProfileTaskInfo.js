@@ -17,8 +17,6 @@ import PropTypes from "prop-types";
 import { Card, Stack, Typography, Divider, Link } from "@mui/material";
 // utils
 import { fNumber } from "../../../../../utils/formatNumber";
-// locales
-import { useLocales } from "../../../../../locales";
 import { Link as RouterLink } from "react-router-dom";
 import { useAuthContext } from "../../../../../auth/useAuthContext";
 
@@ -32,7 +30,6 @@ ProfileTaskInfo.propTypes = {
 // ----------------------------------------------------------------------
 
 export default function ProfileTaskInfo({ team, question }) {
-  const { translate } = useLocales();
   const { user } = useAuthContext();
 
   return (
@@ -46,7 +43,7 @@ export default function ProfileTaskInfo({ team, question }) {
             <Typography variant="h4">{fNumber(team)}</Typography>
 
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              {translate("Team")}
+              Team
             </Typography>
           </Link>
         </Stack>
@@ -59,7 +56,7 @@ export default function ProfileTaskInfo({ team, question }) {
             <Typography variant="h4">{fNumber(question)}</Typography>
 
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              {translate("question")}
+              Question
             </Typography>
           </Link>
         </Stack>

@@ -24,13 +24,9 @@ import StandardDisplayUI from "../view/StandardDisplayUI";
 import SubjectDisplayUI from "../view/SubjectDisplayUI";
 import ChapterDisplayUI from "../view/ChapterDisplayUI";
 import ConceptDisplayUI from "../view/ConceptDisplayUI";
-import TimeAgo from "javascript-time-ago";
-import en from "javascript-time-ago/locale/en";
 import { useNavigate } from "react-router-dom";
 import { PATH_PAGE } from "../../../../routes/paths";
-
-TimeAgo.addDefaultLocale(en);
-const timeAgo = new TimeAgo("en-US");
+import { timeAgo } from "../../../../auth/AppwriteContext";
 
 // ----------------------------------------------------------------------
 

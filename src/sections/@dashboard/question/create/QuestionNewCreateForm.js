@@ -60,11 +60,7 @@ import ReactKatex from "@pkasila/react-katex";
 import PermissionDeniedComponent from "../../../_examples/PermissionDeniedComponent";
 import Image from "../../../../components/image/Image";
 import { SarthakUserDisplayUI } from "../../user/profile";
-import TimeAgo from "javascript-time-ago";
-import en from "javascript-time-ago/locale/en";
-
-TimeAgo.addDefaultLocale(en);
-const timeAgo = new TimeAgo("en-US");
+import { timeAgo } from "../../../../auth/AppwriteContext";
 
 // ----------------------------------------------------------------------
 

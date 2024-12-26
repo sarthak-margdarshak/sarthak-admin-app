@@ -36,6 +36,11 @@ import {
 } from "appwrite";
 import { APPWRITE_API } from "../config-global";
 import MaintenancePage from "../pages/MaintenancePage";
+import TimeAgo from "javascript-time-ago";
+import en from "javascript-time-ago/locale/en";
+
+TimeAgo.addDefaultLocale(en);
+export const timeAgo = new TimeAgo("en-US");
 
 // CLIENT INITIALIZATION ------------------------------------------------
 export const appwriteClient = new Client()

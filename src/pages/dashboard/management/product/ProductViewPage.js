@@ -36,19 +36,15 @@ import SubjectDisplayUI from "../../../../sections/@dashboard/question/view/Subj
 import ChapterDisplayUI from "../../../../sections/@dashboard/question/view/ChapterDisplayUI";
 import ConceptDisplayUI from "../../../../sections/@dashboard/question/view/ConceptDisplayUI";
 import { SarthakUserDisplayUI } from "../../../../sections/@dashboard/user/profile";
-import TimeAgo from "javascript-time-ago";
-import en from "javascript-time-ago/locale/en";
 import {
   appwriteDatabases,
   appwriteFunctions,
   appwriteStorage,
+  timeAgo,
 } from "../../../../auth/AppwriteContext";
 import { APPWRITE_API } from "../../../../config-global";
 import { CarouselAnimation } from "../../../../components/carousel";
 import MockTestRow from "../../../../sections/@dashboard/product/MockTestRow";
-
-TimeAgo.addDefaultLocale(en);
-const timeAgo = new TimeAgo("en-US");
 
 export default function ProductViewPage() {
   const id = window.location.pathname.split("/")[3];
