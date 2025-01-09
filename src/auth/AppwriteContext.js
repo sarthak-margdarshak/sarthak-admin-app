@@ -231,21 +231,21 @@ export function AuthProvider({ children }) {
         APPWRITE_API.documents.sarthak
       );
       try {
-        await appwriteAccount.createEmailSession(email, password);
+        await appwriteAccount.createEmailPasswordSession(email, password);
         const adminUser = await appwriteAccount.get();
         const currTeams = (await appwriteTeams.list()).teams;
         const adminTeams = currTeams.filter(
           (val) => val.$id === state.sarthakInfoData?.adminTeamId
         );
         if (adminTeams.length !== 1) {
-          appwriteAccount.deleteSessions();
+          await appwriteAccount.deleteSessions();
           return {
             success: false,
             message:
               "Unauthorised login attempt. Please contact administrator on support@sarthakmargdarshak.in",
           };
         }
-        var adminUserProfile = null;
+        let adminUserProfile = null;
         try {
           adminUserProfile = await appwriteDatabases.getDocument(
             APPWRITE_API.databaseId,
@@ -255,7 +255,7 @@ export function AuthProvider({ children }) {
         } catch (error) {
           console.log(error);
         }
-        var profileImage = null;
+        let profileImage = null;
         if (adminUserProfile.photoUrl) {
           profileImage = appwriteStorage.getFilePreview(
             APPWRITE_API.buckets.adminUserImage,
@@ -301,7 +301,7 @@ export function AuthProvider({ children }) {
 
   const updateUserProfile = useCallback(
     async (data, photoFile = null) => {
-      var tempData = data;
+      let tempData = data;
       if (photoFile) {
         if (state.userProfile.photoUrl) {
           await appwriteStorage.deleteFile(
@@ -330,7 +330,7 @@ export function AuthProvider({ children }) {
         { ...tempData }
       );
 
-      var profileImage = null;
+      let profileImage = null;
       if (adminUserProfile.photoUrl) {
         profileImage = appwriteStorage.getFilePreview(
           APPWRITE_API.buckets.adminUserImage,
@@ -383,7 +383,7 @@ export function AuthProvider({ children }) {
                 [Query.limit(1), Query.offset(1)]
               )
             ).total + 1;
-          var currentEmpId = "EMP";
+          let currentEmpId = "EMP";
           if (totalUser.toString().length === 1) {
             currentEmpId += "000" + totalUser.toString();
           } else if (totalUser.toString().length === 2) {
@@ -407,7 +407,7 @@ export function AuthProvider({ children }) {
           );
         }
 
-        var adminUserProfile = null;
+        let adminUserProfile = null;
         try {
           adminUserProfile = await appwriteDatabases.getDocument(
             APPWRITE_API.databaseId,
@@ -415,7 +415,7 @@ export function AuthProvider({ children }) {
             user.$id
           );
         } catch (error) {}
-        var profileImage = null;
+        let profileImage = null;
         if (adminUserProfile?.photoUrl) {
           profileImage = appwriteStorage.getFilePreview(
             APPWRITE_API.buckets.adminUserImage,
