@@ -1,251 +1,251 @@
-import {
-  // Alert,
-  // AppBar,
-  // Autocomplete,
-  // Button,
-  // Card,
-  // CardContent,
-  // CardHeader,
-  // Checkbox,
-  // Chip,
-  Container,
-  // Dialog,
-  // DialogActions,
-  // DialogContent,
-  // DialogContentText,
-  // DialogTitle,
-  // Divider,
-  // FormControl,
-  // FormHelperText,
-  // Grid,
-  // IconButton,
-  // InputLabel,
-  // MenuItem,
-  // Paper,
-  // Select,
-  Slide,
-  // Stack,
-  // TextField,
-  // Toolbar,
-  // Typography,
-  // alpha,
-} from "@mui/material";
-import { Helmet } from "react-helmet-async";
-import CustomBreadcrumbs from "../../../../../components/custom-breadcrumbs/CustomBreadcrumbs";
-import { PATH_DASHBOARD } from "../../../../../routes/paths";
-import { useSettingsContext } from "../../../../../components/settings";
-import React, { forwardRef, useState } from "react";
-// import { Reorder } from "framer-motion";
-// import ReactKatex from "@pkasila/react-katex";
-// import Image from "../../../../../components/image/Image";
-// import Iconify from "../../../../../components/iconify";
-import { APPWRITE_API } from "../../../../../config-global";
-import { ID, Permission, Query, Role } from "appwrite";
-import { AppwriteHelper } from "../../../../../auth/AppwriteHelper";
-// import CloseIcon from "@mui/icons-material/Close";
-// import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { Question } from "../../../../../auth/Question";
-// import { LoadingButton } from "@mui/lab";
-import { useSnackbar } from "notistack";
-import { appwriteDatabases } from "../../../../../auth/AppwriteContext";
-import { useAuthContext } from "../../../../../auth/useAuthContext";
-import { useNavigate } from "react-router-dom";
-import MockTestListComponent
-  from "../../../../../sections/@dashboard/management/content/mock-test/component/MockTestListComponent";
+// import {
+//   // Alert,
+//   // AppBar,
+//   // Autocomplete,
+//   // Button,
+//   // Card,
+//   // CardContent,
+//   // CardHeader,
+//   // Checkbox,
+//   // Chip,
+//   Container,
+//   // Dialog,
+//   // DialogActions,
+//   // DialogContent,
+//   // DialogContentText,
+//   // DialogTitle,
+//   // Divider,
+//   // FormControl,
+//   // FormHelperText,
+//   // Grid,
+//   // IconButton,
+//   // InputLabel,
+//   // MenuItem,
+//   // Paper,
+//   // Select,
+//   Slide,
+//   // Stack,
+//   // TextField,
+//   // Toolbar,
+//   // Typography,
+//   // alpha,
+// } from "@mui/material";
+// import { Helmet } from "react-helmet-async";
+// import CustomBreadcrumbs from "../../../../../components/custom-breadcrumbs/CustomBreadcrumbs";
+// import { PATH_DASHBOARD } from "../../../../../routes/paths";
+// import { useSettingsContext } from "../../../../../components/settings";
+import React from "react";
+// // import { Reorder } from "framer-motion";
+// // import ReactKatex from "@pkasila/react-katex";
+// // import Image from "../../../../../components/image/Image";
+// // import Iconify from "../../../../../components/iconify";
+// import { APPWRITE_API } from "../../../../../config-global";
+// import { ID, Permission, Query, Role } from "appwrite";
+// import { AppwriteHelper } from "../../../../../auth/AppwriteHelper";
+// // import CloseIcon from "@mui/icons-material/Close";
+// // import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+// import { Question } from "../../../../../auth/Question";
+// // import { LoadingButton } from "@mui/lab";
+// import { useSnackbar } from "notistack";
+// import { appwriteDatabases } from "../../../../../auth/AppwriteContext";
+// import { useAuthContext } from "../../../../../auth/useAuthContext";
+// import { useNavigate } from "react-router-dom";
+// import MockTestListComponent
+//   from "../../../../../sections/@dashboard/management/content/mock-test/component/MockTestListComponent";
 
 // const Transition = forwardRef(function Transition(props, ref) {
 //   return <Slide direction="up" ref={ref} {...props} />;
 // });
 
 export default function MockTestListPage() {
-  const { themeStretch } = useSettingsContext();
-  const { enqueueSnackbar } = useSnackbar();
-  const navigate = useNavigate();
-  const { sarthakInfoData, userProfile } = useAuthContext();
-  const [dragStarted, setDragStarted] = useState(false);
-  const [mockTestDriverList, setMockTestDriverList] = useState([]);
-  const [mockTestDriverIdList, setMockTestDriverIdList] = useState([]);
-  const [mockTestDriverListLoading, setMockTestDriverListLoading] =
-    useState(false);
-  const [mockTestDriverId, setMockTestDriverId] = useState("");
-  const [standards, setStandards] = useState([]);
-  const [subjects, setSubjects] = useState([]);
-  const [chapters, setChapters] = useState([]);
-  const [concepts, setConcepts] = useState([]);
-  const [mockTestName, setMockTestName] = useState("");
-  const [description, setDescription] = useState("");
-  const [mockTestId, setMockTestId] = useState("");
-  const [duration, setDuration] = useState(0);
-  const [dialogeOpen, setDialogeOpen] = useState(false);
-  const [allQuestions, setAllQuestions] = useState([]);
-  const [selectedQuestions, setSelectedQuestions] = useState([]);
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [currentValue, setCurrentValue] = useState(null);
-  const [changingDriver, setChangingDriver] = useState(false);
-  const [level, setLevel] = useState("MEDIUM");
-  const [creating, setCreating] = useState(false);
-
-  const getMockTestDriverList = async (value) => {
-    setMockTestDriverListLoading(true);
-    var queries = [Query.limit(100), Query.orderDesc("$createdAt")];
-    if (value !== null && value !== undefined) {
-      queries.push(Query.search("mtdId", value));
-    }
-    const x = await appwriteDatabases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.mockTestDriver,
-      queries
-    );
-    setMockTestDriverIdList(x.documents.map((x1) => x1.mtdId));
-    setMockTestDriverList(x.documents);
-    setMockTestDriverListLoading(false);
-    return x;
-  };
-
-  const changeDriver = async (value) => {
-    if (
-      value !== mockTestDriverId &&
-      value !== null &&
-      value !== undefined &&
-      value !== ""
-    ) {
-      setCurrentValue(value);
-      setConfirmDialogOpen(true);
-    }
-  };
-
-  const initiateChangeDriver = async () => {
-    setChangingDriver(true);
-    try {
-      setMockTestDriverId(currentValue);
-      const x = mockTestDriverList.findIndex(
-        (value) => value.mtdId === currentValue
-      );
-      setStandards(mockTestDriverList[x].standardIds);
-      setSubjects(mockTestDriverList[x].subjectIds);
-      setChapters(mockTestDriverList[x].chapterIds);
-      setConcepts(mockTestDriverList[x].conceptIds);
-      var queries = [Query.equal("published", true)];
-      if (mockTestDriverList[x].standardIds.length) {
-        queries.push(
-          Query.equal("standardId", mockTestDriverList[x].standardIds)
-        );
-      }
-      if (mockTestDriverList[x].subjectIds.length) {
-        queries.push(
-          Query.equal("subjectId", mockTestDriverList[x].subjectIds)
-        );
-      }
-      if (mockTestDriverList[x].chapterIds.length) {
-        queries.push(
-          Query.equal("chapterId", mockTestDriverList[x].chapterIds)
-        );
-      }
-      if (mockTestDriverList[x].conceptIds.length) {
-        queries.push(
-          Query.equal("conceptId", mockTestDriverList[x].conceptIds)
-        );
-      }
-      var y = await AppwriteHelper.listAllDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.questions,
-        queries
-      );
-      for (let i in y) {
-        y[i].coverQuestion = await Question.getQuestionContentForPreview(
-          y[i]?.coverQuestion
-        );
-
-        y[i].coverOptionA = await Question.getQuestionContentForPreview(
-          y[i]?.coverOptionA
-        );
-
-        y[i].coverOptionB = await Question.getQuestionContentForPreview(
-          y[i]?.coverOptionB
-        );
-
-        y[i].coverOptionC = await Question.getQuestionContentForPreview(
-          y[i]?.coverOptionC
-        );
-
-        y[i].coverOptionD = await Question.getQuestionContentForPreview(
-          y[i]?.coverOptionD
-        );
-
-        y[i].coverAnswer = await Question.getQuestionContentForPreview(
-          y[i]?.coverAnswer
-        );
-      }
-      setAllQuestions(y);
-      setSelectedQuestions([]);
-      setConfirmDialogOpen(false);
-    } catch (error) {
-      enqueueSnackbar(error.message, { variant: "error" });
-    }
-    setChangingDriver(false);
-  };
-
-  const onsubmit = async () => {
-    setCreating(true);
-    const questions = selectedQuestions.map((value) => value?.$id);
-    try {
-      const x =
-        (
-          await appwriteDatabases.listDocuments(
-            APPWRITE_API.databaseId,
-            APPWRITE_API.collections.mockTest,
-            [Query.limit(1)]
-          )
-        ).total + 1;
-      const id = "MT" + x.toString().padStart(8, 0);
-      setMockTestId(id);
-
-      const y = await appwriteDatabases.createDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.mockTest,
-        ID.unique(),
-        {
-          name: mockTestName,
-          description: description,
-          questions: questions,
-          mockTestDriverId: mockTestDriverId,
-          mtId: id,
-          duration: parseInt(duration),
-          level: level,
-          createdBy: userProfile.$id,
-          updatedBy: userProfile.$id,
-        },
-        [Permission.update(Role.team(sarthakInfoData.adminTeamId))]
-      );
-      setMockTestId(id);
-      enqueueSnackbar("Successfully Created");
-      navigate(PATH_DASHBOARD.mockTest.view(y.$id));
-    } catch (error) {
-      enqueueSnackbar(error.message, { variant: "error" });
-    }
-    setCreating(false);
-  };
+  // const { themeStretch } = useSettingsContext();
+  // const { enqueueSnackbar } = useSnackbar();
+  // const navigate = useNavigate();
+  // const { sarthakInfoData, userProfile } = useAuthContext();
+  // const [dragStarted, setDragStarted] = useState(false);
+  // const [mockTestDriverList, setMockTestDriverList] = useState([]);
+  // const [mockTestDriverIdList, setMockTestDriverIdList] = useState([]);
+  // const [mockTestDriverListLoading, setMockTestDriverListLoading] =
+  //   useState(false);
+  // const [mockTestDriverId, setMockTestDriverId] = useState("");
+  // const [standards, setStandards] = useState([]);
+  // const [subjects, setSubjects] = useState([]);
+  // const [chapters, setChapters] = useState([]);
+  // const [concepts, setConcepts] = useState([]);
+  // const [mockTestName, setMockTestName] = useState("");
+  // const [description, setDescription] = useState("");
+  // const [mockTestId, setMockTestId] = useState("");
+  // const [duration, setDuration] = useState(0);
+  // const [dialogeOpen, setDialogeOpen] = useState(false);
+  // const [allQuestions, setAllQuestions] = useState([]);
+  // const [selectedQuestions, setSelectedQuestions] = useState([]);
+  // const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  // const [currentValue, setCurrentValue] = useState(null);
+  // const [changingDriver, setChangingDriver] = useState(false);
+  // const [level, setLevel] = useState("MEDIUM");
+  // const [creating, setCreating] = useState(false);
+  //
+  // const getMockTestDriverList = async (value) => {
+  //   setMockTestDriverListLoading(true);
+  //   var queries = [Query.limit(100), Query.orderDesc("$createdAt")];
+  //   if (value !== null && value !== undefined) {
+  //     queries.push(Query.search("mtdId", value));
+  //   }
+  //   const x = await appwriteDatabases.listDocuments(
+  //     APPWRITE_API.databaseId,
+  //     APPWRITE_API.collections.mockTestDriver,
+  //     queries
+  //   );
+  //   setMockTestDriverIdList(x.documents.map((x1) => x1.mtdId));
+  //   setMockTestDriverList(x.documents);
+  //   setMockTestDriverListLoading(false);
+  //   return x;
+  // };
+  //
+  // const changeDriver = async (value) => {
+  //   if (
+  //     value !== mockTestDriverId &&
+  //     value !== null &&
+  //     value !== undefined &&
+  //     value !== ""
+  //   ) {
+  //     setCurrentValue(value);
+  //     setConfirmDialogOpen(true);
+  //   }
+  // };
+  //
+  // const initiateChangeDriver = async () => {
+  //   setChangingDriver(true);
+  //   try {
+  //     setMockTestDriverId(currentValue);
+  //     const x = mockTestDriverList.findIndex(
+  //       (value) => value.mtdId === currentValue
+  //     );
+  //     setStandards(mockTestDriverList[x].standardIds);
+  //     setSubjects(mockTestDriverList[x].subjectIds);
+  //     setChapters(mockTestDriverList[x].chapterIds);
+  //     setConcepts(mockTestDriverList[x].conceptIds);
+  //     var queries = [Query.equal("published", true)];
+  //     if (mockTestDriverList[x].standardIds.length) {
+  //       queries.push(
+  //         Query.equal("standardId", mockTestDriverList[x].standardIds)
+  //       );
+  //     }
+  //     if (mockTestDriverList[x].subjectIds.length) {
+  //       queries.push(
+  //         Query.equal("subjectId", mockTestDriverList[x].subjectIds)
+  //       );
+  //     }
+  //     if (mockTestDriverList[x].chapterIds.length) {
+  //       queries.push(
+  //         Query.equal("chapterId", mockTestDriverList[x].chapterIds)
+  //       );
+  //     }
+  //     if (mockTestDriverList[x].conceptIds.length) {
+  //       queries.push(
+  //         Query.equal("conceptId", mockTestDriverList[x].conceptIds)
+  //       );
+  //     }
+  //     var y = await AppwriteHelper.listAllDocuments(
+  //       APPWRITE_API.databaseId,
+  //       APPWRITE_API.collections.questions,
+  //       queries
+  //     );
+  //     for (let i in y) {
+  //       y[i].coverQuestion = await Question.getQuestionContentForPreview(
+  //         y[i]?.coverQuestion
+  //       );
+  //
+  //       y[i].coverOptionA = await Question.getQuestionContentForPreview(
+  //         y[i]?.coverOptionA
+  //       );
+  //
+  //       y[i].coverOptionB = await Question.getQuestionContentForPreview(
+  //         y[i]?.coverOptionB
+  //       );
+  //
+  //       y[i].coverOptionC = await Question.getQuestionContentForPreview(
+  //         y[i]?.coverOptionC
+  //       );
+  //
+  //       y[i].coverOptionD = await Question.getQuestionContentForPreview(
+  //         y[i]?.coverOptionD
+  //       );
+  //
+  //       y[i].coverAnswer = await Question.getQuestionContentForPreview(
+  //         y[i]?.coverAnswer
+  //       );
+  //     }
+  //     setAllQuestions(y);
+  //     setSelectedQuestions([]);
+  //     setConfirmDialogOpen(false);
+  //   } catch (error) {
+  //     enqueueSnackbar(error.message, { variant: "error" });
+  //   }
+  //   setChangingDriver(false);
+  // };
+  //
+  // const onsubmit = async () => {
+  //   setCreating(true);
+  //   const questions = selectedQuestions.map((value) => value?.$id);
+  //   try {
+  //     const x =
+  //       (
+  //         await appwriteDatabases.listDocuments(
+  //           APPWRITE_API.databaseId,
+  //           APPWRITE_API.collections.mockTest,
+  //           [Query.limit(1)]
+  //         )
+  //       ).total + 1;
+  //     const id = "MT" + x.toString().padStart(8, 0);
+  //     setMockTestId(id);
+  //
+  //     const y = await appwriteDatabases.createDocument(
+  //       APPWRITE_API.databaseId,
+  //       APPWRITE_API.collections.mockTest,
+  //       ID.unique(),
+  //       {
+  //         name: mockTestName,
+  //         description: description,
+  //         questions: questions,
+  //         mockTestDriverId: mockTestDriverId,
+  //         mtId: id,
+  //         duration: parseInt(duration),
+  //         level: level,
+  //         createdBy: userProfile.$id,
+  //         updatedBy: userProfile.$id,
+  //       },
+  //       [Permission.update(Role.team(sarthakInfoData.adminTeamId))]
+  //     );
+  //     setMockTestId(id);
+  //     enqueueSnackbar("Successfully Created");
+  //     navigate(PATH_DASHBOARD.mockTest.view(y.$id));
+  //   } catch (error) {
+  //     enqueueSnackbar(error.message, { variant: "error" });
+  //   }
+  //   setCreating(false);
+  // };
 
   return (
     <React.Fragment>
-      <Helmet>
-        <title> Mock-Test | List</title>
-      </Helmet>
-      <Container maxWidth={themeStretch ? false : "lg"}>
-        <CustomBreadcrumbs
-          heading="Mock-Test"
-          links={[
-            {
-              name: "Dashboard",
-              href: PATH_DASHBOARD.root,
-            },
-            {
-              name: "Mock-Test"
-            }
-          ]}
-        />
+      {/*<Helmet>*/}
+      {/*  <title> Mock-Test | List</title>*/}
+      {/*</Helmet>*/}
+      {/*<Container maxWidth={themeStretch ? false : "lg"}>*/}
+      {/*  <CustomBreadcrumbs*/}
+      {/*    heading="Mock-Test"*/}
+      {/*    links={[*/}
+      {/*      {*/}
+      {/*        name: "Dashboard",*/}
+      {/*        href: PATH_DASHBOARD.root,*/}
+      {/*      },*/}
+      {/*      {*/}
+      {/*        name: "Mock-Test"*/}
+      {/*      }*/}
+      {/*    ]}*/}
+      {/*  />*/}
 
-        <MockTestListComponent />
+      {/*  <MockTestListComponent />*/}
 
         {/*<Paper*/}
         {/*  variant="outlined"*/}
@@ -839,7 +839,7 @@ export default function MockTestListPage() {
         {/*    </LoadingButton>*/}
         {/*  </DialogActions>*/}
         {/*</Dialog>*/}
-      </Container>
+      {/*</Container>*/}
     </React.Fragment>
   );
 }
