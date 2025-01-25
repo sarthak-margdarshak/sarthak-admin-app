@@ -1,46 +1,22 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
-import { Navigate, useRoutes } from "react-router-dom";
-// auth
-import AuthGuard from "../auth/AuthGuard";
-import GuestGuard from "../auth/GuestGuard";
-import CompactLayout from "../layouts/compact";
-import DashboardLayout from "../layouts/dashboard";
-// config
-import { PATH_AFTER_LOGIN } from "../config-global";
-//
+import {Navigate, Outlet, useRoutes} from "react-router-dom";
+import AuthGuard from "auth/AuthGuard";
+import GuestGuard from "auth/GuestGuard";
+import CompactLayout from "layouts/compact";
+import DashboardLayout from "layouts/dashboard";
+import { PATH_AFTER_LOGIN } from "config-global";
 import {
-  // Auth
   LoginPage,
   NewPasswordPage,
   ResetPasswordPage,
-  // Dashboard: General
   GeneralAppPage,
-  // Dashboard: User
   UserProfilePage,
   UserAccountPage,
-  // Dashboard: Team
   TeamListPage,
   TeamDetailsPage,
   AcceptInvitePage,
-  // Dashboard: Question
   QuestionListPage,
-  QuestionCreatePage,
   QuestionDetailsPage,
   QuestionEditPage,
-  //
   Page500,
   Page403,
   Page404,
@@ -48,18 +24,18 @@ import {
   PageMotivation,
   ComingSoonPage,
   MaintenancePage,
-  MockTestDriverListPage,
-  MockTestNewPage,
+  MockTestListPage,
   MockTestViewPage,
   MockTestEditPage,
-  MockTestDriverViewPage,
   ProductViewPage,
   ProductNewPage,
   ProductEditPage,
   ProductListPage,
 } from "./elements";
-
-// ----------------------------------------------------------------------
+import QuestionTreeView from "sections/@dashboard/management/content/layout/TreeView/QuestionTreeView";
+import {ContentProvider} from "sections/@dashboard/management/content/hook/ContentProvider";
+import React from "react";
+import Content from "layouts/dashboard/Content";
 
 export default function Router() {
   return useRoutes([
@@ -128,13 +104,18 @@ export default function Router() {
         // Dashboard: Question
         {
           path: "question",
+          element: <ContentProvider>
+            <QuestionTreeView />
+            <Content>
+              <Outlet />
+            </Content>
+          </ContentProvider>,
           children: [
             {
               element: <Navigate to="/dashboard/question/list" replace />,
               index: true,
             },
             { path: "list", element: <QuestionListPage /> },
-            { path: "new", element: <QuestionCreatePage /> },
             { path: ":id", element: <QuestionDetailsPage /> },
             { path: ":id/edit", element: <QuestionEditPage /> },
           ],
@@ -142,21 +123,31 @@ export default function Router() {
         // Dashboard: Mock Test
         {
           path: "mock-test",
+          element: <ContentProvider>
+            <QuestionTreeView />
+            <Content>
+              <Outlet />
+            </Content>
+          </ContentProvider>,
           children: [
             {
-              element: <Navigate to="/dashboard/mock-test/driver" replace />,
+              element: <Navigate to="/dashboard/mock-test/list" replace />,
               index: true,
             },
-            { path: "new", element: <MockTestNewPage /> },
+            { path: "list", element: <MockTestListPage /> },
             { path: ":id", element: <MockTestViewPage /> },
             { path: ":id/edit", element: <MockTestEditPage /> },
-            { path: "driver", element: <MockTestDriverListPage /> },
-            { path: "driver/:id", element: <MockTestDriverViewPage /> },
           ],
         },
         // Dashboard: Product
         {
           path: "product",
+          element: <ContentProvider>
+            <QuestionTreeView />
+            <Content>
+              <Outlet />
+            </Content>
+          </ContentProvider>,
           children: [
             {
               element: <Navigate to="/dashboard/product/list" replace />,

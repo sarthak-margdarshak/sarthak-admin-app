@@ -21,8 +21,6 @@ import { useSettingsContext } from "../../../../components/settings";
 
 // assets
 import React from "react";
-import { QuestionTreeViewProvider } from "../../../../sections/@dashboard/question/TreeView/QuestionTreeViewProvider";
-import QuestionTreeView from "../../../../sections/@dashboard/question/TreeView/QuestionTreeView";
 
 // ----------------------------------------------------------------------
 
@@ -36,9 +34,6 @@ export default function GeneralAppPage() {
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : "xl"}>
-        <QuestionTreeViewProvider>
-          <QuestionTreeView />
-        </QuestionTreeViewProvider>
       </Container>
     </React.Fragment>
   );

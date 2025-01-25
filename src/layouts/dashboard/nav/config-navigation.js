@@ -51,9 +51,9 @@ const navConfig = [
     ],
   },
 
-  // MANAGEMENT
+  // ADMIN MANAGEMENT
   {
-    subheader: "management",
+    subheader: "admin management",
     items: [
       // USER
       {
@@ -71,8 +71,14 @@ const navConfig = [
         title: "team",
         path: PATH_DASHBOARD.team.root,
         icon: ICONS.team,
-      },
+      }
+    ]
+  },
 
+  // CONTENT MANAGEMENT
+  {
+    subheader: "content management",
+    items: [
       // QUESTION
       {
         title: "question",
@@ -81,39 +87,22 @@ const navConfig = [
       },
 
       // MOCK-TEST
-      {
-        title: "mock-test",
-        path: PATH_DASHBOARD.mockTest.root,
-        icon: ICONS.mockTest,
-        children: [
-          { title: "new", path: PATH_DASHBOARD.mockTest.new },
-          {
-            title: "driver",
-            path: PATH_DASHBOARD.mockTest.driver,
-          },
-        ],
-      },
-
-      // PRODUCT
-      {
-        title: "Product",
-        path: PATH_DASHBOARD.product.root,
-        icon: ICONS.invoice,
-      },
-    ],
-  },
-
-  // APP
-  {
-    subheader: "app",
-    items: [
       // {
-      //   title: 'Oranisation Chart',
-      //   path: PATH_DASHBOARD.organizationChart,
-      //   icon: ICONS.organisation_chart,
+      //   title: "mock-test",
+      //   path: PATH_DASHBOARD.mockTest.root,
+      //   icon: ICONS.mockTest,
+      // },
+      //
+      // // PRODUCT
+      // {
+      //   title: "Product",
+      //   path: PATH_DASHBOARD.product.root,
+      //   icon: ICONS.invoice,
       // },
     ],
   },
+
+  // STUDENTS MANAGEMENT
 ];
 
 export default navConfig;

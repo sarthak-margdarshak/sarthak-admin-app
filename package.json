@@ -1,6 +1,6 @@
 {
   "name": "sarthak-admin-app",
-  "version": "0.2.8",
+  "version": "1.0.0",
   "private": true,
   "homepage": "https://admin.sarthakmargdarshak.in",
   "dependencies": {
@@ -31,7 +31,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "add-subtract-date": "^1.0.15",
-    "apexcharts": "^3.40.0",
+    "apexcharts": "^4.0.0",
     "appwrite": "^14.0.1",
     "autosuggest-highlight": "^3.3.4",
     "axios": "^1.4.0",
@@ -62,7 +62,7 @@
     "react-quill": "^2.0.0",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.11.2",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "react-slick": "^0.29.0",
     "redux": "^4.2.1",
     "redux-persist": "^6.0.0",
@@ -83,15 +83,7 @@
   "scripts": {
     "start": "NODE_ENV=development react-app-rewired start",
     "build:dev": "NODE_ENV=development react-app-rewired build",
-    "build:prod": "NODE_ENV=production react-app-rewired build",
-    "test": "react-app-rewired test",
-    "eject": "react-app-rewired eject",
-    "lint": "eslint --ext .js,.jsx .",
-    "lint:fix": "eslint --fix --ext .js,.jsx .",
-    "prettier": "prettier --write 'src/**/*.{js,jsx}'",
-    "clear-all": "rm -rf build node_modules",
-    "re-start": "rm -rf build node_modules && yarn install && yarn start",
-    "re-build": "rm -rf build node_modules && yarn install && yarn build"
+    "build:prod": "NODE_ENV=production react-app-rewired build"
   },
   "eslintConfig": {
     "extends": [

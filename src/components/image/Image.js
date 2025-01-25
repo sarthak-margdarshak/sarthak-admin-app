@@ -10,6 +10,19 @@ import getRatio from "./getRatio";
 
 const Image = forwardRef(
   ({ ratio, disabledEffect = false, effect = "blur", sx, ...other }, ref) => {
+    // function getBase64Image(img) {
+    //   const canvas = document.createElement("canvas");
+    //   canvas.width = img.width;
+    //   canvas.height = img.height;
+    //
+    //   const ctx = canvas.getContext("2d");
+    //   ctx.drawImage(img, 0, 0);
+    //
+    //   const dataURL = canvas.toDataURL("image/png");
+    //
+    //   return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+    // }
+
     const content = (
       <Box
         component={LazyLoadImage}
@@ -19,6 +32,14 @@ const Image = forwardRef(
           disabledEffect ? "/assets/transparent.png" : "/assets/placeholder.svg"
         }
         sx={{ width: 1, height: 1, objectFit: "cover" }}
+        // onLoad={(event) => {
+        //   const imgData = getBase64Image(event.target);
+        //   const x = JSON.parse(localStorage.getItem('images')) || {};
+        //   x[id] = imgData
+        //   const y = JSON.stringify(x);
+        //   localStorage.setItem("images", y);
+        // }}
+        crossOrigin="anonymous"
         {...other}
       />
     );
