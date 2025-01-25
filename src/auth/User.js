@@ -25,7 +25,7 @@ export class User {
       await appwriteDatabases.listDocuments(
         APPWRITE_API.databaseId,
         APPWRITE_API.collections.adminUsers,
-        [Query.search("name", name), Query.limit(100)]
+        [Query.or([Query.contains("empId", name), Query.contains("name", name)]), Query.limit(100)]
       )
     ).documents;
     return x.map((val) => val?.name + " (" + val?.empId + ")");

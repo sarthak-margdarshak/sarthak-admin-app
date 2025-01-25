@@ -46,11 +46,11 @@ export const APPWRITE_API = {
     productFiles: process.env.REACT_APP_APPWRITE_BUCKET_PRODUCT_FILES,
   },
   functions: {
-    contactInstitute: process.env.REACT_APP_APPWRITE_FUCTION_CONTACT_INSTITUTE,
-    toogleBlock: process.env.REACT_APP_APPWRITE_FUCTION_TOGGLE_BLOCK,
-    publishQuestion: process.env.REACT_APP_APPWRITE_FUCTION_PUBLIC_QUESTION,
-    publishMockTest: process.env.REACT_APP_APPWRITE_FUCTION_PUBLISH_MOCK_TEST,
-    publishProduct: process.env.REACT_APP_APPWRITE_FUCTION_PUBLISH_PRODUCT,
+    contactInstitute: process.env.REACT_APP_APPWRITE_FUNCTION_CONTACT_INSTITUTE,
+    toggleBlock: process.env.REACT_APP_APPWRITE_FUNCTION_TOGGLE_BLOCK,
+    publishQuestion: process.env.REACT_APP_APPWRITE_FUNCTION_PUBLIC_QUESTION,
+    publishMockTest: process.env.REACT_APP_APPWRITE_FUNCTION_PUBLISH_MOCK_TEST,
+    publishProduct: process.env.REACT_APP_APPWRITE_FUNCTION_PUBLISH_PRODUCT,
   },
 };
 

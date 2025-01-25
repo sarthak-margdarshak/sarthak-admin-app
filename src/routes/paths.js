@@ -1,26 +1,9 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// ----------------------------------------------------------------------
 function path(root, sublink) {
   return `${root}${sublink}`;
 }
 
-// ----------------------------------------------------------------------
-
 const ROOTS_AUTH = "/auth";
 const ROOTS_DASHBOARD = "/dashboard";
-
-// ----------------------------------------------------------------------
 
 export const PATH_AUTH = {
   root: ROOTS_AUTH,
@@ -29,8 +12,6 @@ export const PATH_AUTH = {
   newPassword: path(ROOTS_AUTH, "/new-password"),
   acceptInvite: path(ROOTS_AUTH, "/accept-invite"),
 };
-
-// ----------------------------------------------------------------------
 
 export const PATH_PAGE = {
   comingSoon: "/coming-soon",
@@ -42,8 +23,6 @@ export const PATH_PAGE = {
   page500: "/500",
   success: "/success",
 };
-
-// ----------------------------------------------------------------------
 
 export const PATH_DASHBOARD = {
   root: ROOTS_DASHBOARD,
@@ -64,17 +43,14 @@ export const PATH_DASHBOARD = {
   question: {
     root: path(ROOTS_DASHBOARD, "/question"),
     list: path(ROOTS_DASHBOARD, "/question/list"),
-    new: path(ROOTS_DASHBOARD, "/question/new"),
     view: (id) => path(ROOTS_DASHBOARD, `/question/${id}`),
     edit: (id) => path(ROOTS_DASHBOARD, `/question/${id}/edit`),
   },
   mockTest: {
     root: path(ROOTS_DASHBOARD, "/mock-test"),
-    new: path(ROOTS_DASHBOARD, "/mock-test/new"),
+    list: path(ROOTS_DASHBOARD, "/mock-test/list"),
     view: (id) => path(ROOTS_DASHBOARD, `/mock-test/${id}`),
     edit: (id) => path(ROOTS_DASHBOARD, `/mock-test/${id}/edit`),
-    driver: path(ROOTS_DASHBOARD, "/mock-test/driver"),
-    list: (id) => path(ROOTS_DASHBOARD, `/mock-test/driver/${id}`),
   },
   product: {
     root: path(ROOTS_DASHBOARD, "/product"),
