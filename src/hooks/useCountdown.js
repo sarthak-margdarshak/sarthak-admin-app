@@ -1,20 +1,4 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import { useState, useEffect } from "react";
-
-// ----------------------------------------------------------------------
 
 export default function useCountdown(date) {
   const [countdown, setCountdown] = useState({
@@ -64,6 +48,3 @@ export default function useCountdown(date) {
     seconds: countdown.seconds,
   };
 }
-
-// Usage
-// const countdown = useCountdown(new Date('07/07/2022 21:30'));
