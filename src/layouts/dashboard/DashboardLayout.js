@@ -1,33 +1,13 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
-// @mui
 import { Box } from "@mui/material";
-// hooks
-import useResponsive from "../../hooks/useResponsive";
-// components
-import { useSettingsContext } from "../../components/settings";
-//
-import Main from "./Main";
-import Header from "./header";
-import NavMini from "./nav/NavMini";
-import NavVertical from "./nav/NavVertical";
-import NavHorizontal from "./nav/NavHorizontal";
-
-// ----------------------------------------------------------------------
+import useResponsive from "hooks/useResponsive";
+import { useSettingsContext } from "components/settings";
+import Main from "layouts/dashboard/Main";
+import Header from "layouts/dashboard/header";
+import NavMini from "layouts/dashboard/nav/NavMini";
+import NavVertical from "layouts/dashboard/nav/NavVertical";
+import NavHorizontal from "layouts/dashboard/nav/NavHorizontal";
 
 export default function DashboardLayout() {
   const { themeLayout } = useSettingsContext();

@@ -1,11 +1,8 @@
 import PropTypes from "prop-types";
-import { forwardRef } from "react";
+import {forwardRef, Fragment} from "react";
 import { Link as RouterLink } from "react-router-dom";
 // @mui
 import { Tooltip, Link, ListItemText } from "@mui/material";
-// auth
-import RoleBasedGuard from "../../../auth/RoleBasedGuard";
-//
 import Iconify from "../../iconify";
 import { StyledItem, StyledIcon } from "./styles";
 
@@ -94,7 +91,7 @@ const NavItem = forwardRef(
       );
     };
 
-    return <RoleBasedGuard roles={roles}> {renderItem()} </RoleBasedGuard>;
+    return <Fragment> {renderItem()} </Fragment>;
   }
 );
 
