@@ -1,10 +1,7 @@
 import { m } from "framer-motion";
-// @mui
 import { Container, Typography } from "@mui/material";
-// components
-import { MotionContainer, varBounce } from "../../components/animate";
-// assets
-import { ForbiddenIllustration } from "../../assets/illustrations";
+import { MotionContainer, varBounce } from "../animate";
+import { ForbiddenIllustration } from "assets/illustrations";
 import React from "react";
 
 export default function PermissionDeniedComponent() {

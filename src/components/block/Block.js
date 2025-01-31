@@ -1,9 +1,6 @@
 import PropTypes from "prop-types";
-// @mui
 import { alpha } from "@mui/material/styles";
 import { Paper, CardHeader, Box, Typography } from "@mui/material";
-
-// ----------------------------------------------------------------------
 
 Block.propTypes = {
   sx: PropTypes.object,
@@ -34,8 +31,6 @@ export function Block({ title, sx, children }) {
     </Paper>
   );
 }
-
-// ----------------------------------------------------------------------
 
 Label.propTypes = {
   title: PropTypes.string,
