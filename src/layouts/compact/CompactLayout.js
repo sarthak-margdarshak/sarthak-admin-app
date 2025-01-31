@@ -1,29 +1,9 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import { Outlet } from "react-router-dom";
-// @mui
 import { Stack, Container } from "@mui/material";
-// hooks
-import useOffSetTop from "../../hooks/useOffSetTop";
-// config
-import { HEADER } from "../../config-global";
-//
+import useOffSetTop from "hooks/useOffSetTop";
+import { HEADER } from "config-global";
 import Header from "./Header";
 import React from "react";
-
-// ----------------------------------------------------------------------
 
 export default function CompactLayout() {
   const isOffset = useOffSetTop(HEADER.H_MAIN_DESKTOP);
