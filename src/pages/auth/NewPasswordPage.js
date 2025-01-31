@@ -1,36 +1,15 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import { Helmet } from "react-helmet-async";
 import { Link as RouterLink } from "react-router-dom";
-// @mui
 import { Link, Typography } from "@mui/material";
-// routes
-import { PATH_AUTH } from "../../routes/paths";
-// components
-import Iconify from "../../components/iconify";
-// sections
-import AuthNewPasswordForm from "../../sections/auth/AuthNewPasswordForm";
-// assets
-import { SentIcon } from "../../assets/icons";
-import React from "react";
-
-// ----------------------------------------------------------------------
+import { PATH_AUTH } from "routes/paths";
+import Iconify from "components/iconify";
+import AuthNewPasswordForm from "sections/auth/AuthNewPasswordForm";
+import { SentIcon } from "assets/icons";
+import { Fragment } from "react";
 
 export default function NewPasswordPage() {
   return (
-    <React.Fragment>
+    <Fragment>
       <Helmet>
         <title> New Password | Sarthak Admin</title>
       </Helmet>
@@ -68,6 +47,6 @@ export default function NewPasswordPage() {
         <Iconify icon="eva:chevron-left-fill" width={16} />
         Return to sign in
       </Link>
-    </React.Fragment>
+    </Fragment>
   );
 }
