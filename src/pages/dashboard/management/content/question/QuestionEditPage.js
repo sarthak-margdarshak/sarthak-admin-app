@@ -1,9 +1,9 @@
 import { Helmet } from "react-helmet-async";
-import {Container} from "@mui/material";
+import { Container } from "@mui/material";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useSettingsContext } from "components/settings";
 import CustomBreadcrumbs from "components/custom-breadcrumbs";
-import {Fragment} from "react";
+import { Fragment } from "react";
 import QuestionEditForm from "sections/@dashboard/management/content/question/component/QuestionEditForm";
 
 export default function QuestionEditPage() {
