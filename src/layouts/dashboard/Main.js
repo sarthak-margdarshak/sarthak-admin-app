@@ -1,39 +1,15 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import PropTypes from "prop-types";
-// @mui
 import { Box } from "@mui/material";
-// hooks
-import useResponsive from "../../hooks/useResponsive";
-// config
-import { HEADER, NAV } from "../../config-global";
-// components
-import { useSettingsContext } from "../../components/settings";
-
-// ----------------------------------------------------------------------
+import useResponsive from "hooks/useResponsive";
+import { HEADER, NAV } from "config-global";
+import { useSettingsContext } from "components/settings";
 
 const SPACING = 8;
-
-// ----------------------------------------------------------------------
 
 Main.propTypes = {
   sx: PropTypes.object,
   children: PropTypes.node,
 };
-
-// ----------------------------------------------------------------------
 
 export default function Main({ children, sx, ...other }) {
   const { themeLayout } = useSettingsContext();

@@ -1,38 +1,18 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// @mui
 import { alpha } from "@mui/material/styles";
 import { Box, Divider, Typography, Stack, MenuItem } from "@mui/material";
-// routes
-import { PATH_DASHBOARD, PATH_AUTH } from "../../../routes/paths";
-// auth
-import { useAuthContext } from "../../../auth/useAuthContext";
-// components
-import { CustomAvatar } from "../../../components/custom-avatar";
-import { useSnackbar } from "../../../components/snackbar";
-import MenuPopover from "../../../components/menu-popover";
-import { IconButtonAnimate } from "../../../components/animate";
-
-// ----------------------------------------------------------------------
+import { PATH_DASHBOARD, PATH_AUTH } from "routes/paths";
+import { useAuthContext } from "auth/useAuthContext";
+import { CustomAvatar } from "components/custom-avatar";
+import { useSnackbar } from "components/snackbar";
+import MenuPopover from "components/menu-popover";
+import { IconButtonAnimate } from "components/animate";
 
 export default function AccountPopover() {
   const navigate = useNavigate();
 
-  const { user, logout, profileImage } = useAuthContext();
+  const { user, logout } = useAuthContext();
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -45,7 +25,7 @@ export default function AccountPopover() {
     },
     {
       label: "Profile",
-      linkTo: PATH_DASHBOARD.user.profile(user?.$id),
+      linkTo: PATH_DASHBOARD.user,
     },
   ];
 
@@ -92,7 +72,11 @@ export default function AccountPopover() {
           }),
         }}
       >
-        <CustomAvatar src={profileImage} alt={user?.name} name={user?.name} />
+        <CustomAvatar
+          src={user.prefs?.photo}
+          alt={user?.name}
+          name={user?.name}
+        />
       </IconButtonAnimate>
 
       <MenuPopover

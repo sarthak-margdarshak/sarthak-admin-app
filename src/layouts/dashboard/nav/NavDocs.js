@@ -1,23 +1,5 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
-// @mui
 import { Stack, Typography, Box } from "@mui/material";
-// auth
-import { useAuthContext } from "../../../auth/useAuthContext";
-
-// ----------------------------------------------------------------------
+import { useAuthContext } from "auth/useAuthContext";
 
 export default function NavDocs() {
   const { user } = useAuthContext();

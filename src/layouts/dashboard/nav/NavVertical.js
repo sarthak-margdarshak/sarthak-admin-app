@@ -1,44 +1,21 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import PropTypes from "prop-types";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-// @mui
 import { Box, Stack, Drawer } from "@mui/material";
-// hooks
-import useResponsive from "../../../hooks/useResponsive";
-// config
-import { NAV } from "../../../config-global";
-// components
-import Logo from "../../../components/logo";
-import Scrollbar from "../../../components/scrollbar";
-import { NavSectionVertical } from "../../../components/nav-section";
-//
-import navConfig from "./config-navigation";
-import NavDocs from "./NavDocs";
-import NavAccount from "./NavAccount";
-import NavToggleButton from "./NavToggleButton";
-
-// ----------------------------------------------------------------------
+import useResponsive from "hooks/useResponsive";
+import { NAV } from "config-global";
+import Logo from "components/logo";
+import Scrollbar from "components/scrollbar";
+import { NavSectionVertical } from "components/nav-section";
+import navConfig from "layouts/dashboard/nav/config-navigation";
+import NavDocs from "layouts/dashboard/nav/NavDocs";
+import NavAccount from "layouts/dashboard/nav/NavAccount";
+import NavToggleButton from "layouts/dashboard/nav/NavToggleButton";
 
 NavVertical.propTypes = {
   openNav: PropTypes.bool,
   onCloseNav: PropTypes.func,
 };
-
-// ----------------------------------------------------------------------
 
 export default function NavVertical({ openNav, onCloseNav }) {
   const { pathname } = useLocation();
