@@ -27,7 +27,7 @@ export default function NavItem({
   isExternalLink,
   ...other
 }) {
-  const { title, path, icon, info, children, disabled, caption, roles } = item;
+  const { title, path, icon, info, children, disabled, caption } = item;
 
   const subItem = depth !== 1;
 

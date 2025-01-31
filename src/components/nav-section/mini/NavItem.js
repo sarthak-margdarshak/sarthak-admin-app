@@ -10,7 +10,7 @@ import { StyledItem, StyledIcon } from "./styles";
 
 const NavItem = forwardRef(
   ({ item, depth, open, active, isExternalLink, ...other }, ref) => {
-    const { title, path, icon, children, disabled, caption, roles } = item;
+    const { title, path, icon, children, disabled, caption } = item;
 
     const subItem = depth !== 1;
 
