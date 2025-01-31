@@ -1,4 +1,4 @@
-import {Navigate, Outlet, useRoutes} from "react-router-dom";
+import { Navigate, Outlet, useRoutes } from "react-router-dom";
 import AuthGuard from "auth/AuthGuard";
 import GuestGuard from "auth/GuestGuard";
 import CompactLayout from "layouts/compact";
@@ -10,10 +10,8 @@ import {
   ResetPasswordPage,
   GeneralAppPage,
   UserProfilePage,
-  UserAccountPage,
   TeamListPage,
-  TeamDetailsPage,
-  AcceptInvitePage,
+  SignupPage,
   QuestionListPage,
   QuestionDetailsPage,
   QuestionEditPage,
@@ -33,7 +31,7 @@ import {
   ProductListPage,
 } from "./elements";
 import QuestionTreeView from "sections/@dashboard/management/content/layout/TreeView/QuestionTreeView";
-import {ContentProvider} from "sections/@dashboard/management/content/hook/ContentProvider";
+import { ContentProvider } from "sections/@dashboard/management/content/hook/ContentProvider";
 import React from "react";
 import Content from "layouts/dashboard/Content";
 
@@ -58,7 +56,7 @@ export default function Router() {
           children: [
             { path: "reset-password", element: <ResetPasswordPage /> },
             { path: "new-password", element: <NewPasswordPage /> },
-            { path: "accept-invite", element: <AcceptInvitePage /> },
+            { path: "signup", element: <SignupPage /> },
           ],
         },
       ],
@@ -79,37 +77,24 @@ export default function Router() {
         // Dashboard: User
         {
           path: "user",
-          children: [
-            {
-              element: <Navigate to="/dashboard/user/account" replace />,
-              index: true,
-            },
-            { path: "profile/", element: <UserProfilePage /> },
-            { path: "profile/:id", element: <UserProfilePage /> },
-            { path: "account", element: <UserAccountPage /> },
-          ],
+          element: <UserProfilePage />,
         },
         // Dashboard: Team
         {
           path: "team",
-          children: [
-            {
-              element: <Navigate to="/dashboard/team/list" replace />,
-              index: true,
-            },
-            { path: "list", element: <TeamListPage /> },
-            { path: ":id/view", element: <TeamDetailsPage /> },
-          ],
+          element: <TeamListPage />,
         },
         // Dashboard: Question
         {
           path: "question",
-          element: <ContentProvider>
-            <QuestionTreeView />
-            <Content>
-              <Outlet />
-            </Content>
-          </ContentProvider>,
+          element: (
+            <ContentProvider>
+              <QuestionTreeView />
+              <Content>
+                <Outlet />
+              </Content>
+            </ContentProvider>
+          ),
           children: [
             {
               element: <Navigate to="/dashboard/question/list" replace />,
@@ -123,12 +108,14 @@ export default function Router() {
         // Dashboard: Mock Test
         {
           path: "mock-test",
-          element: <ContentProvider>
-            <QuestionTreeView />
-            <Content>
-              <Outlet />
-            </Content>
-          </ContentProvider>,
+          element: (
+            <ContentProvider>
+              <QuestionTreeView />
+              <Content>
+                <Outlet />
+              </Content>
+            </ContentProvider>
+          ),
           children: [
             {
               element: <Navigate to="/dashboard/mock-test/list" replace />,
@@ -142,12 +129,14 @@ export default function Router() {
         // Dashboard: Product
         {
           path: "product",
-          element: <ContentProvider>
-            <QuestionTreeView />
-            <Content>
-              <Outlet />
-            </Content>
-          </ContentProvider>,
+          element: (
+            <ContentProvider>
+              <QuestionTreeView />
+              <Content>
+                <Outlet />
+              </Content>
+            </ContentProvider>
+          ),
           children: [
             {
               element: <Navigate to="/dashboard/product/list" replace />,

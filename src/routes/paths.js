@@ -10,7 +10,7 @@ export const PATH_AUTH = {
   login: path(ROOTS_AUTH, "/login"),
   resetPassword: path(ROOTS_AUTH, "/reset-password"),
   newPassword: path(ROOTS_AUTH, "/new-password"),
-  acceptInvite: path(ROOTS_AUTH, "/accept-invite"),
+  signup: path(ROOTS_AUTH, "/signup"),
 };
 
 export const PATH_PAGE = {
@@ -29,17 +29,8 @@ export const PATH_DASHBOARD = {
   general: {
     app: path(ROOTS_DASHBOARD, "/app"),
   },
-  user: {
-    root: path(ROOTS_DASHBOARD, "/user"),
-    account: path(ROOTS_DASHBOARD, "/user/account"),
-    profile: (id) => path(ROOTS_DASHBOARD, `/user/profile/${id}`),
-  },
-  team: {
-    root: path(ROOTS_DASHBOARD, "/team"),
-    list: path(ROOTS_DASHBOARD, "/team/list"),
-    edit: (id) => path(ROOTS_DASHBOARD, `/team/${id}/edit`),
-    view: (id) => path(ROOTS_DASHBOARD, `/team/${id}/view`),
-  },
+  user: path(ROOTS_DASHBOARD, "/user"),
+  team: path(ROOTS_DASHBOARD, "/team"),
   question: {
     root: path(ROOTS_DASHBOARD, "/question"),
     list: path(ROOTS_DASHBOARD, "/question/list"),
