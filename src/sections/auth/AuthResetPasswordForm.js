@@ -1,31 +1,11 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import * as Yup from "yup";
-// form
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-// @mui
 import { LoadingButton } from "@mui/lab";
-// components
-import FormProvider, { RHFTextField } from "../../components/hook-form";
-// Appwrite
-import { appwriteAccount } from "../../auth/AppwriteContext";
-import { PATH_AUTH } from "../../routes/paths";
-import { useSnackbar } from "../../components/snackbar";
-
-// ----------------------------------------------------------------------
+import FormProvider, { RHFTextField } from "components/hook-form";
+import { appwriteAccount } from "auth/AppwriteContext";
+import { PATH_AUTH } from "routes/paths";
+import { useSnackbar } from "components/snackbar";
 
 export default function AuthResetPasswordForm() {
   const { enqueueSnackbar } = useSnackbar();

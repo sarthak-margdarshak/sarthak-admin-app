@@ -1,34 +1,15 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import { useState } from "react";
 import * as Yup from "yup";
 import { Navigate, useSearchParams } from "react-router-dom";
-// form
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-// @mui
 import { Stack, IconButton, InputAdornment, Alert } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-// components
-import Iconify from "../../components/iconify";
-import { useSnackbar } from "../../components/snackbar";
-import FormProvider, { RHFTextField } from "../../components/hook-form";
-import { appwriteAccount } from "../../auth/AppwriteContext";
-import { PATH_PAGE } from "../../routes/paths";
-
-// ----------------------------------------------------------------------
+import Iconify from "components/iconify";
+import { useSnackbar } from "components/snackbar";
+import FormProvider, { RHFTextField } from "components/hook-form";
+import { appwriteAccount } from "auth/AppwriteContext";
+import { PATH_PAGE } from "routes/paths";
 
 export default function AuthNewPasswordForm() {
   const { enqueueSnackbar } = useSnackbar();
