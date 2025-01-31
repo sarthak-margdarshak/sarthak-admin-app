@@ -1,30 +1,12 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import { Helmet } from "react-helmet-async";
 import { Link as RouterLink } from "react-router-dom";
-// @mui
 import { Button, Typography, Stack } from "@mui/material";
-// assets
-import { MaintenanceIllustration } from "../assets/illustrations";
-import React from "react";
-
-// ----------------------------------------------------------------------
+import { MaintenanceIllustration } from "assets/illustrations";
+import { Fragment } from "react";
 
 export default function MaintenancePage() {
   return (
-    <React.Fragment>
+    <Fragment>
       <Helmet>
         <title> Maintenance | Sarthak Admin</title>
       </Helmet>
@@ -44,6 +26,6 @@ export default function MaintenancePage() {
           Go to Home
         </Button>
       </Stack>
-    </React.Fragment>
+    </Fragment>
   );
 }

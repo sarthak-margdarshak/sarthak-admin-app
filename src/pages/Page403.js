@@ -1,33 +1,14 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import { m } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { Link as RouterLink } from "react-router-dom";
-// @mui
 import { Button, Typography } from "@mui/material";
-// components
-import { MotionContainer, varBounce } from "../components/animate";
-// assets
-import { ForbiddenIllustration } from "../assets/illustrations";
-import React from "react";
-
-// ----------------------------------------------------------------------
+import { MotionContainer, varBounce } from "components/animate";
+import { ForbiddenIllustration } from "assets/illustrations";
+import { Fragment } from "react";
 
 export default function Page403() {
   return (
-    <React.Fragment>
+    <Fragment>
       <Helmet>
         <title> 403 Forbidden | Sarthak Admin</title>
       </Helmet>
@@ -55,6 +36,6 @@ export default function Page403() {
           Go to Home
         </Button>
       </MotionContainer>
-    </React.Fragment>
+    </Fragment>
   );
 }
