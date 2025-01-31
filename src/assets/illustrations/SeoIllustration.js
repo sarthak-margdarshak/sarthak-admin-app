@@ -1,11 +1,7 @@
 import { memo } from "react";
-// @mui
 import { useTheme } from "@mui/material/styles";
 import { Box } from "@mui/material";
-//
-import BackgroundIllustration from "./BackgroundIllustration";
-
-// ----------------------------------------------------------------------
+import BackgroundIllustration from "assets/illustrations/BackgroundIllustration";
 
 function SeoIllustration({ ...other }) {
   const theme = useTheme();

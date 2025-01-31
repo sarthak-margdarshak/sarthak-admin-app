@@ -1,9 +1,6 @@
 import { memo } from "react";
-// @mui
 import { useTheme } from "@mui/material/styles";
 import { Box } from "@mui/material";
-
-// ----------------------------------------------------------------------
 
 function CheckInIllustration({ ...other }) {
   const theme = useTheme();
