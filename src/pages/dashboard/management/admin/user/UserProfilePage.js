@@ -1,75 +1,32 @@
 import { Helmet } from "react-helmet-async";
-import React, { useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { Tab, Card, Tabs, Container, Box } from "@mui/material";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useAuthContext } from "auth/useAuthContext";
 import Iconify from "components/iconify";
 import CustomBreadcrumbs from "components/custom-breadcrumbs";
 import { useSettingsContext } from "components/settings";
-import Profile from "sections/@dashboard/management/admin/user/profile/home/Profile";
-import { APPWRITE_API } from "config-global";
-import {
-  appwriteDatabases,
-  appwriteStorage,
-} from "auth/AppwriteContext";
 import ProfileCover from "sections/@dashboard/management/admin/user/profile/ProfileCover";
+import AccountChangePassword from "sections/@dashboard/management/admin/user/profile/AccountChangePassword";
 
 export default function UserProfilePage() {
-  let userId = window.location.pathname.split("/")[4];
   const { user } = useAuthContext();
-  if (userId === "") {
-    userId = user.$id;
-  }
 
   const { themeStretch } = useSettingsContext();
 
-  const [userProfile, setUserProfile] = useState(null);
-  const [profileImage, setProfileImage] = useState(null);
-
-  useEffect(() => {
-    async function fetchData() {
-      setProfileImage(null);
-      setUserProfile(null);
-      let data = await appwriteDatabases.getDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.adminUsers,
-        userId
-      );
-      if (data.photoUrl) {
-        setProfileImage(
-          appwriteStorage.getFilePreview(
-            APPWRITE_API.buckets.adminUserImage,
-            data.photoUrl,
-            undefined,
-            undefined,
-            undefined,
-            20
-          ).href
-        );
-      }
-      setUserProfile(data);
-    }
-    fetchData();
-  }, [userId]);
-
-  const [currentTab, setCurrentTab] = useState("profile");
+  const [currentTab, setCurrentTab] = useState("change-password");
 
   const TABS = [
     {
-      value: "profile",
-      label: "Profile",
-      icon: <Iconify icon="ic:round-account-box" />,
-      component: (
-        <Profile
-          userId={userId}
-          infoProfile={userProfile}
-        />
-      ),
+      value: "change-password",
+      label: "Change Password",
+      icon: <Iconify icon="solar:password-minimalistic-input-bold" />,
+      component: <AccountChangePassword />,
     },
   ];
 
   return (
-    <React.Fragment>
+    <Fragment>
       <Helmet>
         <title>User: Profile | Sarthak Admin</title>
       </Helmet>
@@ -79,8 +36,8 @@ export default function UserProfilePage() {
           heading="Profile"
           links={[
             { name: "Dashboard", href: PATH_DASHBOARD.root },
-            { name: "User", href: PATH_DASHBOARD.user.root },
-            { name: userProfile?.name },
+            { name: "User", href: PATH_DASHBOARD.user },
+            { name: user?.name },
           ]}
         />
         <Card
@@ -90,12 +47,7 @@ export default function UserProfilePage() {
             position: "relative",
           }}
         >
-          <ProfileCover
-            name={userProfile?.name}
-            role={userProfile?.designation}
-            profileImage={profileImage}
-            empId={userProfile?.empId}
-          />
+          <ProfileCover />
 
           <Tabs
             value={currentTab}
@@ -133,6 +85,6 @@ export default function UserProfilePage() {
             )
         )}
       </Container>
-    </React.Fragment>
+    </Fragment>
   );
 }
