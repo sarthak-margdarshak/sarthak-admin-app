@@ -1,28 +1,11 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
-// routes
 import { PATH_DASHBOARD } from "./routes/paths";
-
-// API
-// ----------------------------------------------------------------------
 
 export const APPWRITE_API = {
   backendUrl: process.env.REACT_APP_BACKEND_URL,
   projectId: process.env.REACT_APP_APPWRITE_PROJECT_ID,
-  databaseId: process.env.REACT_APP_APPWRITE_SARTHAK_DATABASE,
+  databaseId: "sarthak_core_db",
   collections: {
+    metadata: "metadata",
     adminUsers: process.env.REACT_APP_APPWRITE_COLLECTION_ADMIN_USERS,
     bookIndex: process.env.REACT_APP_APPWRITE_COLLECTION_BOOK_INDEX,
     chapters: process.env.REACT_APP_APPWRITE_COLLECTION_CHAPTERS,
@@ -37,15 +20,18 @@ export const APPWRITE_API = {
     products: process.env.REACT_APP_APPWRITE_COLLECTION_PRODUCTS,
   },
   documents: {
+    metadataContentDoc: "content_doc",
     sarthak: process.env.REACT_APP_APPWRITE_DOCUMENT_SARTHAK,
     ceoId: process.env.REACT_APP_APPWRITE_DOCUMENT_CEO_ID,
   },
   buckets: {
+    sarthakDatalakeBucket: "sarthak_datalake_bucket",
     adminUserImage: process.env.REACT_APP_APPWRITE_BUCKET_ADMIN_USER_IMAGE,
     questionFiles: process.env.REACT_APP_APPWRITE_BUCKET_QUESTION_FILES,
     productFiles: process.env.REACT_APP_APPWRITE_BUCKET_PRODUCT_FILES,
   },
   functions: {
+    sarthakAPI: "sarthak-api",
     contactInstitute: process.env.REACT_APP_APPWRITE_FUNCTION_CONTACT_INSTITUTE,
     toggleBlock: process.env.REACT_APP_APPWRITE_FUNCTION_TOGGLE_BLOCK,
     publishQuestion: process.env.REACT_APP_APPWRITE_FUNCTION_PUBLIC_QUESTION,
@@ -56,9 +42,6 @@ export const APPWRITE_API = {
 
 // ROOT PATH AFTER LOGIN SUCCESSFUL
 export const PATH_AFTER_LOGIN = PATH_DASHBOARD.general.app; // as '/dashboard/app'
-
-// LAYOUT
-// ----------------------------------------------------------------------
 
 export const HEADER = {
   H_MOBILE: 64,

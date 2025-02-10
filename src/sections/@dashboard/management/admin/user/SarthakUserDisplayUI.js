@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import { CustomAvatar } from "components/custom-avatar";
-import { Link, Skeleton, Stack, Typography } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
-import {
-  appwriteDatabases,
-  appwriteStorage,
-} from "auth/AppwriteContext";
+import { Skeleton, Stack, Typography } from "@mui/material";
+import { appwriteDatabases, appwriteStorage } from "auth/AppwriteContext";
 import { APPWRITE_API } from "config-global";
 
 export default function SarthakUserDisplayUI({ userId }) {
@@ -69,12 +65,10 @@ export default function SarthakUserDisplayUI({ userId }) {
           sx={{ width: 32, height: 32 }}
         />
       )}
-      <Link component={RouterLink} to={"/dashboard/user/profile/" + userId}>
-        <Stack direction="column" sx={{ ml: 1 }}>
-          <Typography variant="caption">{user?.name}</Typography>
-          <Typography variant="caption">{user?.empId}</Typography>
-        </Stack>
-      </Link>
+      <Stack direction="column" sx={{ ml: 1 }}>
+        <Typography variant="caption">{user?.name}</Typography>
+        <Typography variant="caption">{user?.$id}</Typography>
+      </Stack>
     </Stack>
   );
 }
