@@ -6,8 +6,8 @@ import { useAuthContext } from "auth/useAuthContext";
 import Iconify from "components/iconify";
 import CustomBreadcrumbs from "components/custom-breadcrumbs";
 import { useSettingsContext } from "components/settings";
-import ProfileCover from "sections/@dashboard/management/admin/user/profile/ProfileCover";
-import AccountChangePassword from "sections/@dashboard/management/admin/user/profile/AccountChangePassword";
+import ProfileCover from "sections/@dashboard/management/admin/user/ProfileCover";
+import AccountChangePassword from "sections/@dashboard/management/admin/user/AccountChangePassword";
 
 export default function UserProfilePage() {
   const { user } = useAuthContext();
