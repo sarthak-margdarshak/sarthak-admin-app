@@ -40,12 +40,6 @@ export class ProviderHelper {
             loadedOnce: false,
             lastSubjectId: null,
           },
-          mockTests: {
-            documents: [],
-            total: -1,
-            loadedOnce: false,
-            lastMockTestId: null,
-          },
           lastSynced: new Date().toISOString(),
         })
     );
@@ -60,9 +54,10 @@ export class ProviderHelper {
     }
 
     tempStandardsData.documents = Object.fromEntries(
-      Object.entries(tempStandardsData.documents)
-        .sort(([, a], [, b]) => b.$createdAt < a.$createdAt ? -1 : 1)
-    )
+      Object.entries(tempStandardsData.documents).sort(([, a], [, b]) =>
+        b.$createdAt < a.$createdAt ? -1 : 1
+      )
+    );
 
     const y = JSON.stringify(tempStandardsData);
     localStorage.setItem("standardsData", y);
@@ -103,12 +98,6 @@ export class ProviderHelper {
             loadedOnce: false,
             lastChapterId: null,
           },
-          mockTests: {
-            documents: [],
-            total: -1,
-            loadedOnce: false,
-            lastMockTestId: null,
-          },
           lastSynced: new Date().toISOString(),
         })
     );
@@ -122,9 +111,10 @@ export class ProviderHelper {
     }
 
     tempSubjectData.subjects.documents = Object.fromEntries(
-      Object.entries(tempSubjectData.subjects.documents)
-        .sort(([, a], [, b]) => b.$createdAt < a.$createdAt ? -1 : 1)
-    )
+      Object.entries(tempSubjectData.subjects.documents).sort(([, a], [, b]) =>
+        b.$createdAt < a.$createdAt ? -1 : 1
+      )
+    );
     data.documents[standardId] = tempSubjectData;
 
     const y = JSON.stringify(data);
@@ -167,12 +157,6 @@ export class ProviderHelper {
             loadedOnce: false,
             lastConceptId: null,
           },
-          mockTests: {
-            documents: [],
-            total: -1,
-            loadedOnce: false,
-            lastMockTestId: null,
-          },
           lastSynced: new Date().toISOString(),
         })
     );
@@ -186,9 +170,10 @@ export class ProviderHelper {
     }
 
     tempChapterData.chapters.documents = Object.fromEntries(
-      Object.entries(tempChapterData.chapters.documents)
-        .sort(([, a], [, b]) => b.$createdAt < a.$createdAt ? -1 : 1)
-    )
+      Object.entries(tempChapterData.chapters.documents).sort(([, a], [, b]) =>
+        b.$createdAt < a.$createdAt ? -1 : 1
+      )
+    );
     data.documents[standardId].subjects.documents[subjectId] = tempChapterData;
 
     const y = JSON.stringify(data);
@@ -226,18 +211,6 @@ export class ProviderHelper {
       (value) =>
         (tempConceptData.concepts.documents[value.$id] = {
           ...value,
-          questions: {
-            documents: {},
-            total: -1,
-            loadedOnce: false,
-            lastQuestionId: null,
-          },
-          mockTests: {
-            documents: [],
-            total: -1,
-            loadedOnce: false,
-            lastMockTestId: null,
-          },
           lastSynced: new Date().toISOString(),
         })
     );
@@ -251,145 +224,13 @@ export class ProviderHelper {
     }
 
     tempConceptData.concepts.documents = Object.fromEntries(
-      Object.entries(tempConceptData.concepts.documents)
-        .sort(([, a], [, b]) => b.$createdAt < a.$createdAt ? -1 : 1)
-    )
+      Object.entries(tempConceptData.concepts.documents).sort(([, a], [, b]) =>
+        b.$createdAt < a.$createdAt ? -1 : 1
+      )
+    );
     data.documents[standardId].subjects.documents[subjectId].chapters.documents[
       chapterId
     ] = tempConceptData;
-
-    const y = JSON.stringify(data);
-    localStorage.setItem("standardsData", y);
-
-    return data;
-  }
-
-  static async fetchQuestions(
-    standardsData,
-    standardId,
-    subjectId,
-    chapterId,
-    conceptId
-  ) {
-    const data = standardsData;
-    const tempQuestionData =
-      standardsData.documents[standardId].subjects.documents[subjectId].chapters
-        .documents[chapterId].concepts.documents[conceptId];
-
-    const queries = [
-      Query.equal("bookIndex", conceptId),
-      Query.select(["$id", "qnId", "$createdAt"]),
-      Query.orderDesc("$createdAt"),
-      Query.limit(100),
-    ];
-    if (tempQuestionData.questions.lastQuestionId !== null) {
-      queries.push(
-        Query.cursorAfter(tempQuestionData.questions.lastQuestionId)
-      );
-    }
-    const x = await appwriteDatabases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.questions,
-      queries
-    );
-
-    x.documents.map(
-      (value) =>
-        (tempQuestionData.questions.documents[value.$id] = {
-          ...value,
-          lastSynced: new Date().toISOString(),
-        })
-    );
-
-    tempQuestionData.questions.total = x.total;
-    tempQuestionData.questions.loadedOnce = true;
-
-    if (x.documents.length !== 0) {
-      tempQuestionData.questions.lastQuestionId =
-        x.documents[x.documents.length - 1]?.$id;
-    }
-
-    tempQuestionData.questions.documents = Object.fromEntries(
-      Object.entries(tempQuestionData.questions.documents)
-        .sort(([, a], [, b]) => b.$createdAt < a.$createdAt ? -1 : 1)
-    )
-    data.documents[standardId].subjects.documents[subjectId].chapters.documents[
-      chapterId
-    ].concepts.documents[conceptId] = tempQuestionData;
-
-    const y = JSON.stringify(data);
-    localStorage.setItem("standardsData", y);
-
-    return data;
-  }
-
-  static async fetchMockTests(
-    standardsData,
-    standardId,
-    subjectId,
-    chapterId,
-    conceptId
-  ) {
-    const data = standardsData;
-    let tempData;
-
-    const queries = [Query.select(["mtId", "$id", "$createdAt"]), Query.limit(100), Query.orderDesc("$createdAt"),];
-    if (conceptId !== null) {
-      queries.push(Query.equal("bookIndex", conceptId));
-      tempData =
-        standardsData.documents[standardId].subjects.documents[subjectId]
-          .chapters.documents[chapterId].concepts.documents[conceptId]
-          .mockTests;
-    } else if (chapterId !== null) {
-      queries.push(Query.equal("bookIndex", chapterId));
-      tempData =
-        standardsData.documents[standardId].subjects.documents[subjectId]
-          .chapters.documents[chapterId].mockTests;
-    } else if (subjectId !== null) {
-      queries.push(Query.equal("bookIndex", subjectId));
-      tempData =
-        standardsData.documents[standardId].subjects.documents[subjectId]
-          .mockTests;
-    } else {
-      queries.push(Query.equal("bookIndex", standardId));
-      tempData = standardsData.documents[standardId].mockTests;
-    }
-
-    if (tempData.lastMockTestId !== null) {
-      queries.push(Query.cursorAfter(tempData.lastMockTestId));
-    }
-
-    const x = await appwriteDatabases.listDocuments(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.mockTest,
-      queries
-    );
-
-    tempData.documents = tempData.documents.concat(x.documents);
-
-    tempData.total = x.total;
-    tempData.loadedOnce = true;
-
-    // Update the last id which got fetched
-    if (x.documents.length !== 0) {
-      tempData.lastMockTestId = x.documents[x.documents.length - 1].$id;
-    }
-
-    if (conceptId !== null) {
-      data.documents[standardId].subjects.documents[
-        subjectId
-      ].chapters.documents[chapterId].concepts.documents[conceptId].mockTests =
-        tempData;
-    } else if (chapterId !== null) {
-      data.documents[standardId].subjects.documents[
-        subjectId
-      ].chapters.documents[chapterId].mockTests = tempData;
-    } else if (subjectId !== null) {
-      data.documents[standardId].subjects.documents[subjectId].mockTests =
-        tempData;
-    } else {
-      data.documents[standardId].mockTests = tempData;
-    }
 
     const y = JSON.stringify(data);
     localStorage.setItem("standardsData", y);
