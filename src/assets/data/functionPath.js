@@ -2,6 +2,7 @@ export const sarthakAPIPath = {
   user: {
     fetch: {
       list: "/user/fetch/list",
+      id: "/user/fetch/id",
     },
     update: {
       label: "/user/update/label",

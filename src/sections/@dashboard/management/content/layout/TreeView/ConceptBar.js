@@ -5,25 +5,20 @@ import {
   ListItemText,
   Menu,
   MenuItem,
-  Tooltip,
 } from "@mui/material";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import React, { Fragment, useEffect, useState } from "react";
 import { useContent } from "../../hook/useContent";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
-import AddIcon from "@mui/icons-material/Add";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import { LoadingButton } from "@mui/lab";
-import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
-import {appwriteAccount, appwriteDatabases, timeAgo} from "../../../../../../auth/AppwriteContext";
-import QuestionBar from "./QuestionBar";
-import MockTestBar from "./MockTestBar";
-import {useAuthContext} from "../../../../../../auth/useAuthContext";
+import { appwriteAccount, appwriteDatabases } from "auth/AppwriteContext";
 import { useNavigate } from "react-router-dom";
-import {PATH_DASHBOARD} from "../../../../../../routes/paths";
-import {APPWRITE_API} from "../../../../../../config-global";
-import {ID, Permission, Query, Role} from "appwrite";
+import { PATH_DASHBOARD } from "routes/paths";
+import { APPWRITE_API } from "config-global";
+import { ID, Permission, Query, Role } from "appwrite";
+import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
+import ViewQuiltIcon from "@mui/icons-material/ViewQuilt";
+import { labels } from "assets/data";
+import PreviewIcon from "@mui/icons-material/Preview";
+import NoteAddIcon from "@mui/icons-material/NoteAdd";
 
 export default function ConceptBar({
   standardId,
@@ -31,30 +26,22 @@ export default function ConceptBar({
   chapterId,
   conceptId,
 }) {
-  const { standardsData, loadQuestions, refreshQuestions, loadMockTests, updateQuestion } =
-    useContent();
-  const { sarthakInfoData } = useAuthContext();
+  const { standardsData, updateQuestion } = useContent();
   const conceptData =
     standardsData.documents[standardId].subjects.documents[subjectId].chapters
       .documents[chapterId].concepts.documents[conceptId];
 
   const navigate = useNavigate();
 
-  const [opened, setOpened] = useState(false);
-  const [mockTestOpened, setMockTestOpened] = useState(false);
-  const [questionsOpened, setQuestionsOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpened = Boolean(anchorEl);
   const handleOpenMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
   const handleCloseMenu = () => {
-    if(!questionCreating) setAnchorEl(null);
+    if (!questionCreating) setAnchorEl(null);
   };
-  const [questionsLoading, setQuestionsLoading] = useState(false);
   const [questionCreating, setQuestionCreating] = useState(false);
-  const [mockTestsLoading, setMockTestsLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     function handleContextMenu(e) {
@@ -66,288 +53,102 @@ export default function ConceptBar({
     };
   }, []);
 
+  const createQuestion = async () => {
+    setQuestionCreating(true);
+    const question = await appwriteDatabases.createDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.questions,
+      ID.unique(),
+      {
+        standard: standardId,
+        subject: subjectId,
+        chapter: chapterId,
+        concept: conceptId,
+        bookIndex: conceptId,
+        creator: (await appwriteAccount.get()).$id,
+        updater: (await appwriteAccount.get()).$id,
+      },
+      [
+        Permission.read(Role.label(labels.admin)),
+        Permission.update(Role.label(labels.admin)),
+        Permission.read(Role.label(labels.author)),
+        Permission.update(Role.label(labels.author)),
+        Permission.read(Role.label(labels.founder)),
+        Permission.update(Role.label(labels.founder)),
+      ]
+    );
+    let functionInProgress = true;
+    while (functionInProgress) {
+      await new Promise((r) => setTimeout(r, 1000));
+      question.qnId = (
+        await appwriteDatabases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.questions,
+          question.$id,
+          [Query.select("qnId")]
+        )
+      ).qnId;
+      functionInProgress = question.qnId === null;
+    }
+    await updateQuestion(question.$id);
+    navigate(PATH_DASHBOARD.question.edit(question.$id));
+    setQuestionCreating(false);
+    handleCloseMenu();
+  };
+
   return (
     <Fragment>
-      <Fragment>
-        <LoadingButton
-          fullWidth
-          variant={opened ? "contained" : "outlined"}
-          style={{ justifyContent: "left", borderRadius: 0, paddingLeft: 85 }}
-          color="success"
-          startIcon={opened ? <ArrowDropDownIcon /> : <ArrowRightIcon />}
-          onClick={async () => setOpened(!opened)}
-          onContextMenu={handleOpenMenu}
-          loading={refreshing}
-          id={conceptId}
-        >
-          {conceptData.concept}
-        </LoadingButton>
+      <Button
+        fullWidth
+        variant="outlined"
+        style={{ justifyContent: "left", borderRadius: 0, paddingLeft: 70 }}
+        color="warning"
+        onContextMenu={handleOpenMenu}
+        id={conceptId}
+      >
+        {conceptData.concept}
+      </Button>
 
-        <Menu anchorEl={anchorEl} open={menuOpened} onClose={handleCloseMenu}>
-          <MenuItem onClick={async () => {
-            setQuestionCreating(true)
-            const question = await appwriteDatabases.createDocument(
-              APPWRITE_API.databaseId,
-              APPWRITE_API.collections.questions,
-              ID.unique(),
-              {
-                standard: standardId,
-                subject: subjectId,
-                chapter: chapterId,
-                concept: conceptId,
-                bookIndex: conceptId,
-                creator: (await appwriteAccount.get()).$id,
-                updater: (await appwriteAccount.get()).$id,
-              },
-              [
-                Permission.read(Role.team(sarthakInfoData.adminTeamId)),
-                Permission.update(Role.team(sarthakInfoData.adminTeamId)),
-              ]
-            );
-            let functionInProgress = true;
-            while (functionInProgress) {
-              await new Promise(r => setTimeout(r, 1000));
-              question.qnId = (await appwriteDatabases.getDocument(
-                APPWRITE_API.databaseId,
-                APPWRITE_API.collections.questions,
-                question.$id,
-                [
-                  Query.select("qnId")
-                ]
-              )).qnId
-              functionInProgress = question.qnId === null
-            }
-            await updateQuestion(question.$id)
-            navigate(PATH_DASHBOARD.question.edit(question.$id))
-            setQuestionCreating(false)
-            handleCloseMenu()
-          }} disabled={questionCreating}>
-            <ListItemIcon>
-              <CreateNewFolderIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>{questionCreating ? "Creating..." : "Create a Question"}</ListItemText>
-          </MenuItem>
+      <Menu anchorEl={anchorEl} open={menuOpened} onClose={handleCloseMenu}>
+        <MenuItem onClick={createQuestion} disabled={questionCreating}>
+          <ListItemIcon>
+            <CreateNewFolderIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>
+            {questionCreating ? "Creating..." : "Create a Question"}
+          </ListItemText>
+        </MenuItem>
 
-          <MenuItem>
-            <ListItemIcon>
-              <AddIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Create a mock Test</ListItemText>
-          </MenuItem>
+        <MenuItem>
+          <ListItemIcon>
+            <NoteAddIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Create a mock Test</ListItemText>
+        </MenuItem>
 
-          <Divider />
+        <Divider />
 
-          <MenuItem
-            onClick={async () => {
-              handleCloseMenu();
-              setMockTestOpened(false);
-              setQuestionsOpened(false);
-              setOpened(false);
-              setRefreshing(true);
-              await refreshQuestions(
-                standardId,
-                subjectId,
-                chapterId,
-                conceptId
-              );
-              setRefreshing(false);
-            }}
-          >
-            <ListItemIcon>
-              <RefreshIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Sync</ListItemText>
-          </MenuItem>
+        <MenuItem onClick={() => {}}>
+          <ListItemIcon>
+            <PreviewIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>View Questions</ListItemText>
+        </MenuItem>
 
-          <MenuItem disabled>
-            {timeAgo.format(Date.parse(conceptData.lastSynced))}
-          </MenuItem>
-        </Menu>
-      </Fragment>
+        <MenuItem onClick={() => {}}>
+          <ListItemIcon>
+            <ViewCompactAltIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>View mock Tests</ListItemText>
+        </MenuItem>
 
-      {/** Questions */}
-      {opened && (
-        <Fragment>
-          <Tooltip
-            title={
-              conceptData.questions.loadedOnce
-                ? "Loaded " +
-                  Object.keys(
-                    conceptData.questions.documents
-                  ).length.toString() +
-                  " out of " +
-                  conceptData.questions.total.toString()
-                : "Not yet loaded"
-            }
-          >
-            <Button
-              fullWidth
-              variant={questionsOpened ? "contained" : "outlined"}
-              style={{
-                justifyContent: "left",
-                borderRadius: 0,
-                paddingLeft: 95,
-              }}
-              color="error"
-              startIcon={
-                questionsOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
-              }
-              onClick={async () => {
-                setQuestionsOpened(!questionsOpened);
-                setQuestionsLoading(true);
-                if (
-                  !questionsOpened &&
-                  conceptData.questions.loadedOnce === false
-                ) {
-                  await loadQuestions(
-                    standardId,
-                    subjectId,
-                    chapterId,
-                    conceptId
-                  );
-                }
-                setQuestionsLoading(false);
-              }}
-            >
-              Questions
-            </Button>
-          </Tooltip>
-
-          {questionsOpened && (
-            <Fragment>
-              {Object.keys(conceptData.questions.documents).map((id, index) => (
-                <QuestionBar
-                  key={index}
-                  standardId={standardId}
-                  subjectId={subjectId}
-                  chapterId={chapterId}
-                  conceptId={conceptId}
-                  questionId={id}
-                />
-              ))}
-              {(questionsLoading ||
-                conceptData.questions.total !==
-                  Object.keys(conceptData.questions.documents).length) && (
-                <LoadingButton
-                  fullWidth
-                  variant="contained"
-                  style={{
-                    justifyContent: "left",
-                    borderRadius: 0,
-                    paddingLeft: 105,
-                  }}
-                  color="info"
-                  startIcon={<KeyboardDoubleArrowDownIcon />}
-                  onClick={async () => {
-                    setQuestionsLoading(true);
-                    await loadQuestions(
-                      standardId,
-                      subjectId,
-                      chapterId,
-                      conceptId
-                    );
-                    setQuestionsLoading(false);
-                  }}
-                  loading={questionsLoading}
-                >
-                  Load More
-                </LoadingButton>
-              )}
-            </Fragment>
-          )}
-        </Fragment>
-      )}
-
-      {/** Mock Tests */}
-      {opened && (
-        <React.Fragment>
-          <Tooltip
-            title={
-              conceptData.mockTests.loadedOnce
-                ? "Loaded " +
-                  Object.keys(
-                    conceptData.mockTests.documents
-                  ).length.toString() +
-                  " out of " +
-                  conceptData.mockTests.total.toString()
-                : "Not yet loaded"
-            }
-          >
-            <Button
-              fullWidth
-              variant={mockTestOpened ? "contained" : "outlined"}
-              style={{
-                justifyContent: "left",
-                borderRadius: 0,
-                paddingLeft: 95,
-              }}
-              color="error"
-              startIcon={
-                mockTestOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
-              }
-              onClick={async () => {
-                setMockTestOpened(!mockTestOpened);
-                setMockTestsLoading(true);
-                if (
-                  !mockTestOpened &&
-                  conceptData.mockTests.loadedOnce === false
-                ) {
-                  await loadMockTests(
-                    standardId,
-                    subjectId,
-                    chapterId,
-                    conceptId
-                  );
-                }
-                setMockTestsLoading(false);
-              }}
-            >
-              Mock Tests
-            </Button>
-          </Tooltip>
-
-          {mockTestOpened && (
-            <React.Fragment>
-              {conceptData.mockTests.documents.map((mockTest, index) => (
-                <MockTestBar
-                  key={index}
-                  mtId={mockTest.mtId}
-                  id={mockTest.$id}
-                  level={4}
-                />
-              ))}
-              {(mockTestsLoading ||
-                conceptData.mockTests.total !==
-                  Object.keys(conceptData.mockTests.documents).length) && (
-                <LoadingButton
-                  fullWidth
-                  variant="contained"
-                  style={{
-                    justifyContent: "left",
-                    borderRadius: 0,
-                    paddingLeft: 105,
-                  }}
-                  color="info"
-                  startIcon={<KeyboardDoubleArrowDownIcon />}
-                  onClick={async () => {
-                    setMockTestsLoading(true);
-                    await loadMockTests(
-                      standardId,
-                      subjectId,
-                      chapterId,
-                      conceptId
-                    );
-                    setMockTestsLoading(false);
-                  }}
-                  loading={mockTestsLoading}
-                >
-                  Load More
-                </LoadingButton>
-              )}
-            </React.Fragment>
-          )}
-        </React.Fragment>
-      )}
+        <MenuItem onClick={() => {}}>
+          <ListItemIcon>
+            <ViewQuiltIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>View products</ListItemText>
+        </MenuItem>
+      </Menu>
     </Fragment>
   );
 }

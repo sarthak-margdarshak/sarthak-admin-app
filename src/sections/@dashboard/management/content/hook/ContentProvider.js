@@ -1,11 +1,10 @@
 import PropTypes from "prop-types";
 import { createContext, useCallback, useMemo, useReducer } from "react";
-import { appwriteDatabases } from "auth/AppwriteContext";
+import { appwriteDatabases, appwriteStorage } from "auth/AppwriteContext";
 import { APPWRITE_API } from "config-global";
-import {ProviderHelper} from "sections/@dashboard/management/content/hook/ProviderHelper";
-import {ID} from "appwrite";
+import { ProviderHelper } from "sections/@dashboard/management/content/hook/ProviderHelper";
+import { ID } from "appwrite";
 import { useSnackbar } from "components/snackbar";
-import {Question} from "auth/Question";
 
 const initialState = {
   standardsData: localStorage.getItem("standardsData")
@@ -31,13 +30,10 @@ const initialState = {
   loadSubject: async () => {},
   loadChapter: async () => {},
   loadConcept: async () => {},
-  loadQuestions: async () => {},
-  loadMockTests: async () => {},
   refreshStandard: async () => {},
   refreshSubject: async () => {},
   refreshChapter: async () => {},
   refreshConcept: async () => {},
-  refreshQuestions: async () => {},
   addStandard: async () => {},
   addSubject: async () => {},
   addChapter: async () => {},
@@ -54,7 +50,7 @@ const reducer = (state, action) => {
     return {
       ...state,
       dockOpen: action.payload.dockOpen,
-    }
+    };
   }
   return state;
 };
@@ -68,19 +64,16 @@ ContentProvider.propTypes = {
 export function ContentProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { enqueueSnackbar } = useSnackbar();
-  
-  const updateDock = useCallback(
-    (status) => {
+
+  const updateDock = useCallback((status) => {
     dispatch({
       type: "DOCK_UPDATE",
       payload: {
         dockOpen: status,
       },
     });
-    },
-    []
-  );
-  
+  }, []);
+
   const getBookIndex = useCallback(
     async (id) => {
       try {
@@ -92,36 +85,54 @@ export function ContentProvider({ children }) {
             APPWRITE_API.databaseId,
             APPWRITE_API.collections.bookIndex,
             id
-          )
-          let tmpLabel
-          if (data.subject === null && data.chapter === null && data.concept === null) {
+          );
+          let tmpLabel;
+          if (
+            data.subject === null &&
+            data.chapter === null &&
+            data.concept === null
+          ) {
             tmpLabel = data.standard;
           } else {
-            data.standard = (await appwriteDatabases.getDocument(
-              APPWRITE_API.databaseId,
-              APPWRITE_API.collections.bookIndex,
-              data.standard
-            )).standard;
+            data.standard = (
+              await appwriteDatabases.getDocument(
+                APPWRITE_API.databaseId,
+                APPWRITE_API.collections.bookIndex,
+                data.standard
+              )
+            ).standard;
 
             if (data.chapter === null && data.concept === null) {
               tmpLabel = data.standard + " 🢒 " + data.subject;
             } else {
-              data.subject = (await appwriteDatabases.getDocument(
-                APPWRITE_API.databaseId,
-                APPWRITE_API.collections.bookIndex,
-                data.subject
-              )).subject;
-
-              if (data.concept === null) {
-                tmpLabel = data.standard + " 🢒 " + data.subject + " 🢒 " + data.chapter;
-              } else {
-                data.chapter = (await appwriteDatabases.getDocument(
+              data.subject = (
+                await appwriteDatabases.getDocument(
                   APPWRITE_API.databaseId,
                   APPWRITE_API.collections.bookIndex,
-                  data.chapter
-                )).chapter;
+                  data.subject
+                )
+              ).subject;
 
-                tmpLabel = data.standard + " 🢒 " + data.subject + " 🢒 " + data.chapter + " 🢒 " + data.concept;
+              if (data.concept === null) {
+                tmpLabel =
+                  data.standard + " 🢒 " + data.subject + " 🢒 " + data.chapter;
+              } else {
+                data.chapter = (
+                  await appwriteDatabases.getDocument(
+                    APPWRITE_API.databaseId,
+                    APPWRITE_API.collections.bookIndex,
+                    data.chapter
+                  )
+                ).chapter;
+
+                tmpLabel =
+                  data.standard +
+                  " 🢒 " +
+                  data.subject +
+                  " 🢒 " +
+                  data.chapter +
+                  " 🢒 " +
+                  data.concept;
               }
             }
           }
@@ -140,60 +151,65 @@ export function ContentProvider({ children }) {
     },
     [state.bookIndex]
   );
-  
+
   const updateQuestion = useCallback(
     async (questionId) => {
-    const question = await appwriteDatabases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.questions,
-      questionId
-    )
-
-    if(question?.coverQuestion !== null && question?.coverQuestion !== "") {
-      question.coverQuestion = await Question.getQuestionContentForPreview(
-        question?.coverQuestion
+      const question = await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        questionId
       );
-    }
 
-    const options = []
-    for (let i in question?.coverOptions) {
-      if(question?.coverOptions[i] !== null && question?.coverOptions[i] !== "") {
-        const data = await Question.getQuestionContentForPreview(
-          question?.coverOptions[i]
-        );
-        options.push(data)
-      } else {
-        options.push(null)
+      if (question?.coverQuestion !== null && question?.coverQuestion !== "") {
+        question.coverQuestion = appwriteStorage.getFileDownload(
+          APPWRITE_API.buckets.sarthakDatalakeBucket,
+          question?.coverQuestion
+        ).href;
       }
-    }
-    question.coverOptions = options;
 
-    if(question?.coverAnswer !== null && question?.coverAnswer !== "") {
-      question.coverAnswer = await Question.getQuestionContentForPreview(
-        question?.coverAnswer
-      );
-    }
-    
-    state.questionsData[question.$id] = {
-      ...question,
-      lastSynced: new Date().toISOString(),
-    }
-
-    const y = JSON.stringify(state.questionsData);
-    localStorage.setItem("questionsData", y);
-    
-    dispatch({
-      type: "QUESTION_UPDATE",
-      payload: {
-        questionData: state.questionsData,
+      const options = [];
+      for (let i in question?.coverOptions) {
+        if (
+          question?.coverOptions[i] !== null &&
+          question?.coverOptions[i] !== ""
+        ) {
+          const data = appwriteStorage.getFileDownload(
+            APPWRITE_API.buckets.sarthakDatalakeBucket,
+            question?.coverOptions[i]
+          ).href;
+          options.push(data);
+        } else {
+          options.push(null);
+        }
       }
-    })
-  },
+      question.coverOptions = options;
+
+      if (question?.coverAnswer !== null && question?.coverAnswer !== "") {
+        question.coverAnswer = appwriteStorage.getFileDownload(
+          APPWRITE_API.buckets.sarthakDatalakeBucket,
+          question?.coverAnswer
+        ).href;
+      }
+
+      state.questionsData[question.$id] = {
+        ...question,
+        lastSynced: new Date().toISOString(),
+      };
+
+      const y = JSON.stringify(state.questionsData);
+      localStorage.setItem("questionsData", y);
+
+      dispatch({
+        type: "QUESTION_UPDATE",
+        payload: {
+          questionData: state.questionsData,
+        },
+      });
+    },
     [state.questionsData]
   );
 
-  const loadStandard = useCallback(
-    async () => {
+  const loadStandard = useCallback(async () => {
     const tempStandardsData = await ProviderHelper.fetchStandards(
       state.standardsData
     );
@@ -203,9 +219,7 @@ export function ContentProvider({ children }) {
         standardsData: tempStandardsData,
       },
     });
-  },
-    [state.standardsData]
-  );
+  }, [state.standardsData]);
 
   const loadSubject = useCallback(
     async (standardId) => {
@@ -258,46 +272,7 @@ export function ContentProvider({ children }) {
     [state.standardsData]
   );
 
-  const loadQuestions = useCallback(
-    async (standardId, subjectId, chapterId, conceptId) => {
-      const data = await ProviderHelper.fetchQuestions(
-        state.standardsData,
-        standardId,
-        subjectId,
-        chapterId,
-        conceptId
-      );
-      dispatch({
-        type: "UPDATE",
-        payload: {
-          standardsData: data,
-        },
-      });
-    },
-    [state.standardsData]
-  );
-
-  const loadMockTests = useCallback(
-    async (standardId, subjectId, chapterId, conceptId) => {
-      const data = await ProviderHelper.fetchMockTests(
-        state.standardsData,
-        standardId,
-        subjectId,
-        chapterId,
-        conceptId
-      );
-      dispatch({
-        type: "UPDATE",
-        payload: {
-          standardsData: data,
-        },
-      });
-    },
-    [state.standardsData]
-  );
-
-  const refreshStandard = useCallback(
-    async () => {
+  const refreshStandard = useCallback(async () => {
     state.standardsData = {
       documents: {},
       total: -1,
@@ -314,9 +289,7 @@ export function ContentProvider({ children }) {
         standardsData: tempStandardsData,
       },
     });
-  },
-    [state]
-  );
+  }, [state]);
 
   const refreshSubject = useCallback(
     async (standardId) => {
@@ -335,12 +308,6 @@ export function ContentProvider({ children }) {
           total: -1,
           loadedOnce: false,
           lastSubjectId: null,
-        },
-        mockTests: {
-          documents: [],
-          total: -1,
-          loadedOnce: false,
-          lastMockTestId: null,
         },
         lastSynced: new Date().toISOString(),
       };
@@ -375,12 +342,6 @@ export function ContentProvider({ children }) {
           total: -1,
           loadedOnce: false,
           lastChapterId: null,
-        },
-        mockTests: {
-          documents: [],
-          total: -1,
-          loadedOnce: false,
-          lastMockTestId: null,
         },
         lastSynced: new Date().toISOString(),
       };
@@ -419,12 +380,6 @@ export function ContentProvider({ children }) {
           loadedOnce: false,
           lastConceptId: null,
         },
-        mockTests: {
-          documents: [],
-          total: -1,
-          loadedOnce: false,
-          lastMockTestId: null,
-        },
         lastSynced: new Date().toISOString(),
       };
 
@@ -445,295 +400,277 @@ export function ContentProvider({ children }) {
     [state.standardsData]
   );
 
-  const refreshQuestions = useCallback(
-    async (standardId, subjectId, chapterId, conceptId) => {
-      const x = await appwriteDatabases.getDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.bookIndex,
-        conceptId
-      );
-
-      const data = state.standardsData;
-
-      data.documents[standardId].subjects.documents[
-        subjectId
-      ].chapters.documents[chapterId].concepts.documents[conceptId] = {
-        ...x,
-        questions: {
-          documents: {},
-          total: -1,
-          loadedOnce: false,
-          lastQuestionId: null,
-        },
-        mockTests: {
-          documents: [],
-          total: -1,
-          loadedOnce: false,
-          lastMockTestId: null,
-        },
-        lastSynced: new Date().toISOString(),
-      };
-
-      const tempStandardsData = await ProviderHelper.fetchQuestions(
-        state.standardsData,
-        standardId,
-        subjectId,
-        chapterId,
-        conceptId
-      );
-
-      dispatch({
-        type: "UPDATE",
-        payload: {
-          standardsData: tempStandardsData,
-        },
-      });
-    },
-    [state.standardsData]
-  );
-
   const addStandard = useCallback(
     async (standardName) => {
-    try {
-      const x = await appwriteDatabases.createDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.bookIndex,
-        ID.unique(),
-        {
-          standard: standardName,
+      try {
+        const x = await appwriteDatabases.createDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.bookIndex,
+          ID.unique(),
+          {
+            standard: standardName,
+          }
+        );
+
+        state.standardsData.documents[x.$id] = {
+          ...x,
+          subjects: {
+            documents: {},
+            total: -1,
+            loadedOnce: false,
+            lastSubjectId: null,
+          },
+          lastSynced: new Date().toISOString(),
+        };
+        state.standardsData.total = state.standardsData.total + 1;
+        state.standardsData.loadedOnce = true;
+        if (state.standardsData.lastStandardId === null) {
+          state.standardsData.lastStandardId = x.$id;
         }
-      )
+        if (state.standardsData.lastSynced === null) {
+          state.standardsData.lastSynced = new Date().toISOString();
+        }
 
-      state.standardsData.documents[x.$id] = {
-        ...x,
-        subjects: {
-          documents: {},
-          total: -1,
-          loadedOnce: false,
-          lastSubjectId: null,
-        },
-        mockTests: {
-          documents: [],
-          total: -1,
-          loadedOnce: false,
-          lastMockTestId: null,
-        },
-        lastSynced: new Date().toISOString(),
-      };
-      state.standardsData.total = state.standardsData.total + 1;
-      state.standardsData.loadedOnce = true;
-      if (state.standardsData.lastStandardId === null) {
-        state.standardsData.lastStandardId = x.$id;
+        state.standardsData.documents = Object.fromEntries(
+          Object.entries(state.standardsData.documents).sort(([, a], [, b]) =>
+            b.$createdAt < a.$createdAt ? -1 : 1
+          )
+        );
+
+        const y = JSON.stringify(state.standardsData);
+        localStorage.setItem("standardsData", y);
+
+        dispatch({
+          type: "UPDATE",
+          payload: {
+            standardsData: state.standardsData,
+          },
+        });
+        enqueueSnackbar("Standard " + standardName + " successfully created.");
+      } catch (error) {
+        enqueueSnackbar(error.message, { variant: "error" });
       }
-      if (state.standardsData.lastSynced === null) {
-        state.standardsData.lastSynced = new Date().toISOString();
-      }
-
-      state.standardsData.documents = Object.fromEntries(
-        Object.entries(state.standardsData.documents)
-          .sort(([, a], [, b]) => b.$createdAt < a.$createdAt ? -1 : 1)
-      )
-
-      const y = JSON.stringify(state.standardsData);
-      localStorage.setItem("standardsData", y);
-
-      dispatch({
-        type: "UPDATE",
-        payload: {
-          standardsData: state.standardsData,
-        },
-      });
-      enqueueSnackbar("Standard " + standardName + " successfully created.");
-    } catch (error) {
-      enqueueSnackbar(error.message, {variant: "error"});
-    }
-  },
+    },
     [enqueueSnackbar, state.standardsData]
   );
 
   const addSubject = useCallback(
     async (subjectName, standardId) => {
-    try {
-      const x = await appwriteDatabases.createDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.bookIndex,
-        ID.unique(),
-        {
-          standard: standardId,
-          subject: subjectName,
+      try {
+        const x = await appwriteDatabases.createDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.bookIndex,
+          ID.unique(),
+          {
+            standard: standardId,
+            subject: subjectName,
+          }
+        );
+
+        state.standardsData.documents[standardId].subjects.documents[x.$id] = {
+          ...x,
+          chapters: {
+            documents: {},
+            total: -1,
+            loadedOnce: false,
+            lastChapterId: null,
+          },
+          lastSynced: new Date().toISOString(),
+        };
+
+        state.standardsData.documents[standardId].subjects.total =
+          state.standardsData.documents[standardId].subjects.total + 1;
+        state.standardsData.documents[standardId].subjects.loadedOnce = true;
+        if (
+          state.standardsData.documents[standardId].subjects.lastStandardId ===
+          null
+        ) {
+          state.standardsData.lastStandardId = x.$id;
         }
-      )
+        if (
+          state.standardsData.documents[standardId].subjects.lastSynced === null
+        ) {
+          state.standardsData.lastSynced = new Date().toISOString();
+        }
 
-      state.standardsData.documents[standardId].subjects.documents[x.$id] = {
-        ...x,
-        chapters: {
-          documents: {},
-          total: -1,
-          loadedOnce: false,
-          lastChapterId: null,
-        },
-        mockTests: {
-          documents: [],
-          total: -1,
-          loadedOnce: false,
-          lastMockTestId: null,
-        },
-        lastSynced: new Date().toISOString(),
+        state.standardsData.documents[standardId].subjects.documents =
+          Object.fromEntries(
+            Object.entries(
+              state.standardsData.documents[standardId].subjects.documents
+            ).sort(([, a], [, b]) => (b.$createdAt < a.$createdAt ? -1 : 1))
+          );
+
+        const y = JSON.stringify(state.standardsData);
+        localStorage.setItem("standardsData", y);
+
+        dispatch({
+          type: "UPDATE",
+          payload: {
+            standardsData: state.standardsData,
+          },
+        });
+        enqueueSnackbar("Subject " + subjectName + " successfully created.");
+      } catch (e) {
+        enqueueSnackbar(e.message, { variant: "error" });
       }
-
-      state.standardsData.documents[standardId].subjects.total = state.standardsData.documents[standardId].subjects.total + 1;
-      state.standardsData.documents[standardId].subjects.loadedOnce = true;
-      if (state.standardsData.documents[standardId].subjects.lastStandardId === null) {
-        state.standardsData.lastStandardId = x.$id;
-      }
-      if (state.standardsData.documents[standardId].subjects.lastSynced === null) {
-        state.standardsData.lastSynced = new Date().toISOString();
-      }
-
-      state.standardsData.documents[standardId].subjects.documents = Object.fromEntries(
-        Object.entries(state.standardsData.documents[standardId].subjects.documents)
-          .sort(([, a], [, b]) => b.$createdAt < a.$createdAt ? -1 : 1)
-      )
-
-      const y = JSON.stringify(state.standardsData);
-      localStorage.setItem("standardsData", y);
-
-      dispatch({
-        type: "UPDATE",
-        payload: {
-          standardsData: state.standardsData,
-        },
-      });
-      enqueueSnackbar("Subject " + subjectName + " successfully created.");
-    } catch (e) {
-      enqueueSnackbar(e.message, {variant: "error"});
-    }
-  },
+    },
     [enqueueSnackbar, state.standardsData]
   );
-  
+
   const addChapter = useCallback(
     async (chapterName, standardId, subjectId) => {
-    try {
-      const x = await appwriteDatabases.createDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.bookIndex,
-        ID.unique(),
-        {
-          standard: standardId,
-          subject: subjectId,
-          chapter: chapterName,
+      try {
+        const x = await appwriteDatabases.createDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.bookIndex,
+          ID.unique(),
+          {
+            standard: standardId,
+            subject: subjectId,
+            chapter: chapterName,
+          }
+        );
+
+        state.standardsData.documents[standardId].subjects.documents[
+          subjectId
+        ].chapters.documents[x.$id] = {
+          ...x,
+          concepts: {
+            documents: {},
+            total: -1,
+            loadedOnce: false,
+            lastConceptId: null,
+          },
+          lastSynced: new Date().toISOString(),
+        };
+
+        state.standardsData.documents[standardId].subjects.documents[
+          subjectId
+        ].chapters.total =
+          state.standardsData.documents[standardId].subjects.documents[
+            subjectId
+          ].chapters.total + 1;
+        state.standardsData.documents[standardId].subjects.documents[
+          subjectId
+        ].chapters.loadedOnce = true;
+        if (
+          state.standardsData.documents[standardId].subjects.documents[
+            subjectId
+          ].chapters.lastStandardId === null
+        ) {
+          state.standardsData.lastStandardId = x.$id;
         }
-      )
+        if (
+          state.standardsData.documents[standardId].subjects.documents[
+            subjectId
+          ].chapters.lastSynced === null
+        ) {
+          state.standardsData.lastSynced = new Date().toISOString();
+        }
 
-      state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.documents[x.$id] = {
-        ...x,
-        concepts: {
-          documents: {},
-          total: -1,
-          loadedOnce: false,
-          lastConceptId: null,
-        },
-        mockTests: {
-          documents: [],
-          total: -1,
-          loadedOnce: false,
-          lastMockTestId: null,
-        },
-        lastSynced: new Date().toISOString(),
+        state.standardsData.documents[standardId].subjects.documents[
+          subjectId
+        ].chapters.documents = Object.fromEntries(
+          Object.entries(
+            state.standardsData.documents[standardId].subjects.documents[
+              subjectId
+            ].chapters.documents
+          ).sort(([, a], [, b]) => (b.$createdAt < a.$createdAt ? -1 : 1))
+        );
+
+        const y = JSON.stringify(state.standardsData);
+        localStorage.setItem("standardsData", y);
+
+        dispatch({
+          type: "UPDATE",
+          payload: {
+            standardsData: state.standardsData,
+          },
+        });
+        enqueueSnackbar("Chapter " + chapterName + " successfully created.");
+      } catch (e) {
+        enqueueSnackbar(e.message, { variant: "error" });
       }
-
-      state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.total = state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.total + 1;
-      state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.loadedOnce = true;
-      if (state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.lastStandardId === null) {
-        state.standardsData.lastStandardId = x.$id;
-      }
-      if (state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.lastSynced === null) {
-        state.standardsData.lastSynced = new Date().toISOString();
-      }
-
-      state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.documents = Object.fromEntries(
-        Object.entries(state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.documents)
-          .sort(([, a], [, b]) => b.$createdAt < a.$createdAt ? -1 : 1)
-      )
-
-      const y = JSON.stringify(state.standardsData);
-      localStorage.setItem("standardsData", y);
-
-      dispatch({
-        type: "UPDATE",
-        payload: {
-          standardsData: state.standardsData,
-        },
-      });
-      enqueueSnackbar("Chapter " + chapterName + " successfully created.");
-    } catch (e) {
-      enqueueSnackbar(e.message, {variant: "error"});
-    }
-  },
+    },
     [enqueueSnackbar, state.standardsData]
   );
-  
+
   const addConcept = useCallback(
     async (conceptName, standardId, subjectId, chapterId) => {
-    try {
-      const x = await appwriteDatabases.createDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.bookIndex,
-        ID.unique(),
-        {
-          standard: standardId,
-          subject: subjectId,
-          chapter: chapterId,
-          concept: conceptName
+      try {
+        const x = await appwriteDatabases.createDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.bookIndex,
+          ID.unique(),
+          {
+            standard: standardId,
+            subject: subjectId,
+            chapter: chapterId,
+            concept: conceptName,
+          }
+        );
+
+        state.standardsData.documents[standardId].subjects.documents[
+          subjectId
+        ].chapters.documents[chapterId].concepts.documents[x.$id] = {
+          ...x,
+          questions: {
+            documents: {},
+            total: -1,
+            loadedOnce: false,
+            lastQuestionId: null,
+          },
+          lastSynced: new Date().toISOString(),
+        };
+
+        state.standardsData.documents[standardId].subjects.documents[
+          subjectId
+        ].chapters.documents[chapterId].concepts.total =
+          state.standardsData.documents[standardId].subjects.documents[
+            subjectId
+          ].chapters.documents[chapterId].concepts.total + 1;
+        state.standardsData.documents[standardId].subjects.documents[
+          subjectId
+        ].chapters.documents[chapterId].concepts.loadedOnce = true;
+        if (
+          state.standardsData.documents[standardId].subjects.documents[
+            subjectId
+          ].chapters.documents[chapterId].concepts.lastStandardId === null
+        ) {
+          state.standardsData.lastStandardId = x.$id;
         }
-      )
+        if (
+          state.standardsData.documents[standardId].subjects.documents[
+            subjectId
+          ].chapters.documents[chapterId].concepts.lastSynced === null
+        ) {
+          state.standardsData.lastSynced = new Date().toISOString();
+        }
 
-      state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.documents[chapterId].concepts.documents[x.$id] = {
-        ...x,
-        questions: {
-          documents: {},
-          total: -1,
-          loadedOnce: false,
-          lastQuestionId: null,
-        },
-        mockTests: {
-          documents: [],
-          total: -1,
-          loadedOnce: false,
-          lastMockTestId: null,
-        },
-        lastSynced: new Date().toISOString(),
+        state.standardsData.documents[standardId].subjects.documents[
+          subjectId
+        ].chapters.documents[chapterId].concepts.documents = Object.fromEntries(
+          Object.entries(
+            state.standardsData.documents[standardId].subjects.documents[
+              subjectId
+            ].chapters.documents[chapterId].concepts.documents
+          ).sort(([, a], [, b]) => (b.$createdAt < a.$createdAt ? -1 : 1))
+        );
+
+        const y = JSON.stringify(state.standardsData);
+        localStorage.setItem("standardsData", y);
+
+        dispatch({
+          type: "UPDATE",
+          payload: {
+            standardsData: state.standardsData,
+          },
+        });
+        enqueueSnackbar("Concept " + conceptName + " successfully created.");
+      } catch (e) {
+        enqueueSnackbar(e.message, { variant: "error" });
       }
-
-      state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.documents[chapterId].concepts.total = state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.documents[chapterId].concepts.total + 1;
-      state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.documents[chapterId].concepts.loadedOnce = true;
-      if (state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.documents[chapterId].concepts.lastStandardId === null) {
-        state.standardsData.lastStandardId = x.$id;
-      }
-      if (state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.documents[chapterId].concepts.lastSynced === null) {
-        state.standardsData.lastSynced = new Date().toISOString();
-      }
-
-      state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.documents[chapterId].concepts.documents = Object.fromEntries(
-        Object.entries(state.standardsData.documents[standardId].subjects.documents[subjectId].chapters.documents[chapterId].concepts.documents)
-          .sort(([, a], [, b]) => b.$createdAt < a.$createdAt ? -1 : 1)
-      )
-
-      const y = JSON.stringify(state.standardsData);
-      localStorage.setItem("standardsData", y);
-
-      dispatch({
-        type: "UPDATE",
-        payload: {
-          standardsData: state.standardsData,
-        },
-      });
-      enqueueSnackbar("Concept " + conceptName + " successfully created.");
-    } catch (e) {
-      enqueueSnackbar(e.message, {variant: "error"});
-    }
-  },
+    },
     [enqueueSnackbar, state.standardsData]
   );
 
@@ -750,13 +687,10 @@ export function ContentProvider({ children }) {
       loadSubject,
       loadChapter,
       loadConcept,
-      loadQuestions,
-      loadMockTests,
       refreshStandard,
       refreshSubject,
       refreshChapter,
       refreshConcept,
-      refreshQuestions,
       addStandard,
       addSubject,
       addChapter,
@@ -774,13 +708,10 @@ export function ContentProvider({ children }) {
       loadSubject,
       loadChapter,
       loadConcept,
-      loadQuestions,
-      loadMockTests,
       refreshStandard,
       refreshSubject,
       refreshChapter,
       refreshConcept,
-      refreshQuestions,
       addStandard,
       addSubject,
       addChapter,
