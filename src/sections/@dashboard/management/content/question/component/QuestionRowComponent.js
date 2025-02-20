@@ -42,7 +42,7 @@ import { Query } from "appwrite";
 import SarthakUserDisplayUI from "sections/@dashboard/management/admin/user/SarthakUserDisplayUI";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useNavigate } from "react-router-dom";
-import { labels } from "assets/data";
+import { labels, sarthakAPIPath } from "assets/data";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -131,8 +131,10 @@ export default function QuestionRowComponent({
     setPublishing(true);
     try {
       const x = await appwriteFunctions.createExecution(
-        APPWRITE_API.functions.publishQuestion,
-        JSON.stringify({ questionId: question.$id, userId: user.$id })
+        APPWRITE_API.functions.sarthakAPI,
+        JSON.stringify({ questionId: question.$id }),
+        false,
+        sarthakAPIPath.question.publish
       );
       const res = JSON.parse(x.responseBody);
       if (res.status === "failed") {

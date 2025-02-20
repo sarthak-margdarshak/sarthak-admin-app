@@ -11,12 +11,12 @@ export const sarthakAPIPath = {
     },
   },
   question: {
-    publish: "question/publish",
+    publish: "/question/publish",
   },
   mockTest: {
-    publish: "mockTest/publish",
+    publish: "/mockTest/publish",
   },
   product: {
-    publish: "product/publish",
+    publish: "/product/publish",
   },
 };
