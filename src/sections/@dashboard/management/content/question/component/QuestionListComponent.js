@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Divider,
@@ -13,21 +13,24 @@ import {
   Grow,
   ClickAwayListener,
   MenuList,
-  MenuItem, Chip,
+  MenuItem,
+  Chip,
+  Switch,
+  FormControlLabel,
+  FormHelperText,
 } from "@mui/material";
 import { useSnackbar } from "components/snackbar";
 import QuestionRowComponent from "./QuestionRowComponent";
-import {appwriteDatabases} from "auth/AppwriteContext";
-import {APPWRITE_API} from "config-global";
-import {Query} from "appwrite";
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import {useSearchParams} from "react-router-dom";
-import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import { appwriteDatabases } from "auth/AppwriteContext";
+import { APPWRITE_API } from "config-global";
+import { Query } from "appwrite";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import Iconify from "components/iconify";
 import FilterOption from "./filter/FilterOption";
 import FilterDialog from "./filter/FilterDialog";
-import {PATH_DASHBOARD} from "routes/paths";
+import { PATH_DASHBOARD } from "routes/paths";
 
 const sortOptions = [
   "Sort By Latest Created",
@@ -39,113 +42,184 @@ const sortOptions = [
 ];
 
 const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: '#ebebeb',
+  backgroundColor: "#ebebeb",
   padding: theme.spacing(1),
   color: theme.palette.text.secondary,
-  ...theme.applyStyles('dark', {
-    backgroundColor: '#1A2027',
+  ...theme.applyStyles("dark", {
+    backgroundColor: "#1A2027",
   }),
 }));
 
 export default function QuestionListComponent() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const anchorRef = useRef(null);
 
   const [questionIdLst, setQuestionIdLst] = useState([]);
   const [isFetchingData, setIsFetchingData] = useState(false);
   const [lastSyncedId, setLastSyncedId] = useState(null);
-  const [sortSelectedIndex, setSortSelectedIndex] = useState(searchParams.get('sortBy') !== null ? parseInt(searchParams.get('sortBy')) : 0);
+  const [sortSelectedIndex, setSortSelectedIndex] = useState(0);
   const [sortMenuOpened, setSortMenuOpened] = useState(false);
-  const [searchParameterOptions, setSearchParameterOptions] = useState([
-    { value: "bookIndex", label: "Index", isSelected: searchParams.get('bookIndex') !== null, content: searchParams.get('bookIndex') },
-    { value: "content", label: "Content", isSelected: searchParams.get('content') !== null, content: searchParams.get('content') ? decodeURIComponent(searchParams.get('content')) : null },
-    { value: "published", label: "Published", isSelected: searchParams.get('published') !== null, content: searchParams.get('published') !== null ? searchParams.get('published') === 'true' : false },
-    { value: "creator", label: "Created By", isSelected: searchParams.get('creator') !== null, content: searchParams.get('creator') },
-    { value: "updater", label: "Updated By", isSelected: searchParams.get('updater') !== null, content: searchParams.get('updater') },
-    { value: "approver", label: "Approved By", isSelected: searchParams.get('approver') !== null, content: searchParams.get('approver') },
-  ]);
-  const [searchParamsChanged, setSearchParamsChanged] = useState(false);
+  const [searchParameterOptions, setSearchParameterOptions] = useState([]);
   const [filterWindowOpen, setFilterWindowOpen] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
+  const [narrowSearch, setNarrowSearch] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = async (sortInd, params, narrow, lastId) => {
     setIsFetchingData(true);
     try {
-      let queries = [Query.limit(100), Query.select("$id")]
-      let orQueries = []
+      let queries = [Query.limit(25), Query.select("$id")];
+      let conditionalQueries = [];
+      let tmpQnLst = [];
 
-      if(lastSyncedId) {
-        queries.push(Query.cursorAfter(lastSyncedId));
+      if (lastId) {
+        tmpQnLst = questionIdLst;
+        queries.push(Query.cursorAfter(lastId));
       }
 
-      const sortInd = searchParams.get('sortBy') ? parseInt(searchParams.get('sortBy')) : 0
       if (sortInd === 5) {
-        queries.push(Query.orderAsc("approvedAt"))
+        queries.push(Query.orderAsc("approvedAt"));
       } else if (sortInd === 4) {
-        queries.push(Query.orderDesc("approvedAt"))
+        queries.push(Query.orderDesc("approvedAt"));
       } else if (sortInd === 3) {
-        queries.push(Query.orderAsc("$updatedAt"))
+        queries.push(Query.orderAsc("$updatedAt"));
       } else if (sortInd === 2) {
-        queries.push(Query.orderDesc("$updatedAt"))
+        queries.push(Query.orderDesc("$updatedAt"));
       } else if (sortInd === 1) {
-        queries.push(Query.orderAsc("$createdAt"))
+        queries.push(Query.orderAsc("$createdAt"));
       } else {
-        queries.push(Query.orderDesc("$createdAt"))
+        queries.push(Query.orderDesc("$createdAt"));
       }
 
-      if(searchParams.get('bookIndex')) {
-        orQueries.push(Query.equal("bookIndex", searchParams.get('bookIndex')));
-      }
+      params.forEach((q) => {
+        if (q.value === "bookIndex" && q.isSelected) {
+          conditionalQueries.push(
+            Query.or([
+              Query.equal("bookIndex", q.content),
+              Query.equal("standard", q.content),
+              Query.equal("subject", q.content),
+              Query.equal("chapter", q.content),
+              Query.equal("concept", q.content),
+            ])
+          );
+        }
 
-      if(searchParams.get('content')) {
-        orQueries.push(Query.search("contentQuestion", decodeURIComponent(searchParams.get('content'))));
-        orQueries.push(Query.contains("contentOptions", [decodeURIComponent(searchParams.get('content'))]));
-        orQueries.push(Query.search("contentAnswer", decodeURIComponent(searchParams.get('content'))));
-      }
+        if (q.value === "content" && q.isSelected) {
+          conditionalQueries.push(
+            Query.or([
+              Query.search("contentQuestion", q.content),
+              Query.contains("contentOptions", [q.content]),
+              Query.search("contentAnswer", q.content),
+            ])
+          );
+        }
 
-      if(searchParams.get('published')) {
-        orQueries.push(Query.equal("published", searchParams.get('published') === 'true'));
-      }
+        if (q.value === "published" && q.isSelected) {
+          conditionalQueries.push(Query.equal("published", q.content));
+        }
 
-      if(searchParams.get('creator')) {
-        orQueries.push(Query.equal("creator", searchParams.get('creator')));
-      }
+        if (q.value === "creator" && q.isSelected) {
+          conditionalQueries.push(Query.equal("creator", q.content));
+        }
 
-      if(searchParams.get('updater')) {
-        orQueries.push(Query.equal("updater", searchParams.get('updater')));
-      }
+        if (q.value === "updater" && q.isSelected) {
+          conditionalQueries.push(Query.equal("updater", q.content));
+        }
 
-      if(searchParams.get('approver')) {
-        orQueries.push(Query.equal("approver", searchParams.get('approver')));
-      }
+        if (q.value === "approver" && q.isSelected) {
+          conditionalQueries.push(Query.equal("approver", q.content));
+        }
+      });
 
-      if (orQueries.length > 1) {
-        queries.push(Query.or(orQueries));
+      if (conditionalQueries.length > 1) {
+        if (narrow) {
+          queries.push(Query.and(conditionalQueries));
+        } else {
+          queries.push(Query.or(conditionalQueries));
+        }
       } else {
-        queries = queries.concat(orQueries);
+        queries = queries.concat(conditionalQueries);
       }
 
       const data = await appwriteDatabases.listDocuments(
         APPWRITE_API.databaseId,
         APPWRITE_API.collections.questions,
         queries
-      )
-      let tmpLst = questionIdLst
-      tmpLst = tmpLst.concat(data.documents.map((doc) => doc.$id))
+      );
+
+      tmpQnLst = tmpQnLst.concat(data.documents.map((doc) => doc.$id));
       setTotalCount(data.total);
-      setQuestionIdLst(tmpLst);
-      if (data.documents.length > 0) setLastSyncedId(data.documents[data.documents.length - 1].$id)
+      setQuestionIdLst(tmpQnLst);
+      if (data.documents.length > 0)
+        setLastSyncedId(data.documents[data.documents.length - 1].$id);
     } catch (error) {
       enqueueSnackbar(error.message, { variant: "error" });
+      console.error(error);
     }
     setIsFetchingData(false);
   };
 
   useEffect(() => {
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const dataSort =
+      searchParams.get("sortBy") !== null
+        ? parseInt(searchParams.get("sortBy"))
+        : 0;
+    setSortSelectedIndex(dataSort);
+
+    const dataParams = [
+      {
+        value: "bookIndex",
+        label: "Index",
+        isSelected: searchParams.get("bookIndex") !== null,
+        content: searchParams.get("bookIndex"),
+      },
+      {
+        value: "content",
+        label: "Content",
+        isSelected: searchParams.get("content") !== null,
+        content: searchParams.get("content")
+          ? decodeURIComponent(searchParams.get("content"))
+          : null,
+      },
+      {
+        value: "published",
+        label: "Published",
+        isSelected: searchParams.get("published") !== null,
+        content:
+          searchParams.get("published") !== null
+            ? searchParams.get("published") === "true"
+            : false,
+      },
+      {
+        value: "creator",
+        label: "Created By",
+        isSelected: searchParams.get("creator") !== null,
+        content: searchParams.get("creator"),
+      },
+      {
+        value: "updater",
+        label: "Updated By",
+        isSelected: searchParams.get("updater") !== null,
+        content: searchParams.get("updater"),
+      },
+      {
+        value: "approver",
+        label: "Approved By",
+        isSelected: searchParams.get("approver") !== null,
+        content: searchParams.get("approver"),
+      },
+    ];
+    setSearchParameterOptions(dataParams);
+
+    const dataNarrow =
+      searchParams.get("narrowSearch") !== null
+        ? searchParams.get("narrowSearch") === "true"
+        : false;
+    setNarrowSearch(dataNarrow);
+
+    fetchData(dataSort, dataParams, dataNarrow, null);
+  }, [searchParams]);
 
   const handleClose = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
@@ -154,70 +228,115 @@ export default function QuestionListComponent() {
     setSortMenuOpened(false);
   };
 
+  const addParameter = (param) => {
+    const tmpOptions = searchParameterOptions;
+    const ind = tmpOptions.findIndex((option) => param.value === option.value);
+    if (ind !== -1) {
+      tmpOptions[ind] = param;
+      setSearchParameterOptions(tmpOptions);
+      navigateCustom(tmpOptions, sortSelectedIndex, narrowSearch);
+    }
+  };
+
+  const deleteParameter = (value) => {
+    const tmpOptions = searchParameterOptions;
+    const ind = tmpOptions.findIndex((option1) => option1.value === value);
+    if (ind !== -1) {
+      tmpOptions[ind] = { ...tmpOptions[ind], isSelected: false };
+      setSearchParameterOptions(tmpOptions);
+      navigateCustom(tmpOptions, sortSelectedIndex, narrowSearch);
+    }
+  };
+
+  const navigateCustom = (tmpOptions, sortInd, narrow) => {
+    let url = PATH_DASHBOARD.question.list;
+    let ret = [
+      encodeURIComponent("sortBy") + "=" + encodeURIComponent(sortInd),
+      encodeURIComponent("narrowSearch") + "=" + encodeURIComponent(narrow),
+    ];
+    for (let option of tmpOptions) {
+      if (option.isSelected) {
+        ret.push(
+          encodeURIComponent(option.value) +
+            "=" +
+            encodeURIComponent(option.content)
+        );
+      }
+    }
+    if (ret.length > 0) {
+      url += "?" + ret.join("&");
+    }
+    navigate(url);
+  };
+
   return (
     <React.Fragment>
       <FilterDialog
         filterWindowOpen={filterWindowOpen}
         searchParams={searchParameterOptions}
         handleClose={() => setFilterWindowOpen(!filterWindowOpen)}
-        onAddParam={(param) => {
-          const tmpOptions = searchParameterOptions
-          const ind = tmpOptions.findIndex((option) => param.value === option.value);
-          if (ind !== -1) {
-            tmpOptions[ind] = param;
-            setSearchParameterOptions(tmpOptions);
-            setSearchParamsChanged(true)
-          }
-        }}
+        onAddParam={addParameter}
       />
 
-      <Box component="section" sx={{ border: '1px solid grey', borderRadius: 1 }}>
+      <Box
+        component="section"
+        sx={{ border: "1px solid grey", borderRadius: 1 }}
+      >
         <Item>
-          <Divider sx={{m: 1}}>
+          <Divider sx={{ m: 1 }}>
             <Chip
-              label='Sort & Filter'
+              label="Sort & Filter"
               color="success"
-              icon={<Iconify icon='flat-color-icons:filled-filter' />}
+              icon={<Iconify icon="flat-color-icons:filled-filter" />}
             />
           </Divider>
 
           <Grid container spacing={2}>
             <Grid item xs={6} sm={8} md={8} lg={9} xl={9}>
               <Grid container spacing={1}>
-                {searchParameterOptions.filter((option) => option.isSelected).map((option, index) =>
-                  <FilterOption
-                    key={crypto.randomUUID()}
-                    option={option}
-                    onDelete={(value) => {
-                      const tmpOptions = searchParameterOptions
-                      const ind = tmpOptions.findIndex((option1) => option1.value === value);
-                      if (ind !== -1) {
-                        tmpOptions[ind] = {...tmpOptions[ind], isSelected: false};
-                        setSearchParameterOptions(tmpOptions);
-                        setSearchParamsChanged(true)
-                      }
-                    }}
-                  />
-                )}
+                {searchParameterOptions
+                  .filter((option) => option.isSelected)
+                  .map((option) => (
+                    <FilterOption
+                      key={crypto.randomUUID()}
+                      option={option}
+                      onDelete={deleteParameter}
+                    />
+                  ))}
 
-                {searchParameterOptions.some((option) => !option.isSelected) &&
+                {searchParameterOptions.some(
+                  (option) => !option.isSelected
+                ) && (
                   <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                    <Button fullWidth startIcon={<Iconify icon='material-symbols:category-rounded' />} onClick={() => setFilterWindowOpen(!filterWindowOpen)}>Add More Category</Button>
+                    <Button
+                      fullWidth
+                      startIcon={
+                        <Iconify icon="material-symbols:category-rounded" />
+                      }
+                      onClick={() => setFilterWindowOpen(!filterWindowOpen)}
+                    >
+                      Add More Category
+                    </Button>
                   </Grid>
-                }
+                )}
               </Grid>
             </Grid>
 
             <Grid item xs={6} sm={4} md={4} lg={3} xl={3}>
               <Grid container spacing={2}>
                 <Grid item>
-                  <ButtonGroup
-                    ref={anchorRef}
-                  >
-                    <Button fullWidth onClick={() => console.log("Clicked")} variant='outlined'>
+                  <ButtonGroup ref={anchorRef}>
+                    <Button
+                      fullWidth
+                      onClick={() => console.log("Clicked")}
+                      variant="outlined"
+                    >
                       {sortOptions[sortSelectedIndex]}
                     </Button>
-                    <Button onClick={() => setSortMenuOpened(!sortMenuOpened)} variant='contained'>
+                    <Button
+                      onClick={() => setSortMenuOpened(!sortMenuOpened)}
+                      variant="contained"
+                    >
                       <ArrowDropDownIcon />
                     </Button>
                   </ButtonGroup>
@@ -234,7 +353,9 @@ export default function QuestionListComponent() {
                         {...TransitionProps}
                         style={{
                           transformOrigin:
-                            placement === 'bottom' ? 'center top' : 'center bottom',
+                            placement === "bottom"
+                              ? "center top"
+                              : "center bottom",
                         }}
                       >
                         <Paper>
@@ -244,10 +365,14 @@ export default function QuestionListComponent() {
                                 <MenuItem
                                   key={option}
                                   selected={index === sortSelectedIndex}
-                                  onClick={(event) => {
-                                    setSortSelectedIndex(index)
-                                    setSearchParamsChanged(true)
-                                    setSortMenuOpened(false)
+                                  onClick={() => {
+                                    setSortSelectedIndex(index);
+                                    navigateCustom(
+                                      searchParameterOptions,
+                                      index,
+                                      narrowSearch
+                                    );
+                                    setSortMenuOpened(false);
                                   }}
                                 >
                                   {option}
@@ -262,26 +387,27 @@ export default function QuestionListComponent() {
                 </Grid>
 
                 <Grid item>
-                  <Button
-                    disabled={!searchParamsChanged}
-                    onClick={() => {
-                      let url = PATH_DASHBOARD.question.list
-                      let ret = [encodeURIComponent('sortBy') + "=" + encodeURIComponent(sortSelectedIndex)]
-                      for (let option of searchParameterOptions) {
-                        if (option.isSelected) {
-                          ret.push(encodeURIComponent(option.value) + "=" + encodeURIComponent(option.content))
-                        }
-                      }
-                      if(ret.length > 0) {
-                        url += "?" + ret.join("&")
-                      }
-                      window.open(url, "_self")
-                    }}
-                    variant='outlined'
-                    endIcon={<FilterAltIcon />}
-                  >
-                    Apply Filter
-                  </Button>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={narrowSearch}
+                        onChange={(event, checked) => {
+                          setNarrowSearch(checked);
+                          navigateCustom(
+                            searchParameterOptions,
+                            sortSelectedIndex,
+                            checked
+                          );
+                        }}
+                        name="gilad"
+                      />
+                    }
+                    label="Narrow Search"
+                  />
+                  <FormHelperText>
+                    Checking above switch will fetch the questions, which will
+                    fulfill all given conditions on the left.
+                  </FormHelperText>
                 </Grid>
               </Grid>
             </Grid>
@@ -293,7 +419,7 @@ export default function QuestionListComponent() {
         <Chip
           label={"Total Question - " + totalCount}
           color="info"
-          icon={<Iconify icon='arcticons:tally-counter' />}
+          icon={<Iconify icon="arcticons:tally-counter" />}
         />
       </Divider>
 
@@ -326,13 +452,23 @@ export default function QuestionListComponent() {
             disabled={isFetchingData}
             startIcon={<KeyboardDoubleArrowDownIcon />}
             endIcon={<KeyboardDoubleArrowDownIcon />}
-            onClick={fetchData}
+            onClick={() =>
+              fetchData(
+                sortSelectedIndex,
+                searchParameterOptions,
+                narrowSearch,
+                lastSyncedId
+              )
+            }
           >
-            {"Loaded " + questionIdLst.length + " out of " + totalCount + "! Load More"}
+            {"Loaded " +
+              questionIdLst.length +
+              " out of " +
+              totalCount +
+              "! Load More"}
           </Button>
         )}
       </Box>
-
     </React.Fragment>
   );
 }

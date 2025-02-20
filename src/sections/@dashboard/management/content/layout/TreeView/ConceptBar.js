@@ -13,10 +13,9 @@ import { appwriteAccount, appwriteDatabases } from "auth/AppwriteContext";
 import { useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "routes/paths";
 import { APPWRITE_API } from "config-global";
-import { ID, Permission, Query, Role } from "appwrite";
+import { ID } from "appwrite";
 import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
 import ViewQuiltIcon from "@mui/icons-material/ViewQuilt";
-import { labels } from "assets/data";
 import PreviewIcon from "@mui/icons-material/Preview";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 
@@ -26,7 +25,7 @@ export default function ConceptBar({
   chapterId,
   conceptId,
 }) {
-  const { standardsData, updateQuestion } = useContent();
+  const { standardsData } = useContent();
   const conceptData =
     standardsData.documents[standardId].subjects.documents[subjectId].chapters
       .documents[chapterId].concepts.documents[conceptId];
@@ -67,33 +66,16 @@ export default function ConceptBar({
         bookIndex: conceptId,
         creator: (await appwriteAccount.get()).$id,
         updater: (await appwriteAccount.get()).$id,
-      },
-      [
-        Permission.read(Role.label(labels.admin)),
-        Permission.update(Role.label(labels.admin)),
-        Permission.read(Role.label(labels.author)),
-        Permission.update(Role.label(labels.author)),
-        Permission.read(Role.label(labels.founder)),
-        Permission.update(Role.label(labels.founder)),
-      ]
+      }
     );
-    let functionInProgress = true;
-    while (functionInProgress) {
-      await new Promise((r) => setTimeout(r, 1000));
-      question.qnId = (
-        await appwriteDatabases.getDocument(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.collections.questions,
-          question.$id,
-          [Query.select("qnId")]
-        )
-      ).qnId;
-      functionInProgress = question.qnId === null;
-    }
-    await updateQuestion(question.$id);
-    navigate(PATH_DASHBOARD.question.edit(question.$id));
     setQuestionCreating(false);
     handleCloseMenu();
+    navigate(PATH_DASHBOARD.question.edit(question.$id), { replace: true });
+  };
+
+  const openQuestion = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + conceptId);
   };
 
   return (
@@ -119,7 +101,7 @@ export default function ConceptBar({
           </ListItemText>
         </MenuItem>
 
-        <MenuItem>
+        <MenuItem disabled>
           <ListItemIcon>
             <NoteAddIcon fontSize="small" />
           </ListItemIcon>
@@ -128,21 +110,21 @@ export default function ConceptBar({
 
         <Divider />
 
-        <MenuItem onClick={() => {}}>
+        <MenuItem onClick={openQuestion}>
           <ListItemIcon>
             <PreviewIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>View Questions</ListItemText>
         </MenuItem>
 
-        <MenuItem onClick={() => {}}>
+        <MenuItem disabled>
           <ListItemIcon>
             <ViewCompactAltIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>View mock Tests</ListItemText>
         </MenuItem>
 
-        <MenuItem onClick={() => {}}>
+        <MenuItem disabled>
           <ListItemIcon>
             <ViewQuiltIcon fontSize="small" />
           </ListItemIcon>

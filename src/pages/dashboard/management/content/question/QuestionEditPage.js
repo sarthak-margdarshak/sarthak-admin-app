@@ -3,13 +3,19 @@ import { Container } from "@mui/material";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useSettingsContext } from "components/settings";
 import CustomBreadcrumbs from "components/custom-breadcrumbs";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import QuestionEditForm from "sections/@dashboard/management/content/question/component/QuestionEditForm";
+import { useLocation } from "react-router-dom";
 
 export default function QuestionEditPage() {
   const { themeStretch } = useSettingsContext();
 
-  const questionId = window.location.pathname.split("/")[3];
+  const location = useLocation();
+  const [questionId, setQuestionId] = useState(location.pathname.split("/")[3]);
+
+  useEffect(() => {
+    setQuestionId(location.pathname.split("/")[3]);
+  }, [location.pathname]);
 
   return (
     <Fragment>

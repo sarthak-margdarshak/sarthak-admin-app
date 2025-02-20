@@ -21,9 +21,10 @@ import { timeAgo } from "auth/AppwriteContext";
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
 import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
-import ViewQuiltIcon from "@mui/icons-material/ViewQuilt";
 import PreviewIcon from "@mui/icons-material/Preview";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
+import { PATH_DASHBOARD } from "routes/paths";
+import { useNavigate } from "react-router-dom";
 
 export default function ChapterBar({ standardId, subjectId, chapterId }) {
   const { standardsData, loadConcept, refreshConcept, addConcept } =
@@ -31,6 +32,7 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
   const chapterData =
     standardsData.documents[standardId].subjects.documents[subjectId].chapters
       .documents[chapterId];
+  const navigate = useNavigate();
 
   const [conceptsOpened, setConceptsOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -76,6 +78,11 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
     setRefreshing(false);
   };
 
+  const openQuestion = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + chapterId);
+  };
+
   return (
     <Fragment>
       <Fragment>
@@ -109,7 +116,7 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
             <ListItemText>Create a Concept</ListItemText>
           </MenuItem>
 
-          <MenuItem onClick={() => {}}>
+          <MenuItem disabled>
             <ListItemIcon>
               <NoteAddIcon fontSize="small" />
             </ListItemIcon>
@@ -118,25 +125,18 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
 
           <Divider />
 
-          <MenuItem onClick={() => {}}>
+          <MenuItem onClick={openQuestion}>
             <ListItemIcon>
               <PreviewIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>View Questions</ListItemText>
           </MenuItem>
 
-          <MenuItem onClick={() => {}}>
+          <MenuItem disabled>
             <ListItemIcon>
               <ViewCompactAltIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>View mock Tests</ListItemText>
-          </MenuItem>
-
-          <MenuItem onClick={() => {}}>
-            <ListItemIcon>
-              <ViewQuiltIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>View products</ListItemText>
           </MenuItem>
 
           <Divider />

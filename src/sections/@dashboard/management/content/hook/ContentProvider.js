@@ -205,6 +205,11 @@ export function ContentProvider({ children }) {
           questionData: state.questionsData,
         },
       });
+
+      return {
+        ...question,
+        lastSynced: new Date().toISOString(),
+      };
     },
     [state.questionsData]
   );

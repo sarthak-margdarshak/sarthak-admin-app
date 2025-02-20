@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { CustomAvatar } from "components/custom-avatar";
 import { Skeleton, Stack, Typography } from "@mui/material";
-import { appwriteDatabases, appwriteStorage } from "auth/AppwriteContext";
+import { appwriteFunctions, appwriteStorage } from "auth/AppwriteContext";
 import { APPWRITE_API } from "config-global";
+import { sarthakAPIPath } from "assets/data";
 
 export default function SarthakUserDisplayUI({ userId }) {
   const [user, setUser] = useState();
@@ -14,22 +15,31 @@ export default function SarthakUserDisplayUI({ userId }) {
     const fetchData = async () => {
       try {
         if (userId && userId !== "") {
-          const data = await appwriteDatabases.getDocument(
-            APPWRITE_API.databaseId,
-            APPWRITE_API.collections.adminUsers,
-            userId
+          let response = await appwriteFunctions.createExecution(
+            APPWRITE_API.functions.sarthakAPI,
+            JSON.stringify({ userId: userId }),
+            false,
+            sarthakAPIPath.user.fetch.id
           );
-          setUser(data);
-          if (data?.photoUrl && data?.photoUrl !== "") {
-            const tempSrc = appwriteStorage.getFilePreview(
-              APPWRITE_API.buckets.adminUserImage,
-              data?.photoUrl,
-              undefined,
-              undefined,
-              undefined,
-              20
-            ).href;
-            setSrc(tempSrc);
+          response = JSON.parse(response.responseBody);
+
+          if (response.status === "success") {
+            setUser(response.user);
+
+            if (
+              response.user.prefs?.photo &&
+              response.user.prefs?.photo !== ""
+            ) {
+              const tempSrc = appwriteStorage.getFilePreview(
+                APPWRITE_API.buckets.sarthakDatalakeBucket,
+                response.user.prefs?.photo,
+                undefined,
+                undefined,
+                undefined,
+                20
+              ).href;
+              setSrc(tempSrc);
+            }
           }
         }
         setLoading(false);
