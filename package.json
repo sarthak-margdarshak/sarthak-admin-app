@@ -81,7 +81,7 @@
     "yup": "^1.1.1"
   },
   "scripts": {
-    "start": "react-app-rewired start",
+    "start": "NODE_ENV=development react-app-rewired start",
     "build:dev": "NODE_ENV=development react-app-rewired build",
     "build:prod": "NODE_ENV=production react-app-rewired build"
   },
