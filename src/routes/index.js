@@ -8,7 +8,7 @@ import {
   LoginPage,
   NewPasswordPage,
   ResetPasswordPage,
-  GeneralAppPage,
+  // GeneralAppPage,
   UserProfilePage,
   TeamListPage,
   SignupPage,
