@@ -89,6 +89,7 @@ export default function QuestionEditForm({ questionId }) {
       setIsDataLoading(false);
     };
     update();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionId]);
 
   const saveQuestion = async () => {

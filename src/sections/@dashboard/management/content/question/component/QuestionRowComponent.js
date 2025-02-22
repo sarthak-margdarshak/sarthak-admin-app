@@ -125,6 +125,7 @@ export default function QuestionRowComponent({
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionId]);
 
   const publishQuestion = async () => {

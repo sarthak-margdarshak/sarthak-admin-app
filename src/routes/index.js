@@ -37,7 +37,7 @@ import Content from "layouts/dashboard/Content";
 
 export default function Router() {
   return useRoutes([
-    { path: "/", element: <Navigate to="/dashboard" replace /> },
+    { path: "/", element: <Navigate to="/dashboard/question/list" replace /> },
 
     // Auth
     {
@@ -73,7 +73,8 @@ export default function Router() {
       children: [
         { element: <Navigate to={PATH_AFTER_LOGIN} replace />, index: true },
         // Dashboard: App
-        { path: "app", element: <GeneralAppPage /> },
+        // { path: "app", element: <GeneralAppPage /> },
+        { path: "app", element: <Navigate to="/dashboard/question/list" replace /> },
         // Dashboard: User
         {
           path: "user",

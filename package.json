@@ -1,6 +1,6 @@
 {
   "name": "sarthak-admin-app",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "homepage": "https://admin.sarthakmargdarshak.in",
   "dependencies": {
@@ -81,7 +81,7 @@
     "yup": "^1.1.1"
   },
   "scripts": {
-    "start": "NODE_ENV=development react-app-rewired start",
+    "start": "react-app-rewired start",
     "build:dev": "NODE_ENV=development react-app-rewired build",
     "build:prod": "NODE_ENV=production react-app-rewired build"
   },

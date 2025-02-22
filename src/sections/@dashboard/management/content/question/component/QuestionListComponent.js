@@ -219,6 +219,7 @@ export default function QuestionListComponent() {
     setNarrowSearch(dataNarrow);
 
     fetchData(dataSort, dataParams, dataNarrow, null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const handleClose = (event) => {

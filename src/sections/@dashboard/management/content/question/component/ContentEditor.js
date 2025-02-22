@@ -93,7 +93,7 @@ export default function ContentEditor({ value, onChange }) {
         insert Maths symbol. Anything appearing between two $ will be considered
         as LaTex.
         <Link
-          href="https://api.sarthakmargdarshak.in/v1/storage/buckets/672a50aa003599f495e8/files/678bb1b600030bbbd00d/view?project=671f66a0001e5803f481&project=671f66a0001e5803f481&mode=admin"
+          href="https://api.sarthakmargdarshak.in/v1/storage/buckets/sarthak_datalake_bucket/files/67ba3f08001bc2ac97f2/view?project=sarthak-margdarshak&mode=admin"
           target="_blank"
         >
           Click here to learn more syntax

@@ -6,7 +6,7 @@ import { Query } from "appwrite";
 
 export default function AdminUserList({ onChange }) {
   const [isUserListLoading, setIsUserListLoading] = useState(false);
-  const [userList, setUserList] = useState([]);
+  const [userList] = useState([]);
 
   return (
     <Autocomplete
