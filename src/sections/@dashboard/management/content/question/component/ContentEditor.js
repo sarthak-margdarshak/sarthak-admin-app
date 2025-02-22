@@ -1,16 +1,25 @@
 import {
-  AppBar, Button,
-  Dialog, FormControlLabel, FormHelperText,
-  IconButton, Link, ListItemText, Menu, MenuItem,
-  Paper, Slide, Switch,
+  AppBar,
+  Button,
+  Dialog,
+  FormControlLabel,
+  FormHelperText,
+  IconButton,
+  Link,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Paper,
+  Slide,
+  Switch,
   TextField,
   Toolbar,
-  Typography
+  Typography,
 } from "@mui/material";
-import React, {forwardRef, Fragment, useState} from "react";
+import React, { forwardRef, Fragment, useState } from "react";
 import "katex/dist/katex.min.css";
 import ReactKatex from "@pkasila/react-katex";
-import {alpha} from "@mui/material/styles";
+import { alpha } from "@mui/material/styles";
 import MathInput from "react-math-keyboard";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -18,7 +27,7 @@ const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function ContentEditor({value, onChange}) {
+export default function ContentEditor({ value, onChange }) {
   const [content, setContent] = useState(value);
   const [previewMode, setPreviewMode] = useState(false);
   const [mathDialogOpen, setMathDialogOpen] = useState(false);
@@ -37,7 +46,7 @@ export default function ContentEditor({value, onChange}) {
     setContent(newValue);
     onChange(newValue);
     event.preventDefault();
-  }
+  };
 
   return (
     <Fragment>
@@ -51,7 +60,7 @@ export default function ContentEditor({value, onChange}) {
         label="Preview"
       />
 
-      {!previewMode ?
+      {!previewMode ? (
         <TextField
           multiline
           fullWidth
@@ -62,25 +71,31 @@ export default function ContentEditor({value, onChange}) {
           onChange={(event) => handleValueChange(event, event.target.value)}
           onContextMenu={handleOpenMenu}
         />
-        :
+      ) : (
         <Paper
           sx={{
             p: 1,
             my: 1,
             minHeight: 132,
-            bgcolor: (theme) =>
-              alpha(theme.palette.grey[500], 0.12),
+            bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
           }}
         >
           <ReactKatex>{content}</ReactKatex>
         </Paper>
-      }
+      )}
 
       <FormHelperText>
-        We use <Link href='https://en.wikipedia.org/wiki/LaTeX' target='_blank'>LaTeX </Link>
-        to describe the content and layout of the document. It is also used to insert Maths symbol.
-        Anything appearing between two $ will be considered as LaTex.
-        <Link href="https://api.sarthakmargdarshak.in/v1/storage/buckets/672a50aa003599f495e8/files/678bb1b600030bbbd00d/view?project=671f66a0001e5803f481&project=671f66a0001e5803f481&mode=admin" target='_blank'>
+        We use{" "}
+        <Link href="https://en.wikipedia.org/wiki/LaTeX" target="_blank">
+          LaTeX{" "}
+        </Link>
+        to describe the content and layout of the document. It is also used to
+        insert Maths symbol. Anything appearing between two $ will be considered
+        as LaTex.
+        <Link
+          href="https://api.sarthakmargdarshak.in/v1/storage/buckets/sarthak_datalake_bucket/files/67ba3f08001bc2ac97f2/view?project=sarthak-margdarshak&mode=admin"
+          target="_blank"
+        >
           Click here to learn more syntax
         </Link>
       </FormHelperText>
@@ -101,11 +116,7 @@ export default function ContentEditor({value, onChange}) {
             >
               <CloseIcon />
             </IconButton>
-            <Typography
-              sx={{ ml: 2, flex: 1 }}
-              variant="h6"
-              component="div"
-            >
+            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
               Math Editor
             </Typography>
             <Button
@@ -127,13 +138,15 @@ export default function ContentEditor({value, onChange}) {
       </Dialog>
 
       <Menu anchorEl={anchorEl} open={menuOpened} onClose={handleCloseMenu}>
-        <MenuItem onClick={() => {
-          setMathDialogOpen(true)
-          handleCloseMenu()
-        }}>
+        <MenuItem
+          onClick={() => {
+            setMathDialogOpen(true);
+            handleCloseMenu();
+          }}
+        >
           <ListItemText>Insert Maths Content</ListItemText>
         </MenuItem>
       </Menu>
     </Fragment>
-  )
+  );
 }

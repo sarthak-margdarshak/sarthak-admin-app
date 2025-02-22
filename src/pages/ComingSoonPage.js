@@ -1,20 +1,5 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import PropTypes from "prop-types";
 import { Helmet } from "react-helmet-async";
-// @mui
 import { alpha } from "@mui/material/styles";
 import {
   Box,
@@ -24,18 +9,12 @@ import {
   IconButton,
   InputAdornment,
 } from "@mui/material";
-// hooks
-import useCountdown from "../hooks/useCountdown";
-// _mock
-import { _socials } from "../_mock/arrays";
-// components
-import Iconify from "../components/iconify";
-import { CustomTextField } from "../components/custom-input";
-// assets
-import { ComingSoonIllustration } from "../assets/illustrations";
-import React from "react";
-
-// ----------------------------------------------------------------------
+import useCountdown from "hooks/useCountdown";
+import { socials } from "assets/data";
+import Iconify from "components/iconify";
+import { CustomTextField } from "components/custom-input";
+import { ComingSoonIllustration } from "assets/illustrations";
+import { Fragment } from "react";
 
 export default function ComingSoonPage() {
   const { days, hours, minutes, seconds } = useCountdown(
@@ -43,7 +22,7 @@ export default function ComingSoonPage() {
   );
 
   return (
-    <React.Fragment>
+    <Fragment>
       <Helmet>
         <title> Coming Soon | Sarthak Admin</title>
       </Helmet>
@@ -95,7 +74,7 @@ export default function ComingSoonPage() {
         justifyContent="center"
         direction="row"
       >
-        {_socials.map((social) => (
+        {socials.map((social) => (
           <IconButton
             key={social.name}
             sx={{
@@ -109,18 +88,14 @@ export default function ComingSoonPage() {
           </IconButton>
         ))}
       </Stack>
-    </React.Fragment>
+    </Fragment>
   );
 }
-
-// ----------------------------------------------------------------------
 
 TimeBlock.propTypes = {
   label: PropTypes.string,
   value: PropTypes.string,
 };
-
-// ----------------------------------------------------------------------
 
 function TimeBlock({ label, value }) {
   return (

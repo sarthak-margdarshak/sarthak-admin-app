@@ -1,16 +1,11 @@
 import PropTypes from "prop-types";
 import { useDropzone } from "react-dropzone";
-// @mui
-import { Typography } from "@mui/material";
+import {CircularProgress, Typography} from "@mui/material";
 import { styled, alpha } from "@mui/material/styles";
-//
-import Iconify from "../iconify";
-//
-import RejectionFiles from "./errors/RejectionFiles";
-import AvatarPreview from "./preview/AvatarPreview";
+import Iconify from "components/iconify";
+import RejectionFiles from "components/upload/errors/RejectionFiles";
+import AvatarPreview from "components/upload/preview/AvatarPreview";
 import React from "react";
-
-// ----------------------------------------------------------------------
 
 const StyledDropZone = styled("div")(({ theme }) => ({
   width: 144,
@@ -44,14 +39,13 @@ const StyledPlaceholder = styled("div")(({ theme }) => ({
   }),
 }));
 
-// ----------------------------------------------------------------------
-
 UploadAvatar.propTypes = {
   sx: PropTypes.object,
   error: PropTypes.bool,
   disabled: PropTypes.bool,
   helperText: PropTypes.node,
   file: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  uploading: PropTypes.bool,
 };
 
 export default function UploadAvatar({
@@ -60,6 +54,7 @@ export default function UploadAvatar({
   disabled,
   helperText,
   sx,
+  uploading,
   ...other
 }) {
   const {
@@ -106,32 +101,34 @@ export default function UploadAvatar({
           ...sx,
         }}
       >
-        <input {...getInputProps()} />
+        {uploading ? <CircularProgress /> : (<>
+          <input {...getInputProps()} />
 
-        {hasFile && <AvatarPreview file={file} />}
+          {hasFile && <AvatarPreview file={file} />}
 
-        <StyledPlaceholder
-          className="placeholder"
-          sx={{
-            "&:hover": {
-              opacity: 0.72,
-            },
-            ...(hasFile && {
-              zIndex: 9,
-              opacity: 0,
-              color: "common.white",
-              bgcolor: (theme) => alpha(theme.palette.grey[900], 0.64),
-            }),
-            ...(isError && {
-              color: "error.main",
-              bgcolor: "error.lighter",
-            }),
-          }}
-        >
-          <Iconify icon="ic:round-add-a-photo" width={24} sx={{ mb: 1 }} />
+          <StyledPlaceholder
+            className="placeholder"
+            sx={{
+              "&:hover": {
+                opacity: 0.72,
+              },
+              ...(hasFile && {
+                zIndex: 9,
+                opacity: 0,
+                color: "common.white",
+                bgcolor: (theme) => alpha(theme.palette.grey[900], 0.64),
+              }),
+              ...(isError && {
+                color: "error.main",
+                bgcolor: "error.lighter",
+              }),
+            }}
+          >
+            <Iconify icon="ic:round-add-a-photo" width={24} sx={{ mb: 1 }} />
 
-          <Typography variant="caption">Upload Photo</Typography>
-        </StyledPlaceholder>
+            <Typography variant="caption">Upload Photo</Typography>
+          </StyledPlaceholder>
+        </>)}
       </StyledDropZone>
 
       {helperText && helperText}

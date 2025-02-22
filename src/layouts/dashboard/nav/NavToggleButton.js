@@ -1,38 +1,15 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import PropTypes from "prop-types";
-// @mui
 import { useTheme } from "@mui/material/styles";
 import { IconButton } from "@mui/material";
-// hooks
-import useResponsive from "../../../hooks/useResponsive";
-// utils
-import { bgBlur } from "../../../utils/cssStyles";
-// config
-import { NAV } from "../../../config-global";
-// components
-import Iconify from "../../../components/iconify";
-import { useSettingsContext } from "../../../components/settings";
-
-// ----------------------------------------------------------------------
+import useResponsive from "hooks/useResponsive";
+import { bgBlur } from "utils/cssStyles";
+import { NAV } from "config-global";
+import Iconify from "components/iconify";
+import { useSettingsContext } from "components/settings";
 
 NavToggleButton.propTypes = {
   sx: PropTypes.object,
 };
-
-// ----------------------------------------------------------------------
 
 export default function NavToggleButton({ sx, ...other }) {
   const theme = useTheme();

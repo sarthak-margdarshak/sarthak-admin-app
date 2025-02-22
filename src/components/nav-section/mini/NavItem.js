@@ -1,11 +1,8 @@
 import PropTypes from "prop-types";
-import { forwardRef } from "react";
+import {forwardRef, Fragment} from "react";
 import { Link as RouterLink } from "react-router-dom";
 // @mui
 import { Tooltip, Link, ListItemText } from "@mui/material";
-// auth
-import RoleBasedGuard from "../../../auth/RoleBasedGuard";
-//
 import Iconify from "../../iconify";
 import { StyledItem, StyledIcon } from "./styles";
 
@@ -13,7 +10,7 @@ import { StyledItem, StyledIcon } from "./styles";
 
 const NavItem = forwardRef(
   ({ item, depth, open, active, isExternalLink, ...other }, ref) => {
-    const { title, path, icon, children, disabled, caption, roles } = item;
+    const { title, path, icon, children, disabled, caption } = item;
 
     const subItem = depth !== 1;
 
@@ -94,7 +91,7 @@ const NavItem = forwardRef(
       );
     };
 
-    return <RoleBasedGuard roles={roles}> {renderItem()} </RoleBasedGuard>;
+    return <Fragment> {renderItem()} </Fragment>;
   }
 );
 

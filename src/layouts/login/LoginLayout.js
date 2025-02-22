@@ -1,24 +1,7 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import PropTypes from "prop-types";
-// @mui
 import { Typography, Stack } from "@mui/material";
-// components
-import Logo from "../../components/logo";
-import Image from "../../components/image";
-//
+import Logo from "components/logo";
+import Image from "components/image";
 import {
   StyledRoot,
   StyledSectionBg,
@@ -26,15 +9,11 @@ import {
   StyledContent,
 } from "./styles";
 
-// ----------------------------------------------------------------------
-
 LoginLayout.propTypes = {
   title: PropTypes.string,
   children: PropTypes.node,
   illustration: PropTypes.string,
 };
-
-// ----------------------------------------------------------------------
 
 export default function LoginLayout({ children, illustration, title }) {
   return (

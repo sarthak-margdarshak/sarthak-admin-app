@@ -1,6 +1,6 @@
 {
   "name": "sarthak-admin-app",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "homepage": "https://admin.sarthakmargdarshak.in",
   "dependencies": {
@@ -32,7 +32,7 @@
     "@testing-library/user-event": "^13.5.0",
     "add-subtract-date": "^1.0.15",
     "apexcharts": "^4.0.0",
-    "appwrite": "^14.0.1",
+    "appwrite": "^17.0.0",
     "autosuggest-highlight": "^3.3.4",
     "axios": "^1.4.0",
     "change-case": "^4.1.2",

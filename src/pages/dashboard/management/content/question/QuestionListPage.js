@@ -4,13 +4,13 @@ import { PATH_DASHBOARD } from "routes/paths";
 import { useSettingsContext } from "components/settings";
 import CustomBreadcrumbs from "components/custom-breadcrumbs";
 import QuestionListComponent from "sections/@dashboard/management/content/question/component/QuestionListComponent";
-import React from "react";
+import { Fragment } from "react";
 
 export default function QuestionListPage() {
   const { themeStretch } = useSettingsContext();
 
   return (
-    <React.Fragment>
+    <Fragment>
       <Helmet>
         <title>Question: List | Sarthak Admin</title>
       </Helmet>
@@ -31,6 +31,6 @@ export default function QuestionListPage() {
 
         <QuestionListComponent />
       </Container>
-    </React.Fragment>
+    </Fragment>
   );
 }

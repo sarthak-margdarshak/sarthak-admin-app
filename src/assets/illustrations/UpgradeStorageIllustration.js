@@ -1,11 +1,7 @@
-import { memo } from 'react';
-// @mui
-import { useTheme } from '@mui/material/styles';
-import { Box } from '@mui/material';
-//
-import BackgroundIllustration from './BackgroundIllustration';
-
-// ----------------------------------------------------------------------
+import { memo } from "react";
+import { useTheme } from "@mui/material/styles";
+import { Box } from "@mui/material";
+import BackgroundIllustration from "assets/illustrations/BackgroundIllustration";
 
 function UpgradeStorageIllustration({ ...other }) {
   const theme = useTheme();
@@ -20,7 +16,12 @@ function UpgradeStorageIllustration({ ...other }) {
 
   return (
     <Box {...other}>
-      <svg width="100%" height="100%" viewBox="0 0 480 360" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        width="100%"
+        height="100%"
+        viewBox="0 0 480 360"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <BackgroundIllustration />
 
         <image

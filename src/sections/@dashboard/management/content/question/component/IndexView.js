@@ -1,16 +1,16 @@
 import { Skeleton, Typography } from "@mui/material";
-import { useEffect, useState} from "react";
-import {useContent} from "sections/@dashboard/management/content/hook/useContent";
+import { useEffect, useState } from "react";
+import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 
 export default function IndexView({ id }) {
-  const {getBookIndex} = useContent();
+  const { getBookIndex } = useContent();
   const [label, setLabel] = useState();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      setLabel(await getBookIndex(id))
+      setLabel(await getBookIndex(id));
       setLoading(false);
     };
     fetchData();
@@ -20,7 +20,5 @@ export default function IndexView({ id }) {
     return <Skeleton variant="text" width={100} sx={{ fontSize: "1rem" }} />;
   }
 
-  return (
-    <Typography>{label}</Typography>
-  );
+  return <Typography>{label}</Typography>;
 }

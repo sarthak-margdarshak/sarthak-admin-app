@@ -1,21 +1,5 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import { useScroll } from "framer-motion";
 import { useState, useEffect } from "react";
-
-// ----------------------------------------------------------------------
 
 export default function useOffSetTop(top = 100, options) {
   const { scrollY } = useScroll(options);
@@ -36,11 +20,3 @@ export default function useOffSetTop(top = 100, options) {
 
   return value;
 }
-
-// Usage
-// const offset = useOffSetTop(100);
-
-// Or
-// const offset = useOffSetTop(100, {
-//   container: ref,
-// });

@@ -1,10 +1,13 @@
 import {
-  Drawer, Fab,
-  IconButton, InputAdornment,
+  Drawer,
+  Fab,
+  IconButton,
+  InputAdornment,
   ListItem,
   ListItemButton,
   ListItemIcon,
-  ListItemText, OutlinedInput,
+  ListItemText,
+  OutlinedInput,
   Tooltip,
 } from "@mui/material";
 import StandardBar from "sections/@dashboard/management/content/layout/TreeView/StandardBar";
@@ -18,14 +21,20 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
 import { ArrowRight } from "@mui/icons-material";
 import { timeAgo } from "auth/AppwriteContext";
-import ListIcon from '@mui/icons-material/List';
-import DoneIcon from '@mui/icons-material/Done';
+import ListIcon from "@mui/icons-material/List";
+import DoneIcon from "@mui/icons-material/Done";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 
 export default function QuestionTreeView() {
-  const { dockOpen, standardsData, updateDock, loadStandard, refreshStandard, addStandard } =
-    useContent();
+  const {
+    dockOpen,
+    standardsData,
+    updateDock,
+    loadStandard,
+    refreshStandard,
+    addStandard,
+  } = useContent();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [creatingNew, setCreatingNew] = useState(false);
@@ -47,18 +56,24 @@ export default function QuestionTreeView() {
 
   return (
     <Fragment>
-      {!dockOpen &&
-      <Fab onClick={() => updateDock(true)}
-           variant="extended"
-           sx={{borderBottomRightRadius: 0, borderTopRightRadius: 0, position: 'fixed', right: 0}}
-      >
-        <ListIcon sx={{ mr: 1 }} />
-        Index
-      </Fab>
-      }
+      {!dockOpen && (
+        <Fab
+          onClick={() => updateDock(true)}
+          variant="extended"
+          sx={{
+            borderBottomRightRadius: 0,
+            borderTopRightRadius: 0,
+            position: "fixed",
+            right: 0,
+          }}
+        >
+          <ListIcon sx={{ mr: 1 }} />
+          Index
+        </Fab>
+      )}
       <Drawer
         open={dockOpen}
-        variant='persistent'
+        variant="persistent"
         anchor="right"
         PaperProps={{
           sx: {
@@ -93,12 +108,15 @@ export default function QuestionTreeView() {
                   : "Not yet loaded"
               }
             >
-              <ListItemButton onClick={() => updateDock(false)} sx={{ height: 56 }}>
+              <ListItemButton
+                onClick={() => updateDock(false)}
+                sx={{ height: 56 }}
+              >
                 <ListItemIcon>
                   <SchoolIcon />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Standards"
+                  primary="Index"
                   secondary={
                     standardsData.lastSynced === null
                       ? "Not yet Fetched"
@@ -143,7 +161,9 @@ export default function QuestionTreeView() {
                 }}
               >
                 <AddIcon />
-                <ArrowRight sx={{ position: "absolute", right: 4, opacity: 0 }} />
+                <ArrowRight
+                  sx={{ position: "absolute", right: 4, opacity: 0 }}
+                />
               </IconButton>
             </Tooltip>
 
@@ -182,7 +202,9 @@ export default function QuestionTreeView() {
                 }}
               >
                 <RefreshIcon />
-                <ArrowRight sx={{ position: "absolute", right: 4, opacity: 0 }} />
+                <ArrowRight
+                  sx={{ position: "absolute", right: 4, opacity: 0 }}
+                />
               </IconButton>
             </Tooltip>
           </ListItem>
@@ -191,41 +213,45 @@ export default function QuestionTreeView() {
             <LoadingButton loading={refreshing}>Loading</LoadingButton>
           ) : (
             <Fragment>
-              {creatingNew && <OutlinedInput
-                id="outlined-basic"
-                variant="outlined"
-                size='small'
-                color='success'
-                autoFocus={creatingNew}
-                disabled={submittingNew}
-                value={newStandard}
-                onChange={(e) => setNewStandard(e.target.value)}
-                style={{borderRadius: 0, paddingLeft: 11}}
-                startAdornment={<ArrowRightIcon fontSize='small' />}
-                endAdornment={<InputAdornment position="end">
-                  <IconButton
-                    onClick={async () => {
-                      setNewStandard("")
-                      setCreatingNew(false)
-                    }}
-                    edge="end"
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                  <IconButton
-                    onClick={async () => {
-                      setSubmittingNew(true)
-                      await addStandard(newStandard)
-                      setSubmittingNew(false)
-                      setNewStandard("")
-                      setCreatingNew(false)
-                    }}
-                    edge="end"
-                  >
-                    <DoneIcon />
-                  </IconButton>
-                </InputAdornment>}
-              />}
+              {creatingNew && (
+                <OutlinedInput
+                  id="outlined-basic"
+                  variant="outlined"
+                  size="small"
+                  color="success"
+                  autoFocus={creatingNew}
+                  disabled={submittingNew}
+                  value={newStandard}
+                  onChange={(e) => setNewStandard(e.target.value)}
+                  style={{ borderRadius: 0, paddingLeft: 11 }}
+                  startAdornment={<ArrowRightIcon fontSize="small" />}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={async () => {
+                          setNewStandard("");
+                          setCreatingNew(false);
+                        }}
+                        edge="end"
+                      >
+                        <CloseIcon />
+                      </IconButton>
+                      <IconButton
+                        onClick={async () => {
+                          setSubmittingNew(true);
+                          await addStandard(newStandard);
+                          setSubmittingNew(false);
+                          setNewStandard("");
+                          setCreatingNew(false);
+                        }}
+                        edge="end"
+                      >
+                        <DoneIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+              )}
 
               {Object.keys(standardsData.documents).map((id, index) => (
                 <StandardBar key={index} standardId={id} />
@@ -254,6 +280,6 @@ export default function QuestionTreeView() {
           )}
         </Scrollbar>
       </Drawer>
-      </Fragment>
+    </Fragment>
   );
 }

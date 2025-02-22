@@ -1,35 +1,40 @@
 import {
-  Button,
-  Divider, IconButton, InputAdornment,
+  Divider,
+  IconButton,
+  InputAdornment,
   ListItemIcon,
   ListItemText,
   Menu,
-  MenuItem, OutlinedInput,
-  Tooltip,
+  MenuItem,
+  OutlinedInput,
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import React, { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import ChapterBar from "./ChapterBar";
 import { useContent } from "../../hook/useContent";
 import { LoadingButton } from "@mui/lab";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
-import AddIcon from "@mui/icons-material/Add";
-import { timeAgo } from "../../../../../../auth/AppwriteContext";
-import MockTestBar from "./MockTestBar";
+import { timeAgo } from "auth/AppwriteContext";
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
+import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
+import ViewQuiltIcon from "@mui/icons-material/ViewQuilt";
+import PreviewIcon from "@mui/icons-material/Preview";
+import NoteAddIcon from "@mui/icons-material/NoteAdd";
+import AddToQueueIcon from "@mui/icons-material/AddToQueue";
+import { PATH_DASHBOARD } from "routes/paths";
+import { useNavigate } from "react-router-dom";
 
 export default function SubjectBar({ standardId, subjectId }) {
-  const { standardsData, loadChapter, loadMockTests, refreshChapter, addChapter } =
+  const { standardsData, loadChapter, refreshChapter, addChapter } =
     useContent();
   const subjectData =
     standardsData.documents[standardId].subjects.documents[subjectId];
+  const navigate = useNavigate();
 
-  const [opened, setOpened] = useState(false);
-  const [mockTestOpened, setMockTestOpened] = useState(false);
   const [chaptersOpened, setChaptersOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpened = Boolean(anchorEl);
@@ -40,7 +45,6 @@ export default function SubjectBar({ standardId, subjectId }) {
     setAnchorEl(null);
   };
   const [chaptersLoading, setChaptersLoading] = useState(false);
-  const [mockTestsLoading, setMockTestsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [creatingNew, setCreatingNew] = useState(false);
   const [submittingNew, setSubmittingNew] = useState(false);
@@ -56,16 +60,49 @@ export default function SubjectBar({ standardId, subjectId }) {
     };
   }, []);
 
+  const initiateCreateChapter = async () => {
+    setChaptersOpened(true);
+    handleCloseMenu();
+    if (!chaptersOpened && subjectData.chapters.loadedOnce === false) {
+      setChaptersLoading(true);
+      await loadChapter(standardId, subjectId);
+      setChaptersLoading(false);
+    }
+    setCreatingNew(true);
+  };
+
+  const refreshSubject = async () => {
+    handleCloseMenu();
+    setChaptersOpened(false);
+    setRefreshing(true);
+    await refreshChapter(standardId, subjectId);
+    setRefreshing(false);
+  };
+
+  const openQuestion = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + subjectId);
+  };
+
   return (
-    <React.Fragment>
-      <React.Fragment>
+    <Fragment>
+      <Fragment>
         <LoadingButton
           fullWidth
-          variant={opened ? "contained" : "outlined"}
-          style={{ justifyContent: "left", borderRadius: 0, paddingLeft: 40 }}
-          color="info"
-          startIcon={opened ? <ArrowDropDownIcon /> : <ArrowRightIcon />}
-          onClick={async () => setOpened(!opened)}
+          variant={chaptersOpened ? "contained" : "outlined"}
+          style={{ justifyContent: "left", borderRadius: 0, paddingLeft: 25 }}
+          color="primary"
+          startIcon={
+            chaptersOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
+          }
+          onClick={async () => {
+            setChaptersOpened(!chaptersOpened);
+            setChaptersLoading(true);
+            if (!chaptersOpened && subjectData.chapters.loadedOnce === false) {
+              await loadChapter(standardId, subjectId);
+            }
+            setChaptersLoading(false);
+          }}
           onContextMenu={handleOpenMenu}
           loading={refreshing}
         >
@@ -73,36 +110,53 @@ export default function SubjectBar({ standardId, subjectId }) {
         </LoadingButton>
 
         <Menu anchorEl={anchorEl} open={menuOpened} onClose={handleCloseMenu}>
-          <MenuItem onClick={() => {
-            setCreatingNew(true);
-            handleCloseMenu()
-          }}>
+          <MenuItem onClick={initiateCreateChapter}>
             <ListItemIcon>
               <CreateNewFolderIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Create a Chapter</ListItemText>
           </MenuItem>
 
-          <MenuItem>
+          <MenuItem disabled>
             <ListItemIcon>
-              <AddIcon fontSize="small" />
+              <NoteAddIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Create a mock Test</ListItemText>
           </MenuItem>
 
+          <MenuItem disabled>
+            <ListItemIcon>
+              <AddToQueueIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Create a Product</ListItemText>
+          </MenuItem>
+
           <Divider />
 
-          <MenuItem
-            onClick={async () => {
-              handleCloseMenu();
-              setMockTestOpened(false);
-              setChaptersOpened(false);
-              setOpened(false);
-              setRefreshing(true);
-              await refreshChapter(standardId, subjectId);
-              setRefreshing(false);
-            }}
-          >
+          <MenuItem onClick={openQuestion}>
+            <ListItemIcon>
+              <PreviewIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>View Questions</ListItemText>
+          </MenuItem>
+
+          <MenuItem disabled>
+            <ListItemIcon>
+              <ViewCompactAltIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>View mock Tests</ListItemText>
+          </MenuItem>
+
+          <MenuItem disabled>
+            <ListItemIcon>
+              <ViewQuiltIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>View products</ListItemText>
+          </MenuItem>
+
+          <Divider />
+
+          <MenuItem onClick={refreshSubject}>
             <ListItemIcon>
               <RefreshIcon fontSize="small" />
             </ListItemIcon>
@@ -113,69 +167,28 @@ export default function SubjectBar({ standardId, subjectId }) {
             {timeAgo.format(Date.parse(subjectData.lastSynced))}
           </MenuItem>
         </Menu>
-      </React.Fragment>
+      </Fragment>
 
-      {/** Chapters */}
-      {opened && (
-        <React.Fragment>
-          <Tooltip
-            title={
-              subjectData.chapters.loadedOnce
-                ? "Loaded " +
-                  Object.keys(
-                    subjectData.chapters.documents
-                  ).length.toString() +
-                  " out of " +
-                  subjectData.chapters.total.toString()
-                : "Not yet loaded"
-            }
-          >
-            <Button
-              fullWidth
-              variant={chaptersOpened ? "contained" : "outlined"}
-              style={{
-                justifyContent: "left",
-                borderRadius: 0,
-                paddingLeft: 55,
-              }}
-              color="primary"
-              startIcon={
-                chaptersOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
-              }
-              onClick={async () => {
-                setChaptersOpened(!chaptersOpened);
-                setChaptersLoading(true);
-                if (
-                  !chaptersOpened &&
-                  subjectData.chapters.loadedOnce === false
-                ) {
-                  await loadChapter(standardId, subjectId);
-                }
-                setChaptersLoading(false);
-              }}
-            >
-              Chapters
-            </Button>
-          </Tooltip>
-
-          {chaptersOpened && (
-            <React.Fragment>
-              {creatingNew && <OutlinedInput
-                id="outlined-basic"
-                variant="outlined"
-                size='small'
-                color='success'
-                autoFocus={creatingNew}
-                disabled={submittingNew}
-                value={newChapter}
-                onChange={(e) => setNewChapter(e.target.value)}
-                style={{borderRadius: 0, paddingLeft: 63}}
-                startAdornment={<ArrowRightIcon fontSize='small' />}
-                endAdornment={<InputAdornment position="end">
+      {chaptersOpened && (
+        <Fragment>
+          {creatingNew && (
+            <OutlinedInput
+              id="outlined-basic"
+              variant="outlined"
+              size="small"
+              color="success"
+              autoFocus={creatingNew}
+              disabled={submittingNew}
+              value={newChapter}
+              onChange={(e) => setNewChapter(e.target.value)}
+              style={{ borderRadius: 0, paddingLeft: 33 }}
+              startAdornment={<ArrowRightIcon fontSize="small" />}
+              endAdornment={
+                <InputAdornment position="end">
                   <IconButton
                     onClick={async () => {
-                      setNewChapter("")
-                      setCreatingNew(false)
+                      setNewChapter("");
+                      setCreatingNew(false);
                     }}
                     edge="end"
                   >
@@ -183,136 +196,55 @@ export default function SubjectBar({ standardId, subjectId }) {
                   </IconButton>
                   <IconButton
                     onClick={async () => {
-                      setSubmittingNew(true)
-                      await addChapter(newChapter, standardId, subjectId)
-                      setSubmittingNew(false)
-                      setNewChapter("")
-                      setCreatingNew(false)
+                      setSubmittingNew(true);
+                      await addChapter(newChapter, standardId, subjectId);
+                      setSubmittingNew(false);
+                      setNewChapter("");
+                      setCreatingNew(false);
                     }}
                     edge="end"
                   >
                     <DoneIcon />
                   </IconButton>
-                </InputAdornment>}
-              />}
-
-              {Object.keys(subjectData.chapters.documents).map((id, index) => (
-                <ChapterBar
-                  key={index}
-                  standardId={standardId}
-                  subjectId={subjectId}
-                  chapterId={id}
-                />
-              ))}
-
-              {(chaptersLoading ||
-                subjectData.chapters.total !==
-                  Object.keys(subjectData.chapters.documents).length) && (
-                <LoadingButton
-                  fullWidth
-                  variant="contained"
-                  style={{
-                    justifyContent: "left",
-                    borderRadius: 0,
-                    paddingLeft: 65,
-                  }}
-                  color="secondary"
-                  startIcon={<KeyboardDoubleArrowDownIcon />}
-                  onClick={async () => {
-                    setChaptersLoading(true);
-                    await loadChapter(standardId, subjectId);
-                    setChaptersLoading(false);
-                  }}
-                  loading={chaptersLoading}
-                >
-                  Load More
-                </LoadingButton>
-              )}
-            </React.Fragment>
+                </InputAdornment>
+              }
+            />
           )}
-        </React.Fragment>
-      )}
 
-      {/** Mock Tests */}
-      {opened && (
-        <React.Fragment>
-          <Tooltip
-            title={
-              subjectData.mockTests.loadedOnce
-                ? "Loaded " +
-                  Object.keys(
-                    subjectData.mockTests.documents
-                  ).length.toString() +
-                  " out of " +
-                  subjectData.mockTests.total.toString()
-                : "Not yet loaded"
-            }
-          >
-            <Button
+          {Object.keys(subjectData.chapters.documents).map((id, index) => (
+            <ChapterBar
+              key={index}
+              standardId={standardId}
+              subjectId={subjectId}
+              chapterId={id}
+            />
+          ))}
+
+          {(chaptersLoading ||
+            subjectData.chapters.total !==
+              Object.keys(subjectData.chapters.documents).length) && (
+            <LoadingButton
               fullWidth
-              variant={mockTestOpened ? "contained" : "outlined"}
+              variant="contained"
               style={{
                 justifyContent: "left",
                 borderRadius: 0,
-                paddingLeft: 55,
+                paddingLeft: 65,
               }}
-              color="primary"
-              startIcon={
-                mockTestOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
-              }
+              color="secondary"
+              startIcon={<KeyboardDoubleArrowDownIcon />}
               onClick={async () => {
-                setMockTestOpened(!mockTestOpened);
-                setMockTestsLoading(true);
-                if (
-                  !mockTestOpened &&
-                  subjectData.mockTests.loadedOnce === false
-                ) {
-                  await loadMockTests(standardId, subjectId, null, null);
-                }
-                setMockTestsLoading(false);
+                setChaptersLoading(true);
+                await loadChapter(standardId, subjectId);
+                setChaptersLoading(false);
               }}
+              loading={chaptersLoading}
             >
-              Mock Tests
-            </Button>
-          </Tooltip>
-
-          {mockTestOpened && (
-            <React.Fragment>
-              {subjectData.mockTests.documents.map((mockTest, index) => (
-                <MockTestBar
-                  key={index}
-                  mtId={mockTest.mtId}
-                  id={mockTest.$id}
-                  level={2}
-                />
-              ))}
-              {(mockTestsLoading ||
-                subjectData.mockTests.total !==
-                  Object.keys(subjectData.mockTests.documents).length) && (
-                <LoadingButton
-                  fullWidth
-                  variant="contained"
-                  style={{
-                    justifyContent: "left",
-                    borderRadius: 0,
-                    paddingLeft: 65,
-                  }}
-                  color="secondary"
-                  startIcon={<KeyboardDoubleArrowDownIcon />}
-                  onClick={async () => {
-                    setMockTestsLoading(true);
-                    await loadMockTests(standardId, subjectId, null, null);
-                    setMockTestsLoading(false);
-                  }}
-                  loading={mockTestsLoading}
-                >
-                  Load More
-                </LoadingButton>
-              )}
-            </React.Fragment>
+              Load More
+            </LoadingButton>
           )}
-        </React.Fragment>
+        </Fragment>
       )}
-    </React.Fragment>
+    </Fragment>
   );
 }

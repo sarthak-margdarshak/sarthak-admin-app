@@ -1,64 +1,29 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
-// routes
 import { PATH_DASHBOARD } from "./routes/paths";
-
-// API
-// ----------------------------------------------------------------------
 
 export const APPWRITE_API = {
   backendUrl: process.env.REACT_APP_BACKEND_URL,
   projectId: process.env.REACT_APP_APPWRITE_PROJECT_ID,
-  databaseId: process.env.REACT_APP_APPWRITE_SARTHAK_DATABASE,
+  databaseId: "sarthak_core_db",
   collections: {
-    adminUsers: process.env.REACT_APP_APPWRITE_COLLECTION_ADMIN_USERS,
-    bookIndex: process.env.REACT_APP_APPWRITE_COLLECTION_BOOK_INDEX,
-    chapters: process.env.REACT_APP_APPWRITE_COLLECTION_CHAPTERS,
-    concepts: process.env.REACT_APP_APPWRITE_COLLECTION_CONCEPTS,
-    mockTest: process.env.REACT_APP_APPWRITE_COLLECTION_MOCKTEST,
-    mockTestDriver: process.env.REACT_APP_APPWRITE_COLLECTION_MOCK_TEST_DRIVER,
-    questions: process.env.REACT_APP_APPWRITE_COLLECTION_QUESTIONS,
-    sarthakInfoData:
-      process.env.REACT_APP_APPWRITE_COLLECTION_SARTHAK_INFO_DATA,
-    standards: process.env.REACT_APP_APPWRITE_COLLECTION_STANDARDS,
-    subjects: process.env.REACT_APP_APPWRITE_COLLECTION_SUBJECTS,
-    products: process.env.REACT_APP_APPWRITE_COLLECTION_PRODUCTS,
+    metadata: "metadata",
+    bookIndex: "book_index",
+    questions: "questions",
+    mockTest: "mock_test",
+    products: "products",
   },
   documents: {
-    sarthak: process.env.REACT_APP_APPWRITE_DOCUMENT_SARTHAK,
-    ceoId: process.env.REACT_APP_APPWRITE_DOCUMENT_CEO_ID,
+    metadataContentDoc: "content_doc",
   },
   buckets: {
-    adminUserImage: process.env.REACT_APP_APPWRITE_BUCKET_ADMIN_USER_IMAGE,
-    questionFiles: process.env.REACT_APP_APPWRITE_BUCKET_QUESTION_FILES,
-    productFiles: process.env.REACT_APP_APPWRITE_BUCKET_PRODUCT_FILES,
+    sarthakDatalakeBucket: "sarthak_datalake_bucket",
   },
   functions: {
-    contactInstitute: process.env.REACT_APP_APPWRITE_FUNCTION_CONTACT_INSTITUTE,
-    toggleBlock: process.env.REACT_APP_APPWRITE_FUNCTION_TOGGLE_BLOCK,
-    publishQuestion: process.env.REACT_APP_APPWRITE_FUNCTION_PUBLIC_QUESTION,
-    publishMockTest: process.env.REACT_APP_APPWRITE_FUNCTION_PUBLISH_MOCK_TEST,
-    publishProduct: process.env.REACT_APP_APPWRITE_FUNCTION_PUBLISH_PRODUCT,
+    sarthakAPI: "sarthak-api",
   },
 };
 
 // ROOT PATH AFTER LOGIN SUCCESSFUL
 export const PATH_AFTER_LOGIN = PATH_DASHBOARD.general.app; // as '/dashboard/app'
-
-// LAYOUT
-// ----------------------------------------------------------------------
 
 export const HEADER = {
   H_MOBILE: 64,

@@ -1,35 +1,14 @@
-/**
- * Written By - Ritesh Ranjan
- * Website - https://sagittariusk2.github.io/
- *
- *  /|||||\    /|||||\   |||||||\   |||||||||  |||   |||   /|||||\   ||| ///
- * |||        |||   |||  |||   |||     |||     |||   |||  |||   |||  |||///
- *  \|||||\   |||||||||  |||||||/      |||     |||||||||  |||||||||  |||||
- *       |||  |||   |||  |||  \\\      |||     |||   |||  |||   |||  |||\\\
- *  \|||||/   |||   |||  |||   \\\     |||     |||   |||  |||   |||  ||| \\\
- *
- */
-
-// IMPORT ---------------------------------------------------------------
-
 import { useState } from "react";
 import * as Yup from "yup";
 import { Link as RouterLink } from "react-router-dom";
-// form
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-// @mui
 import { Link, Stack, Alert, IconButton, InputAdornment } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-// routes
-import { PATH_AUTH } from "../../routes/paths";
-// auth
-import { useAuthContext } from "../../auth/useAuthContext";
-// components
-import Iconify from "../../components/iconify";
-import FormProvider, { RHFTextField } from "../../components/hook-form";
-
-// ----------------------------------------------------------------------
+import { PATH_AUTH } from "routes/paths";
+import { useAuthContext } from "auth/useAuthContext";
+import Iconify from "components/iconify";
+import FormProvider, { RHFTextField } from "components/hook-form";
 
 export default function AuthLoginForm() {
   const { login } = useAuthContext();
@@ -54,7 +33,6 @@ export default function AuthLoginForm() {
   });
 
   const {
-    reset,
     setError,
     handleSubmit,
     formState: { errors, isSubmitting, isSubmitSuccessful },
@@ -63,7 +41,6 @@ export default function AuthLoginForm() {
   const onSubmit = async (data) => {
     const x = await login(data.email, data.password);
     if (!x.success) {
-      reset();
       setError("afterSubmit", {
         message: x.message,
       });
@@ -101,6 +78,16 @@ export default function AuthLoginForm() {
       </Stack>
 
       <Stack alignItems="flex-end" sx={{ my: 2 }}>
+        <Link
+          component={RouterLink}
+          to={PATH_AUTH.signup}
+          variant="body2"
+          color="inherit"
+          underline="always"
+        >
+          New Here?
+        </Link>
+
         <Link
           component={RouterLink}
           to={PATH_AUTH.resetPassword}

@@ -1,34 +1,39 @@
 import {
-  Button,
-  Divider, IconButton, InputAdornment,
+  Divider,
+  IconButton,
+  InputAdornment,
   ListItemIcon,
   ListItemText,
   Menu,
-  MenuItem, OutlinedInput,
-  Tooltip,
+  MenuItem,
+  OutlinedInput,
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import React, { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import SubjectBar from "sections/@dashboard/management/content/layout/TreeView/SubjectBar";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import { LoadingButton } from "@mui/lab";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
-import AddIcon from "@mui/icons-material/Add";
+import NoteAddIcon from "@mui/icons-material/NoteAdd";
+import AddToQueueIcon from "@mui/icons-material/AddToQueue";
 import { timeAgo } from "auth/AppwriteContext";
-import MockTestBar from "sections/@dashboard/management/content/layout/TreeView/MockTestBar";
 import DoneIcon from "@mui/icons-material/Done";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
+import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
+import ViewQuiltIcon from "@mui/icons-material/ViewQuilt";
+import PreviewIcon from "@mui/icons-material/Preview";
+import { useNavigate } from "react-router-dom";
+import { PATH_DASHBOARD } from "routes/paths";
 
 export default function StandardBar({ standardId }) {
-  const { standardsData, loadSubject, loadMockTests, refreshSubject, addSubject } =
+  const { standardsData, loadSubject, refreshSubject, addSubject } =
     useContent();
   const standardData = standardsData.documents[standardId];
+  const navigate = useNavigate();
 
-  const [opened, setOpened] = useState(false);
-  const [mockTestOpened, setMockTestOpened] = useState(false);
   const [subjectsOpened, setSubjectsOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpened = Boolean(anchorEl);
@@ -39,7 +44,6 @@ export default function StandardBar({ standardId }) {
     setAnchorEl(null);
   };
   const [subjectsLoading, setSubjectsLoading] = useState(false);
-  const [mockTestsLoading, setMockTestsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [creatingNew, setCreatingNew] = useState(false);
   const [submittingNew, setSubmittingNew] = useState(false);
@@ -55,16 +59,49 @@ export default function StandardBar({ standardId }) {
     };
   }, []);
 
+  const initiateCreateSubject = async () => {
+    setSubjectsOpened(true);
+    handleCloseMenu();
+    if (!subjectsOpened && standardData.subjects.loadedOnce === false) {
+      setSubjectsLoading(true);
+      await loadSubject(standardId);
+      setSubjectsLoading(false);
+    }
+    setCreatingNew(true);
+  };
+
+  const refreshStandard = async () => {
+    handleCloseMenu();
+    setSubjectsOpened(false);
+    setRefreshing(true);
+    await refreshSubject(standardId);
+    setRefreshing(false);
+  };
+
+  const openQuestion = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + standardId);
+  };
+
   return (
-    <React.Fragment>
-      <React.Fragment>
+    <Fragment>
+      <Fragment>
         <LoadingButton
           fullWidth
-          variant={opened ? "contained" : "outlined"}
+          variant={subjectsOpened ? "contained" : "outlined"}
           style={{ justifyContent: "left", borderRadius: 0 }}
           color="success"
-          startIcon={opened ? <ArrowDropDownIcon /> : <ArrowRightIcon />}
-          onClick={() => setOpened(!opened)}
+          startIcon={
+            subjectsOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
+          }
+          onClick={async () => {
+            setSubjectsOpened(!subjectsOpened);
+            setSubjectsLoading(true);
+            if (!subjectsOpened && standardData.subjects.loadedOnce === false) {
+              await loadSubject(standardId);
+            }
+            setSubjectsLoading(false);
+          }}
           onContextMenu={handleOpenMenu}
           loading={refreshing}
         >
@@ -72,108 +109,85 @@ export default function StandardBar({ standardId }) {
         </LoadingButton>
 
         <Menu anchorEl={anchorEl} open={menuOpened} onClose={handleCloseMenu}>
-          <MenuItem onClick={() => {
-            setCreatingNew(true);
-            handleCloseMenu()
-          }}>
+          <MenuItem onClick={initiateCreateSubject}>
             <ListItemIcon>
               <CreateNewFolderIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Create a Subject</ListItemText>
           </MenuItem>
 
-          <MenuItem>
+          <MenuItem disabled>
             <ListItemIcon>
-              <AddIcon fontSize="small" />
+              <NoteAddIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Create a mock Test</ListItemText>
           </MenuItem>
 
+          <MenuItem disabled>
+            <ListItemIcon>
+              <AddToQueueIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Create a Product</ListItemText>
+          </MenuItem>
+
           <Divider />
 
-          <MenuItem
-            onClick={async () => {
-              handleCloseMenu();
-              setMockTestOpened(false);
-              setSubjectsOpened(false);
-              setOpened(false);
-              setRefreshing(true);
-              await refreshSubject(standardId);
-              setRefreshing(false);
-            }}
-          >
+          <MenuItem onClick={openQuestion}>
+            <ListItemIcon>
+              <PreviewIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>View Questions</ListItemText>
+          </MenuItem>
+
+          <MenuItem disabled>
+            <ListItemIcon>
+              <ViewCompactAltIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>View mock Tests</ListItemText>
+          </MenuItem>
+
+          <MenuItem disabled>
+            <ListItemIcon>
+              <ViewQuiltIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>View products</ListItemText>
+          </MenuItem>
+
+          <Divider />
+
+          <MenuItem onClick={refreshStandard}>
             <ListItemIcon>
               <RefreshIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Sync</ListItemText>
           </MenuItem>
+
           <MenuItem disabled>
             {timeAgo.format(Date.parse(standardData.lastSynced))}
           </MenuItem>
         </Menu>
-      </React.Fragment>
+      </Fragment>
 
-      {/** Subjects */}
-      {opened && (
-        <React.Fragment>
-          <Tooltip
-            title={
-              standardData.subjects.loadedOnce
-                ? "Loaded " +
-                  Object.keys(
-                    standardData.subjects.documents
-                  ).length.toString() +
-                  " out of " +
-                  standardData.subjects.total.toString()
-                : "Not yet loaded"
-            }
-          >
-            <Button
-              fullWidth
-              variant={subjectsOpened ? "contained" : "outlined"}
-              style={{
-                justifyContent: "left",
-                borderRadius: 0,
-                paddingLeft: 25,
-              }}
-              color="error"
-              startIcon={
-                subjectsOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
-              }
-              onClick={async () => {
-                setSubjectsOpened(!subjectsOpened);
-                setSubjectsLoading(true);
-                if (
-                  !subjectsOpened &&
-                  standardData.subjects.loadedOnce === false
-                ) {
-                  await loadSubject(standardId);
-                }
-                setSubjectsLoading(false);
-              }}
-            >
-              Subjects
-            </Button>
-          </Tooltip>
-
-          {subjectsOpened && (
-            <React.Fragment>
-              {creatingNew && <OutlinedInput
-                id="outlined-basic"
-                variant="outlined"
-                size='small'
-                color='success'
-                autoFocus={creatingNew}
-                disabled={submittingNew}
-                value={newSubject}
-                onChange={(e) => setNewSubject(e.target.value)}
-                style={{borderRadius: 0, paddingLeft: 37}}
-                startAdornment={<ArrowRightIcon fontSize='small' />}
-                endAdornment={<InputAdornment position="end">
+      {subjectsOpened && (
+        <Fragment>
+          {creatingNew && (
+            <OutlinedInput
+              id="outlined-basic"
+              variant="outlined"
+              size="small"
+              color="success"
+              autoFocus={creatingNew}
+              disabled={submittingNew}
+              value={newSubject}
+              onChange={(e) => setNewSubject(e.target.value)}
+              style={{ borderRadius: 0, paddingLeft: 23 }}
+              startAdornment={<ArrowRightIcon fontSize="small" />}
+              endAdornment={
+                <InputAdornment position="end">
                   <IconButton
                     onClick={async () => {
-                      setNewSubject("")
-                      setCreatingNew(false)
+                      setNewSubject("");
+                      setCreatingNew(false);
                     }}
                     edge="end"
                   >
@@ -181,135 +195,50 @@ export default function StandardBar({ standardId }) {
                   </IconButton>
                   <IconButton
                     onClick={async () => {
-                      setSubmittingNew(true)
-                      await addSubject(newSubject, standardId)
-                      setSubmittingNew(false)
-                      setNewSubject("")
-                      setCreatingNew(false)
+                      setSubmittingNew(true);
+                      await addSubject(newSubject, standardId);
+                      setSubmittingNew(false);
+                      setNewSubject("");
+                      setCreatingNew(false);
                     }}
                     edge="end"
                   >
                     <DoneIcon />
                   </IconButton>
-                </InputAdornment>}
-              />}
-
-              {Object.keys(standardData.subjects.documents).map((id, index) => (
-                <SubjectBar
-                  key={index}
-                  subjectId={id}
-                  standardId={standardId}
-                />
-              ))}
-
-              {(subjectsLoading ||
-                standardData.subjects.total !==
-                  Object.keys(standardData.subjects.documents).length) && (
-                <LoadingButton
-                  fullWidth
-                  variant="contained"
-                  style={{
-                    justifyContent: "left",
-                    borderRadius: 0,
-                    paddingLeft: 40,
-                  }}
-                  color="info"
-                  startIcon={<KeyboardDoubleArrowDownIcon />}
-                  onClick={async () => {
-                    setSubjectsLoading(true);
-                    await loadSubject(standardId);
-                    setSubjectsLoading(false);
-                  }}
-                  loading={subjectsLoading}
-                >
-                  Load More
-                </LoadingButton>
-              )}
-            </React.Fragment>
+                </InputAdornment>
+              }
+            />
           )}
-        </React.Fragment>
-      )}
 
-      {/** Mock Tests */}
-      {opened && (
-        <React.Fragment>
-          <Tooltip
-            title={
-              standardData.mockTests.loadedOnce
-                ? "Loaded " +
-                  Object.keys(
-                    standardData.mockTests.documents
-                  ).length.toString() +
-                  " out of " +
-                  standardData.mockTests.total.toString()
-                : "Not yet loaded"
-            }
-          >
-            <Button
+          {Object.keys(standardData.subjects.documents).map((id, index) => (
+            <SubjectBar key={index} subjectId={id} standardId={standardId} />
+          ))}
+
+          {(subjectsLoading ||
+            standardData.subjects.total !==
+              Object.keys(standardData.subjects.documents).length) && (
+            <LoadingButton
               fullWidth
-              variant={mockTestOpened ? "contained" : "outlined"}
+              variant="contained"
               style={{
                 justifyContent: "left",
                 borderRadius: 0,
                 paddingLeft: 25,
               }}
-              color="error"
-              startIcon={
-                mockTestOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
-              }
+              color="info"
+              startIcon={<KeyboardDoubleArrowDownIcon />}
               onClick={async () => {
-                setMockTestOpened(!mockTestOpened);
-                setMockTestsLoading(true);
-                if (
-                  !mockTestOpened &&
-                  standardData.mockTests.loadedOnce === false
-                ) {
-                  await loadMockTests(standardId, null, null, null);
-                }
-                setMockTestsLoading(false);
+                setSubjectsLoading(true);
+                await loadSubject(standardId);
+                setSubjectsLoading(false);
               }}
+              loading={subjectsLoading}
             >
-              Mock Tests
-            </Button>
-          </Tooltip>
-
-          {mockTestOpened && (
-            <React.Fragment>
-              {standardData.mockTests.documents.map((mockTest, index) => (
-                <MockTestBar
-                  key={index}
-                  mtId={mockTest.mtId}
-                  id={mockTest.$id}
-                  level={1}
-                />
-              ))}
-              {(mockTestsLoading ||
-                standardData.mockTests.total !==
-                  Object.keys(standardData.mockTests.documents).length) && (
-                <LoadingButton
-                  fullWidth
-                  variant="contained"
-                  style={{
-                    justifyContent: "left",
-                    borderRadius: 0,
-                    paddingLeft: 40,
-                  }}
-                  color="info"
-                  startIcon={<KeyboardDoubleArrowDownIcon />}
-                  onClick={async () => {
-                    setMockTestsLoading(true);
-                    await loadMockTests(standardId, null, null, null);
-                    setMockTestsLoading(false);
-                  }}
-                  loading={mockTestsLoading}
-                >
-                  Load More
-                </LoadingButton>
-              )}
-            </React.Fragment>
+              Load More
+            </LoadingButton>
           )}
-        </React.Fragment>
+        </Fragment>
       )}
-    </React.Fragment>
+    </Fragment>
   );
 }

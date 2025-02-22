@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import LoadingScreen from "../components/loading-screen";
+import LoadingScreen from "components/loading-screen";
 
 const Loadable = (Component) => (props) =>
   (
@@ -9,18 +9,14 @@ const Loadable = (Component) => (props) =>
   );
 
 // -----------------< AUTH >-----------------
-export const LoginPage = Loadable(
-  lazy(() => import("pages/auth/LoginPage"))
-);
+export const LoginPage = Loadable(lazy(() => import("pages/auth/LoginPage")));
 export const NewPasswordPage = Loadable(
   lazy(() => import("pages/auth/NewPasswordPage"))
 );
 export const ResetPasswordPage = Loadable(
   lazy(() => import("pages/auth/ResetPasswordPage"))
 );
-export const AcceptInvitePage = Loadable(
-  lazy(() => import("pages/auth/AcceptInvite"))
-);
+export const SignupPage = Loadable(lazy(() => import("pages/auth/SignupPage")));
 
 // -----------------< DASHBOARD: GENERAL: APP >-----------------
 export const GeneralAppPage = Loadable(
@@ -31,21 +27,17 @@ export const GeneralAppPage = Loadable(
 export const UserProfilePage = Loadable(
   lazy(() => import("pages/dashboard/management/admin/user/UserProfilePage"))
 );
-export const UserAccountPage = Loadable(
-  lazy(() => import("pages/dashboard/management/admin/user/UserAccountPage"))
-);
 
 // -----------------< DASHBOARD: MANAGEMENT: ADMIN: TEAM >-----------------
 export const TeamListPage = Loadable(
   lazy(() => import("pages/dashboard/management/admin/team/TeamListPage"))
 );
-export const TeamDetailsPage = Loadable(
-  lazy(() => import("pages/dashboard/management/admin/team/TeamDetailsPage"))
-);
 
 // -----------------< DASHBOARD: MANAGEMENT: CONTENT: QUESTION >-----------------
 export const QuestionListPage = Loadable(
-  lazy(() => import("pages/dashboard/management/content/question/QuestionListPage"))
+  lazy(() =>
+    import("pages/dashboard/management/content/question/QuestionListPage")
+  )
 );
 export const QuestionDetailsPage = Loadable(
   lazy(() =>
@@ -53,32 +45,48 @@ export const QuestionDetailsPage = Loadable(
   )
 );
 export const QuestionEditPage = Loadable(
-  lazy(() => import("pages/dashboard/management/content/question/QuestionEditPage"))
+  lazy(() =>
+    import("pages/dashboard/management/content/question/QuestionEditPage")
+  )
 );
 
 // -----------------< DASHBOARD: MANAGEMENT: CONTENT: MOCK-TEST >-----------------
 export const MockTestListPage = Loadable(
-  lazy(() => import("pages/dashboard/management/content/mock-test/MockTestListPage"))
+  lazy(() =>
+    import("pages/dashboard/management/content/mock-test/MockTestListPage")
+  )
 );
 export const MockTestViewPage = Loadable(
-  lazy(() => import("pages/dashboard/management/content/mock-test/MockTestViewPage"))
+  lazy(() =>
+    import("pages/dashboard/management/content/mock-test/MockTestViewPage")
+  )
 );
 export const MockTestEditPage = Loadable(
-  lazy(() => import("pages/dashboard/management/content/mock-test/MockTestEditPage"))
+  lazy(() =>
+    import("pages/dashboard/management/content/mock-test/MockTestEditPage")
+  )
 );
 
 // -----------------< DASHBOARD: MANAGEMENT: CONTENT: PRODUCT >-----------------
 export const ProductNewPage = Loadable(
-  lazy(() => import("pages/dashboard/management/content/product/ProductNewPage"))
+  lazy(() =>
+    import("pages/dashboard/management/content/product/ProductNewPage")
+  )
 );
 export const ProductListPage = Loadable(
-  lazy(() => import("pages/dashboard/management/content/product/ProductListPage"))
+  lazy(() =>
+    import("pages/dashboard/management/content/product/ProductListPage")
+  )
 );
 export const ProductViewPage = Loadable(
-  lazy(() => import("pages/dashboard/management/content/product/ProductViewPage"))
+  lazy(() =>
+    import("pages/dashboard/management/content/product/ProductViewPage")
+  )
 );
 export const ProductEditPage = Loadable(
-  lazy(() => import("pages/dashboard/management/content/product/ProductEditPage"))
+  lazy(() =>
+    import("pages/dashboard/management/content/product/ProductEditPage")
+  )
 );
 
 // MAIN
