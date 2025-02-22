@@ -37,7 +37,7 @@ export default function SarthakUserDisplayUI({ userId }) {
                 undefined,
                 undefined,
                 20
-              ).href;
+              );
               setSrc(tempSrc);
             }
           }

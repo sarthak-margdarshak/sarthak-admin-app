@@ -71,7 +71,7 @@ export function AuthProvider({ children }) {
               undefined,
               undefined,
               20
-            ).href;
+            );
           }
           dispatch({
             payload: {
@@ -137,7 +137,7 @@ export function AuthProvider({ children }) {
             undefined,
             undefined,
             20
-          ).href;
+          );
         }
         dispatch({
           payload: {
@@ -198,7 +198,7 @@ export function AuthProvider({ children }) {
         undefined,
         undefined,
         20
-      ).href;
+      );
 
       dispatch({
         payload: {

@@ -164,7 +164,7 @@ export function ContentProvider({ children }) {
         question.coverQuestion = appwriteStorage.getFileDownload(
           APPWRITE_API.buckets.sarthakDatalakeBucket,
           question?.coverQuestion
-        ).href;
+        );
       }
 
       const options = [];
@@ -176,7 +176,7 @@ export function ContentProvider({ children }) {
           const data = appwriteStorage.getFileDownload(
             APPWRITE_API.buckets.sarthakDatalakeBucket,
             question?.coverOptions[i]
-          ).href;
+          );
           options.push(data);
         } else {
           options.push(null);
@@ -188,7 +188,7 @@ export function ContentProvider({ children }) {
         question.coverAnswer = appwriteStorage.getFileDownload(
           APPWRITE_API.buckets.sarthakDatalakeBucket,
           question?.coverAnswer
-        ).href;
+        );
       }
 
       state.questionsData[question.$id] = {
