@@ -103,6 +103,15 @@ export default function QuestionEditForm({ questionId }) {
         coverAnswer: x.coverAnswer,
         coverOptions: x.coverOptions,
       });
+      if (
+        x.coverQuestion !== null ||
+        x.coverQuestion !== "" ||
+        x.coverAnswer !== null ||
+        x.coverAnswer !== "" ||
+        x.coverOptions.some((y) => y !== null || y !== "")
+      ) {
+        setContainsImages(true);
+      }
       setQuestion({
         ...x,
         idOptions: x.answerOptions.map((c) => crypto.randomUUID()),
