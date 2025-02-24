@@ -110,6 +110,7 @@ export default function QuestionEditForm({ questionId }) {
       delete question.$updatedAt;
       delete question.lastSynced;
       delete question.idOptions;
+      delete question.qnId;
 
       setQuestion(
         await appwriteDatabases.updateDocument(
