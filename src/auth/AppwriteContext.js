@@ -162,6 +162,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(async () => {
+    window.localStorage.clear();
     await appwriteAccount.deleteSessions();
     dispatch({
       payload: {

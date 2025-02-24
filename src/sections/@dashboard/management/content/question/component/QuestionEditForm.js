@@ -1,4 +1,10 @@
-import React, { Fragment, useCallback, useEffect, useState } from "react";
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
 import {
@@ -20,9 +26,9 @@ import {
   Link,
   Tooltip,
   IconButton,
+  FormControlLabel,
 } from "@mui/material";
 import { useSnackbar } from "components/snackbar";
-import { Upload } from "components/upload";
 import { useAuthContext } from "auth/useAuthContext";
 import "katex/dist/katex.min.css";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
@@ -41,6 +47,7 @@ export default function QuestionEditForm({ questionId }) {
   const navigate = useNavigate();
   const { questionsData, updateQuestion } = useContent();
   const theme = useTheme();
+  let textInput = useRef(null);
 
   const [question, setQuestion] = useState(questionsData[questionId]);
   const [covers, setCovers] = useState({
@@ -51,10 +58,24 @@ export default function QuestionEditForm({ questionId }) {
 
   const [isSaving, setIsSaving] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState("question");
+  const [containsImages, setContainsImages] = useState(false);
 
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
+    if (isExpanded) {
+      if (panel === "options") {
+        if (question.contentOptions.length > 0) {
+          setTimeout(() => {
+            textInput.current.focus();
+          }, 100);
+        }
+      } else {
+        setTimeout(() => {
+          textInput.current.focus();
+        }, 100);
+      }
+    }
   };
 
   useEffect(() => {
@@ -82,6 +103,13 @@ export default function QuestionEditForm({ questionId }) {
         coverAnswer: x.coverAnswer,
         coverOptions: x.coverOptions,
       });
+      if (
+        (x.coverQuestion !== null && x.coverQuestion !== "") ||
+        (x.coverAnswer !== null && x.coverAnswer !== "") ||
+        x.coverOptions.some((y) => y !== null && y !== "")
+      ) {
+        setContainsImages(true);
+      }
       setQuestion({
         ...x,
         idOptions: x.answerOptions.map((c) => crypto.randomUUID()),
@@ -140,7 +168,7 @@ export default function QuestionEditForm({ questionId }) {
     if (typeof coverFile !== "string" && coverFile) {
       coverId = (
         await appwriteStorage.createFile(
-          APPWRITE_API.buckets.questionFiles,
+          APPWRITE_API.buckets.sarthakDatalakeBucket,
           ID.unique(),
           coverFile
         )
@@ -272,6 +300,18 @@ export default function QuestionEditForm({ questionId }) {
         </Link>
       </Breadcrumbs>
 
+      <FormControlLabel
+        control={
+          <Switch
+            checked={containsImages}
+            onChange={() => {
+              setContainsImages(!containsImages);
+            }}
+          />
+        }
+        label="Does your question contain images"
+      />
+
       <Box component="section" sx={{ p: 2, border: "1px dashed grey" }}>
         <Divider sx={{ mb: 1 }}>
           <Chip label={question?.qnId} />
@@ -298,30 +338,19 @@ export default function QuestionEditForm({ questionId }) {
                 },
               }}
             >
-              <Grid container spacing={1}>
-                <Grid item xs={9}>
-                  <ContentEditor
-                    value={question?.contentQuestion || ""}
-                    onChange={(newVal) =>
-                      setQuestion({ ...question, contentQuestion: newVal })
-                    }
-                  />
-                </Grid>
-
-                <Grid item xs={3}>
-                  <Upload
-                    accept={{ "image/*": [] }}
-                    file={covers?.coverQuestion}
-                    maxSize={524288}
-                    onDrop={(acceptedFiles) =>
-                      handleDropFile(acceptedFiles, -1)
-                    }
-                    onDelete={() => {
-                      setCovers({ ...covers, coverQuestion: null });
-                    }}
-                  />
-                </Grid>
-              </Grid>
+              <ContentEditor
+                value={question?.contentQuestion || ""}
+                onChange={(newVal) =>
+                  setQuestion({ ...question, contentQuestion: newVal })
+                }
+                requiredCover={containsImages}
+                cover={covers?.coverQuestion}
+                onDrop={(acceptedFiles) => handleDropFile(acceptedFiles, -1)}
+                onDelete={() => {
+                  setCovers({ ...covers, coverQuestion: null });
+                }}
+                textInput={expanded === "question" ? textInput : null}
+              />
             </Box>
           </AccordionDetails>
         </Accordion>
@@ -335,112 +364,103 @@ export default function QuestionEditForm({ questionId }) {
             <Typography component="span">Options Content</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Grid container sx={{ mb: 1 }}>
-              <Grid item xs={1}>
-                <Chip label="Option" />
-              </Grid>
-              <Grid item xs={7}>
-                <Chip label="Editor" />
-              </Grid>
-              <Grid item xs={3}>
-                <Chip label="Image" />
-              </Grid>
-              <Grid item xs={1}>
-                <Chip label="Correct" />
-              </Grid>
-            </Grid>
-            {question?.contentOptions?.map((option, index) => (
-              <Box
-                component="section"
-                sx={{
-                  p: 2,
-                  mb: 1,
-                  border: "1px dashed grey",
-                  "&:hover": {
-                    bgcolor:
-                      theme.palette.mode === "dark" ? "#1A2027" : "#f5f5f5",
-                    border: "1px solid",
-                  },
-                }}
-                key={question.idOptions[index]}
-              >
-                <Grid container spacing={1} sx={{ p: 1 }}>
-                  <Grid item xs={1}>
-                    <Chip label={index + 1} />
-                  </Grid>
-
-                  <Grid item xs={7}>
-                    <ContentEditor
-                      value={option || ""}
-                      onChange={(newVal) => {
-                        question.contentOptions[index] = newVal;
-                        setQuestion({
-                          ...question,
-                          contentOptions: question.contentOptions,
-                        });
-                      }}
-                    />
-                  </Grid>
-
-                  <Grid item xs={3}>
-                    <Upload
-                      accept={{ "image/*": [] }}
-                      file={covers.coverOptions[index]}
-                      maxSize={524288}
-                      onDrop={(acceptedFiles) =>
-                        handleDropFile(acceptedFiles, index)
-                      }
-                      onDelete={() => {
-                        covers.coverOptions[index] = null;
-                        setCovers({
-                          ...covers,
-                          coverOptions: covers.coverOptions,
-                        });
-                      }}
-                    />
-                  </Grid>
-
-                  <Grid item xs={1}>
-                    <Switch
-                      checked={question.answerOptions[index]}
-                      onChange={() => {
-                        question.answerOptions[index] =
-                          !question.answerOptions[index];
-                        setQuestion({
-                          ...question,
-                          answerOptions: question.answerOptions,
-                        });
-                      }}
-                    />
-                  </Grid>
-                </Grid>
-
-                <Tooltip title="Remove the option">
-                  <IconButton
-                    aria-label="settings"
-                    onClick={async () => {
-                      question?.contentOptions.splice(index, 1);
-                      question?.coverOptions.splice(index, 1);
-                      question.answerOptions.splice(index, 1);
-                      question.idOptions.splice(index, 1);
-                      setQuestion({
-                        ...question,
-                        contentOptions: question?.contentOptions,
-                        coverOptions: question?.coverOptions,
-                        answerOptions: question.answerOptions,
-                        idOptions: question.idOptions,
-                      });
+            <Grid container spacing={1}>
+              {question?.contentOptions?.map((option, index) => (
+                <Grid item xs={containsImages ? 12 : 6}>
+                  <Box
+                    component="section"
+                    sx={{
+                      p: 1,
+                      mb: 1,
+                      border: "1px dashed grey",
+                      "&:hover": {
+                        bgcolor:
+                          theme.palette.mode === "dark" ? "#1A2027" : "#f5f5f5",
+                        border: "1px solid",
+                      },
                     }}
+                    key={question.idOptions[index]}
                   >
-                    <Iconify
-                      icon="fluent:delete-48-filled"
-                      color="#d11a2a"
-                      width={20}
-                    />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            ))}
+                    <Grid container spacing={1} sx={{ p: 1 }}>
+                      <Grid item xs={1.5}>
+                        <Chip label={index + 1} />
+                      </Grid>
+
+                      <Grid item xs={8.5}>
+                        <ContentEditor
+                          value={option || ""}
+                          onChange={(newVal) => {
+                            question.contentOptions[index] = newVal;
+                            setQuestion({
+                              ...question,
+                              contentOptions: question.contentOptions,
+                            });
+                          }}
+                          requiredCover={containsImages}
+                          cover={covers.coverOptions[index]}
+                          onDrop={(acceptedFiles) =>
+                            handleDropFile(acceptedFiles, index)
+                          }
+                          onDelete={() => {
+                            covers.coverOptions[index] = null;
+                            setCovers({
+                              ...covers,
+                              coverOptions: covers.coverOptions,
+                            });
+                          }}
+                          textInput={expanded === "options" ? textInput : null}
+                        />
+                      </Grid>
+
+                      <Grid item xs={2}>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={question.answerOptions[index]}
+                              onChange={() => {
+                                question.answerOptions[index] =
+                                  !question.answerOptions[index];
+                                setQuestion({
+                                  ...question,
+                                  answerOptions: question.answerOptions,
+                                });
+                              }}
+                            />
+                          }
+                          labelPlacement="bottom"
+                          label="Correct"
+                        />
+                      </Grid>
+                    </Grid>
+
+                    <Tooltip title="Remove the option">
+                      <IconButton
+                        aria-label="settings"
+                        onClick={async () => {
+                          question?.contentOptions.splice(index, 1);
+                          question?.coverOptions.splice(index, 1);
+                          question.answerOptions.splice(index, 1);
+                          question.idOptions.splice(index, 1);
+                          setQuestion({
+                            ...question,
+                            contentOptions: question?.contentOptions,
+                            coverOptions: question?.coverOptions,
+                            answerOptions: question.answerOptions,
+                            idOptions: question.idOptions,
+                          });
+                        }}
+                      >
+                        <Iconify
+                          icon="fluent:delete-48-filled"
+                          color="#d11a2a"
+                          width={20}
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
 
             <Button
               onClick={() => {
@@ -485,30 +505,19 @@ export default function QuestionEditForm({ questionId }) {
                 },
               }}
             >
-              <Grid container spacing={1}>
-                <Grid item xs={9}>
-                  <ContentEditor
-                    value={question?.contentAnswer || ""}
-                    onChange={(newVal) =>
-                      setQuestion({ ...question, contentAnswer: newVal })
-                    }
-                  />
-                </Grid>
-
-                <Grid item xs={3}>
-                  <Upload
-                    accept={{ "image/*": [] }}
-                    file={covers.coverAnswer}
-                    maxSize={524288}
-                    onDrop={(acceptedFiles) =>
-                      handleDropFile(acceptedFiles, -2)
-                    }
-                    onDelete={() => {
-                      setCovers({ ...covers, coverAnswer: null });
-                    }}
-                  />
-                </Grid>
-              </Grid>
+              <ContentEditor
+                value={question?.contentAnswer || ""}
+                onChange={(newVal) =>
+                  setQuestion({ ...question, contentAnswer: newVal })
+                }
+                requiredCover={containsImages}
+                cover={covers.coverAnswer}
+                onDrop={(acceptedFiles) => handleDropFile(acceptedFiles, -2)}
+                onDelete={() => {
+                  setCovers({ ...covers, coverAnswer: null });
+                }}
+                textInput={expanded === "answer" ? textInput : null}
+              />
             </Box>
           </AccordionDetails>
         </Accordion>
