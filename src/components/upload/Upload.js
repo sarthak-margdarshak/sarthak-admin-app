@@ -1,25 +1,20 @@
 import PropTypes from "prop-types";
 import { useDropzone } from "react-dropzone";
-// @mui
 import { Box, Stack, Button, IconButton, Typography } from "@mui/material";
 import { styled, alpha } from "@mui/material/styles";
-// assets
 import { UploadIllustration } from "../../assets/illustrations";
-//
 import Iconify from "../iconify";
-//
 import RejectionFiles from "./errors/RejectionFiles";
 import MultiFilePreview from "./preview/MultiFilePreview";
 import SingleFilePreview from "./preview/SingleFilePreview";
 import React from "react";
-
-// ----------------------------------------------------------------------
 
 const StyledDropZone = styled("div")(({ theme }) => ({
   outline: "none",
   cursor: "pointer",
   overflow: "hidden",
   position: "relative",
+  height: "150px",
   padding: theme.spacing(5),
   borderRadius: theme.shape.borderRadius,
   transition: theme.transitions.create("padding"),
@@ -29,8 +24,6 @@ const StyledDropZone = styled("div")(({ theme }) => ({
     opacity: 0.72,
   },
 }));
-
-// ----------------------------------------------------------------------
 
 Upload.propTypes = {
   sx: PropTypes.object,
@@ -52,10 +45,8 @@ export default function Upload({
   multiple = false,
   error,
   helperText,
-  //
   file,
   onDelete,
-  //
   files,
   thumbnail,
   onUpload,
@@ -175,8 +166,6 @@ export default function Upload({
   );
 }
 
-// ----------------------------------------------------------------------
-
 Placeholder.propTypes = {
   sx: PropTypes.object,
 };
@@ -184,7 +173,6 @@ Placeholder.propTypes = {
 function Placeholder({ sx, ...other }) {
   return (
     <Stack
-      spacing={5}
       alignItems="center"
       justifyContent="center"
       direction={{
@@ -201,27 +189,11 @@ function Placeholder({ sx, ...other }) {
       }}
       {...other}
     >
-      <UploadIllustration sx={{ width: 220 }} />
+      <UploadIllustration sx={{ width: 50 }} />
 
       <div>
-        <Typography gutterBottom variant="h5">
+        <Typography gutterBottom variant="body2">
           Drop or Select file
-        </Typography>
-
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Drop files here or click
-          <Typography
-            variant="body2"
-            component="span"
-            sx={{
-              mx: 0.5,
-              color: "primary.main",
-              textDecoration: "underline",
-            }}
-          >
-            browse
-          </Typography>
-          thorough your machine
         </Typography>
       </div>
     </Stack>
