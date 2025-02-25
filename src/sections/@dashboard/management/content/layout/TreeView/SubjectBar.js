@@ -10,14 +10,18 @@ import {
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import ChapterBar from "./ChapterBar";
 import { useContent } from "../../hook/useContent";
 import { LoadingButton } from "@mui/lab";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
-import { timeAgo } from "auth/AppwriteContext";
+import {
+  appwriteAccount,
+  appwriteDatabases,
+  timeAgo,
+} from "auth/AppwriteContext";
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
 import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
@@ -27,6 +31,8 @@ import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import AddToQueueIcon from "@mui/icons-material/AddToQueue";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useNavigate } from "react-router-dom";
+import { APPWRITE_API } from "config-global";
+import { ID } from "appwrite";
 
 export default function SubjectBar({ standardId, subjectId }) {
   const { standardsData, loadChapter, refreshChapter, addChapter } =
@@ -49,6 +55,7 @@ export default function SubjectBar({ standardId, subjectId }) {
   const [creatingNew, setCreatingNew] = useState(false);
   const [submittingNew, setSubmittingNew] = useState(false);
   const [newChapter, setNewChapter] = useState("");
+  const [mockTestCreating, setMockTestCreating] = useState(false);
 
   useEffect(() => {
     function handleContextMenu(e) {
@@ -84,6 +91,25 @@ export default function SubjectBar({ standardId, subjectId }) {
     navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + subjectId);
   };
 
+  const createMockTest = async () => {
+    setMockTestCreating(true);
+    const mockTest = await appwriteDatabases.createDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.mockTest,
+      ID.unique(),
+      {
+        standard: standardId,
+        subject: subjectId,
+        bookIndex: subjectId,
+        creator: (await appwriteAccount.get()).$id,
+        updater: (await appwriteAccount.get()).$id,
+      }
+    );
+    setMockTestCreating(false);
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.mockTest.edit(mockTest.$id), { replace: true });
+  };
+
   return (
     <Fragment>
       <Fragment>
@@ -117,11 +143,13 @@ export default function SubjectBar({ standardId, subjectId }) {
             <ListItemText>Create a Chapter</ListItemText>
           </MenuItem>
 
-          <MenuItem disabled>
+          <MenuItem onClick={createMockTest} disabled={mockTestCreating}>
             <ListItemIcon>
               <NoteAddIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Create a mock Test</ListItemText>
+            <ListItemText>
+              {mockTestCreating ? "Creating..." : "Create a mock Test"}
+            </ListItemText>
           </MenuItem>
 
           <MenuItem disabled>

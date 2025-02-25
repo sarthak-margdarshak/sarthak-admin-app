@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import {
   Box,
   Divider,
@@ -271,7 +271,7 @@ export default function QuestionListComponent() {
   };
 
   return (
-    <React.Fragment>
+    <Fragment>
       <FilterDialog
         filterWindowOpen={filterWindowOpen}
         searchParams={searchParameterOptions}
@@ -470,6 +470,6 @@ export default function QuestionListComponent() {
           </Button>
         )}
       </Box>
-    </React.Fragment>
+    </Fragment>
   );
 }

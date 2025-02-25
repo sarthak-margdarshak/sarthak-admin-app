@@ -15,7 +15,6 @@ import { PATH_DASHBOARD } from "routes/paths";
 import { APPWRITE_API } from "config-global";
 import { ID } from "appwrite";
 import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
-import ViewQuiltIcon from "@mui/icons-material/ViewQuilt";
 import PreviewIcon from "@mui/icons-material/Preview";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 
@@ -41,6 +40,7 @@ export default function ConceptBar({
     if (!questionCreating) setAnchorEl(null);
   };
   const [questionCreating, setQuestionCreating] = useState(false);
+  const [mockTestCreating, setMockTestCreating] = useState(false);
 
   useEffect(() => {
     function handleContextMenu(e) {
@@ -73,6 +73,27 @@ export default function ConceptBar({
     navigate(PATH_DASHBOARD.question.edit(question.$id), { replace: true });
   };
 
+  const createMockTest = async () => {
+    setMockTestCreating(true);
+    const mockTest = await appwriteDatabases.createDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.mockTest,
+      ID.unique(),
+      {
+        standard: standardId,
+        subject: subjectId,
+        chapter: chapterId,
+        concept: conceptId,
+        bookIndex: conceptId,
+        creator: (await appwriteAccount.get()).$id,
+        updater: (await appwriteAccount.get()).$id,
+      }
+    );
+    setMockTestCreating(false);
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.mockTest.edit(mockTest.$id), { replace: true });
+  };
+
   const openQuestion = () => {
     handleCloseMenu();
     navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + conceptId);
@@ -101,11 +122,13 @@ export default function ConceptBar({
           </ListItemText>
         </MenuItem>
 
-        <MenuItem disabled>
+        <MenuItem onClick={createMockTest} disabled={mockTestCreating}>
           <ListItemIcon>
             <NoteAddIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Create a mock Test</ListItemText>
+          <ListItemText>
+            {mockTestCreating ? "Creating..." : "Create a mock Test"}
+          </ListItemText>
         </MenuItem>
 
         <Divider />
@@ -122,13 +145,6 @@ export default function ConceptBar({
             <ViewCompactAltIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>View mock Tests</ListItemText>
-        </MenuItem>
-
-        <MenuItem disabled>
-          <ListItemIcon>
-            <ViewQuiltIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>View products</ListItemText>
         </MenuItem>
       </Menu>
     </Fragment>

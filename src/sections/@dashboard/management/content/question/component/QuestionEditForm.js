@@ -199,7 +199,7 @@ export default function QuestionEditForm({ questionId }) {
         currentCoverFile === undefined
       ) {
         await appwriteStorage.deleteFile(
-          APPWRITE_API.buckets.questionFiles,
+          APPWRITE_API.buckets.sarthakDatalakeBucket,
           currentCoverFile
         );
       }

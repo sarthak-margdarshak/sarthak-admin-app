@@ -23,9 +23,13 @@ const initialState = {
   bookIndex: localStorage.getItem("bookIndex")
     ? JSON.parse(localStorage.getItem("bookIndex"))
     : {},
+  mockTestsData: localStorage.getItem("mockTestsData")
+    ? JSON.parse(localStorage.getItem("mockTestsData"))
+    : {},
   getBookIndex: async () => {},
   updateDock: () => {},
   updateQuestion: async () => {},
+  updateMockTest: async () => {},
   loadStandard: async () => {},
   loadSubject: async () => {},
   loadChapter: async () => {},
@@ -50,6 +54,16 @@ const reducer = (state, action) => {
     return {
       ...state,
       dockOpen: action.payload.dockOpen,
+    };
+  } else if (action.type === "QUESTION_UPDATE") {
+    return {
+      ...state,
+      questionsData: action.payload.questionsData,
+    };
+  } else if (action.type === "MOCK_TEST_UPDATE") {
+    return {
+      ...state,
+      mockTestsData: action.payload.mockTestsData,
     };
   }
   return state;
@@ -202,7 +216,7 @@ export function ContentProvider({ children }) {
       dispatch({
         type: "QUESTION_UPDATE",
         payload: {
-          questionData: state.questionsData,
+          questionsData: state.questionsData,
         },
       });
 
@@ -212,6 +226,37 @@ export function ContentProvider({ children }) {
       };
     },
     [state.questionsData]
+  );
+
+  const updateMockTest = useCallback(
+    async (mockTestId) => {
+      const mockTest = await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.mockTest,
+        mockTestId
+      );
+
+      state.mockTestsData[mockTestId.$id] = {
+        ...mockTest,
+        lastSynced: new Date().toISOString(),
+      };
+
+      const y = JSON.stringify(state.mockTestsData);
+      localStorage.setItem("mockTestsData", y);
+
+      dispatch({
+        type: "MOCK_TEST_UPDATE",
+        payload: {
+          mockTestsData: state.mockTestsData,
+        },
+      });
+
+      return {
+        ...mockTest,
+        lastSynced: new Date().toISOString(),
+      };
+    },
+    [state.mockTestsData]
   );
 
   const loadStandard = useCallback(async () => {
@@ -684,10 +729,12 @@ export function ContentProvider({ children }) {
       standardsData: state.standardsData,
       dockOpen: state.dockOpen,
       questionsData: state.questionsData,
+      mockTestsData: state.mockTestsData,
       bookIndex: state.bookIndex,
       getBookIndex,
       updateDock,
       updateQuestion,
+      updateMockTest,
       loadStandard,
       loadSubject,
       loadChapter,
@@ -705,10 +752,12 @@ export function ContentProvider({ children }) {
       state.standardsData,
       state.dockOpen,
       state.questionsData,
+      state.mockTestsData,
       state.bookIndex,
       getBookIndex,
       updateDock,
       updateQuestion,
+      updateMockTest,
       loadStandard,
       loadSubject,
       loadChapter,
