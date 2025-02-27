@@ -366,7 +366,11 @@ export default function QuestionEditForm({ questionId }) {
           <AccordionDetails>
             <Grid container spacing={1}>
               {question?.contentOptions?.map((option, index) => (
-                <Grid item xs={containsImages ? 12 : 6}>
+                <Grid
+                  item
+                  xs={containsImages ? 12 : 6}
+                  key={question.idOptions[index]}
+                >
                   <Box
                     component="section"
                     sx={{
@@ -379,7 +383,6 @@ export default function QuestionEditForm({ questionId }) {
                         border: "1px solid",
                       },
                     }}
-                    key={question.idOptions[index]}
                   >
                     <Grid container spacing={1} sx={{ p: 1 }}>
                       <Grid item xs={1.5}>
