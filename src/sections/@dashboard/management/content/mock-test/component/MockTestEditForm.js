@@ -160,6 +160,10 @@ export default function MockTestEditForm({ mockTestId }) {
     return <Skeleton height={150} />;
   }
 
+  if (mockTest?.published) {
+    navigate(PATH_DASHBOARD.mockTest.view(mockTestId));
+  }
+
   return (
     <Fragment>
       <Divider>

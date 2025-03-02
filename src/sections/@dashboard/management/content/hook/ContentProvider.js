@@ -236,7 +236,7 @@ export function ContentProvider({ children }) {
         mockTestId
       );
 
-      state.mockTestsData[mockTestId.$id] = {
+      state.mockTestsData[mockTestId] = {
         ...mockTest,
         lastSynced: new Date().toISOString(),
       };
