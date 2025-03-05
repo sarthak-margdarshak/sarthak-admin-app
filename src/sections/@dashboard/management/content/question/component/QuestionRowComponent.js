@@ -39,11 +39,11 @@ import { LoadingButton } from "@mui/lab";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Query } from "appwrite";
-import SarthakUserDisplayUI from "sections/@dashboard/management/admin/user/SarthakUserDisplayUI";
 import { PATH_DASHBOARD } from "routes/paths";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { labels, sarthakAPIPath } from "assets/data";
 import MockTestRowComponent from "sections/@dashboard/management/content/mock-test/component/MockTestRowComponent";
+import { Marker } from "react-mark.js";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -89,10 +89,15 @@ export default function QuestionRowComponent({
   let question = questionsData[questionId];
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const content = searchParams.get("content")
+    ? decodeURIComponent(searchParams.get("content"))
+    : "";
 
   const [expanded, setExpanded] = useState(true);
   const [publishing, setPublishing] = useState(false);
-  const [isDataLoading, setIsDataLoading] = useState(true);
+  const [isDataLoading, setIsDataLoading] = useState(false);
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
 
   const { user } = useAuthContext();
@@ -101,9 +106,10 @@ export default function QuestionRowComponent({
 
   const fetchData = async () => {
     try {
-      setIsDataLoading(true);
       if (question === undefined) {
+        setIsDataLoading(true);
         await updateQuestion(questionId);
+        setIsDataLoading(false);
       } else {
         const isChanged =
           (
@@ -113,9 +119,11 @@ export default function QuestionRowComponent({
               questionId,
               [Query.select("$updatedAt")]
             )
-          ).$updatedAt !== question.$updatedAt;
+          ).$updatedAt !== question?.$updatedAt;
         if (isChanged) {
+          setIsDataLoading(true);
           await updateQuestion(questionId);
+          setIsDataLoading(false);
         }
       }
       setIsDataLoading(false);
@@ -134,7 +142,7 @@ export default function QuestionRowComponent({
     try {
       const x = await appwriteFunctions.createExecution(
         APPWRITE_API.functions.sarthakAPI,
-        JSON.stringify({ questionId: question.$id }),
+        JSON.stringify({ questionId: question?.$id }),
         false,
         sarthakAPIPath.question.publish
       );
@@ -193,7 +201,11 @@ export default function QuestionRowComponent({
                 label={
                   question?.qnId +
                   " (" +
-                  timeAgo.format(Date.parse(question?.lastSynced)) +
+                  timeAgo.format(
+                    Date.parse(
+                      question?.lastSynced || "2000-01-01T00:00:00.000+00:00"
+                    )
+                  ) +
                   ")"
                 }
                 color="primary"
@@ -233,7 +245,9 @@ export default function QuestionRowComponent({
         />
 
         <CardContent>
-          <ReactKatex>{question?.contentQuestion || ""}</ReactKatex>
+          <Marker mark={content}>
+            <ReactKatex>{question?.contentQuestion || ""}</ReactKatex>
+          </Marker>
 
           {question?.coverQuestion && showImages && (
             <Image
@@ -273,9 +287,11 @@ export default function QuestionRowComponent({
                   sx={{ m: 0.5 }}
                 >
                   <Stack direction="column">
-                    <ReactKatex>
-                      {question?.contentOptions[index] || ""}
-                    </ReactKatex>
+                    <Marker mark={content}>
+                      <ReactKatex>
+                        {question?.contentOptions[index] || ""}
+                      </ReactKatex>
+                    </Marker>
                     {question?.coverOptions[index] && showImages && (
                       <Image
                         disabledEffect
@@ -302,7 +318,9 @@ export default function QuestionRowComponent({
               </Divider>
 
               <Alert severity="warning" sx={{ m: 0.5 }} icon={false}>
-                <ReactKatex>{question?.contentAnswer || ""}</ReactKatex>
+                <Marker mark={content}>
+                  <ReactKatex>{question?.contentAnswer || ""}</ReactKatex>
+                </Marker>
                 {question?.coverAnswer && (
                   <Image
                     disabledEffect
@@ -385,15 +403,15 @@ export default function QuestionRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Index →</Typography>
-                      <Typography>
-                        {question.standard.standard +
+                      <Typography variant="body1">Index →</Typography>
+                      <Typography variant="body2">
+                        {question?.standard?.standard +
                           " 🢒 " +
-                          question.subject.subject +
+                          question?.subject?.subject +
                           " 🢒 " +
-                          question.chapter.chapter +
+                          question?.chapter?.chapter +
                           " 🢒 " +
-                          question.concept.concept}
+                          question?.concept?.concept}
                       </Typography>
                     </Stack>
                   </Item>
@@ -402,8 +420,10 @@ export default function QuestionRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>System Generated Id →</Typography>
-                      <Typography>{questionId}</Typography>
+                      <Typography variant="body1">
+                        System Generated Id →
+                      </Typography>
+                      <Typography variant="body2">{questionId}</Typography>
                     </Stack>
                   </Item>
                 </Grid>
@@ -411,8 +431,8 @@ export default function QuestionRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Sarthak Id →</Typography>
-                      <Typography>{question.qnId}</Typography>
+                      <Typography variant="body1">Sarthak Id →</Typography>
+                      <Typography variant="body2">{question?.qnId}</Typography>
                     </Stack>
                   </Item>
                 </Grid>
@@ -420,9 +440,9 @@ export default function QuestionRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Status →</Typography>
-                      <Typography>
-                        {question.published ? "Published" : "Draft"}
+                      <Typography variant="body1">Status →</Typography>
+                      <Typography variant="body2">
+                        {question?.published ? "Published" : "Draft"}
                       </Typography>
                     </Stack>
                   </Item>
@@ -431,8 +451,10 @@ export default function QuestionRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Created By →</Typography>
-                      <SarthakUserDisplayUI userId={question.creator} />
+                      <Typography variant="body1">Created By →</Typography>
+                      <Typography variant="body2">
+                        {question?.creator}
+                      </Typography>
                     </Stack>
                   </Item>
                 </Grid>
@@ -440,10 +462,21 @@ export default function QuestionRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Created At →</Typography>
+                      <Typography variant="body1">Created At →</Typography>
                       <Tooltip title={question?.$createdAt}>
-                        <Typography>
-                          {timeAgo.format(Date.parse(question?.$createdAt))}
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            cursor: "pointer",
+                            textDecoration: "underline",
+                          }}
+                        >
+                          {timeAgo.format(
+                            Date.parse(
+                              question?.$createdAt ||
+                                "2000-01-01T00:00:00.000+00:00"
+                            )
+                          )}
                         </Typography>
                       </Tooltip>
                     </Stack>
@@ -453,8 +486,10 @@ export default function QuestionRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Updated By →</Typography>
-                      <SarthakUserDisplayUI userId={question.updater} />
+                      <Typography variant="body1">Updated By →</Typography>
+                      <Typography variant="body2">
+                        {question?.updater}
+                      </Typography>
                     </Stack>
                   </Item>
                 </Grid>
@@ -462,23 +497,36 @@ export default function QuestionRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Updated At →</Typography>
+                      <Typography variant="body1">Updated At →</Typography>
                       <Tooltip title={question?.$updatedAt}>
-                        <Typography>
-                          {timeAgo.format(Date.parse(question?.$updatedAt))}
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            cursor: "pointer",
+                            textDecoration: "underline",
+                          }}
+                        >
+                          {timeAgo.format(
+                            Date.parse(
+                              question?.$updatedAt ||
+                                "2000-01-01T00:00:00.000+00:00"
+                            )
+                          )}
                         </Typography>
                       </Tooltip>
                     </Stack>
                   </Item>
                 </Grid>
 
-                {question.published && (
+                {question?.published && (
                   <Fragment>
                     <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                       <Item>
                         <Stack direction="row" spacing={2}>
-                          <Typography>Approved By →</Typography>
-                          <SarthakUserDisplayUI userId={question.approver} />
+                          <Typography variant="body1">Approved By →</Typography>
+                          <Typography variant="body2">
+                            {question?.approver}
+                          </Typography>
                         </Stack>
                       </Item>
                     </Grid>
@@ -486,10 +534,21 @@ export default function QuestionRowComponent({
                     <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                       <Item>
                         <Stack direction="row" spacing={2}>
-                          <Typography>Approved At →</Typography>
+                          <Typography variant="body1">Approved At →</Typography>
                           <Tooltip title={question?.approvedAt}>
-                            <Typography>
-                              {timeAgo.format(Date.parse(question?.approvedAt))}
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                cursor: "pointer",
+                                textDecoration: "underline",
+                              }}
+                            >
+                              {timeAgo.format(
+                                Date.parse(
+                                  question?.approvedAt ||
+                                    "2000-01-01T00:00:00.000+00:00"
+                                )
+                              )}
                             </Typography>
                           </Tooltip>
                         </Stack>

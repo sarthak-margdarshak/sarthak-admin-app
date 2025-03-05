@@ -26,6 +26,7 @@ const initialState = {
   mockTestsData: localStorage.getItem("mockTestsData")
     ? JSON.parse(localStorage.getItem("mockTestsData"))
     : {},
+  searchList: [],
   getBookIndex: async () => {},
   updateDock: () => {},
   updateQuestion: async () => {},
@@ -42,6 +43,7 @@ const initialState = {
   addSubject: async () => {},
   addChapter: async () => {},
   addConcept: async () => {},
+  updateSearchList: () => {},
 };
 
 const reducer = (state, action) => {
@@ -64,6 +66,11 @@ const reducer = (state, action) => {
     return {
       ...state,
       mockTestsData: action.payload.mockTestsData,
+    };
+  } else if (action.type === "SEARCH_LIST_UPDATE") {
+    return {
+      ...state,
+      searchList: action.payload.searchList,
     };
   }
   return state;
@@ -724,6 +731,15 @@ export function ContentProvider({ children }) {
     [enqueueSnackbar, state.standardsData]
   );
 
+  const updateSearchList = useCallback((list) => {
+    dispatch({
+      type: "SEARCH_LIST_UPDATE",
+      payload: {
+        searchList: list,
+      },
+    });
+  }, []);
+
   const memoizedValue = useMemo(
     () => ({
       standardsData: state.standardsData,
@@ -731,6 +747,7 @@ export function ContentProvider({ children }) {
       questionsData: state.questionsData,
       mockTestsData: state.mockTestsData,
       bookIndex: state.bookIndex,
+      searchList: state.searchList,
       getBookIndex,
       updateDock,
       updateQuestion,
@@ -747,6 +764,7 @@ export function ContentProvider({ children }) {
       addSubject,
       addChapter,
       addConcept,
+      updateSearchList,
     }),
     [
       state.standardsData,
@@ -754,6 +772,7 @@ export function ContentProvider({ children }) {
       state.questionsData,
       state.mockTestsData,
       state.bookIndex,
+      state.searchList,
       getBookIndex,
       updateDock,
       updateQuestion,
@@ -770,6 +789,7 @@ export function ContentProvider({ children }) {
       addSubject,
       addChapter,
       addConcept,
+      updateSearchList,
     ]
   );
 
