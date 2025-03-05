@@ -42,8 +42,9 @@ import { Query } from "appwrite";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { labels, sarthakAPIPath } from "assets/data";
-import MockTestRowComponent from "sections/@dashboard/management/content/mock-test/component/MockTestRowComponent";
 import { Marker } from "react-mark.js";
+import MockTestListTable from "sections/@dashboard/management/content/mock-test/component/MockTestListTable";
+import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -99,6 +100,9 @@ export default function QuestionRowComponent({
   const [publishing, setPublishing] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
+  const [lastMockTestId, setLastMockTestId] = useState(null);
+  const [mockTests, setMockTests] = useState({total: 0, documents: []});
+  const [isMockTestLoading, setMockTestLoading] = useState(false);
 
   const { user } = useAuthContext();
 
@@ -126,6 +130,7 @@ export default function QuestionRowComponent({
           setIsDataLoading(false);
         }
       }
+      loadMockTests()
       setIsDataLoading(false);
     } catch (error) {
       console.log(error);
@@ -158,6 +163,30 @@ export default function QuestionRowComponent({
       enqueueSnackbar(error.message, { variant: "error" });
     }
     setPublishing(false);
+  };
+
+  const loadMockTests = async () => {
+    setMockTestLoading(true);
+    try {
+      let queries = [Query.limit(100), Query.select(["$id", "mtId", "name", "description", "published"])]
+      if(lastMockTestId !== null) {
+        queries.push(Query.cursorAfter(lastMockTestId));
+      }
+      queries.push(Query.contains("$id", question?.mockTest || []))
+
+      const x = await appwriteDatabases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.mockTest,
+        queries
+      )
+
+      const y = mockTests.documents.concat(x.documents)
+      if (x.documents.length !== 0) setLastMockTestId(x.documents[x.documents.length - 1].$id);
+      setMockTests({total: x.total, documents: y})
+    } catch (e) {
+
+    }
+    setMockTestLoading(false);
   };
 
   if (isDataLoading) {
@@ -567,13 +596,22 @@ export default function QuestionRowComponent({
                 />
               </Divider>
 
-              {question?.mockTest?.map((mockTestId) => (
-                <MockTestRowComponent
-                  key={mockTestId}
-                  mockTestId={mockTestId}
-                  defaultExpanded={false}
-                />
-              ))}
+              <MockTestListTable data={mockTests.documents} />
+              {mockTests.documents.length !== mockTests.total && (
+                <Button
+                  fullWidth
+                  disabled={isMockTestLoading}
+                  startIcon={<KeyboardDoubleArrowDownIcon />}
+                  endIcon={<KeyboardDoubleArrowDownIcon />}
+                  onClick={loadMockTests}
+                >
+                  {"Loaded " +
+                    mockTests.documents.length +
+                    " out of " +
+                    mockTests.total +
+                    "! Load More"}
+                </Button>
+              )}
             </CardContent>
           </Collapse>
         )}

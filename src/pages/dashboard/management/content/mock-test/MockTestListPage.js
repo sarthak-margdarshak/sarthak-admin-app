@@ -29,7 +29,7 @@ export default function MockTestListPage() {
           ]}
         />
 
-        <FilterView content="mock-test" />
+        <FilterView content="mockTest" />
       </Container>
     </Fragment>
   );

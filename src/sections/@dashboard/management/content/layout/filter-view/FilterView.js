@@ -31,6 +31,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import QuestionListTable from "sections/@dashboard/management/content/question/component/QuestionListTable";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
+import MockTestListTable from "sections/@dashboard/management/content/mock-test/component/MockTestListTable";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#ebebeb",
@@ -108,13 +109,22 @@ export default function FilterView({ content }) {
         }
 
         if (q.value === "content" && q.isSelected) {
-          conditionalQueries.push(
-            Query.or([
-              Query.search("contentQuestion", q.content),
-              Query.contains("contentOptions", [q.content]),
-              Query.search("contentAnswer", q.content),
-            ])
-          );
+          if (content === "questions") {
+            conditionalQueries.push(
+              Query.or([
+                Query.search("contentQuestion", q.content),
+                Query.contains("contentOptions", [q.content]),
+                Query.search("contentAnswer", q.content),
+              ])
+            );
+          } else if (content === "mockTest") {
+            conditionalQueries.push(
+              Query.or([
+                Query.search("name", q.content),
+                Query.search("description", q.content),
+              ])
+            );
+          }
         }
 
         if (q.value === "published" && q.isSelected) {
@@ -153,7 +163,7 @@ export default function FilterView({ content }) {
       } else if (content === "mockTest") {
         collection = APPWRITE_API.collections.mockTest;
         queries.push(
-          Query.select(["$id", "mtId", "name", "published", "bookIndex"])
+          Query.select(["$id", "mtId", "name", "description", "published"])
         );
       }
 
@@ -422,7 +432,7 @@ export default function FilterView({ content }) {
                     label="Narrow Search"
                   />
                   <FormHelperText>
-                    Checking above switch will fetch the questions, which will
+                    Checking above switch will fetch the results, which will
                     fulfill all given conditions on the left.
                   </FormHelperText>
                 </Grid>
@@ -444,12 +454,14 @@ export default function FilterView({ content }) {
         {!isFetchingData && dataIdLst?.length === 0 && (
           <Box sx={{ textAlign: "center" }}>
             <Typography variant="caption" color={"gray"}>
-              No Question found
+              No Result found
             </Typography>
           </Box>
         )}
 
         {content === "questions" && <QuestionListTable data={dataIdLst} />}
+
+        {content === "mockTest" && <MockTestListTable data={dataIdLst} />}
 
         {isFetchingData && (
           <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={400} />

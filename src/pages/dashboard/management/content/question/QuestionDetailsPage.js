@@ -33,7 +33,7 @@ export default function QuestionDetailsPage() {
 
       <Container maxWidth={themeStretch ? false : "lg"}>
         <Grid container>
-          <Grid item xs={10}>
+          <Grid item xs={index !== -1 ? 10 : 12}>
             <CustomBreadcrumbs
               heading="View Question"
               links={[

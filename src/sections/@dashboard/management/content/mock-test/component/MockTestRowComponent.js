@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
-import { useNavigate } from "react-router-dom";
+import {useNavigate, useSearchParams} from "react-router-dom";
 import { useAuthContext } from "auth/useAuthContext";
 import { useSnackbar } from "components/snackbar";
 import {
@@ -39,11 +39,11 @@ import Iconify from "components/iconify";
 import Image from "components/image";
 import { PATH_DASHBOARD } from "routes/paths";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import SarthakUserDisplayUI from "sections/@dashboard/management/admin/user/SarthakUserDisplayUI";
 import { LoadingButton } from "@mui/lab";
 import PermissionDeniedComponent from "components/sub-component/PermissionDeniedComponent";
 import IndexView from "sections/@dashboard/management/content/question/component/IndexView";
 import QuestionRowComponent from "sections/@dashboard/management/content/question/component/QuestionRowComponent";
+import { Marker } from "react-mark.js";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -87,6 +87,11 @@ export default function MockTestRowComponent({
   let mockTest = mockTestsData[mockTestId];
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const content = searchParams.get("content")
+    ? decodeURIComponent(searchParams.get("content"))
+    : "";
 
   const [expanded, setExpanded] = useState(true);
   const [publishing, setPublishing] = useState(false);
@@ -99,9 +104,10 @@ export default function MockTestRowComponent({
 
   const fetchData = async () => {
     try {
-      setIsDataLoading(true);
       if (mockTest === undefined) {
+        setIsDataLoading(true);
         await updateMockTest(mockTestId);
+        setIsDataLoading(false);
       } else {
         const isChanged =
           (
@@ -113,7 +119,9 @@ export default function MockTestRowComponent({
             )
           ).$updatedAt !== mockTest.$updatedAt;
         if (isChanged) {
+          setIsDataLoading(true);
           await updateMockTest(mockTestId);
+          setIsDataLoading(false);
         }
       }
       setIsDataLoading(false);
@@ -184,7 +192,7 @@ export default function MockTestRowComponent({
                 label={
                   mockTest?.mtId +
                   " (" +
-                  timeAgo.format(Date.parse(mockTest?.lastSynced)) +
+                  timeAgo.format(Date.parse(mockTest?.lastSynced || "2000-01-01T00:00:00.000+00:00")) +
                   ")"
                 }
                 color="info"
@@ -231,7 +239,9 @@ export default function MockTestRowComponent({
                   component="section"
                   sx={{ p: 1, borderRight: "0.5px solid grey" }}
                 >
+                  <Marker mark={content}>
                   <Typography variant="h5">{mockTest?.name}</Typography>
+                  </Marker>
                 </Box>
               </Grid>
 
@@ -240,9 +250,11 @@ export default function MockTestRowComponent({
                   component="section"
                   sx={{ p: 1, borderLeft: "0.5px solid grey" }}
                 >
+                  <Marker mark={content}>
                   <Typography variant="body1">
                     {mockTest?.description}
                   </Typography>
+                  </Marker>
                 </Box>
               </Grid>
             </Grid>
@@ -318,7 +330,7 @@ export default function MockTestRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Index →</Typography>
+                      <Typography variant='body1'>Index →</Typography>
                       <IndexView id={mockTest?.bookIndex?.$id} />
                     </Stack>
                   </Item>
@@ -327,8 +339,8 @@ export default function MockTestRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>System Generated Id →</Typography>
-                      <Typography>{mockTestId}</Typography>
+                      <Typography variant='body1'>System Generated Id →</Typography>
+                      <Typography variant='body2'>{mockTestId}</Typography>
                     </Stack>
                   </Item>
                 </Grid>
@@ -336,8 +348,8 @@ export default function MockTestRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Duration →</Typography>
-                      <Typography>{`${mockTest.duration} mins`}</Typography>
+                      <Typography variant='body1'>Duration →</Typography>
+                      <Typography variant='body2'>{`${mockTest.duration} mins`}</Typography>
                     </Stack>
                   </Item>
                 </Grid>
@@ -345,8 +357,8 @@ export default function MockTestRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Level →</Typography>
-                      <Typography>{mockTest.level}</Typography>
+                      <Typography variant='body1'>Level →</Typography>
+                      <Typography variant='body2'>{mockTest.level}</Typography>
                     </Stack>
                   </Item>
                 </Grid>
@@ -354,8 +366,8 @@ export default function MockTestRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Sarthak Id →</Typography>
-                      <Typography>{mockTest.mtId}</Typography>
+                      <Typography variant='body1'>Sarthak Id →</Typography>
+                      <Typography variant='body2'>{mockTest.mtId}</Typography>
                     </Stack>
                   </Item>
                 </Grid>
@@ -363,8 +375,8 @@ export default function MockTestRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Status →</Typography>
-                      <Typography>
+                      <Typography variant='body1'>Status →</Typography>
+                      <Typography variant='body2'>
                         {mockTest.published ? "Published" : "Draft"}
                       </Typography>
                     </Stack>
@@ -374,8 +386,8 @@ export default function MockTestRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Created By →</Typography>
-                      <SarthakUserDisplayUI userId={mockTest.creator} />
+                      <Typography variant='body1'>Created By →</Typography>
+                      <Typography variant='body2'>{mockTest.creator}</Typography>
                     </Stack>
                   </Item>
                 </Grid>
@@ -383,10 +395,10 @@ export default function MockTestRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Created At →</Typography>
+                      <Typography variant='body1'>Created At →</Typography>
                       <Tooltip title={mockTest?.$createdAt}>
-                        <Typography>
-                          {timeAgo.format(Date.parse(mockTest?.$createdAt))}
+                        <Typography variant='body2'>
+                          {timeAgo.format(Date.parse(mockTest?.$createdAt || "2000-01-01T00:00:00.000+00:00"))}
                         </Typography>
                       </Tooltip>
                     </Stack>
@@ -396,8 +408,8 @@ export default function MockTestRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Updated By →</Typography>
-                      <SarthakUserDisplayUI userId={mockTest.updater} />
+                      <Typography variant='body1'>Updated By →</Typography>
+                      <Typography variant='body2'>{mockTest.updater}</Typography>
                     </Stack>
                   </Item>
                 </Grid>
@@ -405,10 +417,10 @@ export default function MockTestRowComponent({
                 <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                   <Item>
                     <Stack direction="row" spacing={2}>
-                      <Typography>Updated At →</Typography>
+                      <Typography variant='body1'>Updated At →</Typography>
                       <Tooltip title={mockTest?.$updatedAt}>
-                        <Typography>
-                          {timeAgo.format(Date.parse(mockTest?.$updatedAt))}
+                        <Typography variant='body2'>
+                          {timeAgo.format(Date.parse(mockTest?.$updatedAt || "2000-01-01T00:00:00.000+00:00"))}
                         </Typography>
                       </Tooltip>
                     </Stack>
@@ -420,8 +432,8 @@ export default function MockTestRowComponent({
                     <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                       <Item>
                         <Stack direction="row" spacing={2}>
-                          <Typography>Approved By →</Typography>
-                          <SarthakUserDisplayUI userId={mockTest.approver} />
+                          <Typography variant='body1'>Approved By →</Typography>
+                          <Typography variant='body2'>{mockTest.approver}</Typography>
                         </Stack>
                       </Item>
                     </Grid>
@@ -429,10 +441,10 @@ export default function MockTestRowComponent({
                     <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                       <Item>
                         <Stack direction="row" spacing={2}>
-                          <Typography>Approved At →</Typography>
+                          <Typography variant='body1'>Approved At →</Typography>
                           <Tooltip title={mockTest?.approvedAt}>
-                            <Typography>
-                              {timeAgo.format(Date.parse(mockTest?.approvedAt))}
+                            <Typography variant='body2'>
+                              {timeAgo.format(Date.parse(mockTest?.approvedAt || "2000-01-01T00:00:00.000+00:00"))}
                             </Typography>
                           </Tooltip>
                         </Stack>

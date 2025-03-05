@@ -20,5 +20,5 @@ export default function IndexView({ id }) {
     return <Skeleton variant="text" width={100} sx={{ fontSize: "1rem" }} />;
   }
 
-  return <Typography>{label}</Typography>;
+  return <Typography variant='body2'>{label}</Typography>;
 }
