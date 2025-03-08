@@ -10,7 +10,7 @@ import {
   OutlinedInput,
   Tooltip,
 } from "@mui/material";
-import StandardBar from "sections/@dashboard/management/content/layout/TreeView/StandardBar";
+import StandardBar from "sections/@dashboard/management/content/layout/tree-view/StandardBar";
 import React, { Fragment, useEffect, useState } from "react";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import { LoadingButton } from "@mui/lab";
@@ -68,7 +68,6 @@ export default function QuestionTreeView() {
           }}
         >
           <ListIcon sx={{ mr: 1 }} />
-          Index
         </Fab>
       )}
       <Drawer

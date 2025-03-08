@@ -1,5 +1,18 @@
+import { Fragment, useEffect, useState } from "react";
+import { useContent } from "sections/@dashboard/management/content/hook/useContent";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuthContext } from "auth/useAuthContext";
+import { useSnackbar } from "components/snackbar";
 import {
-  Alert,
+  appwriteDatabases,
+  appwriteFunctions,
+  timeAgo,
+} from "auth/AppwriteContext";
+import { APPWRITE_API } from "config-global";
+import { Query } from "appwrite";
+import { labels, sarthakAPIPath } from "assets/data";
+import {
+  Box,
   Button,
   Card,
   CardActions,
@@ -15,7 +28,6 @@ import {
   Divider,
   Grid,
   IconButton,
-  LinearProgress,
   Paper,
   Skeleton,
   Stack,
@@ -23,35 +35,21 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import Image from "components/image/Image";
-import ReactKatex from "@pkasila/react-katex";
-import React, { Fragment, useEffect, useState } from "react";
-import Iconify from "components/iconify/Iconify";
-import { useAuthContext } from "auth/useAuthContext";
-import { useSnackbar } from "components/snackbar";
-import PermissionDeniedComponent from "components/sub-component/PermissionDeniedComponent";
-import {
-  appwriteDatabases,
-  appwriteFunctions,
-  timeAgo,
-} from "auth/AppwriteContext";
-import { APPWRITE_API } from "config-global";
-import { LoadingButton } from "@mui/lab";
-import { useContent } from "sections/@dashboard/management/content/hook/useContent";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Query } from "appwrite";
+import Iconify from "components/iconify";
+import Image from "components/image";
 import { PATH_DASHBOARD } from "routes/paths";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { labels, sarthakAPIPath } from "assets/data";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { LoadingButton } from "@mui/lab";
+import PermissionDeniedComponent from "components/sub-component/PermissionDeniedComponent";
+import IndexView from "sections/@dashboard/management/content/question/component/IndexView";
+import QuestionRowComponent from "sections/@dashboard/management/content/question/component/QuestionRowComponent";
 import { Marker } from "react-mark.js";
-import MockTestListTable from "sections/@dashboard/management/content/mock-test/component/MockTestListTable";
-import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import MuiAccordion from "@mui/material/Accordion";
 import MuiAccordionSummary, {
   accordionSummaryClasses,
 } from "@mui/material/AccordionSummary";
-import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
+import MuiAccordionDetails from "@mui/material/AccordionDetails";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -75,16 +73,6 @@ const ExpandMore = styled((props) => {
       },
     },
   ],
-}));
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#ebebeb",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  ...theme.applyStyles("dark", {
-    backgroundColor: "#1A2027",
-  }),
 }));
 
 const Accordion = styled((props) => (
@@ -122,16 +110,25 @@ const AccordionSummary = styled((props) => (
 const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   padding: theme.spacing(2),
   borderTop: "1px solid rgba(0, 0, 0, .125)",
+  backgroundColor: theme.palette.background.default,
 }));
 
-export default function QuestionRowComponent({
-  questionId,
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: "#ebebeb",
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: "center",
+  ...theme.applyStyles("dark", {
+    backgroundColor: "#1A2027",
+  }),
+}));
+
+export default function MockTestRowComponent({
+  mockTestId,
   defaultExpanded = true,
-  showImages = true,
-  showAnswer = true,
 }) {
-  const { questionsData, updateQuestion } = useContent();
-  let question = questionsData[questionId];
+  const { mockTestsData, updateMockTest } = useContent();
+  let mockTest = mockTestsData[mockTestId];
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -142,11 +139,8 @@ export default function QuestionRowComponent({
 
   const [expanded, setExpanded] = useState(true);
   const [publishing, setPublishing] = useState(false);
-  const [isDataLoading, setIsDataLoading] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(true);
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
-  const [lastMockTestId, setLastMockTestId] = useState(null);
-  const [mockTests, setMockTests] = useState({ total: 0, documents: [] });
-  const [isMockTestLoading, setMockTestLoading] = useState(false);
 
   const { user } = useAuthContext();
 
@@ -154,27 +148,26 @@ export default function QuestionRowComponent({
 
   const fetchData = async () => {
     try {
-      if (question === undefined) {
+      if (mockTest === undefined) {
         setIsDataLoading(true);
-        await updateQuestion(questionId);
+        await updateMockTest(mockTestId);
         setIsDataLoading(false);
       } else {
         const isChanged =
           (
             await appwriteDatabases.getDocument(
               APPWRITE_API.databaseId,
-              APPWRITE_API.collections.questions,
-              questionId,
+              APPWRITE_API.collections.mockTest,
+              mockTestId,
               [Query.select("$updatedAt")]
             )
-          ).$updatedAt !== question?.$updatedAt;
+          ).$updatedAt !== mockTest?.$updatedAt;
         if (isChanged) {
           setIsDataLoading(true);
-          await updateQuestion(questionId);
+          await updateMockTest(mockTestId);
           setIsDataLoading(false);
         }
       }
-      loadMockTests();
       setIsDataLoading(false);
     } catch (error) {
       console.log(error);
@@ -184,16 +177,16 @@ export default function QuestionRowComponent({
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [questionId]);
+  }, [mockTestId]);
 
-  const publishQuestion = async () => {
+  const publishMockTest = async () => {
     setPublishing(true);
     try {
       const x = await appwriteFunctions.createExecution(
         APPWRITE_API.functions.sarthakAPI,
-        JSON.stringify({ questionId: question?.$id }),
+        JSON.stringify({ mockTestId: mockTestId }),
         false,
-        sarthakAPIPath.question.publish
+        sarthakAPIPath.mockTest.publish
       );
       const res = JSON.parse(x.responseBody);
       if (res.status === "failed") {
@@ -209,58 +202,25 @@ export default function QuestionRowComponent({
     setPublishing(false);
   };
 
-  const loadMockTests = async () => {
-    setMockTestLoading(true);
-    try {
-      let queries = [
-        Query.limit(100),
-        Query.select(["$id", "mtId", "name", "description", "published"]),
-      ];
-      if (lastMockTestId !== null) {
-        queries.push(Query.cursorAfter(lastMockTestId));
-      }
-      queries.push(Query.contains("$id", question?.mockTest || []));
-
-      const x = await appwriteDatabases.listDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.mockTest,
-        queries
-      );
-
-      const y = mockTests.documents.concat(x.documents);
-      if (x.documents.length !== 0)
-        setLastMockTestId(x.documents[x.documents.length - 1].$id);
-      setMockTests({ total: x.total, documents: y });
-    } catch (e) {}
-    setMockTestLoading(false);
-  };
-
   if (isDataLoading) {
     return (
       <Fragment>
         <Card sx={{ m: 1 }}>
-          <Skeleton sx={{ m: 2 }} variant="rounded" height={60} />
-          <Divider>
-            <Chip label="Options" />
+          <Divider sx={{ mt: 2, mb: 2 }}>
+            <Chip
+              label={mockTestId}
+              color="info"
+              icon={<Iconify icon="solar:test-tube-bold" color="#e81f1f" />}
+            />
           </Divider>
           <Grid container>
-            <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
+            <Grid item sm={12} xs={12} md={4} lg={3} xl={3}>
               <Skeleton sx={{ m: 2 }} variant="rounded" height={40} />
             </Grid>
-            <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
-              <Skeleton sx={{ m: 2 }} variant="rounded" height={40} />
-            </Grid>
-            <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
-              <Skeleton sx={{ m: 2 }} variant="rounded" height={40} />
-            </Grid>
-            <Grid item sm={12} xs={12} md={6} lg={6} xl={6}>
+            <Grid item sm={12} xs={12} md={8} lg={9} xl={9}>
               <Skeleton sx={{ m: 2 }} variant="rounded" height={40} />
             </Grid>
           </Grid>
-          <Divider>
-            <Chip label="Answer" />
-          </Divider>
-          <Skeleton sx={{ m: 2 }} variant="rounded" height={60} />
         </Card>
       </Fragment>
     );
@@ -274,17 +234,17 @@ export default function QuestionRowComponent({
             <Divider>
               <Chip
                 label={
-                  question?.qnId +
+                  mockTest?.mtId +
                   " (" +
                   timeAgo.format(
                     Date.parse(
-                      question?.lastSynced || "2000-01-01T00:00:00.000+00:00"
+                      mockTest?.lastSynced || "2000-01-01T00:00:00.000+00:00"
                     )
                   ) +
                   ")"
                 }
-                color="primary"
-                icon={<Iconify icon="fluent-color:chat-bubbles-question-16" />}
+                color="info"
+                icon={<Iconify icon="solar:test-tube-bold" color="#e81f1f" />}
               />
             </Divider>
           }
@@ -295,7 +255,7 @@ export default function QuestionRowComponent({
                   aria-label="settings"
                   onClick={async () => {
                     setIsDataLoading(true);
-                    await updateQuestion(questionId);
+                    await updateMockTest(mockTestId);
                     setIsDataLoading(false);
                   }}
                 >
@@ -306,7 +266,7 @@ export default function QuestionRowComponent({
                   />
                 </IconButton>
               </Tooltip>
-              {question?.published && (
+              {mockTest?.published && (
                 <Tooltip title="Published">
                   <Image
                     src="/assets/images/certified/published.png"
@@ -320,104 +280,44 @@ export default function QuestionRowComponent({
         />
 
         <CardContent>
-          <Marker mark={content}>
-            <ReactKatex>{question?.contentQuestion || ""}</ReactKatex>
-          </Marker>
-
-          {question?.coverQuestion && showImages && (
-            <Image
-              disabledEffect
-              alt="Question"
-              src={question?.coverQuestion}
-              sx={{ borderRadius: 1, ml: 2, mt: 1, maxWidth: 300 }}
-            />
-          )}
-
-          <Divider sx={{ m: 1 }}>
-            <Chip
-              label="Options"
-              variant="outlined"
-              color="info"
-              icon={<Iconify icon="famicons:options" />}
-            />
-          </Divider>
-
-          <Grid container>
-            {question?.contentOptions?.map((option, index) => (
-              <Grid item sm={12} xs={12} md={6} lg={6} xl={6} key={index}>
-                <Alert
-                  variant={
-                    question?.answerOptions[index] ? "filled" : "outlined"
-                  }
-                  severity={question?.answerOptions[index] ? "success" : "info"}
-                  icon={
-                    <Iconify
-                      icon={
-                        "mdi:alphabet-" +
-                        String.fromCharCode(97 + index) +
-                        "-box"
-                      }
-                    />
-                  }
-                  sx={{ m: 0.5 }}
+          <Box component="section" sx={{ border: "1px solid grey" }}>
+            <Grid container>
+              <Grid item sm={12} xs={12} md={4} lg={3} xl={3}>
+                <Box
+                  component="section"
+                  sx={{ p: 1, borderRight: "0.5px solid grey" }}
                 >
-                  <Stack direction="column">
-                    <Marker mark={content}>
-                      <ReactKatex>
-                        {question?.contentOptions[index] || ""}
-                      </ReactKatex>
-                    </Marker>
-                    {question?.coverOptions[index] && showImages && (
-                      <Image
-                        disabledEffect
-                        alt="options"
-                        src={question?.coverOptions[index]}
-                        sx={{ borderRadius: 1, ml: 2, maxWidth: 300 }}
-                      />
-                    )}
-                  </Stack>
-                </Alert>
+                  <Marker mark={content}>
+                    <Typography variant="h5">{mockTest?.name}</Typography>
+                  </Marker>
+                </Box>
               </Grid>
-            ))}
-          </Grid>
 
-          {showAnswer && (
-            <Fragment>
-              <Divider sx={{ mt: 1, mb: 1 }}>
-                <Chip
-                  label="Answer"
-                  variant="outlined"
-                  color="warning"
-                  icon={<Iconify icon="hugeicons:tick-double-03" />}
-                />
-              </Divider>
-
-              <Alert severity="warning" sx={{ m: 0.5 }} icon={false}>
-                <Marker mark={content}>
-                  <ReactKatex>{question?.contentAnswer || ""}</ReactKatex>
-                </Marker>
-                {question?.coverAnswer && (
-                  <Image
-                    disabledEffect
-                    alt="Question"
-                    src={question?.coverAnswer}
-                    sx={{ borderRadius: 1, ml: 2, maxWidth: 300 }}
-                  />
-                )}
-              </Alert>
-            </Fragment>
-          )}
+              <Grid item sm={12} xs={12} md={8} lg={9} xl={9}>
+                <Box
+                  component="section"
+                  sx={{ p: 1, borderLeft: "0.5px solid grey" }}
+                >
+                  <Marker mark={content}>
+                    <Typography variant="body1">
+                      {mockTest?.description}
+                    </Typography>
+                  </Marker>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
         </CardContent>
 
         <CardActions disableSpacing>
-          {question?.published ? (
+          {mockTest?.published ? (
             <Tooltip title="Published">
               <Iconify icon="noto:locked" sx={{ m: 1 }} />
             </Tooltip>
           ) : (
             <Tooltip title="Publish">
               <IconButton
-                disabled={question?.published}
+                disabled={mockTest?.published}
                 onClick={() => setOpenPublishDialog(true)}
               >
                 <Iconify icon="ic:round-publish" color="#ff2889" />
@@ -425,11 +325,11 @@ export default function QuestionRowComponent({
             </Tooltip>
           )}
 
-          {!question?.published && (
+          {!mockTest?.published && (
             <Tooltip title="Edit">
               <IconButton
                 onClick={() =>
-                  navigate(PATH_DASHBOARD.question.edit(questionId))
+                  navigate(PATH_DASHBOARD.mockTest.edit(mockTestId))
                 }
               >
                 <Iconify icon="fluent-color:edit-16" />
@@ -454,7 +354,7 @@ export default function QuestionRowComponent({
             <Tooltip title={"View"}>
               <IconButton
                 onClick={() =>
-                  navigate(PATH_DASHBOARD.question.view(questionId))
+                  navigate(PATH_DASHBOARD.mockTest.view(mockTestId))
                 }
               >
                 <Iconify icon="mage:preview-fill" color="#287cff" />
@@ -481,15 +381,7 @@ export default function QuestionRowComponent({
                       <Item>
                         <Stack direction="row" spacing={2}>
                           <Typography variant="body1">Index →</Typography>
-                          <Typography variant="body2">
-                            {question?.standard?.standard +
-                              " 🢒 " +
-                              question?.subject?.subject +
-                              " 🢒 " +
-                              question?.chapter?.chapter +
-                              " 🢒 " +
-                              question?.concept?.concept}
-                          </Typography>
+                          <IndexView id={mockTest?.bookIndex?.$id} />
                         </Stack>
                       </Item>
                     </Grid>
@@ -500,7 +392,27 @@ export default function QuestionRowComponent({
                           <Typography variant="body1">
                             System Generated Id →
                           </Typography>
-                          <Typography variant="body2">{questionId}</Typography>
+                          <Typography variant="body2">{mockTestId}</Typography>
+                        </Stack>
+                      </Item>
+                    </Grid>
+
+                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                      <Item>
+                        <Stack direction="row" spacing={2}>
+                          <Typography variant="body1">Duration →</Typography>
+                          <Typography variant="body2">{`${mockTest?.duration} mins`}</Typography>
+                        </Stack>
+                      </Item>
+                    </Grid>
+
+                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                      <Item>
+                        <Stack direction="row" spacing={2}>
+                          <Typography variant="body1">Level →</Typography>
+                          <Typography variant="body2">
+                            {mockTest?.level}
+                          </Typography>
                         </Stack>
                       </Item>
                     </Grid>
@@ -510,7 +422,7 @@ export default function QuestionRowComponent({
                         <Stack direction="row" spacing={2}>
                           <Typography variant="body1">Sarthak Id →</Typography>
                           <Typography variant="body2">
-                            {question?.qnId}
+                            {mockTest?.mtId}
                           </Typography>
                         </Stack>
                       </Item>
@@ -521,7 +433,7 @@ export default function QuestionRowComponent({
                         <Stack direction="row" spacing={2}>
                           <Typography variant="body1">Status →</Typography>
                           <Typography variant="body2">
-                            {question?.published ? "Published" : "Draft"}
+                            {mockTest?.published ? "Published" : "Draft"}
                           </Typography>
                         </Stack>
                       </Item>
@@ -532,7 +444,7 @@ export default function QuestionRowComponent({
                         <Stack direction="row" spacing={2}>
                           <Typography variant="body1">Created By →</Typography>
                           <Typography variant="body2">
-                            {question?.creator}
+                            {mockTest?.creator}
                           </Typography>
                         </Stack>
                       </Item>
@@ -542,17 +454,11 @@ export default function QuestionRowComponent({
                       <Item>
                         <Stack direction="row" spacing={2}>
                           <Typography variant="body1">Created At →</Typography>
-                          <Tooltip title={question?.$createdAt}>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                cursor: "pointer",
-                                textDecoration: "underline",
-                              }}
-                            >
+                          <Tooltip title={mockTest?.$createdAt}>
+                            <Typography variant="body2">
                               {timeAgo.format(
                                 Date.parse(
-                                  question?.$createdAt ||
+                                  mockTest?.$createdAt ||
                                     "2000-01-01T00:00:00.000+00:00"
                                 )
                               )}
@@ -567,7 +473,7 @@ export default function QuestionRowComponent({
                         <Stack direction="row" spacing={2}>
                           <Typography variant="body1">Updated By →</Typography>
                           <Typography variant="body2">
-                            {question?.updater}
+                            {mockTest?.updater}
                           </Typography>
                         </Stack>
                       </Item>
@@ -577,17 +483,11 @@ export default function QuestionRowComponent({
                       <Item>
                         <Stack direction="row" spacing={2}>
                           <Typography variant="body1">Updated At →</Typography>
-                          <Tooltip title={question?.$updatedAt}>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                cursor: "pointer",
-                                textDecoration: "underline",
-                              }}
-                            >
+                          <Tooltip title={mockTest?.$updatedAt}>
+                            <Typography variant="body2">
                               {timeAgo.format(
                                 Date.parse(
-                                  question?.$updatedAt ||
+                                  mockTest?.$updatedAt ||
                                     "2000-01-01T00:00:00.000+00:00"
                                 )
                               )}
@@ -597,7 +497,7 @@ export default function QuestionRowComponent({
                       </Item>
                     </Grid>
 
-                    {question?.published && (
+                    {mockTest?.published && (
                       <Fragment>
                         <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                           <Item>
@@ -606,7 +506,7 @@ export default function QuestionRowComponent({
                                 Approved By →
                               </Typography>
                               <Typography variant="body2">
-                                {question?.approver}
+                                {mockTest?.approver}
                               </Typography>
                             </Stack>
                           </Item>
@@ -618,17 +518,11 @@ export default function QuestionRowComponent({
                               <Typography variant="body1">
                                 Approved At →
                               </Typography>
-                              <Tooltip title={question?.approvedAt}>
-                                <Typography
-                                  variant="body2"
-                                  sx={{
-                                    cursor: "pointer",
-                                    textDecoration: "underline",
-                                  }}
-                                >
+                              <Tooltip title={mockTest?.approvedAt}>
+                                <Typography variant="body2">
                                   {timeAgo.format(
                                     Date.parse(
-                                      question?.approvedAt ||
+                                      mockTest?.approvedAt ||
                                         "2000-01-01T00:00:00.000+00:00"
                                     )
                                   )}
@@ -646,37 +540,27 @@ export default function QuestionRowComponent({
               <Accordion>
                 <AccordionSummary>
                   <Chip
-                    label={"Mock Tests (" + mockTests.total + ")"}
-                    variant="outlined"
-                    color="info"
+                    label={"Questions (" + mockTest?.questions?.length + ")"}
                     icon={
-                      <Iconify icon="solar:test-tube-bold" color="#e81f1f" />
+                      <Iconify icon="fluent-color:chat-bubbles-question-16" />
                     }
                   />
                 </AccordionSummary>
 
                 <AccordionDetails>
-                  <MockTestListTable data={mockTests.documents} />
-
-                  {isMockTestLoading && <LinearProgress />}
-
-                  {mockTests.documents.length !== mockTests.total && (
-                    <Button
-                      fullWidth
-                      disabled={isMockTestLoading}
-                      startIcon={<KeyboardDoubleArrowDownIcon />}
-                      endIcon={<KeyboardDoubleArrowDownIcon />}
-                      onClick={loadMockTests}
-                    >
-                      {"Loaded " +
-                        mockTests.documents.length +
-                        " out of " +
-                        mockTests.total +
-                        "! Load More"}
-                    </Button>
-                  )}
+                  {mockTest?.questions.map((question, index) => (
+                    <QuestionRowComponent
+                      key={index}
+                      questionId={question}
+                      showImages={false}
+                      showAnswer={false}
+                      defaultExpanded={false}
+                    />
+                  ))}
                 </AccordionDetails>
               </Accordion>
+
+              {/*TODO: Add product details */}
             </CardContent>
           </Collapse>
         )}
@@ -697,9 +581,9 @@ export default function QuestionRowComponent({
             </DialogTitle>
             <DialogContent dividers>
               <DialogContentText id="alert-dialog-description">
-                If you click AGREE, question will be published. After that there
-                won't be any edit entertained. You can click DISAGREE, if you
-                feel that the question is not needed to be published.
+                If you click AGREE, mock test will be published. After that
+                there won't be any edit entertained. You can click DISAGREE, if
+                you feel that the mock test is not needed to be published.
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -711,7 +595,7 @@ export default function QuestionRowComponent({
               </Button>
               <LoadingButton
                 loading={publishing}
-                onClick={publishQuestion}
+                onClick={publishMockTest}
                 autoFocus
               >
                 Agree

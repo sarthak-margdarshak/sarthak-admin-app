@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import { Fragment, useEffect, useState } from "react";
-import SubjectBar from "sections/@dashboard/management/content/layout/TreeView/SubjectBar";
+import React, { Fragment, useEffect, useState } from "react";
+import SubjectBar from "sections/@dashboard/management/content/layout/tree-view/SubjectBar";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import { LoadingButton } from "@mui/lab";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
@@ -19,7 +19,11 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import AddToQueueIcon from "@mui/icons-material/AddToQueue";
-import { timeAgo } from "auth/AppwriteContext";
+import {
+  appwriteAccount,
+  appwriteDatabases,
+  timeAgo,
+} from "auth/AppwriteContext";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
@@ -27,6 +31,8 @@ import ViewQuiltIcon from "@mui/icons-material/ViewQuilt";
 import PreviewIcon from "@mui/icons-material/Preview";
 import { useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "routes/paths";
+import { APPWRITE_API } from "config-global";
+import { ID } from "appwrite";
 
 export default function StandardBar({ standardId }) {
   const { standardsData, loadSubject, refreshSubject, addSubject } =
@@ -48,6 +54,7 @@ export default function StandardBar({ standardId }) {
   const [creatingNew, setCreatingNew] = useState(false);
   const [submittingNew, setSubmittingNew] = useState(false);
   const [newSubject, setNewSubject] = useState("");
+  const [mockTestCreating, setMockTestCreating] = useState(false);
 
   useEffect(() => {
     function handleContextMenu(e) {
@@ -83,6 +90,24 @@ export default function StandardBar({ standardId }) {
     navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + standardId);
   };
 
+  const createMockTest = async () => {
+    setMockTestCreating(true);
+    const mockTest = await appwriteDatabases.createDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.mockTest,
+      ID.unique(),
+      {
+        standard: standardId,
+        bookIndex: standardId,
+        creator: (await appwriteAccount.get()).$id,
+        updater: (await appwriteAccount.get()).$id,
+      }
+    );
+    setMockTestCreating(false);
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.mockTest.edit(mockTest.$id), { replace: true });
+  };
+
   return (
     <Fragment>
       <Fragment>
@@ -116,11 +141,13 @@ export default function StandardBar({ standardId }) {
             <ListItemText>Create a Subject</ListItemText>
           </MenuItem>
 
-          <MenuItem disabled>
+          <MenuItem onClick={createMockTest} disabled={mockTestCreating}>
             <ListItemIcon>
               <NoteAddIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Create a mock Test</ListItemText>
+            <ListItemText>
+              {mockTestCreating ? "Creating..." : "Create a mock Test"}
+            </ListItemText>
           </MenuItem>
 
           <MenuItem disabled>

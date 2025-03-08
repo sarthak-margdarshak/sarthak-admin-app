@@ -1,45 +1,37 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  Box,
-  Divider,
-  Typography,
-  Skeleton,
-  styled,
-  Paper,
-  Grid,
-  ButtonGroup,
-  Button,
-  Popper,
-  Grow,
-  ClickAwayListener,
-  MenuList,
-  MenuItem,
-  Chip,
-  Switch,
-  FormControlLabel,
-  FormHelperText,
-} from "@mui/material";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSnackbar } from "components/snackbar";
-import QuestionRowComponent from "./QuestionRowComponent";
+import { Fragment, useEffect, useRef, useState } from "react";
+import { Query } from "appwrite";
 import { appwriteDatabases } from "auth/AppwriteContext";
 import { APPWRITE_API } from "config-global";
-import { Query } from "appwrite";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
+import FilterDialog from "./FilterDialog";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Chip,
+  ClickAwayListener,
+  Divider,
+  FormControlLabel,
+  FormHelperText,
+  Grid,
+  Grow,
+  MenuItem,
+  MenuList,
+  Paper,
+  Popper,
+  Skeleton,
+  styled,
+  Switch,
+  Typography,
+} from "@mui/material";
 import Iconify from "components/iconify";
-import FilterOption from "./filter/FilterOption";
-import FilterDialog from "./filter/FilterDialog";
-import { PATH_DASHBOARD } from "routes/paths";
-
-const sortOptions = [
-  "Sort By Latest Created",
-  "Sort By Early Created",
-  "Sort By Latest Updated",
-  "Sort By Early Updated",
-  "Sort By Latest Approved",
-  "Sort By Early Approved",
-];
+import FilterOption from "./FilterOption";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
+import QuestionListTable from "sections/@dashboard/management/content/question/component/QuestionListTable";
+import { useContent } from "sections/@dashboard/management/content/hook/useContent";
+import MockTestListTable from "sections/@dashboard/management/content/mock-test/component/MockTestListTable";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#ebebeb",
@@ -50,15 +42,26 @@ const Item = styled(Paper)(({ theme }) => ({
   }),
 }));
 
-export default function QuestionListComponent() {
+const sortOptions = [
+  "Sort By Latest Created",
+  "Sort By Early Created",
+  "Sort By Latest Updated",
+  "Sort By Early Updated",
+  "Sort By Latest Approved",
+  "Sort By Early Approved",
+];
+
+export default function FilterView({ content }) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const anchorRef = useRef(null);
+  const { updateSearchList } = useContent();
 
-  const [questionIdLst, setQuestionIdLst] = useState([]);
+  const [dataIdLst, setDataIdLst] = useState([]);
   const [isFetchingData, setIsFetchingData] = useState(false);
   const [lastSyncedId, setLastSyncedId] = useState(null);
+
   const [sortSelectedIndex, setSortSelectedIndex] = useState(0);
   const [sortMenuOpened, setSortMenuOpened] = useState(false);
   const [searchParameterOptions, setSearchParameterOptions] = useState([]);
@@ -69,12 +72,12 @@ export default function QuestionListComponent() {
   const fetchData = async (sortInd, params, narrow, lastId) => {
     setIsFetchingData(true);
     try {
-      let queries = [Query.limit(25), Query.select("$id")];
+      let queries = [Query.limit(100)];
       let conditionalQueries = [];
-      let tmpQnLst = [];
+      let tmpDataLst = [];
 
       if (lastId) {
-        tmpQnLst = questionIdLst;
+        tmpDataLst = dataIdLst;
         queries.push(Query.cursorAfter(lastId));
       }
 
@@ -106,13 +109,22 @@ export default function QuestionListComponent() {
         }
 
         if (q.value === "content" && q.isSelected) {
-          conditionalQueries.push(
-            Query.or([
-              Query.search("contentQuestion", q.content),
-              Query.contains("contentOptions", [q.content]),
-              Query.search("contentAnswer", q.content),
-            ])
-          );
+          if (content === "questions") {
+            conditionalQueries.push(
+              Query.or([
+                Query.search("contentQuestion", q.content),
+                Query.contains("contentOptions", [q.content]),
+                Query.search("contentAnswer", q.content),
+              ])
+            );
+          } else if (content === "mockTest") {
+            conditionalQueries.push(
+              Query.or([
+                Query.search("name", q.content),
+                Query.search("description", q.content),
+              ])
+            );
+          }
         }
 
         if (q.value === "published" && q.isSelected) {
@@ -142,15 +154,29 @@ export default function QuestionListComponent() {
         queries = queries.concat(conditionalQueries);
       }
 
+      let collection = "";
+      if (content === "questions") {
+        collection = APPWRITE_API.collections.questions;
+        queries.push(
+          Query.select(["$id", "qnId", "contentQuestion", "published", "creator"])
+        );
+      } else if (content === "mockTest") {
+        collection = APPWRITE_API.collections.mockTest;
+        queries.push(
+          Query.select(["$id", "mtId", "name", "description", "published"])
+        );
+      }
+
       const data = await appwriteDatabases.listDocuments(
         APPWRITE_API.databaseId,
-        APPWRITE_API.collections.questions,
+        collection,
         queries
       );
 
-      tmpQnLst = tmpQnLst.concat(data.documents.map((doc) => doc.$id));
+      tmpDataLst = tmpDataLst.concat(data.documents);
       setTotalCount(data.total);
-      setQuestionIdLst(tmpQnLst);
+      setDataIdLst(tmpDataLst);
+      updateSearchList(tmpDataLst);
       if (data.documents.length > 0)
         setLastSyncedId(data.documents[data.documents.length - 1].$id);
     } catch (error) {
@@ -250,7 +276,7 @@ export default function QuestionListComponent() {
   };
 
   const navigateCustom = (tmpOptions, sortInd, narrow) => {
-    let url = PATH_DASHBOARD.question.list;
+    let url = window.location.pathname;
     let ret = [
       encodeURIComponent("sortBy") + "=" + encodeURIComponent(sortInd),
       encodeURIComponent("narrowSearch") + "=" + encodeURIComponent(narrow),
@@ -271,7 +297,7 @@ export default function QuestionListComponent() {
   };
 
   return (
-    <React.Fragment>
+    <Fragment>
       <FilterDialog
         filterWindowOpen={filterWindowOpen}
         searchParams={searchParameterOptions}
@@ -406,7 +432,7 @@ export default function QuestionListComponent() {
                     label="Narrow Search"
                   />
                   <FormHelperText>
-                    Checking above switch will fetch the questions, which will
+                    Checking above switch will fetch the results, which will
                     fulfill all given conditions on the left.
                   </FormHelperText>
                 </Grid>
@@ -418,36 +444,30 @@ export default function QuestionListComponent() {
 
       <Divider sx={{ m: 1 }}>
         <Chip
-          label={"Total Question - " + totalCount}
+          label={"Total Result - " + totalCount}
           color="info"
           icon={<Iconify icon="arcticons:tally-counter" />}
         />
       </Divider>
 
       <Box sx={{ minHeight: 400 }}>
-        {!isFetchingData && questionIdLst?.length === 0 && (
+        {!isFetchingData && dataIdLst?.length === 0 && (
           <Box sx={{ textAlign: "center" }}>
             <Typography variant="caption" color={"gray"}>
-              No Question found
+              No Result found
             </Typography>
           </Box>
         )}
 
-        {questionIdLst?.map((item) => (
-          <QuestionRowComponent
-            questionId={item}
-            key={item}
-            defaultExpanded={false}
-            showImages={false}
-            showAnswer={false}
-          />
-        ))}
+        {content === "questions" && <QuestionListTable data={dataIdLst} />}
+
+        {content === "mockTest" && <MockTestListTable data={dataIdLst} />}
 
         {isFetchingData && (
           <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={400} />
         )}
 
-        {questionIdLst.length !== totalCount && (
+        {dataIdLst.length !== totalCount && (
           <Button
             fullWidth
             disabled={isFetchingData}
@@ -463,13 +483,13 @@ export default function QuestionListComponent() {
             }
           >
             {"Loaded " +
-              questionIdLst.length +
+              dataIdLst.length +
               " out of " +
               totalCount +
               "! Load More"}
           </Button>
         )}
       </Box>
-    </React.Fragment>
+    </Fragment>
   );
 }

@@ -3,8 +3,8 @@ import { Container } from "@mui/material";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useSettingsContext } from "components/settings";
 import CustomBreadcrumbs from "components/custom-breadcrumbs";
-import QuestionListComponent from "sections/@dashboard/management/content/question/component/QuestionListComponent";
 import { Fragment } from "react";
+import FilterView from "sections/@dashboard/management/content/layout/filter-view/FilterView";
 
 export default function QuestionListPage() {
   const { themeStretch } = useSettingsContext();
@@ -29,7 +29,7 @@ export default function QuestionListPage() {
           ]}
         />
 
-        <QuestionListComponent />
+        <FilterView content="questions" />
       </Container>
     </Fragment>
   );

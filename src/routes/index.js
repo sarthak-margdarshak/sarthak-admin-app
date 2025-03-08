@@ -30,7 +30,7 @@ import {
   ProductEditPage,
   ProductListPage,
 } from "./elements";
-import QuestionTreeView from "sections/@dashboard/management/content/layout/TreeView/QuestionTreeView";
+import QuestionTreeView from "sections/@dashboard/management/content/layout/tree-view/QuestionTreeView";
 import { ContentProvider } from "sections/@dashboard/management/content/hook/ContentProvider";
 import React from "react";
 import Content from "layouts/dashboard/Content";

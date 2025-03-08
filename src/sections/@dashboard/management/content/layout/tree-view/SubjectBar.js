@@ -10,31 +10,38 @@ import {
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import { Fragment, useEffect, useState } from "react";
-import ConceptBar from "sections/@dashboard/management/content/layout/TreeView/ConceptBar";
-import { useContent } from "sections/@dashboard/management/content/hook/useContent";
+import React, { Fragment, useEffect, useState } from "react";
+import ChapterBar from "./ChapterBar";
+import { useContent } from "../../hook/useContent";
 import { LoadingButton } from "@mui/lab";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
-import { timeAgo } from "auth/AppwriteContext";
+import {
+  appwriteAccount,
+  appwriteDatabases,
+  timeAgo,
+} from "auth/AppwriteContext";
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
 import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
+import ViewQuiltIcon from "@mui/icons-material/ViewQuilt";
 import PreviewIcon from "@mui/icons-material/Preview";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
+import AddToQueueIcon from "@mui/icons-material/AddToQueue";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useNavigate } from "react-router-dom";
+import { APPWRITE_API } from "config-global";
+import { ID } from "appwrite";
 
-export default function ChapterBar({ standardId, subjectId, chapterId }) {
-  const { standardsData, loadConcept, refreshConcept, addConcept } =
+export default function SubjectBar({ standardId, subjectId }) {
+  const { standardsData, loadChapter, refreshChapter, addChapter } =
     useContent();
-  const chapterData =
-    standardsData.documents[standardId].subjects.documents[subjectId].chapters
-      .documents[chapterId];
+  const subjectData =
+    standardsData.documents[standardId].subjects.documents[subjectId];
   const navigate = useNavigate();
 
-  const [conceptsOpened, setConceptsOpened] = useState(false);
+  const [chaptersOpened, setChaptersOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpened = Boolean(anchorEl);
   const handleOpenMenu = (event) => {
@@ -43,11 +50,12 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
-  const [conceptsLoading, setConceptsLoading] = useState(false);
+  const [chaptersLoading, setChaptersLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [creatingNew, setCreatingNew] = useState(false);
   const [submittingNew, setSubmittingNew] = useState(false);
-  const [newConcept, setNewConcept] = useState("");
+  const [newChapter, setNewChapter] = useState("");
+  const [mockTestCreating, setMockTestCreating] = useState(false);
 
   useEffect(() => {
     function handleContextMenu(e) {
@@ -59,28 +67,47 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
     };
   }, []);
 
-  const initiateCreateConcept = async () => {
-    setConceptsOpened(true);
+  const initiateCreateChapter = async () => {
+    setChaptersOpened(true);
     handleCloseMenu();
-    if (!conceptsOpened && chapterData.concepts.loadedOnce === false) {
-      setConceptsLoading(true);
-      await loadConcept(standardId, subjectId, chapterId);
-      setConceptsLoading(false);
+    if (!chaptersOpened && subjectData.chapters.loadedOnce === false) {
+      setChaptersLoading(true);
+      await loadChapter(standardId, subjectId);
+      setChaptersLoading(false);
     }
     setCreatingNew(true);
   };
 
-  const refreshChapter = async () => {
+  const refreshSubject = async () => {
     handleCloseMenu();
-    setConceptsOpened(false);
+    setChaptersOpened(false);
     setRefreshing(true);
-    await refreshConcept(standardId, subjectId, chapterId);
+    await refreshChapter(standardId, subjectId);
     setRefreshing(false);
   };
 
   const openQuestion = () => {
     handleCloseMenu();
-    navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + chapterId);
+    navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + subjectId);
+  };
+
+  const createMockTest = async () => {
+    setMockTestCreating(true);
+    const mockTest = await appwriteDatabases.createDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.mockTest,
+      ID.unique(),
+      {
+        standard: standardId,
+        subject: subjectId,
+        bookIndex: subjectId,
+        creator: (await appwriteAccount.get()).$id,
+        updater: (await appwriteAccount.get()).$id,
+      }
+    );
+    setMockTestCreating(false);
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.mockTest.edit(mockTest.$id), { replace: true });
   };
 
   return (
@@ -88,39 +115,48 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
       <Fragment>
         <LoadingButton
           fullWidth
-          variant={conceptsOpened ? "contained" : "outlined"}
-          style={{ justifyContent: "left", borderRadius: 0, paddingLeft: 35 }}
-          color="secondary"
+          variant={chaptersOpened ? "contained" : "outlined"}
+          style={{ justifyContent: "left", borderRadius: 0, paddingLeft: 25 }}
+          color="primary"
           startIcon={
-            conceptsOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
+            chaptersOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
           }
           onClick={async () => {
-            setConceptsOpened(!conceptsOpened);
-            setConceptsLoading(true);
-            if (!conceptsOpened && chapterData.concepts.loadedOnce === false) {
-              await loadConcept(standardId, subjectId, chapterId);
+            setChaptersOpened(!chaptersOpened);
+            setChaptersLoading(true);
+            if (!chaptersOpened && subjectData.chapters.loadedOnce === false) {
+              await loadChapter(standardId, subjectId);
             }
-            setConceptsLoading(false);
+            setChaptersLoading(false);
           }}
           onContextMenu={handleOpenMenu}
           loading={refreshing}
         >
-          {chapterData.chapter}
+          {subjectData?.subject}
         </LoadingButton>
 
         <Menu anchorEl={anchorEl} open={menuOpened} onClose={handleCloseMenu}>
-          <MenuItem onClick={initiateCreateConcept}>
+          <MenuItem onClick={initiateCreateChapter}>
             <ListItemIcon>
               <CreateNewFolderIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Create a Concept</ListItemText>
+            <ListItemText>Create a Chapter</ListItemText>
+          </MenuItem>
+
+          <MenuItem onClick={createMockTest} disabled={mockTestCreating}>
+            <ListItemIcon>
+              <NoteAddIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>
+              {mockTestCreating ? "Creating..." : "Create a mock Test"}
+            </ListItemText>
           </MenuItem>
 
           <MenuItem disabled>
             <ListItemIcon>
-              <NoteAddIcon fontSize="small" />
+              <AddToQueueIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Create a mock Test</ListItemText>
+            <ListItemText>Create a Product</ListItemText>
           </MenuItem>
 
           <Divider />
@@ -139,9 +175,16 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
             <ListItemText>View mock Tests</ListItemText>
           </MenuItem>
 
+          <MenuItem disabled>
+            <ListItemIcon>
+              <ViewQuiltIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>View products</ListItemText>
+          </MenuItem>
+
           <Divider />
 
-          <MenuItem onClick={refreshChapter}>
+          <MenuItem onClick={refreshSubject}>
             <ListItemIcon>
               <RefreshIcon fontSize="small" />
             </ListItemIcon>
@@ -149,12 +192,12 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
           </MenuItem>
 
           <MenuItem disabled>
-            {timeAgo.format(Date.parse(chapterData.lastSynced))}
+            {timeAgo.format(Date.parse(subjectData.lastSynced))}
           </MenuItem>
         </Menu>
       </Fragment>
 
-      {conceptsOpened && (
+      {chaptersOpened && (
         <Fragment>
           {creatingNew && (
             <OutlinedInput
@@ -164,15 +207,15 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
               color="success"
               autoFocus={creatingNew}
               disabled={submittingNew}
-              value={newConcept}
-              onChange={(e) => setNewConcept(e.target.value)}
-              style={{ borderRadius: 0, paddingLeft: 50 }}
+              value={newChapter}
+              onChange={(e) => setNewChapter(e.target.value)}
+              style={{ borderRadius: 0, paddingLeft: 33 }}
               startAdornment={<ArrowRightIcon fontSize="small" />}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton
                     onClick={async () => {
-                      setNewConcept("");
+                      setNewChapter("");
                       setCreatingNew(false);
                     }}
                     edge="end"
@@ -182,14 +225,9 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
                   <IconButton
                     onClick={async () => {
                       setSubmittingNew(true);
-                      await addConcept(
-                        newConcept,
-                        standardId,
-                        subjectId,
-                        chapterId
-                      );
+                      await addChapter(newChapter, standardId, subjectId);
                       setSubmittingNew(false);
-                      setNewConcept("");
+                      setNewChapter("");
                       setCreatingNew(false);
                     }}
                     edge="end"
@@ -201,35 +239,34 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
             />
           )}
 
-          {Object.keys(chapterData.concepts.documents).map((id, index) => (
-            <ConceptBar
+          {Object.keys(subjectData.chapters.documents).map((id, index) => (
+            <ChapterBar
               key={index}
               standardId={standardId}
               subjectId={subjectId}
-              chapterId={chapterId}
-              conceptId={id}
+              chapterId={id}
             />
           ))}
 
-          {(conceptsLoading ||
-            chapterData.concepts.total !==
-              Object.keys(chapterData.concepts.documents).length) && (
+          {(chaptersLoading ||
+            subjectData.chapters.total !==
+              Object.keys(subjectData.chapters.documents).length) && (
             <LoadingButton
               fullWidth
               variant="contained"
               style={{
                 justifyContent: "left",
                 borderRadius: 0,
-                paddingLeft: 85,
+                paddingLeft: 65,
               }}
-              color="success"
+              color="secondary"
               startIcon={<KeyboardDoubleArrowDownIcon />}
               onClick={async () => {
-                setConceptsLoading(true);
-                await loadConcept(standardId, subjectId, chapterId);
-                setConceptsLoading(false);
+                setChaptersLoading(true);
+                await loadChapter(standardId, subjectId);
+                setChaptersLoading(false);
               }}
-              loading={conceptsLoading}
+              loading={chaptersLoading}
             >
               Load More
             </LoadingButton>
