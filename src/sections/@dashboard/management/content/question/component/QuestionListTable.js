@@ -19,6 +19,7 @@ import { styled } from "@mui/material/styles";
 const columns = [
   { id: "id", label: "ID", minWidth: 170 },
   { id: "question", label: "Question", minWidth: 250 },
+  { id: "creator", label: "Created By", minWidth: 170 },
   { id: "status", label: "Status", minWidth: 170 },
 ];
 
@@ -78,6 +79,7 @@ export default function QuestionListTable({ data }) {
                     <ReactKatex>{row.contentQuestion}</ReactKatex>
                   </Marker>
                 </TableCell>
+                <TableCell>{row.creator}</TableCell>
                 <TableCell>
                   <Label
                     variant="soft"

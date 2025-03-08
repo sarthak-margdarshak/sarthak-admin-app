@@ -158,7 +158,7 @@ export default function FilterView({ content }) {
       if (content === "questions") {
         collection = APPWRITE_API.collections.questions;
         queries.push(
-          Query.select(["$id", "qnId", "contentQuestion", "published"])
+          Query.select(["$id", "qnId", "contentQuestion", "published", "creator"])
         );
       } else if (content === "mockTest") {
         collection = APPWRITE_API.collections.mockTest;
