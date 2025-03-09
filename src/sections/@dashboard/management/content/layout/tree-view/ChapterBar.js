@@ -110,6 +110,11 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
     navigate(PATH_DASHBOARD.mockTest.edit(mockTest.$id), { replace: true });
   };
 
+  const openMockTest = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.mockTest.list + "?bookIndex=" + chapterId);
+  };
+
   return (
     <Fragment>
       <Fragment>
@@ -161,7 +166,7 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
             <ListItemText>View Questions</ListItemText>
           </MenuItem>
 
-          <MenuItem disabled>
+          <MenuItem onClick={openMockTest}>
             <ListItemIcon>
               <ViewCompactAltIcon fontSize="small" />
             </ListItemIcon>

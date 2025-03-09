@@ -26,11 +26,15 @@ const initialState = {
   mockTestsData: localStorage.getItem("mockTestsData")
     ? JSON.parse(localStorage.getItem("mockTestsData"))
     : {},
+  productsData: localStorage.getItem("productsData")
+    ? JSON.parse(localStorage.getItem("productsData"))
+    : {},
   searchList: [],
   getBookIndex: async () => {},
   updateDock: () => {},
   updateQuestion: async () => {},
   updateMockTest: async () => {},
+  updateProduct: async () => {},
   loadStandard: async () => {},
   loadSubject: async () => {},
   loadChapter: async () => {},
@@ -71,6 +75,11 @@ const reducer = (state, action) => {
     return {
       ...state,
       searchList: action.payload.searchList,
+    };
+  } else if (action.type === "PRODUCT_UPDATE") {
+    return {
+      ...state,
+      productsData: action.payload.productsData,
     };
   }
   return state;
@@ -264,6 +273,47 @@ export function ContentProvider({ children }) {
       };
     },
     [state.mockTestsData]
+  );
+
+  const updateProduct = useCallback(
+    async (productId) => {
+      const product = await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.products,
+        productId
+      );
+
+      const tmpImages = [];
+      for (let image of product.images) {
+        const z = appwriteStorage.getFileDownload(
+          APPWRITE_API.buckets.sarthakDatalakeBucket,
+          image
+        );
+        tmpImages.push(z);
+      }
+
+      state.productsData[productId] = {
+        ...product,
+        images: tmpImages,
+        lastSynced: new Date().toISOString(),
+      };
+
+      const y = JSON.stringify(state.productsData);
+      localStorage.setItem("productsData", y);
+
+      dispatch({
+        type: "PRODUCT_UPDATE",
+        payload: {
+          productsData: state.productsData,
+        },
+      });
+
+      return {
+        ...product,
+        lastSynced: new Date().toISOString(),
+      };
+    },
+    [state.productsData]
   );
 
   const loadStandard = useCallback(async () => {
@@ -746,12 +796,14 @@ export function ContentProvider({ children }) {
       dockOpen: state.dockOpen,
       questionsData: state.questionsData,
       mockTestsData: state.mockTestsData,
+      productsData: state.productsData,
       bookIndex: state.bookIndex,
       searchList: state.searchList,
       getBookIndex,
       updateDock,
       updateQuestion,
       updateMockTest,
+      updateProduct,
       loadStandard,
       loadSubject,
       loadChapter,
@@ -771,12 +823,14 @@ export function ContentProvider({ children }) {
       state.dockOpen,
       state.questionsData,
       state.mockTestsData,
+      state.productsData,
       state.bookIndex,
       state.searchList,
       getBookIndex,
       updateDock,
       updateQuestion,
       updateMockTest,
+      updateProduct,
       loadStandard,
       loadSubject,
       loadChapter,

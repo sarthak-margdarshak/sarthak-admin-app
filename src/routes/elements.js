@@ -68,11 +68,6 @@ export const MockTestEditPage = Loadable(
 );
 
 // -----------------< DASHBOARD: MANAGEMENT: CONTENT: PRODUCT >-----------------
-export const ProductNewPage = Loadable(
-  lazy(() =>
-    import("pages/dashboard/management/content/product/ProductNewPage")
-  )
-);
 export const ProductListPage = Loadable(
   lazy(() =>
     import("pages/dashboard/management/content/product/ProductListPage")
@@ -89,7 +84,7 @@ export const ProductEditPage = Loadable(
   )
 );
 
-// MAIN
+// -----------------< MAIN >-----------------
 export const Page500 = Loadable(lazy(() => import("pages/Page500")));
 export const Page403 = Loadable(lazy(() => import("pages/Page403")));
 export const Page404 = Loadable(lazy(() => import("pages/Page404")));

@@ -59,7 +59,7 @@ export default function QuestionEditForm({ questionId }) {
   const [isSaving, setIsSaving] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [expanded, setExpanded] = useState("question");
-  const [containsImages, setContainsImages] = useState(false);
+  const [containsImages, setContainsImages] = useState(true);
 
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -300,17 +300,17 @@ export default function QuestionEditForm({ questionId }) {
         </Link>
       </Breadcrumbs>
 
-      <FormControlLabel
-        control={
-          <Switch
-            checked={containsImages}
-            onChange={() => {
-              setContainsImages(!containsImages);
-            }}
-          />
-        }
-        label="Does your question contain images"
-      />
+      {/*<FormControlLabel*/}
+      {/*  control={*/}
+      {/*    <Switch*/}
+      {/*      checked={containsImages}*/}
+      {/*      onChange={() => {*/}
+      {/*        setContainsImages(!containsImages);*/}
+      {/*      }}*/}
+      {/*    />*/}
+      {/*  }*/}
+      {/*  label="Does your question contain images"*/}
+      {/*/>*/}
 
       <Box component="section" sx={{ p: 2, border: "1px dashed grey" }}>
         <Divider sx={{ mb: 1 }}>

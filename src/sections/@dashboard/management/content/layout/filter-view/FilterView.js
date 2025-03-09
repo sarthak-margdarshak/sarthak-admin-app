@@ -32,6 +32,7 @@ import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrow
 import QuestionListTable from "sections/@dashboard/management/content/question/component/QuestionListTable";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import MockTestListTable from "sections/@dashboard/management/content/mock-test/component/MockTestListTable";
+import ProductListTable from "sections/@dashboard/management/content/product/component/ProductListTable";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#ebebeb",
@@ -97,15 +98,25 @@ export default function FilterView({ content }) {
 
       params.forEach((q) => {
         if (q.value === "bookIndex" && q.isSelected) {
-          conditionalQueries.push(
-            Query.or([
-              Query.equal("bookIndex", q.content),
-              Query.equal("standard", q.content),
-              Query.equal("subject", q.content),
-              Query.equal("chapter", q.content),
-              Query.equal("concept", q.content),
-            ])
-          );
+          if (content === "product") {
+            conditionalQueries.push(
+              Query.or([
+                Query.equal("bookIndex", q.content),
+                Query.equal("standard", q.content),
+                Query.equal("subject", q.content),
+              ])
+            );
+          } else {
+            conditionalQueries.push(
+              Query.or([
+                Query.equal("bookIndex", q.content),
+                Query.equal("standard", q.content),
+                Query.equal("subject", q.content),
+                Query.equal("chapter", q.content),
+                Query.equal("concept", q.content),
+              ])
+            );
+          }
         }
 
         if (q.value === "content" && q.isSelected) {
@@ -117,7 +128,7 @@ export default function FilterView({ content }) {
                 Query.search("contentAnswer", q.content),
               ])
             );
-          } else if (content === "mockTest") {
+          } else {
             conditionalQueries.push(
               Query.or([
                 Query.search("name", q.content),
@@ -158,12 +169,23 @@ export default function FilterView({ content }) {
       if (content === "questions") {
         collection = APPWRITE_API.collections.questions;
         queries.push(
-          Query.select(["$id", "qnId", "contentQuestion", "published", "creator"])
+          Query.select([
+            "$id",
+            "qnId",
+            "contentQuestion",
+            "published",
+            "creator",
+          ])
         );
       } else if (content === "mockTest") {
         collection = APPWRITE_API.collections.mockTest;
         queries.push(
           Query.select(["$id", "mtId", "name", "description", "published"])
+        );
+      } else if (content === "product") {
+        collection = APPWRITE_API.collections.products;
+        queries.push(
+          Query.select(["$id", "productId", "name", "description", "published"])
         );
       }
 
@@ -462,6 +484,8 @@ export default function FilterView({ content }) {
         {content === "questions" && <QuestionListTable data={dataIdLst} />}
 
         {content === "mockTest" && <MockTestListTable data={dataIdLst} />}
+
+        {content === "product" && <ProductListTable data={dataIdLst} />}
 
         {isFetchingData && (
           <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={400} />

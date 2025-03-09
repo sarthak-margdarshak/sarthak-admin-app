@@ -55,6 +55,7 @@ export default function StandardBar({ standardId }) {
   const [submittingNew, setSubmittingNew] = useState(false);
   const [newSubject, setNewSubject] = useState("");
   const [mockTestCreating, setMockTestCreating] = useState(false);
+  const [productCreating, setProductCreating] = useState(false);
 
   useEffect(() => {
     function handleContextMenu(e) {
@@ -108,6 +109,34 @@ export default function StandardBar({ standardId }) {
     navigate(PATH_DASHBOARD.mockTest.edit(mockTest.$id), { replace: true });
   };
 
+  const openMockTest = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.mockTest.list + "?bookIndex=" + standardId);
+  };
+
+  const createProduct = async () => {
+    setProductCreating(true);
+    const mockTest = await appwriteDatabases.createDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.products,
+      ID.unique(),
+      {
+        standard: standardId,
+        bookIndex: standardId,
+        creator: (await appwriteAccount.get()).$id,
+        updater: (await appwriteAccount.get()).$id,
+      }
+    );
+    setProductCreating(false);
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.product.edit(mockTest.$id), { replace: true });
+  };
+
+  const openProduct = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.product.list + "?bookIndex=" + standardId);
+  };
+
   return (
     <Fragment>
       <Fragment>
@@ -150,11 +179,13 @@ export default function StandardBar({ standardId }) {
             </ListItemText>
           </MenuItem>
 
-          <MenuItem disabled>
+          <MenuItem onClick={createProduct} disabled={productCreating}>
             <ListItemIcon>
               <AddToQueueIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Create a Product</ListItemText>
+            <ListItemText>
+              {productCreating ? "Creating..." : "Create a Product"}
+            </ListItemText>
           </MenuItem>
 
           <Divider />
@@ -166,14 +197,14 @@ export default function StandardBar({ standardId }) {
             <ListItemText>View Questions</ListItemText>
           </MenuItem>
 
-          <MenuItem disabled>
+          <MenuItem onClick={openMockTest}>
             <ListItemIcon>
               <ViewCompactAltIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>View mock Tests</ListItemText>
           </MenuItem>
 
-          <MenuItem disabled>
+          <MenuItem onClick={openProduct}>
             <ListItemIcon>
               <ViewQuiltIcon fontSize="small" />
             </ListItemIcon>

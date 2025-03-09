@@ -26,7 +26,6 @@ import {
   MockTestViewPage,
   MockTestEditPage,
   ProductViewPage,
-  ProductNewPage,
   ProductEditPage,
   ProductListPage,
 } from "./elements";
@@ -74,7 +73,10 @@ export default function Router() {
         { element: <Navigate to={PATH_AFTER_LOGIN} replace />, index: true },
         // Dashboard: App
         // { path: "app", element: <GeneralAppPage /> },
-        { path: "app", element: <Navigate to="/dashboard/question/list" replace /> },
+        {
+          path: "app",
+          element: <Navigate to="/dashboard/question/list" replace />,
+        },
         // Dashboard: User
         {
           path: "user",
@@ -143,7 +145,6 @@ export default function Router() {
               element: <Navigate to="/dashboard/product/list" replace />,
               index: true,
             },
-            { path: "new", element: <ProductNewPage /> },
             { path: ":id", element: <ProductViewPage /> },
             { path: ":id/edit", element: <ProductEditPage /> },
             { path: "list", element: <ProductListPage /> },

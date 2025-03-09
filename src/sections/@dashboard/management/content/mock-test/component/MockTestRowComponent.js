@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuthContext } from "auth/useAuthContext";
@@ -12,14 +12,12 @@ import { APPWRITE_API } from "config-global";
 import { Query } from "appwrite";
 import { labels, sarthakAPIPath } from "assets/data";
 import {
-  Box,
   Button,
   Card,
   CardActions,
   CardContent,
   CardHeader,
   Chip,
-  Collapse,
   Dialog,
   DialogActions,
   DialogContent,
@@ -28,6 +26,7 @@ import {
   Divider,
   Grid,
   IconButton,
+  LinearProgress,
   Paper,
   Skeleton,
   Stack,
@@ -38,7 +37,6 @@ import {
 import Iconify from "components/iconify";
 import Image from "components/image";
 import { PATH_DASHBOARD } from "routes/paths";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { LoadingButton } from "@mui/lab";
 import PermissionDeniedComponent from "components/sub-component/PermissionDeniedComponent";
 import IndexView from "sections/@dashboard/management/content/question/component/IndexView";
@@ -50,30 +48,8 @@ import MuiAccordionSummary, {
 } from "@mui/material/AccordionSummary";
 import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
-
-const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme }) => ({
-  marginLeft: "auto",
-  transition: theme.transitions.create("transform", {
-    duration: theme.transitions.duration.shortest,
-  }),
-  variants: [
-    {
-      props: ({ expand }) => !expand,
-      style: {
-        transform: "rotate(0deg)",
-      },
-    },
-    {
-      props: ({ expand }) => !!expand,
-      style: {
-        transform: "rotate(180deg)",
-      },
-    },
-  ],
-}));
+import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
+import ProductListTable from "sections/@dashboard/management/content/product/component/ProductListTable";
 
 const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -137,10 +113,12 @@ export default function MockTestRowComponent({
     ? decodeURIComponent(searchParams.get("content"))
     : "";
 
-  const [expanded, setExpanded] = useState(true);
   const [publishing, setPublishing] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
+  const [lastProductId, setLastProductId] = useState(null);
+  const [products, setProducts] = useState({ total: 0, documents: [] });
+  const [isProductLoading, setProductLoading] = useState(false);
 
   const { user } = useAuthContext();
 
@@ -167,6 +145,9 @@ export default function MockTestRowComponent({
           await updateMockTest(mockTestId);
           setIsDataLoading(false);
         }
+      }
+      if (defaultExpanded) {
+        loadProducts();
       }
       setIsDataLoading(false);
     } catch (error) {
@@ -200,6 +181,40 @@ export default function MockTestRowComponent({
       enqueueSnackbar(error.message, { variant: "error" });
     }
     setPublishing(false);
+  };
+
+  const loadProducts = async () => {
+    setProductLoading(true);
+    try {
+      if (mockTest?.products && mockTest?.products?.length !== 0) {
+        let queries = [
+          Query.limit(100),
+          Query.select([
+            "$id",
+            "productId",
+            "name",
+            "description",
+            "published",
+          ]),
+        ];
+        if (lastProductId !== null) {
+          queries.push(Query.cursorAfter(lastProductId));
+        }
+        queries.push(Query.contains("$id", mockTest?.products));
+
+        const x = await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.products,
+          queries
+        );
+
+        const y = products.documents.concat(x.documents);
+        if (x.documents.length !== 0)
+          setLastProductId(x.documents[x.documents.length - 1].$id);
+        setProducts({ total: x.total, documents: y });
+      }
+    } catch (e) {}
+    setProductLoading(false);
   };
 
   if (isDataLoading) {
@@ -280,33 +295,25 @@ export default function MockTestRowComponent({
         />
 
         <CardContent>
-          <Box component="section" sx={{ border: "1px solid grey" }}>
-            <Grid container>
-              <Grid item sm={12} xs={12} md={4} lg={3} xl={3}>
-                <Box
-                  component="section"
-                  sx={{ p: 1, borderRight: "0.5px solid grey" }}
-                >
-                  <Marker mark={content}>
-                    <Typography variant="h5">{mockTest?.name}</Typography>
-                  </Marker>
-                </Box>
-              </Grid>
-
-              <Grid item sm={12} xs={12} md={8} lg={9} xl={9}>
-                <Box
-                  component="section"
-                  sx={{ p: 1, borderLeft: "0.5px solid grey" }}
-                >
-                  <Marker mark={content}>
-                    <Typography variant="body1">
-                      {mockTest?.description}
-                    </Typography>
-                  </Marker>
-                </Box>
-              </Grid>
+          <Grid container spacing={2}>
+            <Grid item sm={12} xs={12} md={4} lg={3} xl={3}>
+              <Item>
+                <Marker mark={content}>
+                  <Typography variant="h5">{mockTest?.name}</Typography>
+                </Marker>
+              </Item>
             </Grid>
-          </Box>
+
+            <Grid item sm={12} xs={12} md={8} lg={9} xl={9}>
+              <Item>
+                <Marker mark={content}>
+                  <Typography variant="body1">
+                    {mockTest?.description}
+                  </Typography>
+                </Marker>
+              </Item>
+            </Grid>
+          </Grid>
         </CardContent>
 
         <CardActions disableSpacing>
@@ -337,19 +344,6 @@ export default function MockTestRowComponent({
             </Tooltip>
           )}
 
-          {defaultExpanded && (
-            <ExpandMore
-              expand={expanded}
-              onClick={() => setExpanded(!expanded)}
-              aria-expanded={expanded}
-              aria-label="show more"
-            >
-              <Tooltip title={expanded ? "Show Less" : "Show More"}>
-                <ExpandMoreIcon />
-              </Tooltip>
-            </ExpandMore>
-          )}
-
           {!defaultExpanded && (
             <Tooltip title={"View"}>
               <IconButton
@@ -364,205 +358,234 @@ export default function MockTestRowComponent({
         </CardActions>
 
         {defaultExpanded && (
-          <Collapse in={expanded} timeout="auto" unmountOnExit>
-            <CardContent>
-              <Accordion>
-                <AccordionSummary>
-                  <Chip
-                    label="Metadata"
-                    variant="outlined"
-                    icon={<Iconify icon="fluent-color:calendar-data-bar-16" />}
-                  />
-                </AccordionSummary>
+          <CardContent>
+            <Accordion>
+              <AccordionSummary>
+                <Chip
+                  label="Metadata"
+                  color="success"
+                  icon={<Iconify icon="fluent-color:calendar-data-bar-16" />}
+                />
+              </AccordionSummary>
 
-                <AccordionDetails>
-                  <Grid container sx={{ mt: 2 }} spacing={2}>
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Index →</Typography>
-                          <IndexView id={mockTest?.bookIndex?.$id} />
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">
-                            System Generated Id →
-                          </Typography>
-                          <Typography variant="body2">{mockTestId}</Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Duration →</Typography>
-                          <Typography variant="body2">{`${mockTest?.duration} mins`}</Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Level →</Typography>
-                          <Typography variant="body2">
-                            {mockTest?.level}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Sarthak Id →</Typography>
-                          <Typography variant="body2">
-                            {mockTest?.mtId}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Status →</Typography>
-                          <Typography variant="body2">
-                            {mockTest?.published ? "Published" : "Draft"}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Created By →</Typography>
-                          <Typography variant="body2">
-                            {mockTest?.creator}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Created At →</Typography>
-                          <Tooltip title={mockTest?.$createdAt}>
-                            <Typography variant="body2">
-                              {timeAgo.format(
-                                Date.parse(
-                                  mockTest?.$createdAt ||
-                                    "2000-01-01T00:00:00.000+00:00"
-                                )
-                              )}
-                            </Typography>
-                          </Tooltip>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Updated By →</Typography>
-                          <Typography variant="body2">
-                            {mockTest?.updater}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Updated At →</Typography>
-                          <Tooltip title={mockTest?.$updatedAt}>
-                            <Typography variant="body2">
-                              {timeAgo.format(
-                                Date.parse(
-                                  mockTest?.$updatedAt ||
-                                    "2000-01-01T00:00:00.000+00:00"
-                                )
-                              )}
-                            </Typography>
-                          </Tooltip>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    {mockTest?.published && (
-                      <Fragment>
-                        <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                          <Item>
-                            <Stack direction="row" spacing={2}>
-                              <Typography variant="body1">
-                                Approved By →
-                              </Typography>
-                              <Typography variant="body2">
-                                {mockTest?.approver}
-                              </Typography>
-                            </Stack>
-                          </Item>
-                        </Grid>
-
-                        <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                          <Item>
-                            <Stack direction="row" spacing={2}>
-                              <Typography variant="body1">
-                                Approved At →
-                              </Typography>
-                              <Tooltip title={mockTest?.approvedAt}>
-                                <Typography variant="body2">
-                                  {timeAgo.format(
-                                    Date.parse(
-                                      mockTest?.approvedAt ||
-                                        "2000-01-01T00:00:00.000+00:00"
-                                    )
-                                  )}
-                                </Typography>
-                              </Tooltip>
-                            </Stack>
-                          </Item>
-                        </Grid>
-                      </Fragment>
-                    )}
+              <AccordionDetails>
+                <Grid container sx={{ mt: 2 }} spacing={2}>
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Index →</Typography>
+                        <IndexView id={mockTest?.bookIndex?.$id} />
+                      </Stack>
+                    </Item>
                   </Grid>
-                </AccordionDetails>
-              </Accordion>
 
-              <Accordion>
-                <AccordionSummary>
-                  <Chip
-                    label={"Questions (" + mockTest?.questions?.length + ")"}
-                    icon={
-                      <Iconify icon="fluent-color:chat-bubbles-question-16" />
-                    }
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">
+                          System Generated Id →
+                        </Typography>
+                        <Typography variant="body2">{mockTestId}</Typography>
+                      </Stack>
+                    </Item>
+                  </Grid>
+
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Duration →</Typography>
+                        <Typography variant="body2">{`${mockTest?.duration} mins`}</Typography>
+                      </Stack>
+                    </Item>
+                  </Grid>
+
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Level →</Typography>
+                        <Typography variant="body2">
+                          {mockTest?.level}
+                        </Typography>
+                      </Stack>
+                    </Item>
+                  </Grid>
+
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Sarthak Id →</Typography>
+                        <Typography variant="body2">
+                          {mockTest?.mtId}
+                        </Typography>
+                      </Stack>
+                    </Item>
+                  </Grid>
+
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Status →</Typography>
+                        <Typography variant="body2">
+                          {mockTest?.published ? "Published" : "Draft"}
+                        </Typography>
+                      </Stack>
+                    </Item>
+                  </Grid>
+
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Created By →</Typography>
+                        <Typography variant="body2">
+                          {mockTest?.creator}
+                        </Typography>
+                      </Stack>
+                    </Item>
+                  </Grid>
+
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Created At →</Typography>
+                        <Tooltip title={mockTest?.$createdAt}>
+                          <Typography variant="body2">
+                            {timeAgo.format(
+                              Date.parse(
+                                mockTest?.$createdAt ||
+                                  "2000-01-01T00:00:00.000+00:00"
+                              )
+                            )}
+                          </Typography>
+                        </Tooltip>
+                      </Stack>
+                    </Item>
+                  </Grid>
+
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Updated By →</Typography>
+                        <Typography variant="body2">
+                          {mockTest?.updater}
+                        </Typography>
+                      </Stack>
+                    </Item>
+                  </Grid>
+
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Updated At →</Typography>
+                        <Tooltip title={mockTest?.$updatedAt}>
+                          <Typography variant="body2">
+                            {timeAgo.format(
+                              Date.parse(
+                                mockTest?.$updatedAt ||
+                                  "2000-01-01T00:00:00.000+00:00"
+                              )
+                            )}
+                          </Typography>
+                        </Tooltip>
+                      </Stack>
+                    </Item>
+                  </Grid>
+
+                  {mockTest?.published && (
+                    <Fragment>
+                      <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                        <Item>
+                          <Stack direction="row" spacing={2}>
+                            <Typography variant="body1">
+                              Approved By →
+                            </Typography>
+                            <Typography variant="body2">
+                              {mockTest?.approver}
+                            </Typography>
+                          </Stack>
+                        </Item>
+                      </Grid>
+
+                      <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                        <Item>
+                          <Stack direction="row" spacing={2}>
+                            <Typography variant="body1">
+                              Approved At →
+                            </Typography>
+                            <Tooltip title={mockTest?.approvedAt}>
+                              <Typography variant="body2">
+                                {timeAgo.format(
+                                  Date.parse(
+                                    mockTest?.approvedAt ||
+                                      "2000-01-01T00:00:00.000+00:00"
+                                  )
+                                )}
+                              </Typography>
+                            </Tooltip>
+                          </Stack>
+                        </Item>
+                      </Grid>
+                    </Fragment>
+                  )}
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+
+            <Accordion>
+              <AccordionSummary>
+                <Chip
+                  label={"Questions (" + mockTest?.questions?.length + ")"}
+                  color="success"
+                  icon={
+                    <Iconify icon="fluent-color:chat-bubbles-question-16" />
+                  }
+                />
+              </AccordionSummary>
+
+              <AccordionDetails>
+                {mockTest?.questions.map((question, index) => (
+                  <QuestionRowComponent
+                    key={index}
+                    questionId={question}
+                    showImages={false}
+                    showAnswer={false}
+                    defaultExpanded={false}
                   />
-                </AccordionSummary>
+                ))}
+              </AccordionDetails>
+            </Accordion>
 
-                <AccordionDetails>
-                  {mockTest?.questions.map((question, index) => (
-                    <QuestionRowComponent
-                      key={index}
-                      questionId={question}
-                      showImages={false}
-                      showAnswer={false}
-                      defaultExpanded={false}
-                    />
-                  ))}
-                </AccordionDetails>
-              </Accordion>
+            <Accordion>
+              <AccordionSummary>
+                <Chip
+                  label={"Products (" + mockTest?.products?.length + ")"}
+                  color="success"
+                  icon={<Iconify icon="fluent-emoji:money-bag" />}
+                />
+              </AccordionSummary>
 
-              {/*TODO: Add product details */}
-            </CardContent>
-          </Collapse>
+              <AccordionDetails>
+                <ProductListTable data={products.documents} />
+
+                {isProductLoading && <LinearProgress />}
+
+                {products.documents.length !== products.total && (
+                  <Button
+                    fullWidth
+                    disabled={isProductLoading}
+                    startIcon={<KeyboardDoubleArrowDownIcon />}
+                    endIcon={<KeyboardDoubleArrowDownIcon />}
+                    onClick={loadProducts}
+                  >
+                    {"Loaded " +
+                      products.documents.length +
+                      " out of " +
+                      products.total +
+                      "! Load More"}
+                  </Button>
+                )}
+              </AccordionDetails>
+            </Accordion>
+          </CardContent>
         )}
       </Card>
 

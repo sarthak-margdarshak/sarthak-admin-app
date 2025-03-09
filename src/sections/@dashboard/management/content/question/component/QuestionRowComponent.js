@@ -6,7 +6,6 @@ import {
   CardContent,
   CardHeader,
   Chip,
-  Collapse,
   Dialog,
   DialogActions,
   DialogContent,
@@ -38,7 +37,6 @@ import {
 import { APPWRITE_API } from "config-global";
 import { LoadingButton } from "@mui/lab";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Query } from "appwrite";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -52,30 +50,6 @@ import MuiAccordionSummary, {
 } from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
-
-const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme }) => ({
-  marginLeft: "auto",
-  transition: theme.transitions.create("transform", {
-    duration: theme.transitions.duration.shortest,
-  }),
-  variants: [
-    {
-      props: ({ expand }) => !expand,
-      style: {
-        transform: "rotate(0deg)",
-      },
-    },
-    {
-      props: ({ expand }) => !!expand,
-      style: {
-        transform: "rotate(180deg)",
-      },
-    },
-  ],
-}));
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#ebebeb",
@@ -140,7 +114,6 @@ export default function QuestionRowComponent({
     ? decodeURIComponent(searchParams.get("content"))
     : "";
 
-  const [expanded, setExpanded] = useState(true);
   const [publishing, setPublishing] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
@@ -174,7 +147,9 @@ export default function QuestionRowComponent({
           setIsDataLoading(false);
         }
       }
-      loadMockTests();
+      if (defaultExpanded) {
+        loadMockTests();
+      }
       setIsDataLoading(false);
     } catch (error) {
       console.log(error);
@@ -212,25 +187,27 @@ export default function QuestionRowComponent({
   const loadMockTests = async () => {
     setMockTestLoading(true);
     try {
-      let queries = [
-        Query.limit(100),
-        Query.select(["$id", "mtId", "name", "description", "published"]),
-      ];
-      if (lastMockTestId !== null) {
-        queries.push(Query.cursorAfter(lastMockTestId));
+      if (question?.mockTest && question?.mockTest?.length !== 0) {
+        let queries = [
+          Query.limit(100),
+          Query.select(["$id", "mtId", "name", "description", "published"]),
+        ];
+        if (lastMockTestId !== null) {
+          queries.push(Query.cursorAfter(lastMockTestId));
+        }
+        queries.push(Query.contains("$id", question?.mockTest));
+
+        const x = await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.mockTest,
+          queries
+        );
+
+        const y = mockTests.documents.concat(x.documents);
+        if (x.documents.length !== 0)
+          setLastMockTestId(x.documents[x.documents.length - 1].$id);
+        setMockTests({ total: x.total, documents: y });
       }
-      queries.push(Query.contains("$id", question?.mockTest || []));
-
-      const x = await appwriteDatabases.listDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.mockTest,
-        queries
-      );
-
-      const y = mockTests.documents.concat(x.documents);
-      if (x.documents.length !== 0)
-        setLastMockTestId(x.documents[x.documents.length - 1].$id);
-      setMockTests({ total: x.total, documents: y });
     } catch (e) {}
     setMockTestLoading(false);
   };
@@ -437,19 +414,6 @@ export default function QuestionRowComponent({
             </Tooltip>
           )}
 
-          {defaultExpanded && (
-            <ExpandMore
-              expand={expanded}
-              onClick={() => setExpanded(!expanded)}
-              aria-expanded={expanded}
-              aria-label="show more"
-            >
-              <Tooltip title={expanded ? "Show Less" : "Show More"}>
-                <ExpandMoreIcon />
-              </Tooltip>
-            </ExpandMore>
-          )}
-
           {!defaultExpanded && (
             <Tooltip title={"View"}>
               <IconButton
@@ -463,223 +427,220 @@ export default function QuestionRowComponent({
           )}
         </CardActions>
 
-        {defaultExpanded && (
-          <Collapse in={expanded} timeout="auto" unmountOnExit>
-            <CardContent>
-              <Accordion>
-                <AccordionSummary>
-                  <Chip
-                    label="Metadata"
-                    variant="outlined"
-                    icon={<Iconify icon="fluent-color:calendar-data-bar-16" />}
-                  />
-                </AccordionSummary>
+        {defaultExpanded &&
+          <CardContent>
+            <Accordion>
+              <AccordionSummary>
+                <Chip
+                  label="Metadata"
+                  color="info"
+                  icon={<Iconify icon="fluent-color:calendar-data-bar-16" />}
+                />
+              </AccordionSummary>
 
-                <AccordionDetails>
-                  <Grid container sx={{ mt: 2 }} spacing={2}>
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Index →</Typography>
-                          <Typography variant="body2">
-                            {question?.standard?.standard +
-                              " 🢒 " +
-                              question?.subject?.subject +
-                              " 🢒 " +
-                              question?.chapter?.chapter +
-                              " 🢒 " +
-                              question?.concept?.concept}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">
-                            System Generated Id →
-                          </Typography>
-                          <Typography variant="body2">{questionId}</Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Sarthak Id →</Typography>
-                          <Typography variant="body2">
-                            {question?.qnId}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Status →</Typography>
-                          <Typography variant="body2">
-                            {question?.published ? "Published" : "Draft"}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Created By →</Typography>
-                          <Typography variant="body2">
-                            {question?.creator}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Created At →</Typography>
-                          <Tooltip title={question?.$createdAt}>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                cursor: "pointer",
-                                textDecoration: "underline",
-                              }}
-                            >
-                              {timeAgo.format(
-                                Date.parse(
-                                  question?.$createdAt ||
-                                    "2000-01-01T00:00:00.000+00:00"
-                                )
-                              )}
-                            </Typography>
-                          </Tooltip>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Updated By →</Typography>
-                          <Typography variant="body2">
-                            {question?.updater}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Updated At →</Typography>
-                          <Tooltip title={question?.$updatedAt}>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                cursor: "pointer",
-                                textDecoration: "underline",
-                              }}
-                            >
-                              {timeAgo.format(
-                                Date.parse(
-                                  question?.$updatedAt ||
-                                    "2000-01-01T00:00:00.000+00:00"
-                                )
-                              )}
-                            </Typography>
-                          </Tooltip>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    {question?.published && (
-                      <Fragment>
-                        <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                          <Item>
-                            <Stack direction="row" spacing={2}>
-                              <Typography variant="body1">
-                                Approved By →
-                              </Typography>
-                              <Typography variant="body2">
-                                {question?.approver}
-                              </Typography>
-                            </Stack>
-                          </Item>
-                        </Grid>
-
-                        <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                          <Item>
-                            <Stack direction="row" spacing={2}>
-                              <Typography variant="body1">
-                                Approved At →
-                              </Typography>
-                              <Tooltip title={question?.approvedAt}>
-                                <Typography
-                                  variant="body2"
-                                  sx={{
-                                    cursor: "pointer",
-                                    textDecoration: "underline",
-                                  }}
-                                >
-                                  {timeAgo.format(
-                                    Date.parse(
-                                      question?.approvedAt ||
-                                        "2000-01-01T00:00:00.000+00:00"
-                                    )
-                                  )}
-                                </Typography>
-                              </Tooltip>
-                            </Stack>
-                          </Item>
-                        </Grid>
-                      </Fragment>
-                    )}
+              <AccordionDetails>
+                <Grid container sx={{ mt: 2 }} spacing={2}>
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Index →</Typography>
+                        <Typography variant="body2">
+                          {question?.standard?.standard +
+                            " 🢒 " +
+                            question?.subject?.subject +
+                            " 🢒 " +
+                            question?.chapter?.chapter +
+                            " 🢒 " +
+                            question?.concept?.concept}
+                        </Typography>
+                      </Stack>
+                    </Item>
                   </Grid>
-                </AccordionDetails>
-              </Accordion>
 
-              <Accordion>
-                <AccordionSummary>
-                  <Chip
-                    label={"Mock Tests (" + mockTests.total + ")"}
-                    variant="outlined"
-                    color="info"
-                    icon={
-                      <Iconify icon="solar:test-tube-bold" color="#e81f1f" />
-                    }
-                  />
-                </AccordionSummary>
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">
+                          System Generated Id →
+                        </Typography>
+                        <Typography variant="body2">{questionId}</Typography>
+                      </Stack>
+                    </Item>
+                  </Grid>
 
-                <AccordionDetails>
-                  <MockTestListTable data={mockTests.documents} />
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Sarthak Id →</Typography>
+                        <Typography variant="body2">
+                          {question?.qnId}
+                        </Typography>
+                      </Stack>
+                    </Item>
+                  </Grid>
 
-                  {isMockTestLoading && <LinearProgress />}
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Status →</Typography>
+                        <Typography variant="body2">
+                          {question?.published ? "Published" : "Draft"}
+                        </Typography>
+                      </Stack>
+                    </Item>
+                  </Grid>
 
-                  {mockTests.documents.length !== mockTests.total && (
-                    <Button
-                      fullWidth
-                      disabled={isMockTestLoading}
-                      startIcon={<KeyboardDoubleArrowDownIcon />}
-                      endIcon={<KeyboardDoubleArrowDownIcon />}
-                      onClick={loadMockTests}
-                    >
-                      {"Loaded " +
-                        mockTests.documents.length +
-                        " out of " +
-                        mockTests.total +
-                        "! Load More"}
-                    </Button>
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Created By →</Typography>
+                        <Typography variant="body2">
+                          {question?.creator}
+                        </Typography>
+                      </Stack>
+                    </Item>
+                  </Grid>
+
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Created At →</Typography>
+                        <Tooltip title={question?.$createdAt}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              cursor: "pointer",
+                              textDecoration: "underline",
+                            }}
+                          >
+                            {timeAgo.format(
+                              Date.parse(
+                                question?.$createdAt ||
+                                  "2000-01-01T00:00:00.000+00:00"
+                              )
+                            )}
+                          </Typography>
+                        </Tooltip>
+                      </Stack>
+                    </Item>
+                  </Grid>
+
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Updated By →</Typography>
+                        <Typography variant="body2">
+                          {question?.updater}
+                        </Typography>
+                      </Stack>
+                    </Item>
+                  </Grid>
+
+                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <Item>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="body1">Updated At →</Typography>
+                        <Tooltip title={question?.$updatedAt}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              cursor: "pointer",
+                              textDecoration: "underline",
+                            }}
+                          >
+                            {timeAgo.format(
+                              Date.parse(
+                                question?.$updatedAt ||
+                                  "2000-01-01T00:00:00.000+00:00"
+                              )
+                            )}
+                          </Typography>
+                        </Tooltip>
+                      </Stack>
+                    </Item>
+                  </Grid>
+
+                  {question?.published && (
+                    <Fragment>
+                      <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                        <Item>
+                          <Stack direction="row" spacing={2}>
+                            <Typography variant="body1">
+                              Approved By →
+                            </Typography>
+                            <Typography variant="body2">
+                              {question?.approver}
+                            </Typography>
+                          </Stack>
+                        </Item>
+                      </Grid>
+
+                      <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                        <Item>
+                          <Stack direction="row" spacing={2}>
+                            <Typography variant="body1">
+                              Approved At →
+                            </Typography>
+                            <Tooltip title={question?.approvedAt}>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  cursor: "pointer",
+                                  textDecoration: "underline",
+                                }}
+                              >
+                                {timeAgo.format(
+                                  Date.parse(
+                                    question?.approvedAt ||
+                                      "2000-01-01T00:00:00.000+00:00"
+                                  )
+                                )}
+                              </Typography>
+                            </Tooltip>
+                          </Stack>
+                        </Item>
+                      </Grid>
+                    </Fragment>
                   )}
-                </AccordionDetails>
-              </Accordion>
-            </CardContent>
-          </Collapse>
-        )}
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+
+            <Accordion>
+              <AccordionSummary>
+                <Chip
+                  label={"Mock Tests (" + question?.mockTest?.length + ")"}
+                  color="info"
+                  icon={
+                    <Iconify icon="solar:test-tube-bold" color="#e81f1f" />
+                  }
+                />
+              </AccordionSummary>
+
+              <AccordionDetails>
+                <MockTestListTable data={mockTests.documents} />
+
+                {isMockTestLoading && <LinearProgress />}
+
+                {mockTests.documents.length !== mockTests.total && (
+                  <Button
+                    fullWidth
+                    disabled={isMockTestLoading}
+                    startIcon={<KeyboardDoubleArrowDownIcon />}
+                    endIcon={<KeyboardDoubleArrowDownIcon />}
+                    onClick={loadMockTests}
+                  >
+                    {"Loaded " +
+                      mockTests.documents.length +
+                      " out of " +
+                      mockTests.total +
+                      "! Load More"}
+                  </Button>
+                )}
+              </AccordionDetails>
+            </Accordion>
+          </CardContent>
+        }
       </Card>
 
       <Dialog

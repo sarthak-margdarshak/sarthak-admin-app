@@ -111,12 +111,14 @@ export default function MockTestEditForm({ mockTestId }) {
       APPWRITE_API.collections.questions,
       query
     );
-    let tempAllQuestions = allQuestions.questions.concat(x.documents);
+    let tempAllQuestions = allQuestions.questions.concat(
+      x.documents.map((q) => q.$id)
+    );
     let tempSelected = allQuestions.selected.concat(
       new Array(x.documents.length).fill(false)
     );
     mockTest.questions.forEach((question) => {
-      const x = tempAllQuestions.findIndex((q) => q.$id === question.$id);
+      const x = tempAllQuestions.findIndex((q) => q === question);
       if (x !== -1) {
         tempSelected[x] = true;
       }
@@ -296,13 +298,13 @@ export default function MockTestEditForm({ mockTestId }) {
         {selectedQuestions.map((question) => (
           <Reorder.Item
             value={question}
-            key={question.$id}
+            key={question}
             onDragStart={() => setDragStarted(true)}
             onDragEnd={() => setDragStarted(false)}
           >
             <Box sx={{ m: 1, cursor: dragStarted ? "grabbing" : "grab" }}>
               <QuestionRowComponent
-                questionId={question?.$id}
+                questionId={question}
                 defaultExpanded={false}
                 showAnswer={false}
                 showImages={false}
@@ -361,7 +363,7 @@ export default function MockTestEditForm({ mockTestId }) {
 
         {allQuestions.questions.map((question, index) => (
           <Box
-            key={question.$id}
+            key={question}
             component="section"
             sx={{
               width: 900,
@@ -388,7 +390,7 @@ export default function MockTestEditForm({ mockTestId }) {
               </Grid>
               <Grid item xs={11}>
                 <QuestionRowComponent
-                  questionId={question.$id}
+                  questionId={question}
                   defaultExpanded={false}
                   showAnswer={false}
                   showImages={false}

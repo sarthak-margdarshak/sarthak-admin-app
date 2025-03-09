@@ -99,6 +99,11 @@ export default function ConceptBar({
     navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + conceptId);
   };
 
+  const openMockTest = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.mockTest.list + "?bookIndex=" + conceptId);
+  };
+
   return (
     <Fragment>
       <Button
@@ -140,7 +145,7 @@ export default function ConceptBar({
           <ListItemText>View Questions</ListItemText>
         </MenuItem>
 
-        <MenuItem disabled>
+        <MenuItem onClick={openMockTest}>
           <ListItemIcon>
             <ViewCompactAltIcon fontSize="small" />
           </ListItemIcon>
