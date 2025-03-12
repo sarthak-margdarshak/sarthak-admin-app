@@ -10,9 +10,9 @@ import {
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import React, { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import ChapterBar from "./ChapterBar";
-import { useContent } from "../../hook/useContent";
+import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import { LoadingButton } from "@mui/lab";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -56,6 +56,7 @@ export default function SubjectBar({ standardId, subjectId }) {
   const [submittingNew, setSubmittingNew] = useState(false);
   const [newChapter, setNewChapter] = useState("");
   const [mockTestCreating, setMockTestCreating] = useState(false);
+  const [productCreating, setProductCreating] = useState(false);
 
   useEffect(() => {
     function handleContextMenu(e) {
@@ -110,6 +111,35 @@ export default function SubjectBar({ standardId, subjectId }) {
     navigate(PATH_DASHBOARD.mockTest.edit(mockTest.$id), { replace: true });
   };
 
+  const openMockTest = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.mockTest.list + "?bookIndex=" + subjectId);
+  };
+
+  const createProduct = async () => {
+    setProductCreating(true);
+    const mockTest = await appwriteDatabases.createDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.products,
+      ID.unique(),
+      {
+        standard: standardId,
+        subject: subjectId,
+        bookIndex: subjectId,
+        creator: (await appwriteAccount.get()).$id,
+        updater: (await appwriteAccount.get()).$id,
+      }
+    );
+    setProductCreating(false);
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.product.edit(mockTest.$id), { replace: true });
+  };
+
+  const openProduct = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.product.list + "?bookIndex=" + subjectId);
+  };
+
   return (
     <Fragment>
       <Fragment>
@@ -152,11 +182,13 @@ export default function SubjectBar({ standardId, subjectId }) {
             </ListItemText>
           </MenuItem>
 
-          <MenuItem disabled>
+          <MenuItem onClick={createProduct} disabled={productCreating}>
             <ListItemIcon>
               <AddToQueueIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Create a Product</ListItemText>
+            <ListItemText>
+              {productCreating ? "Creating..." : "Create a Product"}
+            </ListItemText>
           </MenuItem>
 
           <Divider />
@@ -168,14 +200,14 @@ export default function SubjectBar({ standardId, subjectId }) {
             <ListItemText>View Questions</ListItemText>
           </MenuItem>
 
-          <MenuItem disabled>
+          <MenuItem onClick={openMockTest}>
             <ListItemIcon>
               <ViewCompactAltIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>View mock Tests</ListItemText>
           </MenuItem>
 
-          <MenuItem disabled>
+          <MenuItem onClick={openProduct}>
             <ListItemIcon>
               <ViewQuiltIcon fontSize="small" />
             </ListItemIcon>

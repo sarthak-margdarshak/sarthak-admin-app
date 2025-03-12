@@ -6,17 +6,17 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import QuestionRowTable from "sections/@dashboard/management/content/question/component/QuestionRowTable";
+import ProductRowTable from "sections/@dashboard/management/content/product/component/ProductRowTable";
 import { StyledTableCell } from "components/table/StyledTableCell";
 
 const columns = [
   { id: "id", label: "ID", minWidth: 170 },
-  { id: "question", label: "Question", minWidth: 250 },
-  { id: "creator", label: "Created By", minWidth: 170 },
+  { id: "name", label: "Name", minWidth: 200 },
+  { id: "description", label: "Description", minWidth: 250 },
   { id: "status", label: "Status", minWidth: 170 },
 ];
 
-export default function QuestionListTable({ data, searchId }) {
+export default function ProductListTable({ data, searchId }) {
   return (
     <TableContainer component={Paper}>
       <Table>
@@ -34,7 +34,7 @@ export default function QuestionListTable({ data, searchId }) {
         </TableHead>
         <TableBody>
           {data?.map((id) => (
-            <QuestionRowTable key={id} id={id} searchId={searchId} />
+            <ProductRowTable key={id} id={id} searchId={searchId} />
           ))}
         </TableBody>
       </Table>

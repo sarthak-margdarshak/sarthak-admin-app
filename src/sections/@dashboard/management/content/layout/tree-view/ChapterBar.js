@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import React, { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import ConceptBar from "sections/@dashboard/management/content/layout/tree-view/ConceptBar";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import { LoadingButton } from "@mui/lab";
@@ -110,6 +110,11 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
     navigate(PATH_DASHBOARD.mockTest.edit(mockTest.$id), { replace: true });
   };
 
+  const openMockTest = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.mockTest.list + "?bookIndex=" + chapterId);
+  };
+
   return (
     <Fragment>
       <Fragment>
@@ -161,7 +166,7 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
             <ListItemText>View Questions</ListItemText>
           </MenuItem>
 
-          <MenuItem disabled>
+          <MenuItem onClick={openMockTest}>
             <ListItemIcon>
               <ViewCompactAltIcon fontSize="small" />
             </ListItemIcon>

@@ -3,7 +3,7 @@ import { createContext, useCallback, useMemo, useReducer } from "react";
 import { appwriteDatabases, appwriteStorage } from "auth/AppwriteContext";
 import { APPWRITE_API } from "config-global";
 import { ProviderHelper } from "sections/@dashboard/management/content/hook/ProviderHelper";
-import { ID } from "appwrite";
+import { ID, Query } from "appwrite";
 import { useSnackbar } from "components/snackbar";
 
 const initialState = {
@@ -26,11 +26,15 @@ const initialState = {
   mockTestsData: localStorage.getItem("mockTestsData")
     ? JSON.parse(localStorage.getItem("mockTestsData"))
     : {},
-  searchList: [],
+  productsData: localStorage.getItem("productsData")
+    ? JSON.parse(localStorage.getItem("productsData"))
+    : {},
+  searchList: {},
   getBookIndex: async () => {},
   updateDock: () => {},
   updateQuestion: async () => {},
   updateMockTest: async () => {},
+  updateProduct: async () => {},
   loadStandard: async () => {},
   loadSubject: async () => {},
   loadChapter: async () => {},
@@ -43,7 +47,8 @@ const initialState = {
   addSubject: async () => {},
   addChapter: async () => {},
   addConcept: async () => {},
-  updateSearchList: () => {},
+  loadSearchList: async () => {},
+  addSearchList: async () => {},
 };
 
 const reducer = (state, action) => {
@@ -71,6 +76,11 @@ const reducer = (state, action) => {
     return {
       ...state,
       searchList: action.payload.searchList,
+    };
+  } else if (action.type === "PRODUCT_UPDATE") {
+    return {
+      ...state,
+      productsData: action.payload.productsData,
     };
   }
   return state;
@@ -264,6 +274,47 @@ export function ContentProvider({ children }) {
       };
     },
     [state.mockTestsData]
+  );
+
+  const updateProduct = useCallback(
+    async (productId) => {
+      const product = await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.products,
+        productId
+      );
+
+      const tmpImages = [];
+      for (let image of product.images) {
+        const z = appwriteStorage.getFileDownload(
+          APPWRITE_API.buckets.sarthakDatalakeBucket,
+          image
+        );
+        tmpImages.push(z);
+      }
+
+      state.productsData[productId] = {
+        ...product,
+        images: tmpImages,
+        lastSynced: new Date().toISOString(),
+      };
+
+      const y = JSON.stringify(state.productsData);
+      localStorage.setItem("productsData", y);
+
+      dispatch({
+        type: "PRODUCT_UPDATE",
+        payload: {
+          productsData: state.productsData,
+        },
+      });
+
+      return {
+        ...product,
+        lastSynced: new Date().toISOString(),
+      };
+    },
+    [state.productsData]
   );
 
   const loadStandard = useCallback(async () => {
@@ -731,14 +782,69 @@ export function ContentProvider({ children }) {
     [enqueueSnackbar, state.standardsData]
   );
 
-  const updateSearchList = useCallback((list) => {
-    dispatch({
-      type: "SEARCH_LIST_UPDATE",
-      payload: {
-        searchList: list,
-      },
-    });
-  }, []);
+  const addSearchList = useCallback(
+    (id, list, total, collection, query) => {
+      state.searchList[id] = {
+        list: list,
+        total: total,
+        collection: collection,
+        query: query,
+      };
+      dispatch({
+        type: "SEARCH_LIST_UPDATE",
+        payload: {
+          searchList: state.searchList,
+        },
+      });
+    },
+    [state.searchList]
+  );
+
+  const loadSearchList = useCallback(
+    async (searchId, queries, collection) => {
+      if (state.searchList[searchId] !== undefined) {
+        const data = await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          state.searchList[searchId].collection,
+          [
+            ...state.searchList[searchId].query,
+            Query.cursorAfter(
+              state.searchList[searchId].list[
+                state.searchList[searchId].list.length - 1
+              ]
+            ),
+            Query.select("$id"),
+          ]
+        );
+
+        const list = state.searchList[searchId].list.concat(
+          data.documents.map((d) => d.$id)
+        );
+
+        addSearchList(
+          searchId,
+          list,
+          data.total,
+          state.searchList[searchId].collection,
+          state.searchList[searchId].query
+        );
+      } else {
+        const data = await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          collection,
+          [...queries, Query.select("$id")]
+        );
+
+        const list = data.documents.map((d) => d.$id);
+
+        addSearchList(searchId, list, data.total, collection, queries);
+      }
+
+      return searchId;
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state.searchList]
+  );
 
   const memoizedValue = useMemo(
     () => ({
@@ -746,12 +852,14 @@ export function ContentProvider({ children }) {
       dockOpen: state.dockOpen,
       questionsData: state.questionsData,
       mockTestsData: state.mockTestsData,
+      productsData: state.productsData,
       bookIndex: state.bookIndex,
       searchList: state.searchList,
       getBookIndex,
       updateDock,
       updateQuestion,
       updateMockTest,
+      updateProduct,
       loadStandard,
       loadSubject,
       loadChapter,
@@ -764,19 +872,22 @@ export function ContentProvider({ children }) {
       addSubject,
       addChapter,
       addConcept,
-      updateSearchList,
+      loadSearchList,
+      addSearchList,
     }),
     [
       state.standardsData,
       state.dockOpen,
       state.questionsData,
       state.mockTestsData,
+      state.productsData,
       state.bookIndex,
       state.searchList,
       getBookIndex,
       updateDock,
       updateQuestion,
       updateMockTest,
+      updateProduct,
       loadStandard,
       loadSubject,
       loadChapter,
@@ -789,7 +900,8 @@ export function ContentProvider({ children }) {
       addSubject,
       addChapter,
       addConcept,
-      updateSearchList,
+      loadSearchList,
+      addSearchList,
     ]
   );
 

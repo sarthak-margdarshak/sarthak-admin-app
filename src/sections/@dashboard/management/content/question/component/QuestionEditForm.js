@@ -1,10 +1,4 @@
-import React, {
-  Fragment,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
 import {
@@ -59,7 +53,7 @@ export default function QuestionEditForm({ questionId }) {
   const [isSaving, setIsSaving] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [expanded, setExpanded] = useState("question");
-  const [containsImages, setContainsImages] = useState(false);
+  const [containsImages, setContainsImages] = useState(true);
 
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -112,11 +106,11 @@ export default function QuestionEditForm({ questionId }) {
       }
       setQuestion({
         ...x,
-        idOptions: x.answerOptions.map((c) => crypto.randomUUID()),
+        idOptions: x.answerOptions.map(() => crypto.randomUUID()),
       });
       setIsDataLoading(false);
     };
-    update();
+    update().then(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionId]);
 
@@ -300,17 +294,17 @@ export default function QuestionEditForm({ questionId }) {
         </Link>
       </Breadcrumbs>
 
-      <FormControlLabel
-        control={
-          <Switch
-            checked={containsImages}
-            onChange={() => {
-              setContainsImages(!containsImages);
-            }}
-          />
-        }
-        label="Does your question contain images"
-      />
+      {/*<FormControlLabel*/}
+      {/*  control={*/}
+      {/*    <Switch*/}
+      {/*      checked={containsImages}*/}
+      {/*      onChange={() => {*/}
+      {/*        setContainsImages(!containsImages);*/}
+      {/*      }}*/}
+      {/*    />*/}
+      {/*  }*/}
+      {/*  label="Does your question contain images"*/}
+      {/*/>*/}
 
       <Box component="section" sx={{ p: 2, border: "1px dashed grey" }}>
         <Divider sx={{ mb: 1 }}>

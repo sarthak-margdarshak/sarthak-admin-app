@@ -2,7 +2,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSnackbar } from "components/snackbar";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Query } from "appwrite";
-import { appwriteDatabases } from "auth/AppwriteContext";
 import { APPWRITE_API } from "config-global";
 import FilterDialog from "./FilterDialog";
 import {
@@ -21,26 +20,18 @@ import {
   Paper,
   Popper,
   Skeleton,
-  styled,
   Switch,
   Typography,
 } from "@mui/material";
 import Iconify from "components/iconify";
-import FilterOption from "./FilterOption";
+import FilterOption from "sections/@dashboard/management/content/layout/filter-view/FilterOption";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import QuestionListTable from "sections/@dashboard/management/content/question/component/QuestionListTable";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import MockTestListTable from "sections/@dashboard/management/content/mock-test/component/MockTestListTable";
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#ebebeb",
-  padding: theme.spacing(1),
-  color: theme.palette.text.secondary,
-  ...theme.applyStyles("dark", {
-    backgroundColor: "#1A2027",
-  }),
-}));
+import ProductListTable from "sections/@dashboard/management/content/product/component/ProductListTable";
+import { Item } from "components/item/Item";
 
 const sortOptions = [
   "Sort By Latest Created",
@@ -51,35 +42,29 @@ const sortOptions = [
   "Sort By Early Approved",
 ];
 
-export default function FilterView({ content }) {
+export default function FilterView({ collection }) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const anchorRef = useRef(null);
-  const { updateSearchList } = useContent();
+  const { loadSearchList, searchList } = useContent();
 
   const [dataIdLst, setDataIdLst] = useState([]);
-  const [isFetchingData, setIsFetchingData] = useState(false);
-  const [lastSyncedId, setLastSyncedId] = useState(null);
+  const [isFetchingData, setIsFetchingData] = useState(true);
 
   const [sortSelectedIndex, setSortSelectedIndex] = useState(0);
   const [sortMenuOpened, setSortMenuOpened] = useState(false);
   const [searchParameterOptions, setSearchParameterOptions] = useState([]);
   const [filterWindowOpen, setFilterWindowOpen] = useState(false);
-  const [totalCount, setTotalCount] = useState(0);
   const [narrowSearch, setNarrowSearch] = useState(false);
+  const [searchId, setSearchId] = useState(crypto.randomUUID());
+  const [limit] = useState(100);
 
-  const fetchData = async (sortInd, params, narrow, lastId) => {
+  const fetchData = async (sortInd, params, narrow, id) => {
     setIsFetchingData(true);
     try {
-      let queries = [Query.limit(100)];
+      let queries = [Query.limit(limit)];
       let conditionalQueries = [];
-      let tmpDataLst = [];
-
-      if (lastId) {
-        tmpDataLst = dataIdLst;
-        queries.push(Query.cursorAfter(lastId));
-      }
 
       if (sortInd === 5) {
         queries.push(Query.orderAsc("approvedAt"));
@@ -97,19 +82,29 @@ export default function FilterView({ content }) {
 
       params.forEach((q) => {
         if (q.value === "bookIndex" && q.isSelected) {
-          conditionalQueries.push(
-            Query.or([
-              Query.equal("bookIndex", q.content),
-              Query.equal("standard", q.content),
-              Query.equal("subject", q.content),
-              Query.equal("chapter", q.content),
-              Query.equal("concept", q.content),
-            ])
-          );
+          if (collection === APPWRITE_API.collections.products) {
+            conditionalQueries.push(
+              Query.or([
+                Query.equal("bookIndex", q.content),
+                Query.equal("standard", q.content),
+                Query.equal("subject", q.content),
+              ])
+            );
+          } else {
+            conditionalQueries.push(
+              Query.or([
+                Query.equal("bookIndex", q.content),
+                Query.equal("standard", q.content),
+                Query.equal("subject", q.content),
+                Query.equal("chapter", q.content),
+                Query.equal("concept", q.content),
+              ])
+            );
+          }
         }
 
         if (q.value === "content" && q.isSelected) {
-          if (content === "questions") {
+          if (collection === APPWRITE_API.collections.questions) {
             conditionalQueries.push(
               Query.or([
                 Query.search("contentQuestion", q.content),
@@ -117,7 +112,7 @@ export default function FilterView({ content }) {
                 Query.search("contentAnswer", q.content),
               ])
             );
-          } else if (content === "mockTest") {
+          } else {
             conditionalQueries.push(
               Query.or([
                 Query.search("name", q.content),
@@ -154,39 +149,17 @@ export default function FilterView({ content }) {
         queries = queries.concat(conditionalQueries);
       }
 
-      let collection = "";
-      if (content === "questions") {
-        collection = APPWRITE_API.collections.questions;
-        queries.push(
-          Query.select(["$id", "qnId", "contentQuestion", "published", "creator"])
-        );
-      } else if (content === "mockTest") {
-        collection = APPWRITE_API.collections.mockTest;
-        queries.push(
-          Query.select(["$id", "mtId", "name", "description", "published"])
-        );
-      }
-
-      const data = await appwriteDatabases.listDocuments(
-        APPWRITE_API.databaseId,
-        collection,
-        queries
-      );
-
-      tmpDataLst = tmpDataLst.concat(data.documents);
-      setTotalCount(data.total);
-      setDataIdLst(tmpDataLst);
-      updateSearchList(tmpDataLst);
-      if (data.documents.length > 0)
-        setLastSyncedId(data.documents[data.documents.length - 1].$id);
+      await loadSearchList(id, queries, collection);
+      setDataIdLst(searchList[id]);
     } catch (error) {
       enqueueSnackbar(error.message, { variant: "error" });
-      console.error(error);
     }
     setIsFetchingData(false);
   };
 
   useEffect(() => {
+    const tempId = crypto.randomUUID()
+    setSearchId(tempId)
     const dataSort =
       searchParams.get("sortBy") !== null
         ? parseInt(searchParams.get("sortBy"))
@@ -244,7 +217,7 @@ export default function FilterView({ content }) {
         : false;
     setNarrowSearch(dataNarrow);
 
-    fetchData(dataSort, dataParams, dataNarrow, null);
+    fetchData(dataSort, dataParams, dataNarrow, tempId).then(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
@@ -293,6 +266,7 @@ export default function FilterView({ content }) {
     if (ret.length > 0) {
       url += "?" + ret.join("&");
     }
+    setSearchId(crypto.randomUUID())
     navigate(url);
   };
 
@@ -444,14 +418,14 @@ export default function FilterView({ content }) {
 
       <Divider sx={{ m: 1 }}>
         <Chip
-          label={"Total Result - " + totalCount}
+          label={"Total Result - " + dataIdLst?.total || 0}
           color="info"
           icon={<Iconify icon="arcticons:tally-counter" />}
         />
       </Divider>
 
       <Box sx={{ minHeight: 400 }}>
-        {!isFetchingData && dataIdLst?.length === 0 && (
+        {!isFetchingData && dataIdLst?.list?.length === 0 && (
           <Box sx={{ textAlign: "center" }}>
             <Typography variant="caption" color={"gray"}>
               No Result found
@@ -459,33 +433,41 @@ export default function FilterView({ content }) {
           </Box>
         )}
 
-        {content === "questions" && <QuestionListTable data={dataIdLst} />}
-
-        {content === "mockTest" && <MockTestListTable data={dataIdLst} />}
-
-        {isFetchingData && (
-          <Skeleton sx={{ m: 2, pl: 2 }} variant="rounded" height={400} />
+        {collection === APPWRITE_API.collections.questions && (
+          <QuestionListTable data={dataIdLst?.list || []} searchId={searchId} />
         )}
 
-        {dataIdLst.length !== totalCount && (
+        {collection === APPWRITE_API.collections.mockTest && (
+          <MockTestListTable data={dataIdLst?.list || []} searchId={searchId} />
+        )}
+
+        {collection === APPWRITE_API.collections.products && (
+          <ProductListTable data={dataIdLst?.list || []} searchId={searchId} />
+        )}
+
+        {isFetchingData && (
+          <Skeleton
+            animation="wave"
+            sx={{ m: 2, pl: 2 }}
+            variant="rounded"
+            height={400}
+          />
+        )}
+
+        {dataIdLst?.list?.length !== dataIdLst?.total && (
           <Button
             fullWidth
             disabled={isFetchingData}
             startIcon={<KeyboardDoubleArrowDownIcon />}
             endIcon={<KeyboardDoubleArrowDownIcon />}
             onClick={() =>
-              fetchData(
-                sortSelectedIndex,
-                searchParameterOptions,
-                narrowSearch,
-                lastSyncedId
-              )
+              fetchData(sortSelectedIndex, searchParameterOptions, narrowSearch, searchId)
             }
           >
             {"Loaded " +
-              dataIdLst.length +
+              dataIdLst?.list?.length +
               " out of " +
-              totalCount +
+              dataIdLst?.total +
               "! Load More"}
           </Button>
         )}

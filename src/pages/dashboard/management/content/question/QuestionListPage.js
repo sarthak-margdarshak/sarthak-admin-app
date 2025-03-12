@@ -5,6 +5,7 @@ import { useSettingsContext } from "components/settings";
 import CustomBreadcrumbs from "components/custom-breadcrumbs";
 import { Fragment } from "react";
 import FilterView from "sections/@dashboard/management/content/layout/filter-view/FilterView";
+import { APPWRITE_API } from "config-global";
 
 export default function QuestionListPage() {
   const { themeStretch } = useSettingsContext();
@@ -29,7 +30,7 @@ export default function QuestionListPage() {
           ]}
         />
 
-        <FilterView content="questions" />
+        <FilterView collection={APPWRITE_API.collections.questions} />
       </Container>
     </Fragment>
   );

@@ -1,19 +1,13 @@
-import { styled } from "@mui/material/styles";
 import {
   Paper,
   Table,
   TableBody,
-  TableCell,
-  tableCellClasses,
   TableContainer,
   TableHead,
   TableRow,
 } from "@mui/material";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { PATH_DASHBOARD } from "routes/paths";
-import { Marker } from "react-mark.js";
-import Label from "components/label";
-import React from "react";
+import MockTestRowTable from "sections/@dashboard/management/content/mock-test/component/MockTestRowTable";
+import { StyledTableCell } from "components/table/StyledTableCell";
 
 const columns = [
   { id: "id", label: "ID", minWidth: 170 },
@@ -22,23 +16,7 @@ const columns = [
   { id: "status", label: "Status", minWidth: 170 },
 ];
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.background.default,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
-  },
-}));
-
-export default function MockTestListTable({ data }) {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-
-  const content = searchParams.get("content")
-    ? decodeURIComponent(searchParams.get("content"))
-    : "";
-
+export default function MockTestListTable({ data, searchId }) {
   return (
     <TableContainer component={Paper}>
       <Table>
@@ -55,42 +33,9 @@ export default function MockTestListTable({ data }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((row) => {
-            return (
-              <TableRow
-                onClick={() => {
-                  navigate(
-                    PATH_DASHBOARD.mockTest.view(row.$id) +
-                      (content === "" ? "" : "?content=" + content)
-                  );
-                }}
-                hover
-                role="checkbox"
-                tabIndex={-1}
-                key={row.$id}
-                sx={{
-                  cursor: "pointer",
-                }}
-              >
-                <TableCell>{row.mtId}</TableCell>
-                <TableCell>
-                  <Marker mark={content}>{row.name}</Marker>
-                </TableCell>
-                <TableCell>
-                  <Marker mark={content}>{row.description}</Marker>
-                </TableCell>
-                <TableCell>
-                  <Label
-                    variant="soft"
-                    color={(row.published === false && "error") || "success"}
-                    sx={{ textTransform: "capitalize" }}
-                  >
-                    {row.published ? "Published" : "Draft"}
-                  </Label>
-                </TableCell>
-              </TableRow>
-            );
-          })}
+          {data?.map((id) => (
+            <MockTestRowTable key={id} id={id} searchId={searchId} />
+          ))}
         </TableBody>
       </Table>
     </TableContainer>

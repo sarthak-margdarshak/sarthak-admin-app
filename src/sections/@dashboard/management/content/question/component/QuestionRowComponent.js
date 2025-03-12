@@ -6,7 +6,6 @@ import {
   CardContent,
   CardHeader,
   Chip,
-  Collapse,
   Dialog,
   DialogActions,
   DialogContent,
@@ -15,17 +14,13 @@ import {
   Divider,
   Grid,
   IconButton,
-  LinearProgress,
-  Paper,
   Skeleton,
   Stack,
-  styled,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import Image from "components/image/Image";
 import ReactKatex from "@pkasila/react-katex";
-import React, { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Iconify from "components/iconify/Iconify";
 import { useAuthContext } from "auth/useAuthContext";
 import { useSnackbar } from "components/snackbar";
@@ -38,91 +33,13 @@ import {
 import { APPWRITE_API } from "config-global";
 import { LoadingButton } from "@mui/lab";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Query } from "appwrite";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { labels, sarthakAPIPath } from "assets/data";
 import { Marker } from "react-mark.js";
-import MockTestListTable from "sections/@dashboard/management/content/mock-test/component/MockTestListTable";
-import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
-import MuiAccordion from "@mui/material/Accordion";
-import MuiAccordionSummary, {
-  accordionSummaryClasses,
-} from "@mui/material/AccordionSummary";
-import MuiAccordionDetails from "@mui/material/AccordionDetails";
-import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
-
-const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme }) => ({
-  marginLeft: "auto",
-  transition: theme.transitions.create("transform", {
-    duration: theme.transitions.duration.shortest,
-  }),
-  variants: [
-    {
-      props: ({ expand }) => !expand,
-      style: {
-        transform: "rotate(0deg)",
-      },
-    },
-    {
-      props: ({ expand }) => !!expand,
-      style: {
-        transform: "rotate(180deg)",
-      },
-    },
-  ],
-}));
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#ebebeb",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  ...theme.applyStyles("dark", {
-    backgroundColor: "#1A2027",
-  }),
-}));
-
-const Accordion = styled((props) => (
-  <MuiAccordion disableGutters elevation={0} square {...props} />
-))(({ theme }) => ({
-  border: `1px solid ${theme.palette.divider}`,
-  "&:not(:last-child)": {
-    borderBottom: 0,
-  },
-  "&::before": {
-    display: "none",
-  },
-}));
-
-const AccordionSummary = styled((props) => (
-  <MuiAccordionSummary
-    expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: "0.9rem" }} />}
-    {...props}
-  />
-))(({ theme }) => ({
-  backgroundColor: "rgba(0, 0, 0, .03)",
-  flexDirection: "row-reverse",
-  [`& .${accordionSummaryClasses.expandIconWrapper}.${accordionSummaryClasses.expanded}`]:
-    {
-      transform: "rotate(90deg)",
-    },
-  [`& .${accordionSummaryClasses.content}`]: {
-    marginLeft: theme.spacing(1),
-  },
-  ...theme.applyStyles("dark", {
-    backgroundColor: "rgba(255, 255, 255, .05)",
-  }),
-}));
-
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderTop: "1px solid rgba(0, 0, 0, .125)",
-}));
+import QuestionMetadata from "sections/@dashboard/management/content/question/component/QuestionMetadata";
+import QuestionMockTestList from "sections/@dashboard/management/content/question/component/QuestionMockTestList";
 
 export default function QuestionRowComponent({
   questionId,
@@ -140,13 +57,9 @@ export default function QuestionRowComponent({
     ? decodeURIComponent(searchParams.get("content"))
     : "";
 
-  const [expanded, setExpanded] = useState(true);
   const [publishing, setPublishing] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
-  const [lastMockTestId, setLastMockTestId] = useState(null);
-  const [mockTests, setMockTests] = useState({ total: 0, documents: [] });
-  const [isMockTestLoading, setMockTestLoading] = useState(false);
 
   const { user } = useAuthContext();
 
@@ -174,7 +87,6 @@ export default function QuestionRowComponent({
           setIsDataLoading(false);
         }
       }
-      loadMockTests();
       setIsDataLoading(false);
     } catch (error) {
       console.log(error);
@@ -182,7 +94,7 @@ export default function QuestionRowComponent({
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData().then(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionId]);
 
@@ -209,32 +121,6 @@ export default function QuestionRowComponent({
     setPublishing(false);
   };
 
-  const loadMockTests = async () => {
-    setMockTestLoading(true);
-    try {
-      let queries = [
-        Query.limit(100),
-        Query.select(["$id", "mtId", "name", "description", "published"]),
-      ];
-      if (lastMockTestId !== null) {
-        queries.push(Query.cursorAfter(lastMockTestId));
-      }
-      queries.push(Query.contains("$id", question?.mockTest || []));
-
-      const x = await appwriteDatabases.listDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.mockTest,
-        queries
-      );
-
-      const y = mockTests.documents.concat(x.documents);
-      if (x.documents.length !== 0)
-        setLastMockTestId(x.documents[x.documents.length - 1].$id);
-      setMockTests({ total: x.total, documents: y });
-    } catch (e) {}
-    setMockTestLoading(false);
-  };
-
   if (isDataLoading) {
     return (
       <Fragment>
@@ -257,10 +143,6 @@ export default function QuestionRowComponent({
               <Skeleton sx={{ m: 2 }} variant="rounded" height={40} />
             </Grid>
           </Grid>
-          <Divider>
-            <Chip label="Answer" />
-          </Divider>
-          <Skeleton sx={{ m: 2 }} variant="rounded" height={60} />
         </Card>
       </Fragment>
     );
@@ -437,19 +319,6 @@ export default function QuestionRowComponent({
             </Tooltip>
           )}
 
-          {defaultExpanded && (
-            <ExpandMore
-              expand={expanded}
-              onClick={() => setExpanded(!expanded)}
-              aria-expanded={expanded}
-              aria-label="show more"
-            >
-              <Tooltip title={expanded ? "Show Less" : "Show More"}>
-                <ExpandMoreIcon />
-              </Tooltip>
-            </ExpandMore>
-          )}
-
           {!defaultExpanded && (
             <Tooltip title={"View"}>
               <IconButton
@@ -464,221 +333,11 @@ export default function QuestionRowComponent({
         </CardActions>
 
         {defaultExpanded && (
-          <Collapse in={expanded} timeout="auto" unmountOnExit>
-            <CardContent>
-              <Accordion>
-                <AccordionSummary>
-                  <Chip
-                    label="Metadata"
-                    variant="outlined"
-                    icon={<Iconify icon="fluent-color:calendar-data-bar-16" />}
-                  />
-                </AccordionSummary>
+          <CardContent>
+            <QuestionMetadata question={question} />
 
-                <AccordionDetails>
-                  <Grid container sx={{ mt: 2 }} spacing={2}>
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Index →</Typography>
-                          <Typography variant="body2">
-                            {question?.standard?.standard +
-                              " 🢒 " +
-                              question?.subject?.subject +
-                              " 🢒 " +
-                              question?.chapter?.chapter +
-                              " 🢒 " +
-                              question?.concept?.concept}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">
-                            System Generated Id →
-                          </Typography>
-                          <Typography variant="body2">{questionId}</Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Sarthak Id →</Typography>
-                          <Typography variant="body2">
-                            {question?.qnId}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Status →</Typography>
-                          <Typography variant="body2">
-                            {question?.published ? "Published" : "Draft"}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Created By →</Typography>
-                          <Typography variant="body2">
-                            {question?.creator}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Created At →</Typography>
-                          <Tooltip title={question?.$createdAt}>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                cursor: "pointer",
-                                textDecoration: "underline",
-                              }}
-                            >
-                              {timeAgo.format(
-                                Date.parse(
-                                  question?.$createdAt ||
-                                    "2000-01-01T00:00:00.000+00:00"
-                                )
-                              )}
-                            </Typography>
-                          </Tooltip>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Updated By →</Typography>
-                          <Typography variant="body2">
-                            {question?.updater}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Updated At →</Typography>
-                          <Tooltip title={question?.$updatedAt}>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                cursor: "pointer",
-                                textDecoration: "underline",
-                              }}
-                            >
-                              {timeAgo.format(
-                                Date.parse(
-                                  question?.$updatedAt ||
-                                    "2000-01-01T00:00:00.000+00:00"
-                                )
-                              )}
-                            </Typography>
-                          </Tooltip>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    {question?.published && (
-                      <Fragment>
-                        <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                          <Item>
-                            <Stack direction="row" spacing={2}>
-                              <Typography variant="body1">
-                                Approved By →
-                              </Typography>
-                              <Typography variant="body2">
-                                {question?.approver}
-                              </Typography>
-                            </Stack>
-                          </Item>
-                        </Grid>
-
-                        <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                          <Item>
-                            <Stack direction="row" spacing={2}>
-                              <Typography variant="body1">
-                                Approved At →
-                              </Typography>
-                              <Tooltip title={question?.approvedAt}>
-                                <Typography
-                                  variant="body2"
-                                  sx={{
-                                    cursor: "pointer",
-                                    textDecoration: "underline",
-                                  }}
-                                >
-                                  {timeAgo.format(
-                                    Date.parse(
-                                      question?.approvedAt ||
-                                        "2000-01-01T00:00:00.000+00:00"
-                                    )
-                                  )}
-                                </Typography>
-                              </Tooltip>
-                            </Stack>
-                          </Item>
-                        </Grid>
-                      </Fragment>
-                    )}
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
-
-              <Accordion>
-                <AccordionSummary>
-                  <Chip
-                    label={"Mock Tests (" + mockTests.total + ")"}
-                    variant="outlined"
-                    color="info"
-                    icon={
-                      <Iconify icon="solar:test-tube-bold" color="#e81f1f" />
-                    }
-                  />
-                </AccordionSummary>
-
-                <AccordionDetails>
-                  <MockTestListTable data={mockTests.documents} />
-
-                  {isMockTestLoading && <LinearProgress />}
-
-                  {mockTests.documents.length !== mockTests.total && (
-                    <Button
-                      fullWidth
-                      disabled={isMockTestLoading}
-                      startIcon={<KeyboardDoubleArrowDownIcon />}
-                      endIcon={<KeyboardDoubleArrowDownIcon />}
-                      onClick={loadMockTests}
-                    >
-                      {"Loaded " +
-                        mockTests.documents.length +
-                        " out of " +
-                        mockTests.total +
-                        "! Load More"}
-                    </Button>
-                  )}
-                </AccordionDetails>
-              </Accordion>
-            </CardContent>
-          </Collapse>
+            <QuestionMockTestList mockTestList={question?.mockTest} />
+          </CardContent>
         )}
       </Card>
 
