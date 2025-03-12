@@ -3,7 +3,7 @@ import { createContext, useCallback, useMemo, useReducer } from "react";
 import { appwriteDatabases, appwriteStorage } from "auth/AppwriteContext";
 import { APPWRITE_API } from "config-global";
 import { ProviderHelper } from "sections/@dashboard/management/content/hook/ProviderHelper";
-import {ID, Query} from "appwrite";
+import { ID, Query } from "appwrite";
 import { useSnackbar } from "components/snackbar";
 
 const initialState = {
@@ -782,20 +782,23 @@ export function ContentProvider({ children }) {
     [enqueueSnackbar, state.standardsData]
   );
 
-  const addSearchList = useCallback((id, list, total, collection, query) => {
-    state.searchList[id] = {
-      list: list,
-      total: total,
-      collection: collection,
-      query: query
-    }
-    dispatch({
-      type: "SEARCH_LIST_UPDATE",
-      payload: {
-        searchList: state.searchList,
-      },
-    });
-  }, [state.searchList]);
+  const addSearchList = useCallback(
+    (id, list, total, collection, query) => {
+      state.searchList[id] = {
+        list: list,
+        total: total,
+        collection: collection,
+        query: query,
+      };
+      dispatch({
+        type: "SEARCH_LIST_UPDATE",
+        payload: {
+          searchList: state.searchList,
+        },
+      });
+    },
+    [state.searchList]
+  );
 
   const loadSearchList = useCallback(
     async (searchId, queries, collection) => {
@@ -803,12 +806,28 @@ export function ContentProvider({ children }) {
         const data = await appwriteDatabases.listDocuments(
           APPWRITE_API.databaseId,
           state.searchList[searchId].collection,
-          [...state.searchList[searchId].query, Query.cursorAfter(state.searchList[searchId].list[state.searchList[searchId].list.length - 1]), Query.select("$id")]
+          [
+            ...state.searchList[searchId].query,
+            Query.cursorAfter(
+              state.searchList[searchId].list[
+                state.searchList[searchId].list.length - 1
+              ]
+            ),
+            Query.select("$id"),
+          ]
         );
 
-        const list = state.searchList[searchId].list.concat(data.documents.map(d => d.$id));
+        const list = state.searchList[searchId].list.concat(
+          data.documents.map((d) => d.$id)
+        );
 
-        addSearchList(searchId, list, data.total, state.searchList[searchId].collection, state.searchList[searchId].query)
+        addSearchList(
+          searchId,
+          list,
+          data.total,
+          state.searchList[searchId].collection,
+          state.searchList[searchId].query
+        );
       } else {
         const data = await appwriteDatabases.listDocuments(
           APPWRITE_API.databaseId,
@@ -816,13 +835,13 @@ export function ContentProvider({ children }) {
           [...queries, Query.select("$id")]
         );
 
-        const list = data.documents.map(d => d.$id);
+        const list = data.documents.map((d) => d.$id);
 
-        addSearchList(searchId, list, data.total, collection, queries)
+        addSearchList(searchId, list, data.total, collection, queries);
       }
 
       return searchId;
-      },
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [state.searchList]
   );
