@@ -427,7 +427,7 @@ export default function ContentEditor({
             <Button
               autoFocus
               color="inherit"
-              onClick={(event) => {
+              onClick={() => {
                 if (latex !== "") {
                   const value = `${editingContent.substring(
                     0,

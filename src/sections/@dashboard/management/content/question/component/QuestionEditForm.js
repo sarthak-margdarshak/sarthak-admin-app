@@ -112,11 +112,11 @@ export default function QuestionEditForm({ questionId }) {
       }
       setQuestion({
         ...x,
-        idOptions: x.answerOptions.map((c) => crypto.randomUUID()),
+        idOptions: x.answerOptions.map(() => crypto.randomUUID()),
       });
       setIsDataLoading(false);
     };
-    update();
+    update().then(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionId]);
 
@@ -138,7 +138,7 @@ export default function QuestionEditForm({ questionId }) {
       delete question.$updatedAt;
       delete question.lastSynced;
       delete question.idOptions;
-      delete question.qnId;
+      delete question["qnId"];
 
       setQuestion(
         await appwriteDatabases.updateDocument(
@@ -314,7 +314,7 @@ export default function QuestionEditForm({ questionId }) {
 
       <Box component="section" sx={{ p: 2, border: "1px dashed grey" }}>
         <Divider sx={{ mb: 1 }}>
-          <Chip label={question?.qnId} />
+          <Chip label={question["qnId"]} />
         </Divider>
 
         <Accordion
