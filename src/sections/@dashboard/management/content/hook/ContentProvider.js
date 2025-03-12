@@ -3,7 +3,7 @@ import { createContext, useCallback, useMemo, useReducer } from "react";
 import { appwriteDatabases, appwriteStorage } from "auth/AppwriteContext";
 import { APPWRITE_API } from "config-global";
 import { ProviderHelper } from "sections/@dashboard/management/content/hook/ProviderHelper";
-import { ID } from "appwrite";
+import {ID, Query} from "appwrite";
 import { useSnackbar } from "components/snackbar";
 
 const initialState = {
@@ -29,7 +29,7 @@ const initialState = {
   productsData: localStorage.getItem("productsData")
     ? JSON.parse(localStorage.getItem("productsData"))
     : {},
-  searchList: [],
+  searchList: {},
   getBookIndex: async () => {},
   updateDock: () => {},
   updateQuestion: async () => {},
@@ -47,7 +47,8 @@ const initialState = {
   addSubject: async () => {},
   addChapter: async () => {},
   addConcept: async () => {},
-  updateSearchList: () => {},
+  loadSearchList: async () => {},
+  addSearchList: async () => {},
 };
 
 const reducer = (state, action) => {
@@ -781,14 +782,50 @@ export function ContentProvider({ children }) {
     [enqueueSnackbar, state.standardsData]
   );
 
-  const updateSearchList = useCallback((list) => {
+  const addSearchList = useCallback((id, list, total, collection, query) => {
+    state.searchList[id] = {
+      list: list,
+      total: total,
+      collection: collection,
+      query: query
+    }
     dispatch({
       type: "SEARCH_LIST_UPDATE",
       payload: {
-        searchList: list,
+        searchList: state.searchList,
       },
     });
-  }, []);
+  }, [state.searchList]);
+
+  const loadSearchList = useCallback(
+    async (searchId, queries, collection) => {
+      if (state.searchList[searchId] !== undefined) {
+        const data = await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          state.searchList[searchId].collection,
+          [...state.searchList[searchId].query, Query.cursorAfter(state.searchList[searchId].list[state.searchList[searchId].list.length - 1]), Query.select("$id")]
+        );
+
+        const list = state.searchList[searchId].list.concat(data.documents.map(d => d.$id));
+
+        addSearchList(searchId, list, data.total, state.searchList[searchId].collection, state.searchList[searchId].query)
+      } else {
+        const data = await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          collection,
+          [...queries, Query.select("$id")]
+        );
+
+        const list = data.documents.map(d => d.$id);
+
+        addSearchList(searchId, list, data.total, collection, queries)
+      }
+
+      return searchId;
+      },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state.searchList]
+  );
 
   const memoizedValue = useMemo(
     () => ({
@@ -816,7 +853,8 @@ export function ContentProvider({ children }) {
       addSubject,
       addChapter,
       addConcept,
-      updateSearchList,
+      loadSearchList,
+      addSearchList,
     }),
     [
       state.standardsData,
@@ -843,7 +881,8 @@ export function ContentProvider({ children }) {
       addSubject,
       addChapter,
       addConcept,
-      updateSearchList,
+      loadSearchList,
+      addSearchList,
     ]
   );
 
