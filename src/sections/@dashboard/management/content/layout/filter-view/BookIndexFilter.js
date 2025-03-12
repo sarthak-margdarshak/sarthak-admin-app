@@ -7,7 +7,7 @@ import {
   TextField,
 } from "@mui/material";
 import { Fragment, useState } from "react";
-import IndexView from "sections/@dashboard/management/content/question/component/IndexView";
+import IndexView from "sections/@dashboard/management/content/common/IndexView";
 import { Query } from "appwrite";
 import { appwriteDatabases } from "auth/AppwriteContext";
 import { APPWRITE_API } from "config-global";

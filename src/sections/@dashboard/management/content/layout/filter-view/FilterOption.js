@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import IndexView from "sections/@dashboard/management/content/question/component/IndexView";
+import IndexView from "sections/@dashboard/management/content/common/IndexView";
 import SarthakUserDisplayUI from "sections/@dashboard/management/admin/user/SarthakUserDisplayUI";
 import Iconify from "components/iconify";
 import { useState } from "react";
