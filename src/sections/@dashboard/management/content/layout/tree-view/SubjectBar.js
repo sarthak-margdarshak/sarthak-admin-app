@@ -12,7 +12,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import React, { Fragment, useEffect, useState } from "react";
 import ChapterBar from "./ChapterBar";
-import { useContent } from "../../hook/useContent";
+import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import { LoadingButton } from "@mui/lab";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import RefreshIcon from "@mui/icons-material/Refresh";

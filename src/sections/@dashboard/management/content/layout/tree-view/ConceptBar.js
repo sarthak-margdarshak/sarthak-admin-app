@@ -7,7 +7,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import React, { Fragment, useEffect, useState } from "react";
-import { useContent } from "../../hook/useContent";
+import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import { appwriteAccount, appwriteDatabases } from "auth/AppwriteContext";
 import { useNavigate } from "react-router-dom";
