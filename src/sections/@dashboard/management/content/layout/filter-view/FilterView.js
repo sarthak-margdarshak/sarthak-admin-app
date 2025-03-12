@@ -58,7 +58,7 @@ export default function FilterView({ collection }) {
   const [filterWindowOpen, setFilterWindowOpen] = useState(false);
   const [narrowSearch, setNarrowSearch] = useState(false);
   const [searchId, setSearchId] = useState(crypto.randomUUID());
-  const [limit] = useState(5);
+  const [limit] = useState(100);
 
   const fetchData = async (sortInd, params, narrow, id) => {
     setIsFetchingData(true);
