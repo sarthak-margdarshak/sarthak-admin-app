@@ -13,12 +13,13 @@ export default function IndexView({ id }) {
       setLabel(await getBookIndex(id));
       setLoading(false);
     };
-    fetchData();
+    fetchData().then(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getBookIndex, id]);
 
   if (loading) {
     return <Skeleton variant="text" width={100} sx={{ fontSize: "1rem" }} />;
   }
 
-  return <Typography variant='body2'>{label}</Typography>;
+  return <Typography variant="body2">{label}</Typography>;
 }
