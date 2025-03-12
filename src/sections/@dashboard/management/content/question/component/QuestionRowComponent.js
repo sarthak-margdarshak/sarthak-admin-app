@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import Image from "components/image/Image";
 import ReactKatex from "@pkasila/react-katex";
-import React, { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Iconify from "components/iconify/Iconify";
 import { useAuthContext } from "auth/useAuthContext";
 import { useSnackbar } from "components/snackbar";

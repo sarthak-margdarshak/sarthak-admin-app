@@ -18,7 +18,7 @@ export default function QuestionMockTestList({ mockTestList }) {
     addSearchList(
       searchId,
       mockTestList,
-      searchId?.length,
+      mockTestList?.length,
       APPWRITE_API.collections.mockTest,
       null
     );

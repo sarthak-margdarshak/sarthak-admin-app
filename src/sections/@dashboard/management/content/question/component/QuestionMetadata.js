@@ -1,7 +1,7 @@
 import { Chip, Grid, Stack, Tooltip, Typography } from "@mui/material";
 import Iconify from "components/iconify";
 import { timeAgo } from "auth/AppwriteContext";
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 import { Item } from "components/item/Item";
 import {
   Accordion,

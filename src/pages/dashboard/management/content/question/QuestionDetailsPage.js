@@ -9,6 +9,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
+import Iconify from "components/iconify";
 
 export default function QuestionDetailsPage() {
   const { themeStretch } = useSettingsContext();
@@ -19,6 +20,7 @@ export default function QuestionDetailsPage() {
 
   const [questionId, setQuestionId] = useState(location.pathname.split("/")[3]);
   const [index, setIndex] = useState(-1);
+  const [loadingNextPage, setLoadingNextPage] = useState(false);
 
   const searchId = searchParams.get("searchId");
   let idList = {};
@@ -75,38 +77,50 @@ export default function QuestionDetailsPage() {
                 <Typography variant="caption" color="textSecondary">
                   {index + 1 + " of " + idList?.total}
                 </Typography>
-                <IconButton
-                  disabled={index === 0}
-                  onClick={() =>
-                    navigate(
-                      PATH_DASHBOARD.question.view(idList.list[index - 1]) +
-                        window.location.search,
-                      { replace: true }
-                    )
-                  }
-                >
-                  <ArrowLeftIcon />
-                </IconButton>
-                <IconButton
-                  disabled={index === searchList.total - 1}
-                  onClick={async () => {
-                    if (idList?.list?.length - 1 === index) {
-                      await loadSearchList(
-                        searchId,
-                        idList?.query,
-                        idList?.collection
-                      );
+
+                {loadingNextPage ? (
+                  <Iconify icon="line-md:loading-loop" width={40} />
+                ) : (
+                  <IconButton
+                    disabled={index === 0}
+                    onClick={() =>
+                      navigate(
+                        PATH_DASHBOARD.question.view(idList.list[index - 1]) +
+                          window.location.search,
+                        { replace: true }
+                      )
                     }
-                    idList = searchList[searchId];
-                    navigate(
-                      PATH_DASHBOARD.question.view(idList?.list[index + 1]) +
-                        window.location.search,
-                      { replace: true }
-                    );
-                  }}
-                >
-                  <ArrowRightIcon />
-                </IconButton>
+                  >
+                    <ArrowLeftIcon />
+                  </IconButton>
+                )}
+
+                {loadingNextPage ? (
+                  <Iconify icon="line-md:loading-loop" width={40} />
+                ) : (
+                  <IconButton
+                    disabled={index === idList?.total - 1}
+                    onClick={async () => {
+                      if (idList?.list?.length - 1 === index) {
+                        setLoadingNextPage(true);
+                        await loadSearchList(
+                          searchId,
+                          idList?.query,
+                          idList?.collection
+                        );
+                        setLoadingNextPage(false);
+                      }
+                      idList = searchList[searchId];
+                      navigate(
+                        PATH_DASHBOARD.question.view(idList?.list[index + 1]) +
+                          window.location.search,
+                        { replace: true }
+                      );
+                    }}
+                  >
+                    <ArrowRightIcon />
+                  </IconButton>
+                )}
               </Stack>
             </Grid>
           )}
