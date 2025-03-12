@@ -30,9 +30,9 @@ export default function MockTestViewPage() {
 
   useEffect(() => {
     const id = location.pathname.split("/")[3];
+    setMockTestId(id);
     if (searchId && searchList[searchId] !== undefined) {
       setIndex(idList?.list?.findIndex((item) => item === id));
-      setMockTestId(id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);

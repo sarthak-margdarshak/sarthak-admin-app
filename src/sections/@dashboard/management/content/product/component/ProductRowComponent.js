@@ -26,10 +26,8 @@ import {
   Divider,
   Grid,
   IconButton,
-  Paper,
   Skeleton,
   Stack,
-  styled,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -38,64 +36,11 @@ import Image from "components/image";
 import { PATH_DASHBOARD } from "routes/paths";
 import { LoadingButton } from "@mui/lab";
 import PermissionDeniedComponent from "components/sub-component/PermissionDeniedComponent";
-import IndexView from "sections/@dashboard/management/content/question/component/IndexView";
 import { Marker } from "react-mark.js";
-import MuiAccordion from "@mui/material/Accordion";
-import MuiAccordionSummary, {
-  accordionSummaryClasses,
-} from "@mui/material/AccordionSummary";
-import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
-import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import { CarouselAnimation } from "components/carousel";
-import MockTestRowComponent from "sections/@dashboard/management/content/mock-test/component/MockTestRowComponent";
-
-const Accordion = styled((props) => (
-  <MuiAccordion disableGutters elevation={0} square {...props} />
-))(({ theme }) => ({
-  border: `1px solid ${theme.palette.divider}`,
-  "&:not(:last-child)": {
-    borderBottom: 0,
-  },
-  "&::before": {
-    display: "none",
-  },
-}));
-
-const AccordionSummary = styled((props) => (
-  <MuiAccordionSummary
-    expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: "0.9rem" }} />}
-    {...props}
-  />
-))(({ theme }) => ({
-  backgroundColor: "rgba(0, 0, 0, .03)",
-  flexDirection: "row-reverse",
-  [`& .${accordionSummaryClasses.expandIconWrapper}.${accordionSummaryClasses.expanded}`]:
-    {
-      transform: "rotate(90deg)",
-    },
-  [`& .${accordionSummaryClasses.content}`]: {
-    marginLeft: theme.spacing(1),
-  },
-  ...theme.applyStyles("dark", {
-    backgroundColor: "rgba(255, 255, 255, .05)",
-  }),
-}));
-
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderTop: "1px solid rgba(0, 0, 0, .125)",
-  backgroundColor: theme.palette.background.default,
-}));
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#ebebeb",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  ...theme.applyStyles("dark", {
-    backgroundColor: "#1A2027",
-  }),
-}));
+import { Item } from "components/item/Item";
+import ProductMetadata from "sections/@dashboard/management/content/product/component/ProductMetadata";
+import ProductMockTest from "sections/@dashboard/management/content/product/component/ProductMockTest";
 
 export default function ProductRowComponent({ productId }) {
   const { productsData, updateProduct } = useContent();
@@ -145,7 +90,7 @@ export default function ProductRowComponent({ productId }) {
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData().then(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
@@ -315,192 +260,9 @@ export default function ProductRowComponent({ productId }) {
         </CardActions>
 
         <CardContent>
-          <Accordion>
-            <AccordionSummary>
-              <Chip
-                label="Metadata"
-                color="error"
-                icon={<Iconify icon="fluent-color:calendar-data-bar-16" />}
-              />
-            </AccordionSummary>
+          <ProductMetadata product={product} />
 
-            <AccordionDetails>
-              <Grid container sx={{ mt: 2 }} spacing={2}>
-                <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                  <Item>
-                    <Stack direction="row" spacing={2}>
-                      <Typography variant="body1">Index →</Typography>
-                      <IndexView id={product?.bookIndex?.$id} />
-                    </Stack>
-                  </Item>
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                  <Item>
-                    <Stack direction="row" spacing={2}>
-                      <Typography variant="body1">
-                        System Generated Id →
-                      </Typography>
-                      <Typography variant="body2">{productId}</Typography>
-                    </Stack>
-                  </Item>
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                  <Item>
-                    <Stack direction="row" spacing={2}>
-                      <Typography variant="body1">MRP →</Typography>
-                      <Typography variant="body2">{`₹ ${product?.mrp}`}</Typography>
-                    </Stack>
-                  </Item>
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                  <Item>
-                    <Stack direction="row" spacing={2}>
-                      <Typography variant="body1">Selling Price →</Typography>
-                      <Typography variant="body2">
-                        {`₹ ${product?.sellPrice}`}
-                      </Typography>
-                    </Stack>
-                  </Item>
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                  <Item>
-                    <Stack direction="row" spacing={2}>
-                      <Typography variant="body1">Sarthak Id →</Typography>
-                      <Typography variant="body2">
-                        {product?.productId}
-                      </Typography>
-                    </Stack>
-                  </Item>
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                  <Item>
-                    <Stack direction="row" spacing={2}>
-                      <Typography variant="body1">Status →</Typography>
-                      <Typography variant="body2">
-                        {product?.published ? "Published" : "Draft"}
-                      </Typography>
-                    </Stack>
-                  </Item>
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                  <Item>
-                    <Stack direction="row" spacing={2}>
-                      <Typography variant="body1">Created By →</Typography>
-                      <Typography variant="body2">
-                        {product?.creator}
-                      </Typography>
-                    </Stack>
-                  </Item>
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                  <Item>
-                    <Stack direction="row" spacing={2}>
-                      <Typography variant="body1">Created At →</Typography>
-                      <Tooltip title={product?.$createdAt}>
-                        <Typography variant="body2">
-                          {timeAgo.format(
-                            Date.parse(
-                              product?.$createdAt ||
-                                "2000-01-01T00:00:00.000+00:00"
-                            )
-                          )}
-                        </Typography>
-                      </Tooltip>
-                    </Stack>
-                  </Item>
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                  <Item>
-                    <Stack direction="row" spacing={2}>
-                      <Typography variant="body1">Updated By →</Typography>
-                      <Typography variant="body2">
-                        {product?.updater}
-                      </Typography>
-                    </Stack>
-                  </Item>
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                  <Item>
-                    <Stack direction="row" spacing={2}>
-                      <Typography variant="body1">Updated At →</Typography>
-                      <Tooltip title={product?.$updatedAt}>
-                        <Typography variant="body2">
-                          {timeAgo.format(
-                            Date.parse(
-                              product?.$updatedAt ||
-                                "2000-01-01T00:00:00.000+00:00"
-                            )
-                          )}
-                        </Typography>
-                      </Tooltip>
-                    </Stack>
-                  </Item>
-                </Grid>
-
-                {product?.published && (
-                  <Fragment>
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Approved By →</Typography>
-                          <Typography variant="body2">
-                            {product?.approver}
-                          </Typography>
-                        </Stack>
-                      </Item>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Item>
-                        <Stack direction="row" spacing={2}>
-                          <Typography variant="body1">Approved At →</Typography>
-                          <Tooltip title={product?.approvedAt}>
-                            <Typography variant="body2">
-                              {timeAgo.format(
-                                Date.parse(
-                                  product?.approvedAt ||
-                                    "2000-01-01T00:00:00.000+00:00"
-                                )
-                              )}
-                            </Typography>
-                          </Tooltip>
-                        </Stack>
-                      </Item>
-                    </Grid>
-                  </Fragment>
-                )}
-              </Grid>
-            </AccordionDetails>
-          </Accordion>
-
-          <Accordion>
-            <AccordionSummary>
-              <Chip
-                label={"Mock Tests (" + product?.mockTest?.length + ")"}
-                color="error"
-                icon={<Iconify icon="fluent-color:chat-bubbles-question-16" />}
-              />
-            </AccordionSummary>
-
-            <AccordionDetails>
-              {product?.mockTest.map((test, index) => (
-                <MockTestRowComponent
-                  key={index}
-                  mockTestId={test}
-                  defaultExpanded={false}
-                />
-              ))}
-            </AccordionDetails>
-          </Accordion>
+          <ProductMockTest mockTestList={product?.mockTest} />
         </CardContent>
       </Card>
 

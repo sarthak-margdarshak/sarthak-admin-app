@@ -30,9 +30,9 @@ export default function QuestionDetailsPage() {
 
   useEffect(() => {
     const id = location.pathname.split("/")[3];
+    setQuestionId(id);
     if (searchId && searchList[searchId] !== undefined) {
       setIndex(idList?.list?.findIndex((item) => item === id));
-      setQuestionId(id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);

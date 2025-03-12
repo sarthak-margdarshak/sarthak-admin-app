@@ -1,16 +1,16 @@
 import { Chip } from "@mui/material";
 import Iconify from "components/iconify";
-import MockTestListTable from "sections/@dashboard/management/content/mock-test/component/MockTestListTable";
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
 } from "components/accordion";
+import MockTestListTable from "sections/@dashboard/management/content/mock-test/component/MockTestListTable";
 import { useEffect, useState } from "react";
-import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import { APPWRITE_API } from "config-global";
+import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 
-export default function QuestionMockTestList({ mockTestList }) {
+export default function ProductMockTest({ mockTestList }) {
   const { addSearchList } = useContent();
   const [searchId] = useState(crypto.randomUUID());
 
@@ -33,8 +33,8 @@ export default function QuestionMockTestList({ mockTestList }) {
       <AccordionSummary>
         <Chip
           label={"Mock Tests (" + mockTestList?.length + ")"}
-          color="info"
-          icon={<Iconify icon="solar:test-tube-bold" color="#e81f1f" />}
+          color="error"
+          icon={<Iconify icon="fluent-color:chat-bubbles-question-16" />}
         />
       </AccordionSummary>
 

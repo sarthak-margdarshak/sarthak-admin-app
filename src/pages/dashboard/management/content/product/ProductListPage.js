@@ -5,6 +5,7 @@ import CustomBreadcrumbs from "components/custom-breadcrumbs";
 import { PATH_DASHBOARD } from "routes/paths";
 import FilterView from "sections/@dashboard/management/content/layout/filter-view/FilterView";
 import { useSettingsContext } from "components/settings";
+import { APPWRITE_API } from "config-global";
 
 export default function ProductListPage() {
   const { themeStretch } = useSettingsContext();
@@ -29,7 +30,7 @@ export default function ProductListPage() {
           ]}
         />
 
-        <FilterView content="product" />
+        <FilterView collection={APPWRITE_API.collections.products} />
       </Container>
     </Fragment>
   );

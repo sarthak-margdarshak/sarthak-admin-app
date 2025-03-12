@@ -32,7 +32,7 @@ import { Reorder } from "framer-motion";
 import MockTestRowComponent from "sections/@dashboard/management/content/mock-test/component/MockTestRowComponent";
 import { Upload } from "components/upload";
 import Image from "components/image";
-import IndexView from "sections/@dashboard/management/content/question/component/IndexView";
+import IndexView from "sections/@dashboard/management/content/common/IndexView";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 
@@ -86,7 +86,7 @@ export default function ProductEditForm({ productId }) {
       setSelectedMockTests(x.mockTest);
       setIsDataLoading(false);
     };
-    update();
+    update().then(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
