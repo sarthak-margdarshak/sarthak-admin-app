@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuthContext } from "auth/useAuthContext";
@@ -26,11 +26,8 @@ import {
   Divider,
   Grid,
   IconButton,
-  LinearProgress,
-  Paper,
   Skeleton,
   Stack,
-  styled,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -39,65 +36,10 @@ import Image from "components/image";
 import { PATH_DASHBOARD } from "routes/paths";
 import { LoadingButton } from "@mui/lab";
 import PermissionDeniedComponent from "components/sub-component/PermissionDeniedComponent";
-import IndexView from "sections/@dashboard/management/content/question/component/IndexView";
-import QuestionRowComponent from "sections/@dashboard/management/content/question/component/QuestionRowComponent";
 import { Marker } from "react-mark.js";
-import MuiAccordion from "@mui/material/Accordion";
-import MuiAccordionSummary, {
-  accordionSummaryClasses,
-} from "@mui/material/AccordionSummary";
-import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
-import MuiAccordionDetails from "@mui/material/AccordionDetails";
-import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
-import ProductListTable from "sections/@dashboard/management/content/product/component/ProductListTable";
-
-const Accordion = styled((props) => (
-  <MuiAccordion disableGutters elevation={0} square {...props} />
-))(({ theme }) => ({
-  border: `1px solid ${theme.palette.divider}`,
-  "&:not(:last-child)": {
-    borderBottom: 0,
-  },
-  "&::before": {
-    display: "none",
-  },
-}));
-
-const AccordionSummary = styled((props) => (
-  <MuiAccordionSummary
-    expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: "0.9rem" }} />}
-    {...props}
-  />
-))(({ theme }) => ({
-  backgroundColor: "rgba(0, 0, 0, .03)",
-  flexDirection: "row-reverse",
-  [`& .${accordionSummaryClasses.expandIconWrapper}.${accordionSummaryClasses.expanded}`]:
-    {
-      transform: "rotate(90deg)",
-    },
-  [`& .${accordionSummaryClasses.content}`]: {
-    marginLeft: theme.spacing(1),
-  },
-  ...theme.applyStyles("dark", {
-    backgroundColor: "rgba(255, 255, 255, .05)",
-  }),
-}));
-
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderTop: "1px solid rgba(0, 0, 0, .125)",
-  backgroundColor: theme.palette.background.default,
-}));
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#ebebeb",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  ...theme.applyStyles("dark", {
-    backgroundColor: "#1A2027",
-  }),
-}));
+import MockTestMetadata from "sections/@dashboard/management/content/mock-test/component/MockTestMetadata";
+import { Item } from "components/item/Item";
+import MockTestQuestion from "sections/@dashboard/management/content/mock-test/component/MockTestQuestion";
 
 export default function MockTestRowComponent({
   mockTestId,
@@ -116,9 +58,6 @@ export default function MockTestRowComponent({
   const [publishing, setPublishing] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
-  const [lastProductId, setLastProductId] = useState(null);
-  const [products, setProducts] = useState({ total: 0, documents: [] });
-  const [isProductLoading, setProductLoading] = useState(false);
 
   const { user } = useAuthContext();
 
@@ -146,9 +85,6 @@ export default function MockTestRowComponent({
           setIsDataLoading(false);
         }
       }
-      if (defaultExpanded) {
-        loadProducts();
-      }
       setIsDataLoading(false);
     } catch (error) {
       console.log(error);
@@ -156,7 +92,7 @@ export default function MockTestRowComponent({
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData().then(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mockTestId]);
 
@@ -181,40 +117,6 @@ export default function MockTestRowComponent({
       enqueueSnackbar(error.message, { variant: "error" });
     }
     setPublishing(false);
-  };
-
-  const loadProducts = async () => {
-    setProductLoading(true);
-    try {
-      if (mockTest?.products && mockTest?.products?.length !== 0) {
-        let queries = [
-          Query.limit(100),
-          Query.select([
-            "$id",
-            "productId",
-            "name",
-            "description",
-            "published",
-          ]),
-        ];
-        if (lastProductId !== null) {
-          queries.push(Query.cursorAfter(lastProductId));
-        }
-        queries.push(Query.contains("$id", mockTest?.products));
-
-        const x = await appwriteDatabases.listDocuments(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.collections.products,
-          queries
-        );
-
-        const y = products.documents.concat(x.documents);
-        if (x.documents.length !== 0)
-          setLastProductId(x.documents[x.documents.length - 1].$id);
-        setProducts({ total: x.total, documents: y });
-      }
-    } catch (e) {}
-    setProductLoading(false);
   };
 
   if (isDataLoading) {
@@ -249,7 +151,7 @@ export default function MockTestRowComponent({
             <Divider>
               <Chip
                 label={
-                  mockTest?.mtId +
+                  mockTest["mtId"] +
                   " (" +
                   timeAgo.format(
                     Date.parse(
@@ -359,232 +261,9 @@ export default function MockTestRowComponent({
 
         {defaultExpanded && (
           <CardContent>
-            <Accordion>
-              <AccordionSummary>
-                <Chip
-                  label="Metadata"
-                  color="success"
-                  icon={<Iconify icon="fluent-color:calendar-data-bar-16" />}
-                />
-              </AccordionSummary>
+            <MockTestMetadata mockTest={mockTest} />
 
-              <AccordionDetails>
-                <Grid container sx={{ mt: 2 }} spacing={2}>
-                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                    <Item>
-                      <Stack direction="row" spacing={2}>
-                        <Typography variant="body1">Index →</Typography>
-                        <IndexView id={mockTest?.bookIndex?.$id} />
-                      </Stack>
-                    </Item>
-                  </Grid>
-
-                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                    <Item>
-                      <Stack direction="row" spacing={2}>
-                        <Typography variant="body1">
-                          System Generated Id →
-                        </Typography>
-                        <Typography variant="body2">{mockTestId}</Typography>
-                      </Stack>
-                    </Item>
-                  </Grid>
-
-                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                    <Item>
-                      <Stack direction="row" spacing={2}>
-                        <Typography variant="body1">Duration →</Typography>
-                        <Typography variant="body2">{`${mockTest?.duration} mins`}</Typography>
-                      </Stack>
-                    </Item>
-                  </Grid>
-
-                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                    <Item>
-                      <Stack direction="row" spacing={2}>
-                        <Typography variant="body1">Level →</Typography>
-                        <Typography variant="body2">
-                          {mockTest?.level}
-                        </Typography>
-                      </Stack>
-                    </Item>
-                  </Grid>
-
-                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                    <Item>
-                      <Stack direction="row" spacing={2}>
-                        <Typography variant="body1">Sarthak Id →</Typography>
-                        <Typography variant="body2">
-                          {mockTest?.mtId}
-                        </Typography>
-                      </Stack>
-                    </Item>
-                  </Grid>
-
-                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                    <Item>
-                      <Stack direction="row" spacing={2}>
-                        <Typography variant="body1">Status →</Typography>
-                        <Typography variant="body2">
-                          {mockTest?.published ? "Published" : "Draft"}
-                        </Typography>
-                      </Stack>
-                    </Item>
-                  </Grid>
-
-                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                    <Item>
-                      <Stack direction="row" spacing={2}>
-                        <Typography variant="body1">Created By →</Typography>
-                        <Typography variant="body2">
-                          {mockTest?.creator}
-                        </Typography>
-                      </Stack>
-                    </Item>
-                  </Grid>
-
-                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                    <Item>
-                      <Stack direction="row" spacing={2}>
-                        <Typography variant="body1">Created At →</Typography>
-                        <Tooltip title={mockTest?.$createdAt}>
-                          <Typography variant="body2">
-                            {timeAgo.format(
-                              Date.parse(
-                                mockTest?.$createdAt ||
-                                  "2000-01-01T00:00:00.000+00:00"
-                              )
-                            )}
-                          </Typography>
-                        </Tooltip>
-                      </Stack>
-                    </Item>
-                  </Grid>
-
-                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                    <Item>
-                      <Stack direction="row" spacing={2}>
-                        <Typography variant="body1">Updated By →</Typography>
-                        <Typography variant="body2">
-                          {mockTest?.updater}
-                        </Typography>
-                      </Stack>
-                    </Item>
-                  </Grid>
-
-                  <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                    <Item>
-                      <Stack direction="row" spacing={2}>
-                        <Typography variant="body1">Updated At →</Typography>
-                        <Tooltip title={mockTest?.$updatedAt}>
-                          <Typography variant="body2">
-                            {timeAgo.format(
-                              Date.parse(
-                                mockTest?.$updatedAt ||
-                                  "2000-01-01T00:00:00.000+00:00"
-                              )
-                            )}
-                          </Typography>
-                        </Tooltip>
-                      </Stack>
-                    </Item>
-                  </Grid>
-
-                  {mockTest?.published && (
-                    <Fragment>
-                      <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                        <Item>
-                          <Stack direction="row" spacing={2}>
-                            <Typography variant="body1">
-                              Approved By →
-                            </Typography>
-                            <Typography variant="body2">
-                              {mockTest?.approver}
-                            </Typography>
-                          </Stack>
-                        </Item>
-                      </Grid>
-
-                      <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                        <Item>
-                          <Stack direction="row" spacing={2}>
-                            <Typography variant="body1">
-                              Approved At →
-                            </Typography>
-                            <Tooltip title={mockTest?.approvedAt}>
-                              <Typography variant="body2">
-                                {timeAgo.format(
-                                  Date.parse(
-                                    mockTest?.approvedAt ||
-                                      "2000-01-01T00:00:00.000+00:00"
-                                  )
-                                )}
-                              </Typography>
-                            </Tooltip>
-                          </Stack>
-                        </Item>
-                      </Grid>
-                    </Fragment>
-                  )}
-                </Grid>
-              </AccordionDetails>
-            </Accordion>
-
-            <Accordion>
-              <AccordionSummary>
-                <Chip
-                  label={"Questions (" + mockTest?.questions?.length + ")"}
-                  color="success"
-                  icon={
-                    <Iconify icon="fluent-color:chat-bubbles-question-16" />
-                  }
-                />
-              </AccordionSummary>
-
-              <AccordionDetails>
-                {mockTest?.questions.map((question, index) => (
-                  <QuestionRowComponent
-                    key={index}
-                    questionId={question}
-                    showImages={false}
-                    showAnswer={false}
-                    defaultExpanded={false}
-                  />
-                ))}
-              </AccordionDetails>
-            </Accordion>
-
-            <Accordion>
-              <AccordionSummary>
-                <Chip
-                  label={"Products (" + mockTest?.products?.length + ")"}
-                  color="success"
-                  icon={<Iconify icon="fluent-emoji:money-bag" />}
-                />
-              </AccordionSummary>
-
-              <AccordionDetails>
-                <ProductListTable data={products.documents} />
-
-                {isProductLoading && <LinearProgress />}
-
-                {products.documents.length !== products.total && (
-                  <Button
-                    fullWidth
-                    disabled={isProductLoading}
-                    startIcon={<KeyboardDoubleArrowDownIcon />}
-                    endIcon={<KeyboardDoubleArrowDownIcon />}
-                    onClick={loadProducts}
-                  >
-                    {"Loaded " +
-                      products.documents.length +
-                      " out of " +
-                      products.total +
-                      "! Load More"}
-                  </Button>
-                )}
-              </AccordionDetails>
-            </Accordion>
+            <MockTestQuestion questionList={mockTest?.questions} />
           </CardContent>
         )}
       </Card>

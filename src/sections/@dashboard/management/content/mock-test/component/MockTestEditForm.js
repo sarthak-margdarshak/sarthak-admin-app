@@ -30,7 +30,7 @@ import { useContent } from "sections/@dashboard/management/content/hook/useConte
 import QuestionRowComponent from "sections/@dashboard/management/content/question/component/QuestionRowComponent";
 import { alpha, useTheme } from "@mui/material/styles";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
-import IndexView from "sections/@dashboard/management/content/question/component/IndexView";
+import IndexView from "sections/@dashboard/management/content/common/IndexView";
 import Iconify from "components/iconify";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import { LoadingButton } from "@mui/lab";
@@ -83,7 +83,7 @@ export default function MockTestEditForm({ mockTestId }) {
       setSelectedQuestions(x.questions);
       setIsDataLoading(false);
     };
-    update();
+    update().then(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mockTestId]);
 
@@ -169,7 +169,7 @@ export default function MockTestEditForm({ mockTestId }) {
   return (
     <Fragment>
       <Divider>
-        <Chip label={mockTest.mtId} color="info" />
+        <Chip label={mockTest["mtId"]} color="info" />
       </Divider>
 
       <Stack alignItems="center" justifyContent="space-between" direction="row">
