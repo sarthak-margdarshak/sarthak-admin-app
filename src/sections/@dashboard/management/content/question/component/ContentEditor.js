@@ -17,7 +17,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import React, { forwardRef, Fragment, useEffect, useState } from "react";
+import { forwardRef, Fragment, useEffect, useState } from "react";
 import "katex/dist/katex.min.css";
 import ReactKatex from "@pkasila/react-katex";
 import { alpha, styled } from "@mui/material/styles";
