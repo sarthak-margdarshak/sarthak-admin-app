@@ -33,7 +33,7 @@ export default function MockTestListTable({ data, searchId }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((id) => (
+          {data?.map((id) => (
             <MockTestRowTable key={id} id={id} searchId={searchId} />
           ))}
         </TableBody>

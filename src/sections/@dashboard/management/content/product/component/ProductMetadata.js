@@ -139,9 +139,7 @@ export default function ProductMetadata({ product }) {
                 <Item>
                   <Stack direction="row" spacing={2}>
                     <Typography variant="body1">Approved By →</Typography>
-                    <Typography variant="body2">
-                      {product["approver"]}
-                    </Typography>
+                    <Typography variant="body2">{product?.approver}</Typography>
                   </Stack>
                 </Item>
               </Grid>
@@ -150,11 +148,11 @@ export default function ProductMetadata({ product }) {
                 <Item>
                   <Stack direction="row" spacing={2}>
                     <Typography variant="body1">Approved At →</Typography>
-                    <Tooltip title={product["approvedAt"]}>
+                    <Tooltip title={product?.approvedAt}>
                       <Typography variant="body2">
                         {timeAgo.format(
                           Date.parse(
-                            product["approvedAt"] ||
+                            product?.approvedAt ||
                               "2000-01-01T00:00:00.000+00:00"
                           )
                         )}

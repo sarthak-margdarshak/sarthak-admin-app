@@ -152,7 +152,7 @@ export default function MockTestRowComponent({
             <Divider>
               <Chip
                 label={
-                  mockTest["mtId"] +
+                  mockTest?.mtId +
                   " (" +
                   timeAgo.format(
                     Date.parse(

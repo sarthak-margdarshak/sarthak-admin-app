@@ -72,7 +72,7 @@ export default function QuestionRowTable({ id, searchId }) {
         cursor: "pointer",
       }}
     >
-      <TableCell>{row["qnId"]}</TableCell>
+      <TableCell>{row?.qnId}</TableCell>
       <TableCell>
         <Marker mark={content}>
           <ReactKatex>{row?.contentQuestion}</ReactKatex>

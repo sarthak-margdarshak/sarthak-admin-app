@@ -169,7 +169,7 @@ export default function MockTestEditForm({ mockTestId }) {
   return (
     <Fragment>
       <Divider>
-        <Chip label={mockTest["mtId"]} color="info" />
+        <Chip label={mockTest?.mtId} color="info" />
       </Divider>
 
       <Stack alignItems="center" justifyContent="space-between" direction="row">

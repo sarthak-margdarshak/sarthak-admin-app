@@ -71,7 +71,7 @@ export default function MockTestRowTable({ id, searchId }) {
         cursor: "pointer",
       }}
     >
-      <TableCell>{row["mtId"]}</TableCell>
+      <TableCell>{row?.mtId}</TableCell>
       <TableCell>
         <Marker mark={content}>{row.name}</Marker>
       </TableCell>

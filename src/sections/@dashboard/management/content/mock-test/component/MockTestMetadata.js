@@ -63,7 +63,7 @@ export default function MockTestMetadata({ mockTest }) {
             <Item>
               <Stack direction="row" spacing={2}>
                 <Typography variant="body1">Sarthak Id →</Typography>
-                <Typography variant="body2">{mockTest["mtId"]}</Typography>
+                <Typography variant="body2">{mockTest?.mtId}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -138,7 +138,7 @@ export default function MockTestMetadata({ mockTest }) {
                   <Stack direction="row" spacing={2}>
                     <Typography variant="body1">Approved By →</Typography>
                     <Typography variant="body2">
-                      {mockTest["approver"]}
+                      {mockTest?.approver}
                     </Typography>
                   </Stack>
                 </Item>
@@ -148,11 +148,11 @@ export default function MockTestMetadata({ mockTest }) {
                 <Item>
                   <Stack direction="row" spacing={2}>
                     <Typography variant="body1">Approved At →</Typography>
-                    <Tooltip title={mockTest["approvedAt"]}>
+                    <Tooltip title={mockTest?.approvedAt}>
                       <Typography variant="body2">
                         {timeAgo.format(
                           Date.parse(
-                            mockTest["approvedAt"] ||
+                            mockTest?.approvedAt ||
                               "2000-01-01T00:00:00.000+00:00"
                           )
                         )}

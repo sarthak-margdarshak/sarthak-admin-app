@@ -156,7 +156,7 @@ export default function QuestionRowComponent({
             <Divider>
               <Chip
                 label={
-                  question["qnId"] +
+                  question?.qnId +
                   " (" +
                   timeAgo.format(
                     Date.parse(

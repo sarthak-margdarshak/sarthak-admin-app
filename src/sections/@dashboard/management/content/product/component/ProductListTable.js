@@ -33,7 +33,7 @@ export default function ProductListTable({ data, searchId }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((id) => (
+          {data?.map((id) => (
             <ProductRowTable key={id} id={id} searchId={searchId} />
           ))}
         </TableBody>

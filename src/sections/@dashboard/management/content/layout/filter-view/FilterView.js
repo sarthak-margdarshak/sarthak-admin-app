@@ -57,10 +57,10 @@ export default function FilterView({ collection }) {
   const [searchParameterOptions, setSearchParameterOptions] = useState([]);
   const [filterWindowOpen, setFilterWindowOpen] = useState(false);
   const [narrowSearch, setNarrowSearch] = useState(false);
-  const [searchId] = useState(crypto.randomUUID());
+  const [searchId, setSearchId] = useState(crypto.randomUUID());
   const [limit] = useState(5);
 
-  const fetchData = async (sortInd, params, narrow) => {
+  const fetchData = async (sortInd, params, narrow, id) => {
     setIsFetchingData(true);
     try {
       let queries = [Query.limit(limit)];
@@ -149,8 +149,8 @@ export default function FilterView({ collection }) {
         queries = queries.concat(conditionalQueries);
       }
 
-      await loadSearchList(searchId, queries, collection);
-      setDataIdLst(searchList[searchId]);
+      await loadSearchList(id, queries, collection);
+      setDataIdLst(searchList[id]);
     } catch (error) {
       enqueueSnackbar(error.message, { variant: "error" });
     }
@@ -158,6 +158,8 @@ export default function FilterView({ collection }) {
   };
 
   useEffect(() => {
+    const tempId = crypto.randomUUID()
+    setSearchId(tempId)
     const dataSort =
       searchParams.get("sortBy") !== null
         ? parseInt(searchParams.get("sortBy"))
@@ -215,7 +217,7 @@ export default function FilterView({ collection }) {
         : false;
     setNarrowSearch(dataNarrow);
 
-    fetchData(dataSort, dataParams, dataNarrow).then(() => {});
+    fetchData(dataSort, dataParams, dataNarrow, tempId).then(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
@@ -264,6 +266,7 @@ export default function FilterView({ collection }) {
     if (ret.length > 0) {
       url += "?" + ret.join("&");
     }
+    setSearchId(crypto.randomUUID())
     navigate(url);
   };
 
@@ -458,7 +461,7 @@ export default function FilterView({ collection }) {
             startIcon={<KeyboardDoubleArrowDownIcon />}
             endIcon={<KeyboardDoubleArrowDownIcon />}
             onClick={() =>
-              fetchData(sortSelectedIndex, searchParameterOptions, narrowSearch)
+              fetchData(sortSelectedIndex, searchParameterOptions, narrowSearch, searchId)
             }
           >
             {"Loaded " +

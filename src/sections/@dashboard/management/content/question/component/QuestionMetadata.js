@@ -52,7 +52,7 @@ export default function QuestionMetadata({ question }) {
             <Item>
               <Stack direction="row" spacing={2}>
                 <Typography variant="body1">Sarthak Id →</Typography>
-                <Typography variant="body2">{question["qnId"]}</Typography>
+                <Typography variant="body2">{question?.qnId}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -139,7 +139,7 @@ export default function QuestionMetadata({ question }) {
                   <Stack direction="row" spacing={2}>
                     <Typography variant="body1">Approved By →</Typography>
                     <Typography variant="body2">
-                      {question["approver"]}
+                      {question?.approver}
                     </Typography>
                   </Stack>
                 </Item>
@@ -149,7 +149,7 @@ export default function QuestionMetadata({ question }) {
                 <Item>
                   <Stack direction="row" spacing={2}>
                     <Typography variant="body1">Approved At →</Typography>
-                    <Tooltip title={question["approvedAt"]}>
+                    <Tooltip title={question?.approvedAt}>
                       <Typography
                         variant="body2"
                         sx={{
@@ -159,7 +159,7 @@ export default function QuestionMetadata({ question }) {
                       >
                         {timeAgo.format(
                           Date.parse(
-                            question["approvedAt"] ||
+                            question?.approvedAt ||
                               "2000-01-01T00:00:00.000+00:00"
                           )
                         )}
