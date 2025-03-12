@@ -40,6 +40,7 @@ import { Marker } from "react-mark.js";
 import MockTestMetadata from "sections/@dashboard/management/content/mock-test/component/MockTestMetadata";
 import { Item } from "components/item/Item";
 import MockTestQuestion from "sections/@dashboard/management/content/mock-test/component/MockTestQuestion";
+import MockTestProduct from "sections/@dashboard/management/content/mock-test/component/MockTestProduct";
 
 export default function MockTestRowComponent({
   mockTestId,
@@ -264,6 +265,8 @@ export default function MockTestRowComponent({
             <MockTestMetadata mockTest={mockTest} />
 
             <MockTestQuestion questionList={mockTest?.questions} />
+
+            <MockTestProduct productList={mockTest?.products} />
           </CardContent>
         )}
       </Card>

@@ -61,13 +61,12 @@ export default function MockTestRowTable({ id, searchId }) {
           PATH_DASHBOARD.mockTest.view(id) +
             "?searchId=" +
             searchId +
-            (content === "" ? "" : "?content=" + content)
+            (content === "" ? "" : "&content=" + content)
         );
       }}
       hover
       role="checkbox"
       tabIndex={-1}
-      key={row.$id}
       sx={{
         cursor: "pointer",
       }}
