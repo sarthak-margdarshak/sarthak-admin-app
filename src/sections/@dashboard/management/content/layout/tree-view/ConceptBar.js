@@ -127,6 +127,18 @@ export default function ConceptBar({
           </ListItemText>
         </MenuItem>
 
+        <MenuItem
+          onClick={() => {
+            navigate(PATH_DASHBOARD.question.bulkImport(conceptId));
+            handleCloseMenu();
+          }}
+        >
+          <ListItemIcon>
+            <CreateNewFolderIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Create Bulk Question</ListItemText>
+        </MenuItem>
+
         <MenuItem onClick={createMockTest} disabled={mockTestCreating}>
           <ListItemIcon>
             <NoteAddIcon fontSize="small" />

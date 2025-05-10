@@ -36,6 +36,7 @@ export const PATH_DASHBOARD = {
     list: path(ROOTS_DASHBOARD, "/question/list"),
     view: (id) => path(ROOTS_DASHBOARD, `/question/${id}`),
     edit: (id) => path(ROOTS_DASHBOARD, `/question/${id}/edit`),
+    bulkImport: (id) => path(ROOTS_DASHBOARD, `/question/${id}/bulk-import`),
   },
   mockTest: {
     root: path(ROOTS_DASHBOARD, "/mock-test"),
