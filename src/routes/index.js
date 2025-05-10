@@ -15,6 +15,7 @@ import {
   QuestionListPage,
   QuestionDetailsPage,
   QuestionEditPage,
+  QuestionBulkImportPage,
   Page500,
   Page403,
   Page404,
@@ -106,6 +107,7 @@ export default function Router() {
             { path: "list", element: <QuestionListPage /> },
             { path: ":id", element: <QuestionDetailsPage /> },
             { path: ":id/edit", element: <QuestionEditPage /> },
+            { path: ":id/bulk-import", element: <QuestionBulkImportPage /> },
           ],
         },
         // Dashboard: Mock Test
