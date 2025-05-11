@@ -30,13 +30,9 @@ export default function SarthakUserDisplayUI({ userId }) {
               response.user.prefs?.photo &&
               response.user.prefs?.photo !== ""
             ) {
-              const tempSrc = appwriteStorage.getFilePreview(
+              const tempSrc = appwriteStorage.getFileView(
                 APPWRITE_API.buckets.sarthakDatalakeBucket,
-                response.user.prefs?.photo,
-                undefined,
-                undefined,
-                undefined,
-                20
+                response.user.prefs?.photo
               );
               setSrc(tempSrc);
             }
