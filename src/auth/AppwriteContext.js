@@ -64,13 +64,9 @@ export function AuthProvider({ children }) {
         if (!metadataContent?.maintenance) {
           const user = await appwriteAccount.get();
           if (user.prefs?.photo) {
-            user.prefs.photo = appwriteStorage.getFilePreview(
+            user.prefs.photo = appwriteStorage.getFileView(
               APPWRITE_API.buckets.sarthakDatalakeBucket,
-              user.prefs?.photo,
-              undefined,
-              undefined,
-              undefined,
-              20
+              user.prefs?.photo
             );
           }
           dispatch({
@@ -130,13 +126,9 @@ export function AuthProvider({ children }) {
         };
       } else {
         if (user.prefs?.photo) {
-          user.prefs.photo = appwriteStorage.getFilePreview(
+          user.prefs.photo = appwriteStorage.getFileView(
             APPWRITE_API.buckets.sarthakDatalakeBucket,
-            user.prefs?.photo,
-            undefined,
-            undefined,
-            undefined,
-            20
+            user.prefs?.photo
           );
         }
         dispatch({
@@ -192,13 +184,9 @@ export function AuthProvider({ children }) {
       });
 
       const user = await appwriteAccount.get();
-      user.prefs.photo = appwriteStorage.getFilePreview(
+      user.prefs.photo = appwriteStorage.getFileView(
         APPWRITE_API.buckets.sarthakDatalakeBucket,
-        user.prefs?.photo,
-        undefined,
-        undefined,
-        undefined,
-        20
+        user.prefs?.photo
       );
 
       dispatch({
