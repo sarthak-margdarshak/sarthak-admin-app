@@ -27,18 +27,28 @@ import DoneIcon from "@mui/icons-material/Done";
 import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
 import PreviewIcon from "@mui/icons-material/Preview";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
+import EditIcon from "@mui/icons-material/Edit";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useNavigate } from "react-router-dom";
 import { APPWRITE_API } from "config-global";
 import { ID } from "appwrite";
+import { useSnackbar } from "components/snackbar";
+import { useAuthContext } from "auth/useAuthContext";
+import { labels } from "assets/data/labels";
 
 export default function ChapterBar({ standardId, subjectId, chapterId }) {
   const { standardsData, loadConcept, refreshConcept, addConcept } =
     useContent();
+  const { user } = useAuthContext();
   const chapterData =
     standardsData.documents[standardId].subjects.documents[subjectId].chapters
       .documents[chapterId];
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const isAdminOrFounder = user?.labels?.some(
+    (label) => label === labels.admin || label === labels.founder
+  );
 
   const [conceptsOpened, setConceptsOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -55,6 +65,9 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
   const [submittingNew, setSubmittingNew] = useState(false);
   const [newConcept, setNewConcept] = useState("");
   const [mockTestCreating, setMockTestCreating] = useState(false);
+  const [editingChapter, setEditingChapter] = useState(false);
+  const [editedChapterName, setEditedChapterName] = useState("");
+  const [updatingChapter, setUpdatingChapter] = useState(false);
 
   useEffect(() => {
     function handleContextMenu(e) {
@@ -115,30 +128,96 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
     navigate(PATH_DASHBOARD.mockTest.list + "?bookIndex=" + chapterId);
   };
 
+  const initiateEditChapter = () => {
+    setEditedChapterName(chapterData.chapter);
+    setEditingChapter(true);
+    handleCloseMenu();
+  };
+
+  const handleUpdateChapter = async () => {
+    try {
+      setUpdatingChapter(true);
+      await appwriteDatabases.updateDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.bookIndex,
+        chapterId,
+        {
+          chapter: editedChapterName,
+        }
+      );
+      await refreshConcept(standardId, subjectId, chapterId);
+      setEditingChapter(false);
+      setEditedChapterName("");
+      enqueueSnackbar("Chapter name updated successfully");
+    } catch (error) {
+      enqueueSnackbar(error.message, { variant: "error" });
+    } finally {
+      setUpdatingChapter(false);
+    }
+  };
+
   return (
     <Fragment>
       <Fragment>
-        <LoadingButton
-          fullWidth
-          variant={conceptsOpened ? "contained" : "outlined"}
-          style={{ justifyContent: "left", borderRadius: 0, paddingLeft: 35 }}
-          color="secondary"
-          startIcon={
-            conceptsOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
-          }
-          onClick={async () => {
-            setConceptsOpened(!conceptsOpened);
-            setConceptsLoading(true);
-            if (!conceptsOpened && chapterData.concepts.loadedOnce === false) {
-              await loadConcept(standardId, subjectId, chapterId);
+        {editingChapter && isAdminOrFounder ? (
+          <OutlinedInput
+            fullWidth
+            variant="outlined"
+            color="success"
+            size="small"
+            value={editedChapterName}
+            onChange={(e) => setEditedChapterName(e.target.value)}
+            disabled={updatingChapter}
+            style={{ borderRadius: 0, paddingLeft: 35 }}
+            startAdornment={<ArrowRightIcon fontSize="small" />}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => {
+                    setEditingChapter(false);
+                    setEditedChapterName("");
+                  }}
+                  edge="end"
+                  disabled={updatingChapter}
+                >
+                  <CloseIcon />
+                </IconButton>
+                <IconButton
+                  onClick={handleUpdateChapter}
+                  edge="end"
+                  disabled={updatingChapter}
+                >
+                  <DoneIcon />
+                </IconButton>
+              </InputAdornment>
             }
-            setConceptsLoading(false);
-          }}
-          onContextMenu={handleOpenMenu}
-          loading={refreshing}
-        >
-          {chapterData.chapter}
-        </LoadingButton>
+          />
+        ) : (
+          <LoadingButton
+            fullWidth
+            variant={conceptsOpened ? "contained" : "outlined"}
+            style={{ justifyContent: "left", borderRadius: 0, paddingLeft: 35 }}
+            color="secondary"
+            startIcon={
+              conceptsOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
+            }
+            onClick={async () => {
+              setConceptsOpened(!conceptsOpened);
+              setConceptsLoading(true);
+              if (
+                !conceptsOpened &&
+                chapterData.concepts.loadedOnce === false
+              ) {
+                await loadConcept(standardId, subjectId, chapterId);
+              }
+              setConceptsLoading(false);
+            }}
+            onContextMenu={handleOpenMenu}
+            loading={refreshing}
+          >
+            {chapterData.chapter}
+          </LoadingButton>
+        )}
 
         <Menu anchorEl={anchorEl} open={menuOpened} onClose={handleCloseMenu}>
           <MenuItem onClick={initiateCreateConcept}>
@@ -147,6 +226,15 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
             </ListItemIcon>
             <ListItemText>Create a Concept</ListItemText>
           </MenuItem>
+
+          {isAdminOrFounder && (
+            <MenuItem onClick={initiateEditChapter}>
+              <ListItemIcon>
+                <EditIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Edit Chapter Name</ListItemText>
+            </MenuItem>
+          )}
 
           <MenuItem onClick={createMockTest} disabled={mockTestCreating}>
             <ListItemIcon>
