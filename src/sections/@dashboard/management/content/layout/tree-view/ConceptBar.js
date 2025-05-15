@@ -5,6 +5,9 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  OutlinedInput,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
 import { Fragment, useEffect, useState } from "react";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
@@ -17,6 +20,12 @@ import { ID } from "appwrite";
 import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
 import PreviewIcon from "@mui/icons-material/Preview";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
+import EditIcon from "@mui/icons-material/Edit";
+import DoneIcon from "@mui/icons-material/Done";
+import CloseIcon from "@mui/icons-material/Close";
+import { useSnackbar } from "components/snackbar";
+import { useAuthContext } from "auth/useAuthContext";
+import { labels } from "assets/data/labels";
 
 export default function ConceptBar({
   standardId,
@@ -24,12 +33,18 @@ export default function ConceptBar({
   chapterId,
   conceptId,
 }) {
-  const { standardsData } = useContent();
+  const { standardsData, refreshConcept } = useContent();
+  const { user } = useAuthContext();
   const conceptData =
     standardsData.documents[standardId].subjects.documents[subjectId].chapters
       .documents[chapterId].concepts.documents[conceptId];
 
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const isAdminOrFounder = user?.labels?.some(
+    (label) => label === labels.admin || label === labels.founder
+  );
 
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpened = Boolean(anchorEl);
@@ -41,6 +56,9 @@ export default function ConceptBar({
   };
   const [questionCreating, setQuestionCreating] = useState(false);
   const [mockTestCreating, setMockTestCreating] = useState(false);
+  const [editingConcept, setEditingConcept] = useState(false);
+  const [editedConceptName, setEditedConceptName] = useState("");
+  const [updatingConcept, setUpdatingConcept] = useState(false);
 
   useEffect(() => {
     function handleContextMenu(e) {
@@ -104,18 +122,79 @@ export default function ConceptBar({
     navigate(PATH_DASHBOARD.mockTest.list + "?bookIndex=" + conceptId);
   };
 
+  const initiateEditConcept = () => {
+    setEditedConceptName(conceptData.concept);
+    setEditingConcept(true);
+    handleCloseMenu();
+  };
+  const handleUpdateConcept = async () => {
+    try {
+      setUpdatingConcept(true);
+      await appwriteDatabases.updateDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.bookIndex,
+        conceptId,
+        {
+          concept: editedConceptName,
+        }
+      );
+      await refreshConcept(standardId, subjectId, chapterId);
+      setEditingConcept(false);
+      setEditedConceptName("");
+      enqueueSnackbar("Concept name updated successfully");
+    } catch (error) {
+      enqueueSnackbar(error.message, { variant: "error" });
+    } finally {
+      setUpdatingConcept(false);
+    }
+  };
+
   return (
     <Fragment>
-      <Button
-        fullWidth
-        variant="outlined"
-        style={{ justifyContent: "left", borderRadius: 0, paddingLeft: 70 }}
-        color="warning"
-        onContextMenu={handleOpenMenu}
-        id={conceptId}
-      >
-        {conceptData.concept}
-      </Button>
+      {editingConcept && isAdminOrFounder ? (
+        <OutlinedInput
+          fullWidth
+          variant="outlined"
+          color="success"
+          size="small"
+          value={editedConceptName}
+          onChange={(e) => setEditedConceptName(e.target.value)}
+          disabled={updatingConcept}
+          style={{ borderRadius: 0, paddingLeft: 70 }}
+          endAdornment={
+            <InputAdornment position="end">
+              <IconButton
+                onClick={() => {
+                  setEditingConcept(false);
+                  setEditedConceptName("");
+                }}
+                edge="end"
+                disabled={updatingConcept}
+              >
+                <CloseIcon />
+              </IconButton>
+              <IconButton
+                onClick={handleUpdateConcept}
+                edge="end"
+                disabled={updatingConcept}
+              >
+                <DoneIcon />
+              </IconButton>
+            </InputAdornment>
+          }
+        />
+      ) : (
+        <Button
+          fullWidth
+          variant="outlined"
+          style={{ justifyContent: "left", borderRadius: 0, paddingLeft: 70 }}
+          color="warning"
+          onContextMenu={handleOpenMenu}
+          id={conceptId}
+        >
+          {conceptData.concept}
+        </Button>
+      )}
 
       <Menu anchorEl={anchorEl} open={menuOpened} onClose={handleCloseMenu}>
         <MenuItem onClick={createQuestion} disabled={questionCreating}>
@@ -126,6 +205,15 @@ export default function ConceptBar({
             {questionCreating ? "Creating..." : "Create a Question"}
           </ListItemText>
         </MenuItem>
+
+        {isAdminOrFounder && (
+          <MenuItem onClick={initiateEditConcept}>
+            <ListItemIcon>
+              <EditIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Edit Concept Name</ListItemText>
+          </MenuItem>
+        )}
 
         <MenuItem
           onClick={() => {

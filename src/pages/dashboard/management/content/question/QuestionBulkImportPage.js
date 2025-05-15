@@ -109,7 +109,7 @@ export default function QuestionBulkImportPage() {
     };
 
     fetchBookIndex();
-  }, [bookIndexId, enqueueSnackbar]);
+  }, [location.pathname, enqueueSnackbar, bookIndexId]);
 
   const defaultValues = {
     jsonInput: "",

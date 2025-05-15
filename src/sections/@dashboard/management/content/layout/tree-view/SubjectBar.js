@@ -33,13 +33,23 @@ import { PATH_DASHBOARD } from "routes/paths";
 import { useNavigate } from "react-router-dom";
 import { APPWRITE_API } from "config-global";
 import { ID } from "appwrite";
+import EditIcon from "@mui/icons-material/Edit";
+import { useSnackbar } from "components/snackbar";
+import { useAuthContext } from "auth/useAuthContext";
+import { labels } from "assets/data/labels";
 
 export default function SubjectBar({ standardId, subjectId }) {
   const { standardsData, loadChapter, refreshChapter, addChapter } =
     useContent();
+  const { user } = useAuthContext();
   const subjectData =
     standardsData.documents[standardId].subjects.documents[subjectId];
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const isAdminOrFounder = user?.labels?.some(
+    (label) => label === labels.admin || label === labels.founder
+  );
 
   const [chaptersOpened, setChaptersOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -57,6 +67,9 @@ export default function SubjectBar({ standardId, subjectId }) {
   const [newChapter, setNewChapter] = useState("");
   const [mockTestCreating, setMockTestCreating] = useState(false);
   const [productCreating, setProductCreating] = useState(false);
+  const [editingSubject, setEditingSubject] = useState(false);
+  const [editedSubjectName, setEditedSubjectName] = useState("");
+  const [updatingSubject, setUpdatingSubject] = useState(false);
 
   useEffect(() => {
     function handleContextMenu(e) {
@@ -140,30 +153,96 @@ export default function SubjectBar({ standardId, subjectId }) {
     navigate(PATH_DASHBOARD.product.list + "?bookIndex=" + subjectId);
   };
 
+  const initiateEditSubject = () => {
+    setEditedSubjectName(subjectData.subject);
+    setEditingSubject(true);
+    handleCloseMenu();
+  };
+
+  const handleUpdateSubject = async () => {
+    try {
+      setUpdatingSubject(true);
+      await appwriteDatabases.updateDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.bookIndex,
+        subjectId,
+        {
+          subject: editedSubjectName,
+        }
+      );
+      await refreshChapter(standardId, subjectId);
+      setEditingSubject(false);
+      setEditedSubjectName("");
+      enqueueSnackbar("Subject name updated successfully");
+    } catch (error) {
+      enqueueSnackbar(error.message, { variant: "error" });
+    } finally {
+      setUpdatingSubject(false);
+    }
+  };
+
   return (
     <Fragment>
       <Fragment>
-        <LoadingButton
-          fullWidth
-          variant={chaptersOpened ? "contained" : "outlined"}
-          style={{ justifyContent: "left", borderRadius: 0, paddingLeft: 25 }}
-          color="primary"
-          startIcon={
-            chaptersOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
-          }
-          onClick={async () => {
-            setChaptersOpened(!chaptersOpened);
-            setChaptersLoading(true);
-            if (!chaptersOpened && subjectData.chapters.loadedOnce === false) {
-              await loadChapter(standardId, subjectId);
+        {editingSubject && isAdminOrFounder ? (
+          <OutlinedInput
+            fullWidth
+            variant="outlined"
+            color="success"
+            size="small"
+            value={editedSubjectName}
+            onChange={(e) => setEditedSubjectName(e.target.value)}
+            disabled={updatingSubject}
+            style={{ borderRadius: 0, paddingLeft: 25 }}
+            startAdornment={<ArrowRightIcon fontSize="small" />}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => {
+                    setEditingSubject(false);
+                    setEditedSubjectName("");
+                  }}
+                  edge="end"
+                  disabled={updatingSubject}
+                >
+                  <CloseIcon />
+                </IconButton>
+                <IconButton
+                  onClick={handleUpdateSubject}
+                  edge="end"
+                  disabled={updatingSubject}
+                >
+                  <DoneIcon />
+                </IconButton>
+              </InputAdornment>
             }
-            setChaptersLoading(false);
-          }}
-          onContextMenu={handleOpenMenu}
-          loading={refreshing}
-        >
-          {subjectData?.subject}
-        </LoadingButton>
+          />
+        ) : (
+          <LoadingButton
+            fullWidth
+            variant={chaptersOpened ? "contained" : "outlined"}
+            style={{ justifyContent: "left", borderRadius: 0, paddingLeft: 25 }}
+            color="primary"
+            startIcon={
+              chaptersOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
+            }
+            onClick={async () => {
+              setChaptersOpened(!chaptersOpened);
+              setChaptersLoading(true);
+              if (
+                !chaptersOpened &&
+                subjectData.chapters.loadedOnce === false
+              ) {
+                await loadChapter(standardId, subjectId);
+              }
+              setChaptersLoading(false);
+            }}
+            onContextMenu={handleOpenMenu}
+            loading={refreshing}
+          >
+            {subjectData?.subject}
+          </LoadingButton>
+        )}
 
         <Menu anchorEl={anchorEl} open={menuOpened} onClose={handleCloseMenu}>
           <MenuItem onClick={initiateCreateChapter}>
@@ -172,6 +251,15 @@ export default function SubjectBar({ standardId, subjectId }) {
             </ListItemIcon>
             <ListItemText>Create a Chapter</ListItemText>
           </MenuItem>
+
+          {isAdminOrFounder && (
+            <MenuItem onClick={initiateEditSubject}>
+              <ListItemIcon>
+                <EditIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Edit Subject Name</ListItemText>
+            </MenuItem>
+          )}
 
           <MenuItem onClick={createMockTest} disabled={mockTestCreating}>
             <ListItemIcon>

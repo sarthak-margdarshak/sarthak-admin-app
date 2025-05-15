@@ -19,6 +19,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import AddToQueueIcon from "@mui/icons-material/AddToQueue";
+import EditIcon from "@mui/icons-material/Edit";
 import {
   appwriteAccount,
   appwriteDatabases,
@@ -33,12 +34,21 @@ import { useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "routes/paths";
 import { APPWRITE_API } from "config-global";
 import { ID } from "appwrite";
+import { useSnackbar } from "components/snackbar";
+import { useAuthContext } from "auth/useAuthContext";
+import { labels } from "assets/data/labels";
 
 export default function StandardBar({ standardId }) {
   const { standardsData, loadSubject, refreshSubject, addSubject } =
     useContent();
+  const { user } = useAuthContext();
   const standardData = standardsData.documents[standardId];
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const isAdminOrFounder = user?.labels?.some(
+    (label) => label === labels.admin || label === labels.founder
+  );
 
   const [subjectsOpened, setSubjectsOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -56,6 +66,9 @@ export default function StandardBar({ standardId }) {
   const [newSubject, setNewSubject] = useState("");
   const [mockTestCreating, setMockTestCreating] = useState(false);
   const [productCreating, setProductCreating] = useState(false);
+  const [editingStandard, setEditingStandard] = useState(false);
+  const [editedStandardName, setEditedStandardName] = useState("");
+  const [updatingStandard, setUpdatingStandard] = useState(false);
 
   useEffect(() => {
     function handleContextMenu(e) {
@@ -84,6 +97,34 @@ export default function StandardBar({ standardId }) {
     setRefreshing(true);
     await refreshSubject(standardId);
     setRefreshing(false);
+  };
+
+  const initiateEditStandard = () => {
+    setEditedStandardName(standardData.standard);
+    setEditingStandard(true);
+    handleCloseMenu();
+  };
+
+  const handleUpdateStandard = async () => {
+    try {
+      setUpdatingStandard(true);
+      await appwriteDatabases.updateDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.bookIndex,
+        standardId,
+        {
+          standard: editedStandardName,
+        }
+      );
+      await refreshStandard();
+      setEditingStandard(false);
+      setEditedStandardName("");
+      enqueueSnackbar("Standard name updated successfully");
+    } catch (error) {
+      enqueueSnackbar(error.message, { variant: "error" });
+    } finally {
+      setUpdatingStandard(false);
+    }
   };
 
   const openQuestion = () => {
@@ -140,27 +181,65 @@ export default function StandardBar({ standardId }) {
   return (
     <Fragment>
       <Fragment>
-        <LoadingButton
-          fullWidth
-          variant={subjectsOpened ? "contained" : "outlined"}
-          style={{ justifyContent: "left", borderRadius: 0 }}
-          color="success"
-          startIcon={
-            subjectsOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
-          }
-          onClick={async () => {
-            setSubjectsOpened(!subjectsOpened);
-            setSubjectsLoading(true);
-            if (!subjectsOpened && standardData.subjects.loadedOnce === false) {
-              await loadSubject(standardId);
+        {editingStandard && isAdminOrFounder ? (
+          <OutlinedInput
+            fullWidth
+            variant="outlined"
+            color="success"
+            size="small"
+            value={editedStandardName}
+            onChange={(e) => setEditedStandardName(e.target.value)}
+            disabled={updatingStandard}
+            style={{ borderRadius: 0, paddingLeft: 11 }}
+            startAdornment={<ArrowRightIcon fontSize="small" />}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => {
+                    setEditingStandard(false);
+                    setEditedStandardName("");
+                  }}
+                  edge="end"
+                  disabled={updatingStandard}
+                >
+                  <CloseIcon />
+                </IconButton>
+                <IconButton
+                  onClick={handleUpdateStandard}
+                  edge="end"
+                  disabled={updatingStandard}
+                >
+                  <DoneIcon />
+                </IconButton>
+              </InputAdornment>
             }
-            setSubjectsLoading(false);
-          }}
-          onContextMenu={handleOpenMenu}
-          loading={refreshing}
-        >
-          {standardData.standard}
-        </LoadingButton>
+          />
+        ) : (
+          <LoadingButton
+            fullWidth
+            variant={subjectsOpened ? "contained" : "outlined"}
+            style={{ justifyContent: "left", borderRadius: 0 }}
+            color="success"
+            startIcon={
+              subjectsOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />
+            }
+            onClick={async () => {
+              setSubjectsOpened(!subjectsOpened);
+              setSubjectsLoading(true);
+              if (
+                !subjectsOpened &&
+                standardData.subjects.loadedOnce === false
+              ) {
+                await loadSubject(standardId);
+              }
+              setSubjectsLoading(false);
+            }}
+            onContextMenu={handleOpenMenu}
+            loading={refreshing}
+          >
+            {standardData.standard}
+          </LoadingButton>
+        )}
 
         <Menu anchorEl={anchorEl} open={menuOpened} onClose={handleCloseMenu}>
           <MenuItem onClick={initiateCreateSubject}>
@@ -169,6 +248,15 @@ export default function StandardBar({ standardId }) {
             </ListItemIcon>
             <ListItemText>Create a Subject</ListItemText>
           </MenuItem>
+
+          {isAdminOrFounder && (
+            <MenuItem onClick={initiateEditStandard}>
+              <ListItemIcon>
+                <EditIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Edit Standard Name</ListItemText>
+            </MenuItem>
+          )}
 
           <MenuItem onClick={createMockTest} disabled={mockTestCreating}>
             <ListItemIcon>
