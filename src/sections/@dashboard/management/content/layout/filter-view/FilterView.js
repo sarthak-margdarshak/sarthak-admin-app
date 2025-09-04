@@ -58,7 +58,7 @@ export default function FilterView({ collection }) {
   const [filterWindowOpen, setFilterWindowOpen] = useState(false);
   const [narrowSearch, setNarrowSearch] = useState(false);
   const [searchId, setSearchId] = useState(crypto.randomUUID());
-  const [limit] = useState(100);
+  const [limit] = useState(10);
 
   const fetchData = async (sortInd, params, narrow, id) => {
     setIsFetchingData(true);
@@ -85,19 +85,19 @@ export default function FilterView({ collection }) {
           if (collection === APPWRITE_API.collections.products) {
             conditionalQueries.push(
               Query.or([
-                Query.equal("bookIndex", q.content),
-                Query.equal("standard", q.content),
-                Query.equal("subject", q.content),
+                Query.equal("bookIndexId", q.content),
+                Query.equal("standardId", q.content),
+                Query.equal("subjectId", q.content),
               ])
             );
           } else {
             conditionalQueries.push(
               Query.or([
-                Query.equal("bookIndex", q.content),
-                Query.equal("standard", q.content),
-                Query.equal("subject", q.content),
-                Query.equal("chapter", q.content),
-                Query.equal("concept", q.content),
+                Query.equal("bookIndexId", q.content),
+                Query.equal("standardId", q.content),
+                Query.equal("subjectId", q.content),
+                Query.equal("chapterId", q.content),
+                Query.equal("conceptId", q.content),
               ])
             );
           }
@@ -158,8 +158,8 @@ export default function FilterView({ collection }) {
   };
 
   useEffect(() => {
-    const tempId = crypto.randomUUID()
-    setSearchId(tempId)
+    const tempId = crypto.randomUUID();
+    setSearchId(tempId);
     const dataSort =
       searchParams.get("sortBy") !== null
         ? parseInt(searchParams.get("sortBy"))
@@ -266,7 +266,7 @@ export default function FilterView({ collection }) {
     if (ret.length > 0) {
       url += "?" + ret.join("&");
     }
-    setSearchId(crypto.randomUUID())
+    setSearchId(crypto.randomUUID());
     navigate(url);
   };
 
@@ -461,7 +461,12 @@ export default function FilterView({ collection }) {
             startIcon={<KeyboardDoubleArrowDownIcon />}
             endIcon={<KeyboardDoubleArrowDownIcon />}
             onClick={() =>
-              fetchData(sortSelectedIndex, searchParameterOptions, narrowSearch, searchId)
+              fetchData(
+                sortSelectedIndex,
+                searchParameterOptions,
+                narrowSearch,
+                searchId
+              )
             }
           >
             {"Loaded " +

@@ -50,7 +50,9 @@ export default function FilterOption({ option, onDelete }) {
           }
         >
           <Stack spacing={2} direction="row">
-            <Typography>{option.label + " -"}</Typography>
+            <Typography fontWeight="bold" variant="h6">
+              {option.label + " ➜"}
+            </Typography>
             {option.value === "bookIndex" && <IndexView id={option.content} />}
             {option.value === "content" && (
               <Typography>{option.content}</Typography>

@@ -1,4 +1,12 @@
 import {
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   IconButton,
   InputAdornment,
@@ -15,13 +23,8 @@ import ChapterBar from "./ChapterBar";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import { LoadingButton } from "@mui/lab";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
-import {
-  appwriteAccount,
-  appwriteDatabases,
-  timeAgo,
-} from "auth/AppwriteContext";
+import { appwriteAccount, appwriteDatabases } from "auth/AppwriteContext";
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
 import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
@@ -37,20 +40,43 @@ import EditIcon from "@mui/icons-material/Edit";
 import { useSnackbar } from "components/snackbar";
 import { useAuthContext } from "auth/useAuthContext";
 import { labels } from "assets/data/labels";
+import Iconify from "components/iconify";
+import { ProviderHelper } from "sections/@dashboard/management/content/hook/ProviderHelper";
 
 export default function SubjectBar({ standardId, subjectId }) {
-  const { standardsData, loadChapter, refreshChapter, addChapter } =
-    useContent();
-  const { user } = useAuthContext();
+  const {
+    bookIndexList,
+    loadChapter,
+    addChapter,
+    deleteSubject,
+    getBookIndex,
+  } = useContent();
+  const standardIndex = bookIndexList.standards.findIndex(
+    (standard) => standard.$id === standardId
+  );
+  const subjectIndex = bookIndexList.standards[
+    standardIndex
+  ].subjects.findIndex((subject) => subject.$id === subjectId);
   const subjectData =
-    standardsData.documents[standardId].subjects.documents[subjectId];
+    bookIndexList.standards[standardIndex].subjects[subjectIndex];
+
+  const { user } = useAuthContext();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
   const isAdminOrFounder = user?.labels?.some(
     (label) => label === labels.admin || label === labels.founder
   );
+  const isFounder = user?.labels?.some((label) => label === labels.founder);
 
+  const [subjectLabel, setSubjectLabel] = useState(
+    localStorage.getItem(`bookIndex_${subjectId}`)
+      ? JSON.parse(localStorage.getItem(`bookIndex_${subjectId}`)).subject
+      : ""
+  );
+  const [labelLoading, setLabelLoading] = useState(
+    localStorage.getItem(`bookIndex_${subjectId}`) ? false : true
+  );
   const [chaptersOpened, setChaptersOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpened = Boolean(anchorEl);
@@ -61,7 +87,6 @@ export default function SubjectBar({ standardId, subjectId }) {
     setAnchorEl(null);
   };
   const [chaptersLoading, setChaptersLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const [creatingNew, setCreatingNew] = useState(false);
   const [submittingNew, setSubmittingNew] = useState(false);
   const [newChapter, setNewChapter] = useState("");
@@ -70,8 +95,20 @@ export default function SubjectBar({ standardId, subjectId }) {
   const [editingSubject, setEditingSubject] = useState(false);
   const [editedSubjectName, setEditedSubjectName] = useState("");
   const [updatingSubject, setUpdatingSubject] = useState(false);
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [canBeDeleted, setCanBeDeleted] = useState(false);
+  const [isCheckingDeletability, setIsCheckingDeletability] = useState(true);
 
   useEffect(() => {
+    const fetchData = async () => {
+      const x = await getBookIndex(subjectId);
+      setSubjectLabel(x.subject);
+      setLabelLoading(false);
+    };
+    fetchData()
+      .then((_) => {})
+      .catch((err) => console.log(err));
     function handleContextMenu(e) {
       e.preventDefault();
     }
@@ -79,30 +116,18 @@ export default function SubjectBar({ standardId, subjectId }) {
     return () => {
       document.removeEventListener("contextmenu", handleContextMenu);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subjectId]);
 
   const initiateCreateChapter = async () => {
     setChaptersOpened(true);
     handleCloseMenu();
-    if (!chaptersOpened && subjectData.chapters.loadedOnce === false) {
+    if (!chaptersOpened && subjectData.chapters.length === 0) {
       setChaptersLoading(true);
       await loadChapter(standardId, subjectId);
       setChaptersLoading(false);
     }
     setCreatingNew(true);
-  };
-
-  const refreshSubject = async () => {
-    handleCloseMenu();
-    setChaptersOpened(false);
-    setRefreshing(true);
-    await refreshChapter(standardId, subjectId);
-    setRefreshing(false);
-  };
-
-  const openQuestion = () => {
-    handleCloseMenu();
-    navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + subjectId);
   };
 
   const createMockTest = async () => {
@@ -112,9 +137,9 @@ export default function SubjectBar({ standardId, subjectId }) {
       APPWRITE_API.collections.mockTest,
       ID.unique(),
       {
-        standard: standardId,
-        subject: subjectId,
-        bookIndex: subjectId,
+        standardId: standardId,
+        subjectId: subjectId,
+        bookIndexId: subjectId,
         creator: (await appwriteAccount.get()).$id,
         updater: (await appwriteAccount.get()).$id,
       }
@@ -124,11 +149,6 @@ export default function SubjectBar({ standardId, subjectId }) {
     navigate(PATH_DASHBOARD.mockTest.edit(mockTest.$id), { replace: true });
   };
 
-  const openMockTest = () => {
-    handleCloseMenu();
-    navigate(PATH_DASHBOARD.mockTest.list + "?bookIndex=" + subjectId);
-  };
-
   const createProduct = async () => {
     setProductCreating(true);
     const mockTest = await appwriteDatabases.createDocument(
@@ -136,9 +156,9 @@ export default function SubjectBar({ standardId, subjectId }) {
       APPWRITE_API.collections.products,
       ID.unique(),
       {
-        standard: standardId,
-        subject: subjectId,
-        bookIndex: subjectId,
+        standardId: standardId,
+        subjectId: subjectId,
+        bookIndexId: subjectId,
         creator: (await appwriteAccount.get()).$id,
         updater: (await appwriteAccount.get()).$id,
       }
@@ -148,13 +168,23 @@ export default function SubjectBar({ standardId, subjectId }) {
     navigate(PATH_DASHBOARD.product.edit(mockTest.$id), { replace: true });
   };
 
+  const openQuestion = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + subjectId);
+  };
+
+  const openMockTest = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.mockTest.list + "?bookIndex=" + subjectId);
+  };
+
   const openProduct = () => {
     handleCloseMenu();
     navigate(PATH_DASHBOARD.product.list + "?bookIndex=" + subjectId);
   };
 
   const initiateEditSubject = () => {
-    setEditedSubjectName(subjectData.subject);
+    setEditedSubjectName(subjectLabel);
     setEditingSubject(true);
     handleCloseMenu();
   };
@@ -170,7 +200,9 @@ export default function SubjectBar({ standardId, subjectId }) {
           subject: editedSubjectName,
         }
       );
-      await refreshChapter(standardId, subjectId);
+      const x = await getBookIndex(subjectId);
+      setSubjectLabel(x.subject);
+      setLabelLoading(false);
       setEditingSubject(false);
       setEditedSubjectName("");
       enqueueSnackbar("Subject name updated successfully");
@@ -179,6 +211,47 @@ export default function SubjectBar({ standardId, subjectId }) {
     } finally {
       setUpdatingSubject(false);
     }
+  };
+
+  useEffect(() => {
+    // Only run the check when the dialog is opened
+    if (isDeleteDialogOpen) {
+      const performDeletabilityCheck = async () => {
+        try {
+          setCanBeDeleted(await ProviderHelper.canIndexBeDeleted(subjectId));
+        } catch (error) {
+          console.error("Error checking deletability:", error);
+          enqueueSnackbar("Could not verify if subject can be deleted.", {
+            variant: "error",
+          });
+          setCanBeDeleted(false);
+        } finally {
+          setIsCheckingDeletability(false); // Mark the check as complete
+        }
+      };
+
+      performDeletabilityCheck();
+    }
+    // This effect depends on the dialog's open state and the standardId
+  }, [isDeleteDialogOpen, subjectId, enqueueSnackbar]);
+
+  const initiateDeleteSubject = () => {
+    handleCloseMenu();
+    setIsCheckingDeletability(true);
+    setCanBeDeleted(false);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    if (isDeleting) return;
+    setDeleteDialogOpen(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    await deleteSubject(subjectId, subjectLabel);
+    setDeleteDialogOpen(false);
+    setIsDeleting(false);
   };
 
   return (
@@ -228,19 +301,16 @@ export default function SubjectBar({ standardId, subjectId }) {
             }
             onClick={async () => {
               setChaptersOpened(!chaptersOpened);
-              setChaptersLoading(true);
-              if (
-                !chaptersOpened &&
-                subjectData.chapters.loadedOnce === false
-              ) {
+              if (!chaptersOpened && subjectData.chapters.length === 0) {
+                setChaptersLoading(true);
                 await loadChapter(standardId, subjectId);
+                setChaptersLoading(false);
               }
-              setChaptersLoading(false);
             }}
             onContextMenu={handleOpenMenu}
-            loading={refreshing}
+            loading={labelLoading}
           >
-            {subjectData?.subject}
+            {subjectLabel}
           </LoadingButton>
         )}
 
@@ -251,15 +321,6 @@ export default function SubjectBar({ standardId, subjectId }) {
             </ListItemIcon>
             <ListItemText>Create a Chapter</ListItemText>
           </MenuItem>
-
-          {isAdminOrFounder && (
-            <MenuItem onClick={initiateEditSubject}>
-              <ListItemIcon>
-                <EditIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Edit Subject Name</ListItemText>
-            </MenuItem>
-          )}
 
           <MenuItem onClick={createMockTest} disabled={mockTestCreating}>
             <ListItemIcon>
@@ -304,16 +365,23 @@ export default function SubjectBar({ standardId, subjectId }) {
 
           <Divider />
 
-          <MenuItem onClick={refreshSubject}>
-            <ListItemIcon>
-              <RefreshIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Sync</ListItemText>
-          </MenuItem>
+          {isAdminOrFounder && (
+            <MenuItem onClick={initiateEditSubject}>
+              <ListItemIcon>
+                <EditIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Edit Subject Name</ListItemText>
+            </MenuItem>
+          )}
 
-          <MenuItem disabled>
-            {timeAgo.format(Date.parse(subjectData.lastSynced))}
-          </MenuItem>
+          {isFounder && (
+            <MenuItem onClick={initiateDeleteSubject} sx={{ color: "red" }}>
+              <ListItemIcon>
+                <Iconify icon="mdi:delete" color="red" />
+              </ListItemIcon>
+              <ListItemText>Delete</ListItemText>
+            </MenuItem>
+          )}
         </Menu>
       </Fragment>
 
@@ -359,18 +427,17 @@ export default function SubjectBar({ standardId, subjectId }) {
             />
           )}
 
-          {Object.keys(subjectData.chapters.documents).map((id, index) => (
+          {subjectData.chapters.map((chapter) => (
             <ChapterBar
-              key={index}
+              key={chapter.$id}
               standardId={standardId}
               subjectId={subjectId}
-              chapterId={id}
+              chapterId={chapter.$id}
             />
           ))}
 
           {(chaptersLoading ||
-            subjectData.chapters.total !==
-              Object.keys(subjectData.chapters.documents).length) && (
+            subjectData.total !== subjectData.chapters.length) && (
             <LoadingButton
               fullWidth
               variant="contained"
@@ -393,6 +460,71 @@ export default function SubjectBar({ standardId, subjectId }) {
           )}
         </Fragment>
       )}
+
+      <Dialog
+        open={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {isCheckingDeletability
+            ? "Checking Deletability..."
+            : canBeDeleted
+            ? "Confirm Deletion"
+            : "Deletion Not Allowed"}
+        </DialogTitle>
+        <DialogContent sx={{ minWidth: "400px" }}>
+          {isCheckingDeletability ? (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                my: 3,
+              }}
+            >
+              <CircularProgress size={24} />
+              <DialogContentText sx={{ ml: 2 }}>
+                Checking for associated items...
+              </DialogContentText>
+            </Box>
+          ) : (
+            <DialogContentText id="alert-dialog-description">
+              {canBeDeleted
+                ? `Are you sure you want to delete the subject "${subjectLabel}"? This action cannot be undone.`
+                : `This subject cannot be deleted because it contains associated items (e.g., subjects, questions, mock tests, products). Please remove all items from this subject before trying again.`}
+            </DialogContentText>
+          )}
+        </DialogContent>
+        <DialogActions>
+          {/* Only show buttons after the check is complete */}
+          {!isCheckingDeletability && (
+            <>
+              {canBeDeleted ? (
+                <>
+                  <Button
+                    onClick={handleCloseDeleteDialog}
+                    disabled={isDeleting}
+                  >
+                    Cancel
+                  </Button>
+                  <LoadingButton
+                    variant="contained"
+                    color="error"
+                    onClick={handleConfirmDelete}
+                    loading={isDeleting}
+                  >
+                    Delete
+                  </LoadingButton>
+                </>
+              ) : (
+                <Button onClick={handleCloseDeleteDialog}>OK</Button>
+              )}
+            </>
+          )}
+        </DialogActions>
+      </Dialog>
     </Fragment>
   );
 }

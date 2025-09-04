@@ -1,9 +1,9 @@
 import { Query } from "appwrite";
-import { appwriteDatabases } from "auth/AppwriteContext";
+import { appwriteDatabases, appwriteStorage } from "auth/AppwriteContext";
 import { APPWRITE_API } from "config-global";
 
 export class ProviderHelper {
-  static async fetchStandards(tempStandardsData) {
+  static async fetchStandards(currBookIndexList) {
     // Create Query
     const queries = [
       Query.and([
@@ -13,13 +13,15 @@ export class ProviderHelper {
       ]),
       Query.orderDesc("$createdAt"),
       Query.limit(100),
+      Query.select("$id"),
     ];
-    if (tempStandardsData.lastStandardId !== null) {
-      queries.push(Query.cursorAfter(tempStandardsData.lastStandardId));
-    }
-
-    if (tempStandardsData.lastSynced === null) {
-      tempStandardsData.lastSynced = new Date().toISOString();
+    if (currBookIndexList.standards.length !== 0) {
+      queries.push(
+        Query.cursorAfter(
+          currBookIndexList.standards[currBookIndexList.standards.length - 1]
+            .$id
+        )
+      );
     }
 
     // Fetch result
@@ -30,44 +32,23 @@ export class ProviderHelper {
     );
 
     // Add each standard in the map
-    x.documents.forEach(
-      (value) =>
-        (tempStandardsData.documents[value.$id] = {
-          ...value,
-          subjects: {
-            documents: {},
-            total: -1,
-            loadedOnce: false,
-            lastSubjectId: null,
-          },
-          lastSynced: new Date().toISOString(),
-        })
+    x.documents.forEach((value) =>
+      currBookIndexList.standards.push({
+        $id: value.$id,
+        subjects: [],
+        total: -1,
+      })
     );
+    currBookIndexList.total = x.total;
 
-    tempStandardsData.total = x.total;
-    tempStandardsData.loadedOnce = true;
-
-    // Update the last id which got fetched
-    if (x.documents.length !== 0) {
-      tempStandardsData.lastStandardId =
-        x.documents[x.documents.length - 1].$id;
-    }
-
-    tempStandardsData.documents = Object.fromEntries(
-      Object.entries(tempStandardsData.documents).sort(([, a], [, b]) =>
-        b.$createdAt < a.$createdAt ? -1 : 1
-      )
-    );
-
-    const y = JSON.stringify(tempStandardsData);
-    localStorage.setItem("standardsData", y);
-
-    return tempStandardsData;
+    return currBookIndexList;
   }
 
-  static async fetchSubjects(standardsData, standardId) {
-    const data = standardsData;
-    const tempSubjectData = standardsData.documents[standardId];
+  static async fetchSubjects(currBookIndexList, standardId) {
+    // Get standard index
+    const standardIdIndex = currBookIndexList.standards.findIndex(
+      (value) => value.$id === standardId
+    );
 
     const queries = [
       Query.and([
@@ -77,9 +58,16 @@ export class ProviderHelper {
       ]),
       Query.orderDesc("$createdAt"),
       Query.limit(100),
+      Query.select("$id"),
     ];
-    if (tempSubjectData.subjects.lastSubjectId !== null) {
-      queries.push(Query.cursorAfter(tempSubjectData.subjects.lastSubjectId));
+    if (currBookIndexList.standards[standardIdIndex].subjects.length !== 0) {
+      queries.push(
+        Query.cursorAfter(
+          currBookIndexList.standards[standardIdIndex].subjects[
+            currBookIndexList.standards[standardIdIndex].subjects.length - 1
+          ].$id
+        )
+      );
     }
 
     const x = await appwriteDatabases.listDocuments(
@@ -88,45 +76,28 @@ export class ProviderHelper {
       queries
     );
 
-    x.documents.map(
-      (value) =>
-        (tempSubjectData.subjects.documents[value.$id] = {
-          ...value,
-          chapters: {
-            documents: {},
-            total: -1,
-            loadedOnce: false,
-            lastChapterId: null,
-          },
-          lastSynced: new Date().toISOString(),
-        })
+    x.documents.forEach((value) =>
+      currBookIndexList.standards[standardIdIndex].subjects.push({
+        $id: value.$id,
+        chapters: [],
+        total: -1,
+        lastChapterId: null,
+      })
     );
 
-    tempSubjectData.subjects.total = x.total;
-    tempSubjectData.subjects.loadedOnce = true;
+    currBookIndexList.standards[standardIdIndex].total = x.total;
 
-    if (x.documents.length !== 0) {
-      tempSubjectData.subjects.lastSubjectId =
-        x.documents[x.documents.length - 1].$id;
-    }
-
-    tempSubjectData.subjects.documents = Object.fromEntries(
-      Object.entries(tempSubjectData.subjects.documents).sort(([, a], [, b]) =>
-        b.$createdAt < a.$createdAt ? -1 : 1
-      )
-    );
-    data.documents[standardId] = tempSubjectData;
-
-    const y = JSON.stringify(data);
-    localStorage.setItem("standardsData", y);
-
-    return data;
+    return currBookIndexList;
   }
 
-  static async fetchChapters(standardsData, standardId, subjectId) {
-    const data = standardsData;
-    const tempChapterData =
-      standardsData.documents[standardId].subjects.documents[subjectId];
+  static async fetchChapters(currBookIndexList, standardId, subjectId) {
+    // Get standard and subject index
+    const standardIdIndex = currBookIndexList.standards.findIndex(
+      (value) => value.$id === standardId
+    );
+    const subjectIdIndex = currBookIndexList.standards[
+      standardIdIndex
+    ].subjects.findIndex((value) => value.$id === subjectId);
 
     const queries = [
       Query.and([
@@ -136,9 +107,22 @@ export class ProviderHelper {
       ]),
       Query.orderDesc("$createdAt"),
       Query.limit(100),
+      Query.select("$id"),
     ];
-    if (tempChapterData.chapters.lastChapterId !== null) {
-      queries.push(Query.cursorAfter(tempChapterData.chapters.lastChapterId));
+    if (
+      currBookIndexList.standards[standardIdIndex].subjects[subjectIdIndex]
+        .chapters.length !== 0
+    ) {
+      queries.push(
+        Query.cursorAfter(
+          currBookIndexList.standards[standardIdIndex].subjects[subjectIdIndex]
+            .chapters[
+            currBookIndexList.standards[standardIdIndex].subjects[
+              subjectIdIndex
+            ].chapters.length - 1
+          ].$id
+        )
+      );
     }
 
     const x = await appwriteDatabases.listDocuments(
@@ -147,46 +131,41 @@ export class ProviderHelper {
       queries
     );
 
-    x.documents.map(
-      (value) =>
-        (tempChapterData.chapters.documents[value.$id] = {
-          ...value,
-          concepts: {
-            documents: {},
-            total: -1,
-            loadedOnce: false,
-            lastConceptId: null,
-          },
-          lastSynced: new Date().toISOString(),
-        })
+    x.documents.forEach((value) =>
+      currBookIndexList.standards[standardIdIndex].subjects[
+        subjectIdIndex
+      ].chapters.push({
+        $id: value.$id,
+        concepts: [],
+        total: -1,
+      })
     );
 
-    tempChapterData.chapters.total = x.total;
-    tempChapterData.chapters.loadedOnce = true;
+    currBookIndexList.standards[standardIdIndex].subjects[
+      subjectIdIndex
+    ].total = x.total;
 
-    if (x.documents.length !== 0) {
-      tempChapterData.chapters.lastChapterId =
-        x.documents[x.documents.length - 1].$id;
-    }
-
-    tempChapterData.chapters.documents = Object.fromEntries(
-      Object.entries(tempChapterData.chapters.documents).sort(([, a], [, b]) =>
-        b.$createdAt < a.$createdAt ? -1 : 1
-      )
-    );
-    data.documents[standardId].subjects.documents[subjectId] = tempChapterData;
-
-    const y = JSON.stringify(data);
-    localStorage.setItem("standardsData", y);
-
-    return data;
+    return currBookIndexList;
   }
 
-  static async fetchConcepts(standardsData, standardId, subjectId, chapterId) {
-    const data = standardsData;
-    const tempConceptData =
-      standardsData.documents[standardId].subjects.documents[subjectId].chapters
-        .documents[chapterId];
+  static async fetchConcepts(
+    currBookIndexList,
+    standardId,
+    subjectId,
+    chapterId
+  ) {
+    // Get standard, subject and chapter index
+    const standardIdIndex = currBookIndexList.standards.findIndex(
+      (value) => value.$id === standardId
+    );
+    const subjectIdIndex = currBookIndexList.standards[
+      standardIdIndex
+    ].subjects.findIndex((value) => value.$id === subjectId);
+    const chapterIdIndex = currBookIndexList.standards[
+      standardIdIndex
+    ].subjects[subjectIdIndex].chapters.findIndex(
+      (value) => value.$id === chapterId
+    );
 
     const queries = [
       Query.and([
@@ -196,9 +175,22 @@ export class ProviderHelper {
       ]),
       Query.orderDesc("$createdAt"),
       Query.limit(100),
+      Query.select("$id"),
     ];
-    if (tempConceptData.concepts.lastConceptId !== null) {
-      queries.push(Query.cursorAfter(tempConceptData.concepts.lastConceptId));
+    if (
+      currBookIndexList.standards[standardIdIndex].subjects[subjectIdIndex]
+        .chapters[chapterIdIndex].concepts.length !== 0
+    ) {
+      queries.push(
+        Query.cursorAfter(
+          currBookIndexList.standards[standardIdIndex].subjects[subjectIdIndex]
+            .chapters[chapterIdIndex].concepts[
+            currBookIndexList.standards[standardIdIndex].subjects[
+              subjectIdIndex
+            ].chapters[chapterIdIndex].concepts.length - 1
+          ].$id
+        )
+      );
     }
 
     const x = await appwriteDatabases.listDocuments(
@@ -207,34 +199,262 @@ export class ProviderHelper {
       queries
     );
 
-    x.documents.map(
-      (value) =>
-        (tempConceptData.concepts.documents[value.$id] = {
-          ...value,
-          lastSynced: new Date().toISOString(),
-        })
+    x.documents.forEach((value) =>
+      currBookIndexList.standards[standardIdIndex].subjects[
+        subjectIdIndex
+      ].chapters[chapterIdIndex].concepts.push({
+        $id: value.$id,
+      })
     );
 
-    tempConceptData.concepts.total = x.total;
-    tempConceptData.concepts.loadedOnce = true;
+    currBookIndexList.standards[standardIdIndex].subjects[
+      subjectIdIndex
+    ].chapters[chapterIdIndex].total = x.total;
 
-    if (x.documents.length !== 0) {
-      tempConceptData.concepts.lastConceptId =
-        x.documents[x.documents.length - 1]?.$id;
+    return currBookIndexList;
+  }
+
+  static async detectChangeInQuestion(questionId) {
+    const questionLocalKey = `question_${questionId}`;
+    const localQuestion = JSON.parse(localStorage.getItem(questionLocalKey));
+
+    let x = (
+      await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        questionId,
+        [Query.select("$updatedAt")]
+      )
+    ).$updatedAt;
+
+    for (let lang of localQuestion.translatedLang) {
+      const langObj = await appwriteDatabases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.translatedQuestions,
+        [
+          Query.equal("questionId", questionId),
+          Query.equal("lang", lang),
+          Query.select("$updatedAt"),
+        ]
+      );
+
+      if (x < langObj.$updatedAt) {
+        x = langObj.$updatedAt;
+      }
     }
 
-    tempConceptData.concepts.documents = Object.fromEntries(
-      Object.entries(tempConceptData.concepts.documents).sort(([, a], [, b]) =>
-        b.$createdAt < a.$createdAt ? -1 : 1
-      )
+    return x > localQuestion.$updatedAt;
+  }
+
+  static async downloadQuestion(questionId) {
+    const question = await appwriteDatabases.getDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.questions,
+      questionId
     );
-    data.documents[standardId].subjects.documents[subjectId].chapters.documents[
-      chapterId
-    ] = tempConceptData;
 
-    const y = JSON.stringify(data);
-    localStorage.setItem("standardsData", y);
+    delete question.$collectionId;
+    delete question.$databaseId;
+    delete question.$permissions;
+    delete question.$sequence;
 
-    return data;
+    if (question?.coverQuestion !== null && question?.coverQuestion !== "") {
+      question.coverQuestion = appwriteStorage.getFileDownload(
+        APPWRITE_API.buckets.sarthakDatalakeBucket,
+        question?.coverQuestion
+      );
+    }
+
+    const options = [];
+    for (let i in question?.coverOptions) {
+      if (
+        question?.coverOptions[i] !== null &&
+        question?.coverOptions[i] !== ""
+      ) {
+        const data = appwriteStorage.getFileDownload(
+          APPWRITE_API.buckets.sarthakDatalakeBucket,
+          question?.coverOptions[i]
+        );
+        options.push(data);
+      } else {
+        options.push(null);
+      }
+    }
+    question.coverOptions = options;
+
+    if (question?.coverAnswer !== null && question?.coverAnswer !== "") {
+      question.coverAnswer = appwriteStorage.getFileDownload(
+        APPWRITE_API.buckets.sarthakDatalakeBucket,
+        question?.coverAnswer
+      );
+    }
+
+    // Add other language questions too
+    for (let lang of question.translatedLang) {
+      const langObj = await appwriteDatabases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.translatedQuestions,
+        [Query.equal("questionId", questionId), Query.equal("lang", lang)]
+      );
+
+      question[lang] = {
+        contentAnswer: langObj.documents[0].contentAnswer,
+        contentOptions: langObj.documents[0].contentOptions,
+        contentQuestion: langObj.documents[0].contentQuestion,
+      };
+
+      if (question.$updatedAt < langObj.$updatedAt) {
+        question.$updatedAt = langObj.$updatedAt;
+      }
+    }
+
+    const questionLocalKey = `question_${questionId}`;
+    const y = JSON.stringify(question);
+    localStorage.setItem(questionLocalKey, y);
+
+    return question;
+  }
+
+  static async detectChangeInBookIndex(bookIndexId) {
+    const bookIndexLocalKey = `bookIndex_${bookIndexId}`;
+    const localbookIndex = JSON.parse(localStorage.getItem(bookIndexLocalKey));
+
+    let x = (
+      await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.bookIndex,
+        bookIndexId,
+        [Query.select("$updatedAt")]
+      )
+    ).$updatedAt;
+
+    return x > localbookIndex.$updatedAt;
+  }
+
+  static async downloadBookIndex(bookIndexId) {
+    let bookIndex = null;
+    let needToDownload = false;
+    const bookIndexLocalKey = `bookIndex_${bookIndexId}`;
+    if (localStorage.getItem(bookIndexLocalKey)) {
+      needToDownload = await ProviderHelper.detectChangeInBookIndex(
+        bookIndexId
+      );
+      if (!needToDownload) {
+        bookIndex = JSON.parse(localStorage.getItem(bookIndexLocalKey));
+      }
+    } else {
+      needToDownload = true;
+    }
+
+    if (needToDownload) {
+      bookIndex = await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.bookIndex,
+        bookIndexId
+      );
+
+      delete bookIndex.$collectionId;
+      delete bookIndex.$createdAt;
+      delete bookIndex.$databaseId;
+      delete bookIndex.$permissions;
+      delete bookIndex.$sequence;
+
+      if (bookIndex.concept) {
+        bookIndex.label =
+          (await ProviderHelper.downloadBookIndex(bookIndex.chapter)).label +
+          " ⮞ " +
+          bookIndex.concept;
+      } else {
+        if (bookIndex.chapter) {
+          bookIndex.label =
+            (await ProviderHelper.downloadBookIndex(bookIndex.subject)).label +
+            " ⮞ " +
+            bookIndex.chapter;
+        } else {
+          if (bookIndex.subject) {
+            bookIndex.label =
+              (await ProviderHelper.downloadBookIndex(bookIndex.standard))
+                .label +
+              " ⮞ " +
+              bookIndex.subject;
+          } else {
+            bookIndex.label = bookIndex.standard;
+          }
+        }
+      }
+
+      const string_bookIndex = JSON.stringify(bookIndex);
+      localStorage.setItem(bookIndexLocalKey, string_bookIndex);
+    }
+    return bookIndex;
+  }
+
+  static async canIndexBeDeleted(indexId) {
+    const indexCheck = appwriteDatabases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.bookIndex,
+      [
+        Query.or([
+          Query.equal("standard", indexId),
+          Query.equal("subject", indexId),
+          Query.equal("chapter", indexId),
+          Query.equal("concept", indexId),
+        ]),
+        Query.limit(1),
+      ]
+    );
+    const questionCheck = appwriteDatabases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.questions,
+      [
+        Query.or([
+          Query.equal("bookIndexId", indexId),
+          Query.equal("standardId", indexId),
+          Query.equal("subjectId", indexId),
+          Query.equal("chapterId", indexId),
+          Query.equal("conceptId", indexId),
+        ]),
+        Query.limit(1),
+      ]
+    );
+    const mockTestCheck = appwriteDatabases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.mockTest,
+      [
+        Query.or([
+          Query.equal("bookIndexId", indexId),
+          Query.equal("standardId", indexId),
+          Query.equal("subjectId", indexId),
+          Query.equal("chapterId", indexId),
+          Query.equal("conceptId", indexId),
+        ]),
+        Query.limit(1),
+      ]
+    );
+    const productCheck = appwriteDatabases.listDocuments(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.products,
+      [
+        Query.or([
+          Query.equal("bookIndexId", indexId),
+          Query.equal("standardId", indexId),
+          Query.equal("subjectId", indexId),
+        ]),
+        Query.limit(1),
+      ]
+    );
+
+    const results = await Promise.all([
+      indexCheck,
+      questionCheck,
+      mockTestCheck,
+      productCheck,
+    ]);
+    const totalAssociatedItems = results.reduce(
+      (sum, result) => sum + result.total,
+      0
+    );
+
+    return totalAssociatedItems === 0;
   }
 }
