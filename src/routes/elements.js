@@ -54,6 +54,11 @@ export const QuestionBulkImportPage = Loadable(
     import("pages/dashboard/management/content/question/QuestionBulkImportPage")
   )
 );
+export const QuestionTranslatePage = Loadable(
+  lazy(() =>
+    import("pages/dashboard/management/content/question/QuestionTranslatePage")
+  )
+);
 
 // -----------------< DASHBOARD: MANAGEMENT: CONTENT: MOCK-TEST >-----------------
 export const MockTestListPage = Loadable(

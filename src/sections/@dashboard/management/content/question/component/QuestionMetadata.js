@@ -8,6 +8,8 @@ import {
   AccordionDetails,
   AccordionSummary,
 } from "components/accordion";
+import { lang } from "assets/data";
+import IndexView from "sections/@dashboard/management/content/common/IndexView";
 
 export default function QuestionMetadata({ question }) {
   return (
@@ -25,15 +27,44 @@ export default function QuestionMetadata({ question }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Index →</Typography>
-                <Typography variant="body2">
-                  {question?.standard?.standard +
-                    " 🢒 " +
-                    question?.subject?.subject +
-                    " 🢒 " +
-                    question?.chapter?.chapter +
-                    " 🢒 " +
-                    question?.concept?.concept}
+                <Typography fontWeight="bold" variant="h6">
+                  👉 Index ➜
+                </Typography>
+                <IndexView id={question.bookIndexId} />
+              </Stack>
+            </Item>
+          </Grid>
+
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <Item>
+              <Stack direction="row" spacing={2}>
+                <Typography fontWeight="bold" variant="h6">
+                  🪪 System Generated Id ➜
+                </Typography>
+                <Typography>{question?.$id}</Typography>
+              </Stack>
+            </Item>
+          </Grid>
+
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <Item>
+              <Stack direction="row" spacing={2}>
+                <Typography fontWeight="bold" variant="h6">
+                  🏷️ Sarthak Id ➜
+                </Typography>
+                <Typography>{question?.qnId}</Typography>
+              </Stack>
+            </Item>
+          </Grid>
+
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <Item>
+              <Stack direction="row" spacing={2}>
+                <Typography fontWeight="bold" variant="h6">
+                  📊 Status ➜
+                </Typography>
+                <Typography>
+                  {question?.published ? "Published ✅" : "Draft❌"}
                 </Typography>
               </Stack>
             </Item>
@@ -42,8 +73,10 @@ export default function QuestionMetadata({ question }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">System Generated Id →</Typography>
-                <Typography variant="body2">{question?.$id}</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  📌 Primary Language ➜
+                </Typography>
+                <Typography>{lang[question?.lang]?.level}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -51,18 +84,13 @@ export default function QuestionMetadata({ question }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Sarthak Id →</Typography>
-                <Typography variant="body2">{question?.qnId}</Typography>
-              </Stack>
-            </Item>
-          </Grid>
-
-          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-            <Item>
-              <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Status →</Typography>
-                <Typography variant="body2">
-                  {question?.published ? "Published" : "Draft"}
+                <Typography fontWeight="bold" variant="h6">
+                  🌎 Translated Language ➜
+                </Typography>
+                <Typography>
+                  {question?.translatedLang
+                    .map((x, i) => lang[x]?.level)
+                    .join(", ")}
                 </Typography>
               </Stack>
             </Item>
@@ -71,8 +99,10 @@ export default function QuestionMetadata({ question }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Created By →</Typography>
-                <Typography variant="body2">{question?.creator}</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  ✍ Created By ➜
+                </Typography>
+                <Typography>{question?.creator}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -80,10 +110,11 @@ export default function QuestionMetadata({ question }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Created At →</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  🕒 Created At ➜
+                </Typography>
                 <Tooltip title={question?.$createdAt}>
                   <Typography
-                    variant="body2"
                     sx={{
                       cursor: "pointer",
                       textDecoration: "underline",
@@ -103,8 +134,10 @@ export default function QuestionMetadata({ question }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Updated By →</Typography>
-                <Typography variant="body2">{question?.updater}</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  🧙🏼 Updated By ➜
+                </Typography>
+                <Typography>{question?.updater}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -112,10 +145,11 @@ export default function QuestionMetadata({ question }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Updated At →</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  ⌛ Updated At ➜
+                </Typography>
                 <Tooltip title={question?.$updatedAt}>
                   <Typography
-                    variant="body2"
                     sx={{
                       cursor: "pointer",
                       textDecoration: "underline",
@@ -137,10 +171,10 @@ export default function QuestionMetadata({ question }) {
               <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                 <Item>
                   <Stack direction="row" spacing={2}>
-                    <Typography variant="body1">Approved By →</Typography>
-                    <Typography variant="body2">
-                      {question?.approver}
+                    <Typography fontWeight="bold" variant="h6">
+                      👨🏻‍💻 Approved By ➜
                     </Typography>
+                    <Typography>{question?.approver}</Typography>
                   </Stack>
                 </Item>
               </Grid>
@@ -148,10 +182,11 @@ export default function QuestionMetadata({ question }) {
               <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                 <Item>
                   <Stack direction="row" spacing={2}>
-                    <Typography variant="body1">Approved At →</Typography>
+                    <Typography fontWeight="bold" variant="h6">
+                      ⏲ Approved At ➜
+                    </Typography>
                     <Tooltip title={question?.approvedAt}>
                       <Typography
-                        variant="body2"
                         sx={{
                           cursor: "pointer",
                           textDecoration: "underline",

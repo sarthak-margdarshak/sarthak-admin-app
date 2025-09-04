@@ -29,6 +29,7 @@ import {
   ProductViewPage,
   ProductEditPage,
   ProductListPage,
+  QuestionTranslatePage,
 } from "./elements";
 import QuestionTreeView from "sections/@dashboard/management/content/layout/tree-view/QuestionTreeView";
 import { ContentProvider } from "sections/@dashboard/management/content/hook/ContentProvider";
@@ -108,6 +109,10 @@ export default function Router() {
             { path: ":id", element: <QuestionDetailsPage /> },
             { path: ":id/edit", element: <QuestionEditPage /> },
             { path: ":id/bulk-import", element: <QuestionBulkImportPage /> },
+            {
+              path: ":id/translate/:targetLang",
+              element: <QuestionTranslatePage />,
+            },
           ],
         },
         // Dashboard: Mock Test

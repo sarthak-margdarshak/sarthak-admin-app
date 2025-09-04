@@ -15,6 +15,7 @@ import {
   Select,
   Switch,
   TextField,
+  Typography,
 } from "@mui/material";
 import { useState } from "react";
 import BookIndexFilter from "sections/@dashboard/management/content/layout/filter-view/BookIndexFilter";
@@ -91,23 +92,29 @@ export default function FilterDialog({
           )}
 
           {currentParam.value === "content" && (
-            <TextField
-              id="outlined-textarea"
-              placeholder="Type here......."
-              sx={{ mt: 2 }}
-              multiline
-              fullWidth
-              variant="outlined"
-              minRows={5}
-              maxRows={10}
-              onChange={(event) =>
-                setCurrentParam({
-                  ...currentParam,
-                  isSelected: true,
-                  content: event.target.value,
-                })
-              }
-            />
+            <>
+              <TextField
+                id="outlined-textarea"
+                placeholder="Type here......."
+                sx={{ mt: 2 }}
+                multiline
+                fullWidth
+                variant="outlined"
+                minRows={5}
+                maxRows={10}
+                onChange={(event) =>
+                  setCurrentParam({
+                    ...currentParam,
+                    isSelected: true,
+                    content: event.target.value,
+                  })
+                }
+              />
+              <Typography sx={{ m: 1 }} variant="caption">
+                We will search content which is available in primary language
+                only.
+              </Typography>
+            </>
           )}
 
           {currentParam.value === "published" && (

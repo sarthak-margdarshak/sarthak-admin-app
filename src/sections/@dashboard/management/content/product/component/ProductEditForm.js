@@ -96,7 +96,7 @@ export default function ProductEditForm({ productId }) {
     if (lastSyncId !== null) {
       query.push(Query.cursorAfter(lastSyncId));
     }
-    query.push(Query.limit(100));
+    query.push(Query.limit(10));
     query.push(Query.select("$id"));
     query.push(Query.orderDesc("$createdAt"));
     query.push(Query.equal("published", true));
