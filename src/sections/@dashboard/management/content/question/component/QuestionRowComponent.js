@@ -31,7 +31,7 @@ import { appwriteDatabases, appwriteFunctions } from "auth/AppwriteContext";
 import { APPWRITE_API } from "config-global";
 import { LoadingButton } from "@mui/lab";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
-import { ID } from "appwrite";
+import { ID, Query } from "appwrite";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { labels, sarthakAPIPath } from "assets/data";
@@ -87,6 +87,7 @@ export default function QuestionRowComponent({
       : {}
   );
   const [currLang, setCurrLang] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const { user } = useAuthContext();
 
@@ -143,13 +144,15 @@ export default function QuestionRowComponent({
   const fetchData = async () => {
     try {
       const x = await getQuestion(questionId);
-      setLangContent({
-        contentQuestion: x?.contentQuestion,
-        contentOptions: x?.contentOptions,
-        contentAnswer: x?.contentAnswer,
-      });
+      if (x) {
+        setLangContent({
+          contentQuestion: x?.contentQuestion,
+          contentOptions: x?.contentOptions,
+          contentAnswer: x?.contentAnswer,
+        });
+        setCurrLang(x?.lang);
+      }
       setQuestion(x);
-      setCurrLang(x?.lang);
       setIsDataLoading(false);
     } catch (error) {
       console.log(error);
@@ -184,6 +187,40 @@ export default function QuestionRowComponent({
     setPublishing(false);
   };
 
+  const deleteQuestion = async () => {
+    setDeleting(true);
+    const canDelete =
+      (
+        await appwriteDatabases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.questions,
+          questionId,
+          [Query.select("published")]
+        )
+      ).published === false;
+    if (!canDelete) {
+      enqueueSnackbar(
+        "Cannot delete question as it is associated with mock tests. De-reference them first.",
+        { variant: "error" }
+      );
+      setDeleting(false);
+      setOpenDeleteDialog(false);
+      return;
+    }
+    await appwriteDatabases.deleteDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.questions,
+      questionId
+    );
+    setDeleting(false);
+    setOpenDeleteDialog(false);
+    enqueueSnackbar(`Question Deleted Successfully with ID: [${questionId}]`, {
+      variant: "success",
+    });
+    localStorage.removeItem(`question_${questionId}`);
+    navigate(PATH_DASHBOARD.question.list);
+  };
+
   if (isDataLoading) {
     return (
       <Fragment>
@@ -206,6 +243,62 @@ export default function QuestionRowComponent({
               <Skeleton sx={{ m: 2 }} variant="rounded" height={40} />
             </Grid>
           </Grid>
+        </Card>
+      </Fragment>
+    );
+  }
+
+  if (question === null) {
+    return (
+      <Fragment>
+        <Card sx={{ m: 1 }}>
+          <CardHeader
+            title={
+              <Divider>
+                <Chip
+                  label={questionId}
+                  color="error"
+                  icon={
+                    <Iconify icon="fluent-color:chat-bubbles-question-16" />
+                  }
+                />
+              </Divider>
+            }
+          />
+
+          <CardContent>
+            <Stack
+              alignItems="center"
+              spacing={2}
+              sx={{ textAlign: "center", py: 2 }}
+            >
+              <Iconify
+                icon="eva:alert-triangle-fill"
+                width={56}
+                height={56}
+                style={{ color: "#d32f2f" }}
+              />
+              <Typography variant="h6">Question Not Found</Typography>
+              <Chip label="Error: QNF-404" color="error" size="small" />
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ maxWidth: 680 }}
+              >
+                The requested question could not be found. It may have been
+                deleted, or the provided question ID is invalid. Please verify
+                the ID and try again.
+              </Typography>
+              <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => navigate(PATH_DASHBOARD.question.list)}
+                >
+                  Back to Questions
+                </Button>
+              </Stack>
+            </Stack>
+          </CardContent>
         </Card>
       </Fragment>
     );
@@ -455,6 +548,7 @@ export default function QuestionRowComponent({
         )}
       </Dialog>
 
+      {/* Delete Question Dialog */}
       <Dialog
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
@@ -475,12 +569,16 @@ export default function QuestionRowComponent({
             </DialogContent>
             <DialogActions>
               <Button
-                disabled={publishing}
+                disabled={deleting}
                 onClick={() => setOpenDeleteDialog(false)}
               >
                 Disagree
               </Button>
-              <LoadingButton loading={publishing} onClick={() => {}} autoFocus>
+              <LoadingButton
+                loading={deleting}
+                onClick={deleteQuestion}
+                autoFocus
+              >
                 Agree
               </LoadingButton>
             </DialogActions>
@@ -492,6 +590,7 @@ export default function QuestionRowComponent({
         )}
       </Dialog>
 
+      {/* Language Management Dialog */}
       <Dialog
         open={openLanguageDialog}
         onClose={() => setOpenLanguageDialog(false)}
@@ -726,6 +825,7 @@ export default function QuestionRowComponent({
         </DialogActions>
       </Dialog>
 
+      {/* Language Assignment Dialog */}
       <Dialog
         open={openLanguageAssignmentDialog}
         onClose={() => setOpenLanguageAssignmentDialog(false)}

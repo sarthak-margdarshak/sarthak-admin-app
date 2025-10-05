@@ -215,104 +215,115 @@ export class ProviderHelper {
   }
 
   static async detectChangeInQuestion(questionId) {
-    const questionLocalKey = `question_${questionId}`;
-    const localQuestion = JSON.parse(localStorage.getItem(questionLocalKey));
+    try {
+      const questionLocalKey = `question_${questionId}`;
+      const localQuestion = JSON.parse(localStorage.getItem(questionLocalKey));
 
-    let x = (
-      await appwriteDatabases.getDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.questions,
-        questionId,
-        [Query.select("$updatedAt")]
-      )
-    ).$updatedAt;
+      let x = (
+        await appwriteDatabases.getDocument(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.questions,
+          questionId,
+          [Query.select("$updatedAt")]
+        )
+      ).$updatedAt;
 
-    for (let lang of localQuestion.translatedLang) {
-      const langObj = await appwriteDatabases.listDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.translatedQuestions,
-        [
-          Query.equal("questionId", questionId),
-          Query.equal("lang", lang),
-          Query.select("$updatedAt"),
-        ]
-      );
+      for (let lang of localQuestion.translatedLang) {
+        const langObj = await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.translatedQuestions,
+          [
+            Query.equal("questionId", questionId),
+            Query.equal("lang", lang),
+            Query.select("$updatedAt"),
+          ]
+        );
 
-      if (x < langObj.$updatedAt) {
-        x = langObj.$updatedAt;
+        if (x < langObj.$updatedAt) {
+          x = langObj.$updatedAt;
+        }
       }
-    }
 
-    return x > localQuestion.$updatedAt;
+      return x > localQuestion.$updatedAt;
+    } catch (error) {
+      return true;
+    }
   }
 
   static async downloadQuestion(questionId) {
-    const question = await appwriteDatabases.getDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.questions,
-      questionId
-    );
-
-    delete question.$collectionId;
-    delete question.$databaseId;
-    delete question.$permissions;
-    delete question.$sequence;
-
-    if (question?.coverQuestion !== null && question?.coverQuestion !== "") {
-      question.coverQuestion = appwriteStorage.getFileDownload(
-        APPWRITE_API.buckets.sarthakDatalakeBucket,
-        question?.coverQuestion
-      );
-    }
-
-    const options = [];
-    for (let i in question?.coverOptions) {
-      if (
-        question?.coverOptions[i] !== null &&
-        question?.coverOptions[i] !== ""
-      ) {
-        const data = appwriteStorage.getFileDownload(
-          APPWRITE_API.buckets.sarthakDatalakeBucket,
-          question?.coverOptions[i]
-        );
-        options.push(data);
-      } else {
-        options.push(null);
-      }
-    }
-    question.coverOptions = options;
-
-    if (question?.coverAnswer !== null && question?.coverAnswer !== "") {
-      question.coverAnswer = appwriteStorage.getFileDownload(
-        APPWRITE_API.buckets.sarthakDatalakeBucket,
-        question?.coverAnswer
-      );
-    }
-
-    // Add other language questions too
-    for (let lang of question.translatedLang) {
-      const langObj = await appwriteDatabases.listDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.translatedQuestions,
-        [Query.equal("questionId", questionId), Query.equal("lang", lang)]
-      );
-
-      question[lang] = {
-        contentAnswer: langObj.documents[0].contentAnswer,
-        contentOptions: langObj.documents[0].contentOptions,
-        contentQuestion: langObj.documents[0].contentQuestion,
-      };
-
-      if (question.$updatedAt < langObj.$updatedAt) {
-        question.$updatedAt = langObj.$updatedAt;
-      }
-    }
-
     const questionLocalKey = `question_${questionId}`;
-    const y = JSON.stringify(question);
-    localStorage.setItem(questionLocalKey, y);
+    try {
+      const question = await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        questionId
+      );
 
-    return question;
+      delete question.$collectionId;
+      delete question.$databaseId;
+      delete question.$permissions;
+      delete question.$sequence;
+
+      if (question?.coverQuestion !== null && question?.coverQuestion !== "") {
+        question.coverQuestion = appwriteStorage.getFileDownload(
+          APPWRITE_API.buckets.sarthakDatalakeBucket,
+          question?.coverQuestion
+        );
+      }
+
+      const options = [];
+      for (let i in question?.coverOptions) {
+        if (
+          question?.coverOptions[i] !== null &&
+          question?.coverOptions[i] !== ""
+        ) {
+          const data = appwriteStorage.getFileDownload(
+            APPWRITE_API.buckets.sarthakDatalakeBucket,
+            question?.coverOptions[i]
+          );
+          options.push(data);
+        } else {
+          options.push(null);
+        }
+      }
+      question.coverOptions = options;
+
+      if (question?.coverAnswer !== null && question?.coverAnswer !== "") {
+        question.coverAnswer = appwriteStorage.getFileDownload(
+          APPWRITE_API.buckets.sarthakDatalakeBucket,
+          question?.coverAnswer
+        );
+      }
+
+      // Add other language questions too
+      for (let lang of question.translatedLang) {
+        const langObj = await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.translatedQuestions,
+          [Query.equal("questionId", questionId), Query.equal("lang", lang)]
+        );
+
+        question[lang] = {
+          contentAnswer: langObj.documents[0].contentAnswer,
+          contentOptions: langObj.documents[0].contentOptions,
+          contentQuestion: langObj.documents[0].contentQuestion,
+        };
+
+        if (question.$updatedAt < langObj.$updatedAt) {
+          question.$updatedAt = langObj.$updatedAt;
+        }
+      }
+
+      const y = JSON.stringify(question);
+      localStorage.setItem(questionLocalKey, y);
+
+      return question;
+    } catch (error) {
+      if (localStorage.getItem(questionLocalKey)) {
+        localStorage.removeItem(questionLocalKey);
+      }
+      return null;
+    }
   }
 
   static async detectChangeInBookIndex(bookIndexId) {
