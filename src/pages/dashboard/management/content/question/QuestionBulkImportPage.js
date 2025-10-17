@@ -5,13 +5,16 @@ import {
   Typography,
   Stack,
   Alert,
-  CircularProgress,
   Button,
   Box,
   Divider,
   Chip,
   Grid,
   LinearProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useSettingsContext } from "components/settings";
@@ -25,7 +28,6 @@ import { APPWRITE_API } from "config-global";
 import { ID } from "appwrite";
 import { useSnackbar } from "notistack";
 import { useLocation, Link } from "react-router-dom";
-import { Item } from "components/item/Item";
 import {
   Accordion,
   AccordionSummary,
@@ -40,24 +42,27 @@ import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/worker-json";
 import "ace-builds/webpack-resolver";
 import "katex/dist/katex.min.css";
+import { lang } from "assets/data/lang";
+import IndexView from "sections/@dashboard/management/content/common/IndexView";
+import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 
 // Configure Ace to use the correct path for workers
 ace.config.set("basePath", "/node_modules/ace-builds/src-noconflict");
 
 export default function QuestionBulkImportPage() {
+  const { getBookIndex } = useContent();
   const { themeStretch } = useSettingsContext();
   const [jsonError, setJsonError] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const [previewQuestions, setPreviewQuestions] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [questionStatuses, setQuestionStatuses] = useState([]);
   const [uploadedQuestions, setUploadedQuestions] = useState([]);
   const [editorDisabled, setEditorDisabled] = useState(false);
   const location = useLocation();
   const [bookIndexId] = useState(location.pathname.split("/")[3]);
-  const [selectedBookIndex, setSelectedBookIndex] = useState(null);
   const { enqueueSnackbar } = useSnackbar();
   const [subjectId, setSubjectId] = useState("");
   const [standardId, setStandardId] = useState("");
@@ -66,50 +71,19 @@ export default function QuestionBulkImportPage() {
   useEffect(() => {
     const fetchBookIndex = async () => {
       try {
-        if (bookIndexId) {
-          const bookIndex = await appwriteDatabases.getDocument(
-            APPWRITE_API.databaseId,
-            APPWRITE_API.collections.bookIndex,
-            bookIndexId
-          );
-          setChapterId(bookIndex.chapter);
-          setSubjectId(bookIndex.subject);
-          setStandardId(bookIndex.standard);
-          bookIndex.chapter = (
-            await appwriteDatabases.getDocument(
-              APPWRITE_API.databaseId,
-              APPWRITE_API.collections.bookIndex,
-              bookIndex.chapter
-            )
-          ).chapter;
-          bookIndex.standard = (
-            await appwriteDatabases.getDocument(
-              APPWRITE_API.databaseId,
-              APPWRITE_API.collections.bookIndex,
-              bookIndex.standard
-            )
-          ).standard;
-          bookIndex.subject = (
-            await appwriteDatabases.getDocument(
-              APPWRITE_API.databaseId,
-              APPWRITE_API.collections.bookIndex,
-              bookIndex.subject
-            )
-          ).subject;
-          setSelectedBookIndex(bookIndex);
-        }
+        const x = await getBookIndex(bookIndexId);
+        setSubjectId(x.subject);
+        setStandardId(x.standard);
+        setChapterId(x.chapter);
       } catch (error) {
-        console.error("Error fetching book index:", error);
         enqueueSnackbar("Error fetching book index details", {
           variant: "error",
         });
-      } finally {
-        setIsLoading(false);
       }
     };
 
     fetchBookIndex();
-  }, [location.pathname, enqueueSnackbar, bookIndexId]);
+  }, [getBookIndex, location.pathname, enqueueSnackbar, bookIndexId]);
 
   const defaultValues = {
     jsonInput: "",
@@ -126,7 +100,6 @@ export default function QuestionBulkImportPage() {
 
   const validateJson = (jsonString) => {
     try {
-      console.log("Validating JSON:", jsonString);
       const parsed = JSON.parse(jsonString);
       if (!Array.isArray(parsed)) {
         return "Input must be an array of questions";
@@ -154,6 +127,10 @@ export default function QuestionBulkImportPage() {
       setJsonError(error);
       return;
     }
+    if (selectedLanguage === "") {
+      setJsonError("Please select a language before uploading.");
+      return;
+    }
     setJsonError("");
 
     try {
@@ -164,6 +141,7 @@ export default function QuestionBulkImportPage() {
       setUploadedQuestions([]);
       const newStatuses = [...questionStatuses];
 
+      let uploadedCount = 0;
       for (let i = 0; i < questions.length; i++) {
         try {
           const response = await appwriteDatabases.createDocument(
@@ -172,12 +150,13 @@ export default function QuestionBulkImportPage() {
             ID.unique(),
             {
               ...questions[i],
-              bookIndex: bookIndexId,
+              lang: selectedLanguage || null,
+              bookIndexId: bookIndexId,
               published: false,
-              standard: standardId,
-              subject: subjectId,
-              chapter: chapterId,
-              concept: bookIndexId,
+              standardId: standardId,
+              subjectId: subjectId,
+              chapterId: chapterId,
+              conceptId: bookIndexId,
               creator: (await appwriteAccount.get()).$id,
               updater: (await appwriteAccount.get()).$id,
             }
@@ -188,6 +167,7 @@ export default function QuestionBulkImportPage() {
 
           setUploadedQuestions((prev) => [...prev, response]);
           setUploadProgress(((i + 1) / questions.length) * 100);
+          uploadedCount++;
         } catch (error) {
           newStatuses[i] = "error";
           setQuestionStatuses(newStatuses);
@@ -195,8 +175,8 @@ export default function QuestionBulkImportPage() {
         }
       }
 
-      enqueueSnackbar("Upload process completed", {
-        variant: "success",
+      enqueueSnackbar(`${uploadedCount} questions uploaded successfully`, {
+        variant: "info",
       });
     } catch (error) {
       console.error("Error processing questions:", error);
@@ -243,63 +223,105 @@ export default function QuestionBulkImportPage() {
 
         <Paper sx={{ p: 3, mt: 3 }}>
           <Stack spacing={3}>
-            <div>
-              <Item>
-                <Stack direction="row" spacing={2}>
-                  <Typography variant="body1">Selected Index →</Typography>
-                  {selectedBookIndex ? (
-                    <Typography variant="body2">
-                      {selectedBookIndex.standard +
-                        " 🢒 " +
-                        selectedBookIndex.subject +
-                        " 🢒 " +
-                        selectedBookIndex.chapter +
-                        " 🢒 " +
-                        selectedBookIndex.concept}
-                    </Typography>
-                  ) : (
-                    <Typography variant="body2" color="text.secondary">
-                      No index selected
-                    </Typography>
-                  )}
-                </Stack>
-              </Item>
-            </div>
+            <Paper variant="outlined" sx={{ p: 3 }}>
+              <Typography variant="h6" sx={{ mb: 1 }}>
+                Selected Index
+              </Typography>
+              <IndexView id={bookIndexId} />
+            </Paper>
 
-            {isLoading ? (
-              <CircularProgress />
-            ) : (
-              <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-                <Typography variant="subtitle1">
-                  Paste your questions JSON array below:
-                </Typography>
+            <Paper variant="outlined" sx={{ p: 3 }}>
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                alignItems="center"
+              >
+                <Box
+                  sx={{ bgcolor: "secondary.lighter", borderRadius: 2, p: 1 }}
+                >
+                  <Iconify icon="mdi:translate" width={36} height={36} />
+                </Box>
 
-                <Controller
-                  name="jsonInput"
-                  control={methods.control}
-                  render={({ field }) => (
-                    <AceEditor
-                      mode="json"
-                      theme="github"
-                      value={field.value}
-                      onChange={field.onChange}
-                      name={field.name}
-                      width="100%"
-                      height="400px"
-                      fontSize={14}
-                      showPrintMargin={false}
-                      showGutter={true}
-                      highlightActiveLine={true}
-                      readOnly={editorDisabled}
-                      setOptions={{
-                        enableBasicAutocompletion: true,
-                        enableLiveAutocompletion: true,
-                        enableSnippets: true,
-                        showLineNumbers: true,
-                        tabSize: 2,
-                        wrap: true,
-                      }}
-                      placeholder={`[
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="h6">Select Language</Typography>
+
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1 }}
+                  >
+                    Select a language to assign to all imported questions.
+                  </Typography>
+
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={2}
+                    alignItems="center"
+                  >
+                    <FormControl size="small" sx={{ minWidth: 220 }}>
+                      <InputLabel id="bulk-lang-select-label">
+                        Language
+                      </InputLabel>
+                      <Select
+                        labelId="bulk-lang-select-label"
+                        value={selectedLanguage}
+                        label="Language"
+                        onChange={(e) => setSelectedLanguage(e.target.value)}
+                      >
+                        <MenuItem value="">(None)</MenuItem>
+                        {Object.entries(lang).map(([code, info]) => (
+                          <MenuItem key={code} value={code}>
+                            {info.level} ({code})
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    <Chip
+                      label={
+                        selectedLanguage
+                          ? `${lang[selectedLanguage]?.level} (${selectedLanguage})`
+                          : "No Language selected"
+                      }
+                      size="small"
+                      color={selectedLanguage ? "primary" : "default"}
+                    />
+                  </Stack>
+                </Box>
+              </Stack>
+            </Paper>
+
+            <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+              <Typography variant="subtitle1">
+                Paste your questions JSON array below:
+              </Typography>
+
+              <Controller
+                name="jsonInput"
+                control={methods.control}
+                render={({ field }) => (
+                  <AceEditor
+                    mode="json"
+                    theme="github"
+                    value={field.value}
+                    onChange={field.onChange}
+                    name={field.name}
+                    width="100%"
+                    height="400px"
+                    fontSize={14}
+                    showPrintMargin={false}
+                    showGutter={true}
+                    highlightActiveLine={true}
+                    readOnly={editorDisabled}
+                    setOptions={{
+                      enableBasicAutocompletion: true,
+                      enableLiveAutocompletion: true,
+                      enableSnippets: true,
+                      showLineNumbers: true,
+                      tabSize: 2,
+                      wrap: true,
+                    }}
+                    placeholder={`[
   {
     "contentQuestion": "What is...",
     "contentOptions": ["A", "B", "C", "D"],
@@ -308,36 +330,35 @@ export default function QuestionBulkImportPage() {
   },
   ...
 ]`}
-                    />
-                  )}
-                />
-
-                {jsonError && (
-                  <Alert severity="error" sx={{ mt: 1 }}>
-                    {jsonError}
-                  </Alert>
+                  />
                 )}
+              />
 
-                <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-                  <Button
-                    variant="outlined"
-                    onClick={handlePreview}
-                    disabled={isUploading || isSubmitting || editorDisabled}
-                  >
-                    Preview Questions
-                  </Button>
+              {jsonError && (
+                <Alert severity="error" sx={{ mt: 1 }}>
+                  {jsonError}
+                </Alert>
+              )}
 
-                  <LoadingButton
-                    type="submit"
-                    variant="contained"
-                    loading={isSubmitting}
-                    disabled={isUploading || editorDisabled}
-                  >
-                    Upload Questions
-                  </LoadingButton>
-                </Stack>
-              </FormProvider>
-            )}
+              <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
+                <Button
+                  variant="outlined"
+                  onClick={handlePreview}
+                  disabled={isUploading || isSubmitting || editorDisabled}
+                >
+                  Preview Questions
+                </Button>
+
+                <LoadingButton
+                  type="submit"
+                  variant="contained"
+                  loading={isSubmitting}
+                  disabled={isUploading || editorDisabled}
+                >
+                  Upload Questions
+                </LoadingButton>
+              </Stack>
+            </FormProvider>
 
             {isUploading && (
               <Box sx={{ width: "100%", mb: 2 }}>
@@ -358,6 +379,7 @@ export default function QuestionBulkImportPage() {
                 <Typography variant="h6" sx={{ mt: 3 }}>
                   Preview Questions
                 </Typography>
+
                 {previewQuestions.map((question, index) => (
                   <Accordion key={index}>
                     <AccordionSummary>
