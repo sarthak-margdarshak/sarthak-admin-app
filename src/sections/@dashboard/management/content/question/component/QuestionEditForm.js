@@ -17,10 +17,15 @@ import {
   CardHeader,
   CardContent,
   Breadcrumbs,
-  Link,
   Tooltip,
   IconButton,
   FormControlLabel,
+  Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Stack,
 } from "@mui/material";
 import { useSnackbar } from "components/snackbar";
 import { useAuthContext } from "auth/useAuthContext";
@@ -34,26 +39,34 @@ import { ID, Query } from "appwrite";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useTheme } from "@mui/material/styles";
 import Iconify from "components/iconify";
+import IndexView from "sections/@dashboard/management/content/common/IndexView";
+import { lang } from "assets/data/lang";
 
 export default function QuestionEditForm({ questionId }) {
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuthContext();
   const navigate = useNavigate();
-  const { questionsData, updateQuestion } = useContent();
+  const { getQuestion } = useContent();
   const theme = useTheme();
   let textInput = useRef(null);
 
-  const [question, setQuestion] = useState(questionsData[questionId]);
+  const [question, setQuestion] = useState(
+    localStorage.getItem(`question_${questionId}`)
+      ? JSON.parse(localStorage.getItem(`question_${questionId}`))
+      : {}
+  );
   const [covers, setCovers] = useState({
     coverQuestion: null,
     coverOptions: [],
     coverAnswer: null,
   });
+  const [idOptions, setIdOptions] = useState([]);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [expanded, setExpanded] = useState("question");
-  const [containsImages, setContainsImages] = useState(true);
+  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [availableLangEntries, setAvailableLangEntries] = useState([]);
 
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -73,44 +86,28 @@ export default function QuestionEditForm({ questionId }) {
   };
 
   useEffect(() => {
-    const update = async () => {
-      let x = question;
-      setIsDataLoading(true);
-      if (x === undefined) {
-        x = await updateQuestion(questionId);
-      } else {
-        const isChanged =
-          (
-            await appwriteDatabases.getDocument(
-              APPWRITE_API.databaseId,
-              APPWRITE_API.collections.questions,
-              questionId,
-              [Query.select("$updatedAt")]
-            )
-          ).$updatedAt !== question.$updatedAt;
-        if (isChanged) {
-          x = await updateQuestion(questionId);
-        }
+    const fetchData = async () => {
+      try {
+        const x = await getQuestion(questionId);
+        setCovers({
+          coverQuestion: x.coverQuestion,
+          coverAnswer: x.coverAnswer,
+          coverOptions: x.coverOptions,
+        });
+        setQuestion(x);
+        setIdOptions(x.answerOptions.map(() => crypto.randomUUID()));
+        setSelectedLanguage(x.lang || "");
+        setAvailableLangEntries(
+          Object.entries(lang).filter(
+            ([code]) => !(question?.translatedLang || []).includes(code)
+          )
+        );
+        setIsDataLoading(false);
+      } catch (error) {
+        console.log(error);
       }
-      setCovers({
-        coverQuestion: x.coverQuestion,
-        coverAnswer: x.coverAnswer,
-        coverOptions: x.coverOptions,
-      });
-      if (
-        (x.coverQuestion !== null && x.coverQuestion !== "") ||
-        (x.coverAnswer !== null && x.coverAnswer !== "") ||
-        x.coverOptions.some((y) => y !== null && y !== "")
-      ) {
-        setContainsImages(true);
-      }
-      setQuestion({
-        ...x,
-        idOptions: x.answerOptions.map(() => crypto.randomUUID()),
-      });
-      setIsDataLoading(false);
     };
-    update().then(() => {});
+    fetchData().then(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionId]);
 
@@ -131,8 +128,10 @@ export default function QuestionEditForm({ questionId }) {
       delete question.$permissions;
       delete question.$updatedAt;
       delete question.lastSynced;
-      delete question.idOptions;
       delete question.qnId;
+      question.translatedLang.forEach((l) => {
+        delete question[l];
+      });
 
       setQuestion(
         await appwriteDatabases.updateDocument(
@@ -144,6 +143,7 @@ export default function QuestionEditForm({ questionId }) {
             coverQuestion: coverQuestion,
             coverAnswer: coverAnswer,
             coverOptions: coveOptions,
+            lang: selectedLanguage || null,
             updater: user.$id,
           }
         )
@@ -264,49 +264,64 @@ export default function QuestionEditForm({ questionId }) {
       <Divider />
 
       <Breadcrumbs sx={{ mb: 1, mt: 1 }}>
-        <Link
-          underline="hover"
-          sx={{ display: "flex", alignItems: "center" }}
-          color="inherit"
-        >
-          {question?.standard?.standard}
-        </Link>
-        <Link
-          underline="hover"
-          sx={{ display: "flex", alignItems: "center" }}
-          color="inherit"
-        >
-          {question?.subject?.subject}
-        </Link>
-        <Link
-          underline="hover"
-          sx={{ display: "flex", alignItems: "center" }}
-          color="inherit"
-        >
-          {question?.chapter?.chapter}
-        </Link>
-        <Link
-          underline="hover"
-          sx={{ display: "flex", alignItems: "center" }}
-          color="inherit"
-        >
-          {question?.concept?.concept}
-        </Link>
+        <IndexView id={question.bookIndexId} />
       </Breadcrumbs>
 
-      {/*<FormControlLabel*/}
-      {/*  control={*/}
-      {/*    <Switch*/}
-      {/*      checked={containsImages}*/}
-      {/*      onChange={() => {*/}
-      {/*        setContainsImages(!containsImages);*/}
-      {/*      }}*/}
-      {/*    />*/}
-      {/*  }*/}
-      {/*  label="Does your question contain images"*/}
-      {/*/>*/}
-
       <Box component="section" sx={{ p: 2, border: "1px dashed grey" }}>
+        <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={2}
+            alignItems="center"
+          >
+            <Box sx={{ bgcolor: "secondary.lighter", borderRadius: 2, p: 1 }}>
+              <Iconify icon="mdi:translate" width={36} height={36} />
+            </Box>
+
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="h6">Select Language</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Select a language for this question.
+              </Typography>
+
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                alignItems="center"
+              >
+                <FormControl size="small" sx={{ minWidth: 220 }}>
+                  <InputLabel id="question-lang-select-label">
+                    Language
+                  </InputLabel>
+                  <Select
+                    labelId="question-lang-select-label"
+                    value={selectedLanguage}
+                    label="Language"
+                    onChange={(e) => setSelectedLanguage(e.target.value)}
+                  >
+                    <MenuItem value="">(None)</MenuItem>
+                    {availableLangEntries.map(([code, info]) => (
+                      <MenuItem key={code} value={code}>
+                        {info.level} ({code})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <Chip
+                  label={
+                    selectedLanguage
+                      ? `${lang[selectedLanguage]?.level} (${selectedLanguage})`
+                      : "No Language selected"
+                  }
+                  size="small"
+                  color={selectedLanguage ? "primary" : "default"}
+                />
+              </Stack>
+            </Box>
+          </Stack>
+        </Paper>
+
         <Divider sx={{ mb: 1 }}>
           <Chip label={question?.qnId} />
         </Divider>
@@ -337,7 +352,7 @@ export default function QuestionEditForm({ questionId }) {
                 onChange={(newVal) =>
                   setQuestion({ ...question, contentQuestion: newVal })
                 }
-                requiredCover={containsImages}
+                requiredCover={true}
                 cover={covers?.coverQuestion}
                 onDrop={(acceptedFiles) => handleDropFile(acceptedFiles, -1)}
                 onDelete={() => {
@@ -360,11 +375,7 @@ export default function QuestionEditForm({ questionId }) {
           <AccordionDetails>
             <Grid container spacing={1}>
               {question?.contentOptions?.map((option, index) => (
-                <Grid
-                  item
-                  xs={containsImages ? 12 : 6}
-                  key={question.idOptions[index]}
-                >
+                <Grid item xs={12} key={idOptions[index]}>
                   <Box
                     component="section"
                     sx={{
@@ -393,7 +404,7 @@ export default function QuestionEditForm({ questionId }) {
                               contentOptions: question.contentOptions,
                             });
                           }}
-                          requiredCover={containsImages}
+                          requiredCover={true}
                           cover={covers.coverOptions[index]}
                           onDrop={(acceptedFiles) =>
                             handleDropFile(acceptedFiles, index)
@@ -437,13 +448,13 @@ export default function QuestionEditForm({ questionId }) {
                           question?.contentOptions.splice(index, 1);
                           question?.coverOptions.splice(index, 1);
                           question.answerOptions.splice(index, 1);
-                          question.idOptions.splice(index, 1);
+                          idOptions.splice(index, 1);
+                          setIdOptions(idOptions);
                           setQuestion({
                             ...question,
                             contentOptions: question?.contentOptions,
                             coverOptions: question?.coverOptions,
                             answerOptions: question.answerOptions,
-                            idOptions: question.idOptions,
                           });
                         }}
                       >
@@ -464,13 +475,13 @@ export default function QuestionEditForm({ questionId }) {
                 question?.contentOptions.push(null);
                 question?.coverOptions.push(null);
                 question?.answerOptions.push(false);
-                question?.idOptions.push(crypto.randomUUID());
+                idOptions.push(crypto.randomUUID());
+                setIdOptions(idOptions);
                 setQuestion({
                   ...question,
                   contentOptions: question.contentOptions,
                   coverOptions: question.coverOptions,
                   answerOptions: question.answerOptions,
-                  idOptions: question.idOptions,
                 });
                 covers.coverOptions.push(null);
                 setCovers(covers);
@@ -507,7 +518,7 @@ export default function QuestionEditForm({ questionId }) {
                 onChange={(newVal) =>
                   setQuestion({ ...question, contentAnswer: newVal })
                 }
-                requiredCover={containsImages}
+                requiredCover={true}
                 cover={covers.coverAnswer}
                 onDrop={(acceptedFiles) => handleDropFile(acceptedFiles, -2)}
                 onDelete={() => {
