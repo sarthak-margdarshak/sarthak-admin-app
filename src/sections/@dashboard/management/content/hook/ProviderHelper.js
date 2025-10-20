@@ -239,8 +239,8 @@ export class ProviderHelper {
           ]
         );
 
-        if (x < langObj.$updatedAt) {
-          x = langObj.$updatedAt;
+        if (x < langObj.documents[0].$updatedAt) {
+          x = langObj.documents[0].$updatedAt;
         }
       }
 
