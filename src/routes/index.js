@@ -30,6 +30,7 @@ import {
   ProductEditPage,
   ProductListPage,
   QuestionTranslatePage,
+  MockTestTranslatePage,
 } from "./elements";
 import QuestionTreeView from "sections/@dashboard/management/content/layout/tree-view/QuestionTreeView";
 import { ContentProvider } from "sections/@dashboard/management/content/hook/ContentProvider";
@@ -134,6 +135,10 @@ export default function Router() {
             { path: "list", element: <MockTestListPage /> },
             { path: ":id", element: <MockTestViewPage /> },
             { path: ":id/edit", element: <MockTestEditPage /> },
+            {
+              path: ":id/translate/:targetLang",
+              element: <MockTestTranslatePage />,
+            },
           ],
         },
         // Dashboard: Product

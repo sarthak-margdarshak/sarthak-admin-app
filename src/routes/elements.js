@@ -76,6 +76,11 @@ export const MockTestEditPage = Loadable(
     import("pages/dashboard/management/content/mock-test/MockTestEditPage")
   )
 );
+export const MockTestTranslatePage = Loadable(
+  lazy(() =>
+    import("pages/dashboard/management/content/mock-test/MockTestTranslatePage")
+  )
+);
 
 // -----------------< DASHBOARD: MANAGEMENT: CONTENT: PRODUCT >-----------------
 export const ProductListPage = Loadable(

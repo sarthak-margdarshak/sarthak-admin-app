@@ -37,12 +37,16 @@ export const PATH_DASHBOARD = {
     view: (id) => path(ROOTS_DASHBOARD, `/question/${id}`),
     edit: (id) => path(ROOTS_DASHBOARD, `/question/${id}/edit`),
     bulkImport: (id) => path(ROOTS_DASHBOARD, `/question/${id}/bulk-import`),
+    translate: (id, lang) =>
+      path(ROOTS_DASHBOARD, `/question/${id}/translate/${lang}`),
   },
   mockTest: {
     root: path(ROOTS_DASHBOARD, "/mock-test"),
     list: path(ROOTS_DASHBOARD, "/mock-test/list"),
     view: (id) => path(ROOTS_DASHBOARD, `/mock-test/${id}`),
     edit: (id) => path(ROOTS_DASHBOARD, `/mock-test/${id}/edit`),
+    translate: (id, lang) =>
+      path(ROOTS_DASHBOARD, `/mock-test/${id}/translate/${lang}`),
   },
   product: {
     root: path(ROOTS_DASHBOARD, "/product"),

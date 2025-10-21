@@ -16,8 +16,10 @@ export const sarthakAPIPath = {
   },
   mockTest: {
     publish: "/mockTest/publish",
+    translate: "/mockTest/translate",
   },
   product: {
     publish: "/product/publish",
+    translate: "/product/translate",
   },
 };
