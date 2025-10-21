@@ -20,7 +20,9 @@ export default function MockTestRowTable({ id, searchId }) {
       ? JSON.parse(localStorage.getItem(`mockTest_${id}`))
       : {}
   );
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(
+    localStorage.getItem(`mockTest_${id}`) ? false : true
+  );
 
   useEffect(() => {
     const fetchData = async () => {

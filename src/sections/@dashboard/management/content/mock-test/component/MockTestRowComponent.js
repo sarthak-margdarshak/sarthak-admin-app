@@ -79,7 +79,9 @@ export default function MockTestRowComponent({
     : "";
 
   const [publishing, setPublishing] = useState(false);
-  const [isDataLoading, setIsDataLoading] = useState(true);
+  const [isDataLoading, setIsDataLoading] = useState(
+    localStorage.getItem(`mockTest_${mockTestId}`) ? false : true
+  );
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
 
   const { user } = useAuthContext();
@@ -307,57 +309,69 @@ export default function MockTestRowComponent({
         </CardContent>
 
         <CardActions disableSpacing>
-          {mockTest?.published ? (
-            <>
-              <Tooltip title="Published">
-                <Iconify icon="noto:locked" sx={{ m: 1 }} />
-              </Tooltip>
-
-              <Tooltip title="Unpublish">
-                <IconButton onClick={() => {}}>
-                  <Iconify icon="mdi:lock-open-outline" color="#ff2889" />
-                </IconButton>
-              </Tooltip>
-            </>
-          ) : (
-            <>
-              <Tooltip title="Edit">
-                <IconButton
-                  onClick={() =>
-                    navigate(PATH_DASHBOARD.mockTest.edit(mockTestId))
-                  }
-                >
-                  <Iconify icon="fluent-color:edit-16" />
-                </IconButton>
-              </Tooltip>
-
-              {user.labels.findIndex(
-                (label) => label === labels.founder || label === labels.admin
-              ) !== -1 && (
-                <>
-                  <Tooltip title="Publish">
-                    <IconButton
-                      disabled={mockTest?.published}
-                      onClick={() => setOpenPublishDialog(true)}
-                    >
-                      <Iconify icon="ic:round-publish" color="#ff2889" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Delete">
-                    <IconButton
-                      onClick={() => {
-                        setOpenDeleteDialog(true);
-                      }}
-                    >
-                      <Iconify icon="mdi:delete" color="red" />
-                    </IconButton>
-                  </Tooltip>
-                </>
-              )}
-            </>
+          {/* Published Info */}
+          {mockTest?.published && defaultExpanded && (
+            <Tooltip title="Published">
+              <Iconify icon="noto:locked" sx={{ m: 1 }} />
+            </Tooltip>
           )}
 
+          {/* Unpublish */}
+          {mockTest?.published && defaultExpanded && (
+            <Tooltip title="Unpublish">
+              <IconButton onClick={() => {}}>
+                <Iconify icon="mdi:lock-open-outline" color="#ff2889" />
+              </IconButton>
+            </Tooltip>
+          )}
+
+          {/* Edit */}
+          {!mockTest?.published && defaultExpanded && (
+            <Tooltip title="Edit">
+              <IconButton
+                onClick={() =>
+                  navigate(PATH_DASHBOARD.mockTest.edit(mockTestId))
+                }
+              >
+                <Iconify icon="fluent-color:edit-16" />
+              </IconButton>
+            </Tooltip>
+          )}
+
+          {/* Publish */}
+          {!mockTest?.published &&
+            defaultExpanded &&
+            user.labels.findIndex(
+              (label) => label === labels.founder || label === labels.admin
+            ) !== -1 && (
+              <Tooltip title="Publish">
+                <IconButton
+                  disabled={mockTest?.published}
+                  onClick={() => setOpenPublishDialog(true)}
+                >
+                  <Iconify icon="ic:round-publish" color="#ff2889" />
+                </IconButton>
+              </Tooltip>
+            )}
+
+          {/* Delete */}
+          {!mockTest?.published &&
+            defaultExpanded &&
+            user.labels.findIndex(
+              (label) => label === labels.founder || label === labels.admin
+            ) !== -1 && (
+              <Tooltip title="Delete">
+                <IconButton
+                  onClick={() => {
+                    setOpenDeleteDialog(true);
+                  }}
+                >
+                  <Iconify icon="mdi:delete" color="red" />
+                </IconButton>
+              </Tooltip>
+            )}
+
+          {/* View */}
           {!defaultExpanded && (
             <Tooltip title={"View"}>
               <IconButton
@@ -370,24 +384,29 @@ export default function MockTestRowComponent({
             </Tooltip>
           )}
 
-          <Tooltip
-            title={hasLanguageAssigned() ? "View Languages" : "Assign Language"}
-          >
-            <IconButton
-              onClick={() => {
-                if (hasLanguageAssigned()) {
-                  setOpenLanguageDialog(true);
-                } else {
-                  setOpenLanguageAssignmentDialog(true);
-                }
-              }}
+          {/* Language Management */}
+          {defaultExpanded && (
+            <Tooltip
+              title={
+                hasLanguageAssigned() ? "View Languages" : "Assign Language"
+              }
             >
-              <Iconify
-                icon="mdi:translate"
-                color={hasLanguageAssigned() ? "#4caf50" : "#ff9800"}
-              />
-            </IconButton>
-          </Tooltip>
+              <IconButton
+                onClick={() => {
+                  if (hasLanguageAssigned()) {
+                    setOpenLanguageDialog(true);
+                  } else {
+                    setOpenLanguageAssignmentDialog(true);
+                  }
+                }}
+              >
+                <Iconify
+                  icon="mdi:translate"
+                  color={hasLanguageAssigned() ? "#4caf50" : "#ff9800"}
+                />
+              </IconButton>
+            </Tooltip>
+          )}
         </CardActions>
 
         {defaultExpanded && (
@@ -641,7 +660,12 @@ export default function MockTestRowComponent({
                           variant="outlined"
                           color="primary"
                           onClick={async () => {
-                            navigate(PATH_DASHBOARD.mockTest.translate(mockTestId, langCode));
+                            navigate(
+                              PATH_DASHBOARD.mockTest.translate(
+                                mockTestId,
+                                langCode
+                              )
+                            );
                           }}
                           startIcon={<Iconify icon="mdi:eye-circle" />}
                         >
@@ -713,7 +737,12 @@ export default function MockTestRowComponent({
                               }
                             );
                             setTranslating(false);
-                            navigate(PATH_DASHBOARD.mockTest.translate(mockTestId, langCode));
+                            navigate(
+                              PATH_DASHBOARD.mockTest.translate(
+                                mockTestId,
+                                langCode
+                              )
+                            );
                           }}
                           loading={translating}
                           startIcon={<Iconify icon="mdi:translate" />}

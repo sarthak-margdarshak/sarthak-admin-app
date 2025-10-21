@@ -113,26 +113,28 @@ export default function MockTestEditForm({ mockTestId }) {
       APPWRITE_API.collections.questions,
       query
     );
-    let tempAllQuestions = allQuestions.questions.concat(
-      x.documents.map((q) => q.$id)
-    );
-    let tempSelected = allQuestions.selected.concat(
-      new Array(x.documents.length).fill(false)
-    );
-    mockTest.questions.forEach((question) => {
-      const x = tempAllQuestions.findIndex((q) => q === question);
-      if (x !== -1) {
-        tempSelected[x] = true;
-      }
-    });
-    setAllQuestions({
-      loadedOnce: true,
-      loading: false,
-      total: x.total,
-      questions: tempAllQuestions,
-      lastSyncId: x.documents[x.documents.length - 1].$id,
-      selected: tempSelected,
-    });
+    if (x.total !== 0) {
+      let tempAllQuestions = allQuestions.questions.concat(
+        x.documents.map((q) => q.$id)
+      );
+      let tempSelected = allQuestions.selected.concat(
+        new Array(x.documents.length).fill(false)
+      );
+      mockTest.questions.forEach((question) => {
+        const x = tempAllQuestions.findIndex((q) => q === question);
+        if (x !== -1) {
+          tempSelected[x] = true;
+        }
+      });
+      setAllQuestions({
+        loadedOnce: true,
+        loading: false,
+        total: x.total,
+        questions: tempAllQuestions,
+        lastSyncId: x.documents[x.documents.length - 1].$id,
+        selected: tempSelected,
+      });
+    }
   };
 
   const saveMockTest = async () => {
