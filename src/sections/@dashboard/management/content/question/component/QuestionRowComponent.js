@@ -27,7 +27,11 @@ import Iconify from "components/iconify/Iconify";
 import { useAuthContext } from "auth/useAuthContext";
 import { useSnackbar } from "components/snackbar";
 import PermissionDeniedComponent from "components/sub-component/PermissionDeniedComponent";
-import { appwriteDatabases, appwriteFunctions } from "auth/AppwriteContext";
+import {
+  appwriteDatabases,
+  appwriteFunctions,
+  appwriteStorage,
+} from "auth/AppwriteContext";
 import { APPWRITE_API } from "config-global";
 import { LoadingButton } from "@mui/lab";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
@@ -189,15 +193,24 @@ export default function QuestionRowComponent({
 
   const deleteQuestion = async () => {
     setDeleting(true);
-    const canDelete =
-      (
-        await appwriteDatabases.getDocument(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.collections.questions,
-          questionId,
-          [Query.select("published")]
-        )
-      ).published === false;
+
+    // fetch necessary fields (published + covers) to decide and delete
+    const doc = await appwriteDatabases.getDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.questions,
+      questionId,
+      [
+        Query.select([
+          "published",
+          "coverQuestion",
+          "coverOptions",
+          "coverAnswer",
+          "translatedLang",
+        ]),
+      ]
+    );
+
+    const canDelete = doc.published === false;
     if (!canDelete) {
       enqueueSnackbar(
         "Cannot delete question as it is associated with mock tests. De-reference them first.",
@@ -207,30 +220,59 @@ export default function QuestionRowComponent({
       setOpenDeleteDialog(false);
       return;
     }
-    // Delete other language versions
-    for (const langCode of question.translatedLang) {
-      // Get translated question document ID
-      const translatedQuestionDocs = await appwriteDatabases.listDocuments(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.translatedQuestions,
-        [
-          Query.equal("questionId", questionId),
-          Query.equal("lang", langCode),
-          Query.select(["$id"]),
-        ]
+
+    // Delete cover files from storage (if any)
+    if (doc.coverQuestion) {
+      await appwriteStorage.deleteFile(
+        APPWRITE_API.buckets.sarthakDatalakeBucket,
+        doc.coverQuestion
       );
-      // Delete translated question document
+    }
+
+    for (const f of doc.coverOptions) {
+      if (f) {
+        await appwriteStorage.deleteFile(
+          APPWRITE_API.buckets.sarthakDatalakeBucket,
+          f
+        );
+      }
+    }
+
+    if (doc.coverAnswer) {
+      await appwriteStorage.deleteFile(
+        APPWRITE_API.buckets.sarthakDatalakeBucket,
+        doc.coverAnswer
+      );
+    }
+
+    // Delete translated question documents
+    for (const langCode of doc.translatedLang) {
+      const translatedQuestionDoc = (
+        await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.translatedQuestions,
+          [
+            Query.equal("questionId", questionId),
+            Query.equal("lang", langCode),
+            Query.select(["$id"]),
+          ]
+        )
+      ).documents[0];
+
       await appwriteDatabases.deleteDocument(
         APPWRITE_API.databaseId,
         APPWRITE_API.collections.translatedQuestions,
-        translatedQuestionDocs.documents[0].$id
+        translatedQuestionDoc.$id
       );
     }
+
+    // Finally delete main question document
     await appwriteDatabases.deleteDocument(
       APPWRITE_API.databaseId,
       APPWRITE_API.collections.questions,
       questionId
     );
+
     setDeleting(false);
     setOpenDeleteDialog(false);
     enqueueSnackbar(`Question Deleted Successfully with ID: [${questionId}]`, {
@@ -442,59 +484,69 @@ export default function QuestionRowComponent({
         </CardContent>
 
         <CardActions disableSpacing>
+          {/* Published Info */}
           {question?.published && defaultExpanded && (
-            <>
-              <Tooltip title="Published">
-                <Iconify icon="noto:locked" sx={{ m: 1 }} />
-              </Tooltip>
-
-              <Tooltip title="Unpublish">
-                <IconButton onClick={() => {}}>
-                  <Iconify icon="mdi:lock-open-outline" color="#ff2889" />
-                </IconButton>
-              </Tooltip>
-            </>
+            <Tooltip title="Published">
+              <Iconify icon="noto:locked" sx={{ m: 1 }} />
+            </Tooltip>
           )}
 
+          {/* Unpublish */}
+          {question?.published && defaultExpanded && (
+            <Tooltip title="Unpublish">
+              <IconButton onClick={() => {}}>
+                <Iconify icon="mdi:lock-open-outline" color="#ff2889" />
+              </IconButton>
+            </Tooltip>
+          )}
+
+          {/* Edit */}
           {!question?.published && defaultExpanded && (
-            <>
-              <Tooltip title="Edit">
-                <IconButton
-                  onClick={() =>
-                    navigate(PATH_DASHBOARD.question.edit(questionId))
-                  }
-                >
-                  <Iconify icon="fluent-color:edit-16" />
-                </IconButton>
-              </Tooltip>
-
-              {user.labels.findIndex(
-                (label) => label === labels.founder || label === labels.admin
-              ) !== -1 && (
-                <>
-                  <Tooltip title="Publish">
-                    <IconButton
-                      disabled={question?.published}
-                      onClick={() => setOpenPublishDialog(true)}
-                    >
-                      <Iconify icon="ic:round-publish" color="#ff2889" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Delete">
-                    <IconButton
-                      onClick={() => {
-                        setOpenDeleteDialog(true);
-                      }}
-                    >
-                      <Iconify icon="mdi:delete" color="red" />
-                    </IconButton>
-                  </Tooltip>
-                </>
-              )}
-            </>
+            <Tooltip title="Edit">
+              <IconButton
+                onClick={() =>
+                  navigate(PATH_DASHBOARD.question.edit(questionId))
+                }
+              >
+                <Iconify icon="fluent-color:edit-16" />
+              </IconButton>
+            </Tooltip>
           )}
 
+          {/* Publish */}
+          {!question?.published &&
+            defaultExpanded &&
+            user.labels.findIndex(
+              (label) => label === labels.founder || label === labels.admin
+            ) !== -1 && (
+              <Tooltip title="Publish">
+                <IconButton
+                  disabled={question?.published}
+                  onClick={() => setOpenPublishDialog(true)}
+                >
+                  <Iconify icon="ic:round-publish" color="#ff2889" />
+                </IconButton>
+              </Tooltip>
+            )}
+
+          {/* Delete */}
+          {!question?.published &&
+            defaultExpanded &&
+            user.labels.findIndex(
+              (label) => label === labels.founder || label === labels.admin
+            ) !== -1 && (
+              <Tooltip title="Delete">
+                <IconButton
+                  onClick={() => {
+                    setOpenDeleteDialog(true);
+                  }}
+                >
+                  <Iconify icon="mdi:delete" color="red" />
+                </IconButton>
+              </Tooltip>
+            )}
+
+          {/* View */}
           {!defaultExpanded && (
             <Tooltip title={"View"}>
               <IconButton
@@ -510,6 +562,7 @@ export default function QuestionRowComponent({
             </Tooltip>
           )}
 
+          {/* Language Management */}
           {defaultExpanded && (
             <Tooltip
               title={
