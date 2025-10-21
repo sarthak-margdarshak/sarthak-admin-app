@@ -29,6 +29,9 @@ import {
   ProductViewPage,
   ProductEditPage,
   ProductListPage,
+  ProductTranslatePage,
+  QuestionTranslatePage,
+  MockTestTranslatePage,
 } from "./elements";
 import QuestionTreeView from "sections/@dashboard/management/content/layout/tree-view/QuestionTreeView";
 import { ContentProvider } from "sections/@dashboard/management/content/hook/ContentProvider";
@@ -108,6 +111,10 @@ export default function Router() {
             { path: ":id", element: <QuestionDetailsPage /> },
             { path: ":id/edit", element: <QuestionEditPage /> },
             { path: ":id/bulk-import", element: <QuestionBulkImportPage /> },
+            {
+              path: ":id/translate/:targetLang",
+              element: <QuestionTranslatePage />,
+            },
           ],
         },
         // Dashboard: Mock Test
@@ -129,6 +136,10 @@ export default function Router() {
             { path: "list", element: <MockTestListPage /> },
             { path: ":id", element: <MockTestViewPage /> },
             { path: ":id/edit", element: <MockTestEditPage /> },
+            {
+              path: ":id/translate/:targetLang",
+              element: <MockTestTranslatePage />,
+            },
           ],
         },
         // Dashboard: Product
@@ -149,6 +160,10 @@ export default function Router() {
             },
             { path: ":id", element: <ProductViewPage /> },
             { path: ":id/edit", element: <ProductEditPage /> },
+            {
+              path: ":id/translate/:targetLang",
+              element: <ProductTranslatePage />,
+            },
             { path: "list", element: <ProductListPage /> },
           ],
         },

@@ -54,6 +54,23 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const fetchData = async () => {
+      // Remove below code after 1 year, just to make sure that all users deleted these variables from their local cache
+      if (localStorage.getItem("questionsData")) {
+        localStorage.removeItem("questionsData");
+      }
+      if (localStorage.getItem("mockTestsData")) {
+        localStorage.removeItem("mockTestsData");
+      }
+      if (localStorage.getItem("productsData")) {
+        localStorage.removeItem("productsData");
+      }
+      if (localStorage.getItem("bookIndex")) {
+        localStorage.removeItem("bookIndex");
+      }
+      if (localStorage.getItem("standardsData")) {
+        localStorage.removeItem("standardsData");
+      }
+
       try {
         const metadataContent = await appwriteDatabases.getDocument(
           APPWRITE_API.databaseId,

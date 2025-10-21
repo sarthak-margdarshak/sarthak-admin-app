@@ -4,13 +4,19 @@ import { useContent } from "sections/@dashboard/management/content/hook/useConte
 
 export default function IndexView({ id }) {
   const { getBookIndex } = useContent();
-  const [label, setLabel] = useState();
-  const [loading, setLoading] = useState(false);
+  const [label, setLabel] = useState(
+    localStorage.getItem(`bookIndex_${id}`)
+      ? JSON.parse(localStorage.getItem(`bookIndex_${id}`)).label
+      : {}
+  );
+  const [loading, setLoading] = useState(
+    localStorage.getItem(`bookIndex_${id}`) ? false : true
+  );
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-      setLabel(await getBookIndex(id));
+      const x = await getBookIndex(id);
+      setLabel(x.label);
       setLoading(false);
     };
     fetchData().then(() => {});
@@ -18,8 +24,8 @@ export default function IndexView({ id }) {
   }, [getBookIndex, id]);
 
   if (loading) {
-    return <Skeleton variant="text" width={100} sx={{ fontSize: "1rem" }} />;
+    return <Skeleton variant="text" width={400} sx={{ fontSize: "1rem" }} />;
   }
 
-  return <Typography variant="body2">{label}</Typography>;
+  return <Typography>{label}</Typography>;
 }

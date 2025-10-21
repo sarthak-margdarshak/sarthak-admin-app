@@ -1,5 +1,6 @@
 import {
   Alert,
+  Box,
   Button,
   Card,
   CardActions,
@@ -17,6 +18,7 @@ import {
   Skeleton,
   Stack,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import Image from "components/image/Image";
 import ReactKatex from "@pkasila/react-katex";
@@ -28,15 +30,16 @@ import PermissionDeniedComponent from "components/sub-component/PermissionDenied
 import {
   appwriteDatabases,
   appwriteFunctions,
-  timeAgo,
+  appwriteStorage,
 } from "auth/AppwriteContext";
 import { APPWRITE_API } from "config-global";
 import { LoadingButton } from "@mui/lab";
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
-import { Query } from "appwrite";
+import { ID, Query } from "appwrite";
 import { PATH_DASHBOARD } from "routes/paths";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { labels, sarthakAPIPath } from "assets/data";
+import { lang } from "assets/data/lang";
 import { Marker } from "react-mark.js";
 import QuestionMetadata from "sections/@dashboard/management/content/question/component/QuestionMetadata";
 import QuestionMockTestList from "sections/@dashboard/management/content/question/component/QuestionMockTestList";
@@ -47,8 +50,7 @@ export default function QuestionRowComponent({
   showImages = true,
   showAnswer = true,
 }) {
-  const { questionsData, updateQuestion } = useContent();
-  let question = questionsData[questionId];
+  const { getQuestion } = useContent();
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -58,35 +60,103 @@ export default function QuestionRowComponent({
     : "";
 
   const [publishing, setPublishing] = useState(false);
-  const [isDataLoading, setIsDataLoading] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(
+    localStorage.getItem(`question_${questionId}`) ? false : true
+  );
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openLanguageDialog, setOpenLanguageDialog] = useState(false);
+  const [openLanguageAssignmentDialog, setOpenLanguageAssignmentDialog] =
+    useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState(null);
+  const [translating, setTranslating] = useState(false);
+  const [question, setQuestion] = useState(
+    localStorage.getItem(`question_${questionId}`)
+      ? JSON.parse(localStorage.getItem(`question_${questionId}`))
+      : {}
+  );
+  const [langContent, setLangContent] = useState(
+    localStorage.getItem(`question_${questionId}`)
+      ? {
+          contentQuestion: JSON.parse(
+            localStorage.getItem(`question_${questionId}`)
+          )?.contentQuestion,
+          contentOptions: JSON.parse(
+            localStorage.getItem(`question_${questionId}`)
+          )?.contentOptions,
+          contentAnswer: JSON.parse(
+            localStorage.getItem(`question_${questionId}`)
+          )?.contentAnswer,
+        }
+      : {}
+  );
+  const [currLang, setCurrLang] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const { user } = useAuthContext();
 
   const { enqueueSnackbar } = useSnackbar();
 
+  // Check if question has a language assigned
+  const hasLanguageAssigned = () => {
+    return (
+      question?.lang && question.lang !== null && question.lang !== undefined
+    );
+  };
+
+  // Handle language assignment
+  const handleLanguageAssignment = async () => {
+    if (!selectedLanguage) {
+      enqueueSnackbar("Please select a language", { variant: "error" });
+      return;
+    }
+
+    try {
+      await appwriteDatabases.updateDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        questionId,
+        {
+          lang: selectedLanguage,
+          updater: user.$id,
+        }
+      );
+
+      enqueueSnackbar(
+        `Language assigned successfully: ${lang[selectedLanguage]?.level}`,
+        { variant: "success" }
+      );
+      setOpenLanguageAssignmentDialog(false);
+      setSelectedLanguage(null);
+      await fetchData(); // Refresh the question data
+    } catch (error) {
+      enqueueSnackbar(error.message, { variant: "error" });
+    }
+  };
+
+  // Get available languages for translation (languages not yet translated)
+  const getAvailableLanguagesForTranslation = () => {
+    const translatedLanguages = question?.translatedLang || [];
+    const primaryLanguage = question?.lang;
+
+    return Object.keys(lang).filter(
+      (langCode) =>
+        langCode !== primaryLanguage && !translatedLanguages.includes(langCode)
+    );
+  };
+
   const fetchData = async () => {
     try {
-      if (question === undefined) {
-        setIsDataLoading(true);
-        await updateQuestion(questionId);
-        setIsDataLoading(false);
-      } else {
-        const isChanged =
-          (
-            await appwriteDatabases.getDocument(
-              APPWRITE_API.databaseId,
-              APPWRITE_API.collections.questions,
-              questionId,
-              [Query.select("$updatedAt")]
-            )
-          ).$updatedAt !== question?.$updatedAt;
-        if (isChanged) {
-          setIsDataLoading(true);
-          await updateQuestion(questionId);
-          setIsDataLoading(false);
-        }
+      const x = await getQuestion(questionId);
+      if (x) {
+        setLangContent({
+          contentQuestion: x?.contentQuestion,
+          contentOptions: x?.contentOptions,
+          contentAnswer: x?.contentAnswer,
+        });
+        setCurrLang(x?.lang);
       }
+      setQuestion(x);
       setIsDataLoading(false);
     } catch (error) {
       console.log(error);
@@ -121,6 +191,97 @@ export default function QuestionRowComponent({
     setPublishing(false);
   };
 
+  const deleteQuestion = async () => {
+    setDeleting(true);
+
+    // fetch necessary fields (published + covers) to decide and delete
+    const doc = await appwriteDatabases.getDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.questions,
+      questionId,
+      [
+        Query.select([
+          "published",
+          "coverQuestion",
+          "coverOptions",
+          "coverAnswer",
+          "translatedLang",
+        ]),
+      ]
+    );
+
+    const canDelete = doc.published === false;
+    if (!canDelete) {
+      enqueueSnackbar(
+        "Cannot delete question as it is associated with mock tests. De-reference them first.",
+        { variant: "error" }
+      );
+      setDeleting(false);
+      setOpenDeleteDialog(false);
+      return;
+    }
+
+    // Delete cover files from storage (if any)
+    if (doc.coverQuestion) {
+      await appwriteStorage.deleteFile(
+        APPWRITE_API.buckets.sarthakDatalakeBucket,
+        doc.coverQuestion
+      );
+    }
+
+    for (const f of doc.coverOptions) {
+      if (f) {
+        await appwriteStorage.deleteFile(
+          APPWRITE_API.buckets.sarthakDatalakeBucket,
+          f
+        );
+      }
+    }
+
+    if (doc.coverAnswer) {
+      await appwriteStorage.deleteFile(
+        APPWRITE_API.buckets.sarthakDatalakeBucket,
+        doc.coverAnswer
+      );
+    }
+
+    // Delete translated question documents
+    for (const langCode of doc.translatedLang) {
+      const translatedQuestionDoc = (
+        await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.translatedQuestions,
+          [
+            Query.equal("questionId", questionId),
+            Query.equal("lang", langCode),
+            Query.select(["$id"]),
+          ]
+        )
+      ).documents[0];
+
+      await appwriteDatabases.deleteDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.translatedQuestions,
+        translatedQuestionDoc.$id
+      );
+    }
+
+    // Finally delete main question document
+    await appwriteDatabases.deleteDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.questions,
+      questionId
+    );
+
+    setDeleting(false);
+    setOpenDeleteDialog(false);
+    enqueueSnackbar(`Question Deleted Successfully with ID: [${questionId}]`, {
+      variant: "success",
+    });
+    localStorage.removeItem(`question_${questionId}`);
+    navigate(PATH_DASHBOARD.question.list);
+  };
+
   if (isDataLoading) {
     return (
       <Fragment>
@@ -148,6 +309,62 @@ export default function QuestionRowComponent({
     );
   }
 
+  if (question === null) {
+    return (
+      <Fragment>
+        <Card sx={{ m: 1 }}>
+          <CardHeader
+            title={
+              <Divider>
+                <Chip
+                  label={questionId}
+                  color="error"
+                  icon={
+                    <Iconify icon="fluent-color:chat-bubbles-question-16" />
+                  }
+                />
+              </Divider>
+            }
+          />
+
+          <CardContent>
+            <Stack
+              alignItems="center"
+              spacing={2}
+              sx={{ textAlign: "center", py: 2 }}
+            >
+              <Iconify
+                icon="eva:alert-triangle-fill"
+                width={56}
+                height={56}
+                style={{ color: "#d32f2f" }}
+              />
+              <Typography variant="h6">Question Not Found</Typography>
+              <Chip label="Error: QNF-404" color="error" size="small" />
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ maxWidth: 680 }}
+              >
+                The requested question could not be found. It may have been
+                deleted, or the provided question ID is invalid. Please verify
+                the ID and try again.
+              </Typography>
+              <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => navigate(PATH_DASHBOARD.question.list)}
+                >
+                  Back to Questions
+                </Button>
+              </Stack>
+            </Stack>
+          </CardContent>
+        </Card>
+      </Fragment>
+    );
+  }
+
   return (
     <Fragment>
       <Card sx={{ m: 1 }}>
@@ -155,16 +372,7 @@ export default function QuestionRowComponent({
           title={
             <Divider>
               <Chip
-                label={
-                  question?.qnId +
-                  " (" +
-                  timeAgo.format(
-                    Date.parse(
-                      question?.lastSynced || "2000-01-01T00:00:00.000+00:00"
-                    )
-                  ) +
-                  ")"
-                }
+                label={question?.qnId}
                 color="primary"
                 icon={<Iconify icon="fluent-color:chat-bubbles-question-16" />}
               />
@@ -172,22 +380,6 @@ export default function QuestionRowComponent({
           }
           action={
             <Stack direction="row">
-              <Tooltip title="Refresh">
-                <IconButton
-                  aria-label="settings"
-                  onClick={async () => {
-                    setIsDataLoading(true);
-                    await updateQuestion(questionId);
-                    setIsDataLoading(false);
-                  }}
-                >
-                  <Iconify
-                    icon="solar:refresh-square-bold"
-                    color="#ff8164"
-                    width={35}
-                  />
-                </IconButton>
-              </Tooltip>
               {question?.published && (
                 <Tooltip title="Published">
                   <Image
@@ -203,7 +395,7 @@ export default function QuestionRowComponent({
 
         <CardContent>
           <Marker mark={content}>
-            <ReactKatex>{question?.contentQuestion || ""}</ReactKatex>
+            <ReactKatex>{langContent?.contentQuestion || ""}</ReactKatex>
           </Marker>
 
           {question?.coverQuestion && showImages && (
@@ -246,7 +438,7 @@ export default function QuestionRowComponent({
                   <Stack direction="column">
                     <Marker mark={content}>
                       <ReactKatex>
-                        {question?.contentOptions[index] || ""}
+                        {langContent?.contentOptions[index] || ""}
                       </ReactKatex>
                     </Marker>
                     {question?.coverOptions[index] && showImages && (
@@ -276,7 +468,7 @@ export default function QuestionRowComponent({
 
               <Alert severity="warning" sx={{ m: 0.5 }} icon={false}>
                 <Marker mark={content}>
-                  <ReactKatex>{question?.contentAnswer || ""}</ReactKatex>
+                  <ReactKatex>{langContent?.contentAnswer || ""}</ReactKatex>
                 </Marker>
                 {question?.coverAnswer && (
                   <Image
@@ -292,22 +484,24 @@ export default function QuestionRowComponent({
         </CardContent>
 
         <CardActions disableSpacing>
-          {question?.published ? (
+          {/* Published Info */}
+          {question?.published && defaultExpanded && (
             <Tooltip title="Published">
               <Iconify icon="noto:locked" sx={{ m: 1 }} />
             </Tooltip>
-          ) : (
-            <Tooltip title="Publish">
-              <IconButton
-                disabled={question?.published}
-                onClick={() => setOpenPublishDialog(true)}
-              >
-                <Iconify icon="ic:round-publish" color="#ff2889" />
+          )}
+
+          {/* Unpublish */}
+          {question?.published && defaultExpanded && (
+            <Tooltip title="Unpublish">
+              <IconButton onClick={() => {}}>
+                <Iconify icon="mdi:lock-open-outline" color="#ff2889" />
               </IconButton>
             </Tooltip>
           )}
 
-          {!question?.published && (
+          {/* Edit */}
+          {!question?.published && defaultExpanded && (
             <Tooltip title="Edit">
               <IconButton
                 onClick={() =>
@@ -319,14 +513,75 @@ export default function QuestionRowComponent({
             </Tooltip>
           )}
 
+          {/* Publish */}
+          {!question?.published &&
+            defaultExpanded &&
+            user.labels.findIndex(
+              (label) => label === labels.founder || label === labels.admin
+            ) !== -1 && (
+              <Tooltip title="Publish">
+                <IconButton
+                  disabled={question?.published}
+                  onClick={() => setOpenPublishDialog(true)}
+                >
+                  <Iconify icon="ic:round-publish" color="#ff2889" />
+                </IconButton>
+              </Tooltip>
+            )}
+
+          {/* Delete */}
+          {!question?.published &&
+            defaultExpanded &&
+            user.labels.findIndex(
+              (label) => label === labels.founder || label === labels.admin
+            ) !== -1 && (
+              <Tooltip title="Delete">
+                <IconButton
+                  onClick={() => {
+                    setOpenDeleteDialog(true);
+                  }}
+                >
+                  <Iconify icon="mdi:delete" color="red" />
+                </IconButton>
+              </Tooltip>
+            )}
+
+          {/* View */}
           {!defaultExpanded && (
             <Tooltip title={"View"}>
               <IconButton
                 onClick={() =>
-                  navigate(PATH_DASHBOARD.question.view(questionId))
+                  window.open(
+                    PATH_DASHBOARD.question.view(questionId),
+                    "_blank"
+                  )
                 }
               >
                 <Iconify icon="mage:preview-fill" color="#287cff" />
+              </IconButton>
+            </Tooltip>
+          )}
+
+          {/* Language Management */}
+          {defaultExpanded && (
+            <Tooltip
+              title={
+                hasLanguageAssigned() ? "View Languages" : "Assign Language"
+              }
+            >
+              <IconButton
+                onClick={() => {
+                  if (hasLanguageAssigned()) {
+                    setOpenLanguageDialog(true);
+                  } else {
+                    setOpenLanguageAssignmentDialog(true);
+                  }
+                }}
+              >
+                <Iconify
+                  icon="mdi:translate"
+                  color={hasLanguageAssigned() ? "#4caf50" : "#ff9800"}
+                />
               </IconButton>
             </Tooltip>
           )}
@@ -335,6 +590,8 @@ export default function QuestionRowComponent({
         {defaultExpanded && (
           <CardContent>
             <QuestionMetadata question={question} />
+
+            <Box sx={{ m: 1 }} />
 
             <QuestionMockTestList mockTestList={question?.mockTest} />
           </CardContent>
@@ -374,6 +631,399 @@ export default function QuestionRowComponent({
                 autoFocus
               >
                 Agree
+              </LoadingButton>
+            </DialogActions>
+          </Fragment>
+        ) : (
+          <DialogContent>
+            <PermissionDeniedComponent />
+          </DialogContent>
+        )}
+      </Dialog>
+
+      {/* Delete Question Dialog */}
+      <Dialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        {user.labels.findIndex(
+          (label) => label === labels.founder || label === labels.admin
+        ) !== -1 ? (
+          <Fragment>
+            <DialogTitle id="alert-dialog-title">
+              Are you sure to Delete it?
+            </DialogTitle>
+            <DialogContent dividers>
+              <DialogContentText id="alert-dialog-description">
+                If you click AGREE, question will be deleted.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                disabled={deleting}
+                onClick={() => setOpenDeleteDialog(false)}
+              >
+                Disagree
+              </Button>
+              <LoadingButton
+                loading={deleting}
+                onClick={deleteQuestion}
+                autoFocus
+              >
+                Agree
+              </LoadingButton>
+            </DialogActions>
+          </Fragment>
+        ) : (
+          <DialogContent>
+            <PermissionDeniedComponent />
+          </DialogContent>
+        )}
+      </Dialog>
+
+      {/* Language Management Dialog */}
+      <Dialog
+        open={openLanguageDialog}
+        onClose={() => setOpenLanguageDialog(false)}
+        aria-labelledby="language-dialog-title"
+        aria-describedby="language-dialog-description"
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle id="language-dialog-title">
+          Languages for Question {question?.qnId}
+        </DialogTitle>
+        <DialogContent dividers>
+          <DialogContentText id="language-dialog-description" sx={{ mb: 2 }}>
+            {hasLanguageAssigned()
+              ? `Primary language: ${lang[question.lang]?.level}`
+              : "No language assigned to this question."}
+          </DialogContentText>
+
+          {/* Primary Language Section */}
+          {hasLanguageAssigned() && (
+            <Stack spacing={2} sx={{ mb: 3 }}>
+              <Typography variant="h6" color="primary">
+                Primary Language
+              </Typography>
+
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
+                sx={(theme) => ({
+                  p: 2,
+                  borderRadius: 1,
+                  border: "2px solid",
+                  borderColor: "primary.main",
+                  bgcolor:
+                    theme.palette.mode === "light"
+                      ? "primary.lighter"
+                      : theme.palette.action.hover,
+                })}
+              >
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <Typography variant="h5">
+                    {lang[question.lang]?.symbol}
+                  </Typography>
+
+                  <Typography variant="h6">
+                    {lang[question.lang]?.level}
+                  </Typography>
+
+                  <Chip
+                    label="Primary"
+                    size="small"
+                    color="primary"
+                    variant="filled"
+                  />
+                </Stack>
+
+                {currLang !== question?.lang && (
+                  <LoadingButton
+                    size="small"
+                    variant="contained"
+                    color="primary"
+                    onClick={async () => {
+                      setLangContent({
+                        contentQuestion: question?.contentQuestion,
+                        contentOptions: question?.contentOptions,
+                        contentAnswer: question?.contentAnswer,
+                      });
+                      setOpenLanguageDialog(false);
+                      setCurrLang(question?.lang);
+                    }}
+                    startIcon={<Iconify icon="mdi:eye-circle" />}
+                  >
+                    View
+                  </LoadingButton>
+                )}
+              </Stack>
+            </Stack>
+          )}
+
+          {/* Translated Languages Section */}
+          {question?.translatedLang && question.translatedLang.length > 0 && (
+            <Stack spacing={2} sx={{ mb: 3 }}>
+              <Typography variant="h6" color="success.main">
+                Available Translations
+              </Typography>
+
+              <Stack spacing={1}>
+                {question.translatedLang.map((langCode) => (
+                  <Stack
+                    key={langCode}
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    sx={(theme) => ({
+                      p: 1.5,
+                      borderRadius: 1,
+                      border: "1px solid",
+                      borderColor: "success.main",
+                      bgcolor:
+                        theme.palette.mode === "light"
+                          ? "success.lighter"
+                          : theme.palette.action.hover,
+                    })}
+                  >
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Typography variant="h6">
+                        {lang[langCode]?.symbol}
+                      </Typography>
+
+                      <Typography variant="body1">
+                        {lang[langCode]?.level}
+                      </Typography>
+
+                      <Chip
+                        label="Translated"
+                        size="small"
+                        color="success"
+                        variant="filled"
+                      />
+                    </Stack>
+
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      {currLang !== langCode && (
+                        <LoadingButton
+                          size="small"
+                          variant="contained"
+                          color="success"
+                          onClick={async () => {
+                            setLangContent({
+                              contentQuestion:
+                                question[langCode]?.contentQuestion,
+                              contentOptions:
+                                question[langCode]?.contentOptions,
+                              contentAnswer: question[langCode]?.contentAnswer,
+                            });
+                            setOpenLanguageDialog(false);
+                            setCurrLang(langCode);
+                          }}
+                          startIcon={<Iconify icon="mdi:eye-circle" />}
+                        >
+                          View
+                        </LoadingButton>
+                      )}
+
+                      {user.labels.findIndex(
+                        (label) =>
+                          label === labels.founder || label === labels.admin
+                      ) !== -1 && (
+                        <LoadingButton
+                          size="small"
+                          variant="outlined"
+                          color="primary"
+                          onClick={async () => {
+                            navigate(
+                              PATH_DASHBOARD.question.translate(
+                                questionId,
+                                langCode
+                              )
+                            );
+                          }}
+                          startIcon={<Iconify icon="mdi:eye-circle" />}
+                        >
+                          Edit
+                        </LoadingButton>
+                      )}
+                    </Stack>
+                  </Stack>
+                ))}
+              </Stack>
+            </Stack>
+          )}
+
+          {user.labels.findIndex(
+            (label) => label === labels.founder || label === labels.admin
+          ) !== -1 && (
+            <>
+              {/* Available for Translation Section */}
+              {getAvailableLanguagesForTranslation().length > 0 && (
+                <Stack spacing={2}>
+                  <Typography variant="h6" color="warning.main">
+                    Available for Translation
+                  </Typography>
+                  <Stack spacing={1}>
+                    {getAvailableLanguagesForTranslation().map((langCode) => (
+                      <Stack
+                        key={langCode}
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        sx={{
+                          p: 1.5,
+                          borderRadius: 1,
+                          border: "1px solid",
+                          borderColor: "divider",
+                          bgcolor: "background.paper",
+                        }}
+                      >
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                          <Typography variant="h6">
+                            {lang[langCode]?.symbol}
+                          </Typography>
+                          <Typography variant="body1">
+                            {lang[langCode]?.level}
+                          </Typography>
+                        </Stack>
+                        <LoadingButton
+                          size="small"
+                          variant="contained"
+                          color="primary"
+                          onClick={async () => {
+                            setTranslating(true);
+                            await appwriteDatabases.createDocument(
+                              APPWRITE_API.databaseId,
+                              APPWRITE_API.collections.translatedQuestions,
+                              ID.unique(),
+                              {
+                                questionId: questionId,
+                                lang: langCode,
+                              }
+                            );
+                            const c = question?.translatedLang || [];
+                            await appwriteDatabases.updateDocument(
+                              APPWRITE_API.databaseId,
+                              APPWRITE_API.collections.questions,
+                              questionId,
+                              {
+                                translatedLang: [...c, langCode],
+                              }
+                            );
+                            setTranslating(false);
+                            navigate(
+                              PATH_DASHBOARD.question.translate(
+                                questionId,
+                                langCode
+                              )
+                            );
+                          }}
+                          loading={translating}
+                          startIcon={<Iconify icon="mdi:translate" />}
+                        >
+                          Translate
+                        </LoadingButton>
+                      </Stack>
+                    ))}
+                  </Stack>
+                </Stack>
+              )}
+
+              {/* No translations available */}
+              {getAvailableLanguagesForTranslation().length === 0 &&
+                (!question?.translatedLang ||
+                  question.translatedLang.length === 0) &&
+                hasLanguageAssigned() && (
+                  <Alert severity="info" sx={{ mt: 2 }}>
+                    All available languages have been translated for this
+                    question.
+                  </Alert>
+                )}
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenLanguageDialog(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Language Assignment Dialog */}
+      <Dialog
+        open={openLanguageAssignmentDialog}
+        onClose={() => setOpenLanguageAssignmentDialog(false)}
+        aria-labelledby="language-assignment-dialog-title"
+        aria-describedby="language-assignment-dialog-description"
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle id="language-assignment-dialog-title">
+          Assign Language for Question {question?.qnId}
+        </DialogTitle>
+        {user.labels.findIndex(
+          (label) => label === labels.founder || label === labels.admin
+        ) !== -1 ? (
+          <Fragment>
+            <DialogContent dividers>
+              <DialogContentText id="language-assignment-dialog-description">
+                This question doesn't have a language assigned. Please select a
+                language from the list below:
+              </DialogContentText>
+              <Stack spacing={1} sx={{ mt: 2 }}>
+                {Object.entries(lang).map(([code, language]) => (
+                  <Stack
+                    key={code}
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    sx={(theme) => ({
+                      p: 1.5,
+                      borderRadius: 1,
+                      border: "1px solid",
+                      borderColor:
+                        selectedLanguage === code ? "primary.main" : "divider",
+                      bgcolor:
+                        selectedLanguage === code
+                          ? theme.palette.mode === "light"
+                            ? "primary.lighter"
+                            : theme.palette.action.hover
+                          : theme.palette.background.paper,
+                      cursor: "pointer",
+                      "&:hover": {
+                        bgcolor:
+                          selectedLanguage === code
+                            ? theme.palette.mode === "light"
+                              ? "primary.lighter"
+                              : theme.palette.action.hover
+                            : theme.palette.action.hover,
+                      },
+                    })}
+                    onClick={() => setSelectedLanguage(code)}
+                  >
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Typography variant="h6">{language.symbol}</Typography>
+                      <Typography variant="body1">{language.level}</Typography>
+                    </Stack>
+                    {selectedLanguage === code && (
+                      <Iconify icon="eva:checkmark-fill" color="primary.main" />
+                    )}
+                  </Stack>
+                ))}
+              </Stack>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenLanguageAssignmentDialog(false)}>
+                Cancel
+              </Button>
+              <LoadingButton
+                onClick={handleLanguageAssignment}
+                disabled={!selectedLanguage}
+                variant="contained"
+              >
+                Assign Language
               </LoadingButton>
             </DialogActions>
           </Fragment>

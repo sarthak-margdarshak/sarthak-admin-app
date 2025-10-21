@@ -54,6 +54,11 @@ export const QuestionBulkImportPage = Loadable(
     import("pages/dashboard/management/content/question/QuestionBulkImportPage")
   )
 );
+export const QuestionTranslatePage = Loadable(
+  lazy(() =>
+    import("pages/dashboard/management/content/question/QuestionTranslatePage")
+  )
+);
 
 // -----------------< DASHBOARD: MANAGEMENT: CONTENT: MOCK-TEST >-----------------
 export const MockTestListPage = Loadable(
@@ -71,6 +76,11 @@ export const MockTestEditPage = Loadable(
     import("pages/dashboard/management/content/mock-test/MockTestEditPage")
   )
 );
+export const MockTestTranslatePage = Loadable(
+  lazy(() =>
+    import("pages/dashboard/management/content/mock-test/MockTestTranslatePage")
+  )
+);
 
 // -----------------< DASHBOARD: MANAGEMENT: CONTENT: PRODUCT >-----------------
 export const ProductListPage = Loadable(
@@ -86,6 +96,11 @@ export const ProductViewPage = Loadable(
 export const ProductEditPage = Loadable(
   lazy(() =>
     import("pages/dashboard/management/content/product/ProductEditPage")
+  )
+);
+export const ProductTranslatePage = Loadable(
+  lazy(() =>
+    import("pages/dashboard/management/content/product/ProductTranslatePage")
   )
 );
 

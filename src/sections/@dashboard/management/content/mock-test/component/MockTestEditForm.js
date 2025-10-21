@@ -7,8 +7,10 @@ import { Query } from "appwrite";
 import {
   Alert,
   Box,
-  Breadcrumbs,
   Button,
+  Card,
+  CardHeader,
+  CardContent,
   Checkbox,
   Chip,
   Divider,
@@ -17,7 +19,6 @@ import {
   FormControl,
   Grid,
   InputLabel,
-  Link,
   MenuItem,
   Select,
   Skeleton,
@@ -36,16 +37,23 @@ import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrow
 import { LoadingButton } from "@mui/lab";
 import { useAuthContext } from "auth/useAuthContext";
 import { PATH_DASHBOARD } from "routes/paths";
+import { lang } from "assets/data/lang";
 
 export default function MockTestEditForm({ mockTestId }) {
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const theme = useTheme();
-  const { mockTestsData, updateMockTest } = useContent();
+  const { getMockTest } = useContent();
   const { user } = useAuthContext();
 
   const [dragStarted, setDragStarted] = useState(false);
-  const [mockTest, setMockTest] = useState(mockTestsData[mockTestId]);
+  const [mockTest, setMockTest] = useState(
+    localStorage.getItem(`mockTest_${mockTestId}`)
+      ? JSON.parse(localStorage.getItem(`mockTest_${mockTestId}`))
+      : {}
+  );
+  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [availableLangEntries, setAvailableLangEntries] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [allQuestions, setAllQuestions] = useState({
     loadedOnce: false,
@@ -60,30 +68,24 @@ export default function MockTestEditForm({ mockTestId }) {
   const [isDataLoading, setIsDataLoading] = useState(true);
 
   useEffect(() => {
-    const update = async () => {
-      let x = mockTest;
-      setIsDataLoading(true);
-      if (x === undefined) {
-        x = await updateMockTest(mockTestId);
-      } else {
-        const isChanged =
-          (
-            await appwriteDatabases.getDocument(
-              APPWRITE_API.databaseId,
-              APPWRITE_API.collections.mockTest,
-              mockTestId,
-              [Query.select("$updatedAt")]
-            )
-          ).$updatedAt !== mockTest.$updatedAt;
-        if (isChanged) {
-          x = await updateMockTest(mockTestId);
-        }
+    const fetchData = async () => {
+      try {
+        setIsDataLoading(true);
+        const x = await getMockTest(mockTestId);
+        setMockTest(x);
+        setSelectedQuestions(x.questions || []);
+        setSelectedLanguage(x.lang || "");
+        setAvailableLangEntries(
+          Object.entries(lang).filter(
+            ([code]) => !(x?.translatedLang || []).includes(code)
+          )
+        );
+      } catch (error) {
+        console.log(error);
       }
-      setMockTest(x);
-      setSelectedQuestions(x.questions);
       setIsDataLoading(false);
     };
-    update().then(() => {});
+    fetchData().then(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mockTestId]);
 
@@ -93,17 +95,17 @@ export default function MockTestEditForm({ mockTestId }) {
     if (lastSyncId !== null) {
       query.push(Query.cursorAfter(lastSyncId));
     }
-    query.push(Query.limit(100));
+    query.push(Query.limit(25));
     query.push(Query.select("$id"));
     query.push(Query.orderDesc("$createdAt"));
     query.push(Query.equal("published", true));
     query.push(
       Query.or([
-        Query.equal("bookIndex", mockTest?.bookIndex?.$id),
-        Query.equal("standard", mockTest?.bookIndex?.$id),
-        Query.equal("subject", mockTest?.bookIndex?.$id),
-        Query.equal("chapter", mockTest?.bookIndex?.$id),
-        Query.equal("concept", mockTest?.bookIndex?.$id),
+        Query.equal("bookIndexId", mockTest?.bookIndexId),
+        Query.equal("standardId", mockTest?.bookIndexId),
+        Query.equal("subjectId", mockTest?.bookIndexId),
+        Query.equal("chapterId", mockTest?.bookIndexId),
+        Query.equal("conceptId", mockTest?.bookIndexId),
       ])
     );
     const x = await appwriteDatabases.listDocuments(
@@ -111,41 +113,95 @@ export default function MockTestEditForm({ mockTestId }) {
       APPWRITE_API.collections.questions,
       query
     );
-    let tempAllQuestions = allQuestions.questions.concat(
-      x.documents.map((q) => q.$id)
-    );
-    let tempSelected = allQuestions.selected.concat(
-      new Array(x.documents.length).fill(false)
-    );
-    mockTest.questions.forEach((question) => {
-      const x = tempAllQuestions.findIndex((q) => q === question);
-      if (x !== -1) {
-        tempSelected[x] = true;
-      }
-    });
-    setAllQuestions({
-      loadedOnce: true,
-      loading: false,
-      total: x.total,
-      questions: tempAllQuestions,
-      lastSyncId: x.documents[x.documents.length - 1].$id,
-      selected: tempSelected,
-    });
+    if (x.total !== 0) {
+      let tempAllQuestions = allQuestions.questions.concat(
+        x.documents.map((q) => q.$id)
+      );
+      let tempSelected = allQuestions.selected.concat(
+        new Array(x.documents.length).fill(false)
+      );
+      mockTest.questions.forEach((question) => {
+        const x = tempAllQuestions.findIndex((q) => q === question);
+        if (x !== -1) {
+          tempSelected[x] = true;
+        }
+      });
+      setAllQuestions({
+        loadedOnce: true,
+        loading: false,
+        total: x.total,
+        questions: tempAllQuestions,
+        lastSyncId: x.documents[x.documents.length - 1].$id,
+        selected: tempSelected,
+      });
+    }
   };
 
   const saveMockTest = async () => {
+    // Frontend validations
+    const name = (mockTest.name || "").toString().trim();
+    const description = (mockTest.description || "").toString().trim();
+    const questions = Array.isArray(selectedQuestions) ? selectedQuestions : [];
+    const duration = parseInt(mockTest.duration);
+    const level = mockTest.level || "";
+    const langSelected = selectedLanguage || null;
+
+    if (!name) {
+      enqueueSnackbar("Please enter a name for the mock test", {
+        variant: "error",
+      });
+      return;
+    }
+
+    if (!description) {
+      enqueueSnackbar("Please enter a description for the mock test", {
+        variant: "error",
+      });
+      return;
+    }
+
+    if (!questions || questions.length === 0) {
+      enqueueSnackbar("Please add at least one question to the mock test", {
+        variant: "error",
+      });
+      return;
+    }
+
+    if (!Number.isFinite(duration) || duration <= 0) {
+      enqueueSnackbar("Please enter a valid duration in minutes", {
+        variant: "error",
+      });
+      return;
+    }
+
+    if (!level) {
+      enqueueSnackbar("Please select the difficulty level", {
+        variant: "error",
+      });
+      return;
+    }
+
+    if (!langSelected) {
+      enqueueSnackbar("Please select a language for the mock test", {
+        variant: "error",
+      });
+      return;
+    }
+
     setIsSaving(true);
+
     try {
       await appwriteDatabases.updateDocument(
         APPWRITE_API.databaseId,
         APPWRITE_API.collections.mockTest,
         mockTest.$id,
         {
-          name: mockTest.name,
-          description: mockTest.description,
-          questions: selectedQuestions,
-          duration: parseInt(mockTest.duration),
-          level: mockTest.level,
+          name,
+          description,
+          questions,
+          duration: duration,
+          level,
+          lang: langSelected,
           updater: user.$id,
         }
       );
@@ -159,7 +215,27 @@ export default function MockTestEditForm({ mockTestId }) {
   };
 
   if (isDataLoading) {
-    return <Skeleton height={150} />;
+    return (
+      <Fragment>
+        <Divider>
+          <Chip label={mockTest?.mtId || mockTestId} color="info" />
+        </Divider>
+
+        <Card sx={{ m: 1 }}>
+          <CardHeader title="Mock Test Details" />
+          <CardContent>
+            <Skeleton variant="rounded" height={100} />
+          </CardContent>
+        </Card>
+
+        <Card sx={{ m: 1 }}>
+          <CardHeader title="Questions" />
+          <CardContent>
+            <Skeleton variant="rounded" height={200} />
+          </CardContent>
+        </Card>
+      </Fragment>
+    );
   }
 
   if (mockTest?.published) {
@@ -173,36 +249,8 @@ export default function MockTestEditForm({ mockTestId }) {
       </Divider>
 
       <Stack alignItems="center" justifyContent="space-between" direction="row">
-        <Breadcrumbs sx={{ mb: 1, mt: 1 }}>
-          <Link
-            underline="hover"
-            sx={{ display: "flex", alignItems: "center" }}
-            color="inherit"
-          >
-            {mockTest?.standard?.standard}
-          </Link>
-          <Link
-            underline="hover"
-            sx={{ display: "flex", alignItems: "center" }}
-            color="inherit"
-          >
-            {mockTest?.subject?.subject}
-          </Link>
-          <Link
-            underline="hover"
-            sx={{ display: "flex", alignItems: "center" }}
-            color="inherit"
-          >
-            {mockTest?.chapter?.chapter}
-          </Link>
-          <Link
-            underline="hover"
-            sx={{ display: "flex", alignItems: "center" }}
-            color="inherit"
-          >
-            {mockTest?.concept?.concept}
-          </Link>
-        </Breadcrumbs>
+        <IndexView id={mockTest.bookIndexId} />
+
         <LoadingButton
           variant="contained"
           loading={isSaving}
@@ -211,6 +259,63 @@ export default function MockTestEditForm({ mockTestId }) {
           Save
         </LoadingButton>
       </Stack>
+
+      {/* Language selection block */}
+      <Box component="section" sx={{ p: 2, border: "1px dashed grey", m: 2 }}>
+        <Fragment>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={2}
+            alignItems="center"
+          >
+            <Box sx={{ bgcolor: "secondary.lighter", borderRadius: 2, p: 1 }}>
+              <Iconify icon="mdi:translate" width={36} height={36} />
+            </Box>
+
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="h6">Select Language</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Select a language for this mock test.
+              </Typography>
+
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                alignItems="center"
+              >
+                <FormControl size="small" sx={{ minWidth: 220 }}>
+                  <InputLabel id="mock-test-lang-select-label">
+                    Language
+                  </InputLabel>
+                  <Select
+                    labelId="mock-test-lang-select-label"
+                    value={selectedLanguage}
+                    label="Language"
+                    onChange={(e) => setSelectedLanguage(e.target.value)}
+                  >
+                    <MenuItem value="">(None)</MenuItem>
+                    {availableLangEntries.map(([code, info]) => (
+                      <MenuItem key={code} value={code}>
+                        {info.level} ({code})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <Chip
+                  label={
+                    selectedLanguage
+                      ? `${lang[selectedLanguage]?.level} (${selectedLanguage})`
+                      : "No Language selected"
+                  }
+                  size="small"
+                  color={selectedLanguage ? "primary" : "default"}
+                />
+              </Stack>
+            </Box>
+          </Stack>
+        </Fragment>
+      </Box>
 
       <Divider>
         <Chip label="Meta data" color="warning" />
@@ -232,9 +337,11 @@ export default function MockTestEditForm({ mockTestId }) {
                 helperText="Enter a unique name"
               />
             </Grid>
+
             <Grid item xs={6} sm={6} md={6} lg={6} xl={6} padding={1}>
               <FormControl fullWidth>
                 <InputLabel id="mock-test-level">Level</InputLabel>
+
                 <Select
                   fullWidth
                   labelId="mock-test-level"
@@ -253,6 +360,7 @@ export default function MockTestEditForm({ mockTestId }) {
                 </Select>
               </FormControl>
             </Grid>
+
             <Grid item xs={6} sm={6} md={6} lg={6} xl={6} padding={1}>
               <TextField
                 fullWidth
@@ -342,7 +450,7 @@ export default function MockTestEditForm({ mockTestId }) {
             <Typography sx={{ fontWeight: "bold" }}>
               {"All published questions under index  :-  "}
             </Typography>
-            <IndexView id={mockTest.bookIndex.$id} />
+            <IndexView id={mockTest.bookIndexId} />
           </Stack>
         </Alert>
 

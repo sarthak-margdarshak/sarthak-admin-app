@@ -10,6 +10,9 @@ export const APPWRITE_API = {
     questions: "questions",
     mockTest: "mock_test",
     products: "products",
+    translatedQuestions: "translated_questions",
+    translatedMockTest: "translated_mock_test",
+    translatedProducts: "translated_products",
   },
   documents: {
     metadataContentDoc: "content_doc",

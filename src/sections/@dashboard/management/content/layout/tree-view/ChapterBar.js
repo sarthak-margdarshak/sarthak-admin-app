@@ -1,4 +1,12 @@
 import {
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   IconButton,
   InputAdornment,
@@ -15,13 +23,8 @@ import ConceptBar from "sections/@dashboard/management/content/layout/tree-view/
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import { LoadingButton } from "@mui/lab";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
-import {
-  appwriteAccount,
-  appwriteDatabases,
-  timeAgo,
-} from "auth/AppwriteContext";
+import { appwriteAccount, appwriteDatabases } from "auth/AppwriteContext";
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
 import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
@@ -35,21 +38,48 @@ import { ID } from "appwrite";
 import { useSnackbar } from "components/snackbar";
 import { useAuthContext } from "auth/useAuthContext";
 import { labels } from "assets/data/labels";
+import Iconify from "components/iconify";
+import { ProviderHelper } from "sections/@dashboard/management/content/hook/ProviderHelper";
 
 export default function ChapterBar({ standardId, subjectId, chapterId }) {
-  const { standardsData, loadConcept, refreshConcept, addConcept } =
-    useContent();
-  const { user } = useAuthContext();
+  const {
+    bookIndexList,
+    loadConcept,
+    addConcept,
+    deleteChapter,
+    getBookIndex,
+  } = useContent();
+  const standardIndex = bookIndexList.standards.findIndex(
+    (standard) => standard.$id === standardId
+  );
+  const subjectIndex = bookIndexList.standards[
+    standardIndex
+  ].subjects.findIndex((subject) => subject.$id === subjectId);
+  const chapterIndex = bookIndexList.standards[standardIndex].subjects[
+    subjectIndex
+  ].chapters.findIndex((chapter) => chapter.$id === chapterId);
   const chapterData =
-    standardsData.documents[standardId].subjects.documents[subjectId].chapters
-      .documents[chapterId];
+    bookIndexList.standards[standardIndex].subjects[subjectIndex].chapters[
+      chapterIndex
+    ];
+
+  const { user } = useAuthContext();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
   const isAdminOrFounder = user?.labels?.some(
     (label) => label === labels.admin || label === labels.founder
   );
+  const isFounder = user?.labels?.some((label) => label === labels.founder);
 
+  const [chapterLabel, setChapterLabel] = useState(
+    localStorage.getItem(`bookIndex_${chapterId}`)
+      ? JSON.parse(localStorage.getItem(`bookIndex_${chapterId}`)).chapter
+      : ""
+  );
+  const [labelLoading, setLabelLoading] = useState(
+    localStorage.getItem(`bookIndex_${chapterId}`) ? false : true
+  );
   const [conceptsOpened, setConceptsOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpened = Boolean(anchorEl);
@@ -60,7 +90,6 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
     setAnchorEl(null);
   };
   const [conceptsLoading, setConceptsLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const [creatingNew, setCreatingNew] = useState(false);
   const [submittingNew, setSubmittingNew] = useState(false);
   const [newConcept, setNewConcept] = useState("");
@@ -68,8 +97,20 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
   const [editingChapter, setEditingChapter] = useState(false);
   const [editedChapterName, setEditedChapterName] = useState("");
   const [updatingChapter, setUpdatingChapter] = useState(false);
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [canBeDeleted, setCanBeDeleted] = useState(false);
+  const [isCheckingDeletability, setIsCheckingDeletability] = useState(true);
 
   useEffect(() => {
+    const fetchData = async () => {
+      const x = await getBookIndex(chapterId);
+      setChapterLabel(x.chapter);
+      setLabelLoading(false);
+    };
+    fetchData()
+      .then((_) => {})
+      .catch((err) => console.log(err));
     function handleContextMenu(e) {
       e.preventDefault();
     }
@@ -77,30 +118,18 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
     return () => {
       document.removeEventListener("contextmenu", handleContextMenu);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const initiateCreateConcept = async () => {
     setConceptsOpened(true);
     handleCloseMenu();
-    if (!conceptsOpened && chapterData.concepts.loadedOnce === false) {
+    if (!conceptsOpened && chapterData.concepts.length === 0) {
       setConceptsLoading(true);
       await loadConcept(standardId, subjectId, chapterId);
       setConceptsLoading(false);
     }
     setCreatingNew(true);
-  };
-
-  const refreshChapter = async () => {
-    handleCloseMenu();
-    setConceptsOpened(false);
-    setRefreshing(true);
-    await refreshConcept(standardId, subjectId, chapterId);
-    setRefreshing(false);
-  };
-
-  const openQuestion = () => {
-    handleCloseMenu();
-    navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + chapterId);
   };
 
   const createMockTest = async () => {
@@ -110,10 +139,10 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
       APPWRITE_API.collections.mockTest,
       ID.unique(),
       {
-        standard: standardId,
-        subject: subjectId,
-        chapter: chapterId,
-        bookIndex: chapterId,
+        standardId: standardId,
+        subjectId: subjectId,
+        chapterId: chapterId,
+        bookIndexId: chapterId,
         creator: (await appwriteAccount.get()).$id,
         updater: (await appwriteAccount.get()).$id,
       }
@@ -123,13 +152,18 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
     navigate(PATH_DASHBOARD.mockTest.edit(mockTest.$id), { replace: true });
   };
 
+  const openQuestion = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + chapterId);
+  };
+
   const openMockTest = () => {
     handleCloseMenu();
     navigate(PATH_DASHBOARD.mockTest.list + "?bookIndex=" + chapterId);
   };
 
   const initiateEditChapter = () => {
-    setEditedChapterName(chapterData.chapter);
+    setEditedChapterName(chapterLabel);
     setEditingChapter(true);
     handleCloseMenu();
   };
@@ -145,7 +179,9 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
           chapter: editedChapterName,
         }
       );
-      await refreshConcept(standardId, subjectId, chapterId);
+      const x = await getBookIndex(chapterId);
+      setChapterLabel(x.chapter);
+      setLabelLoading(false);
       setEditingChapter(false);
       setEditedChapterName("");
       enqueueSnackbar("Chapter name updated successfully");
@@ -154,6 +190,47 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
     } finally {
       setUpdatingChapter(false);
     }
+  };
+
+  useEffect(() => {
+    // Only run the check when the dialog is opened
+    if (isDeleteDialogOpen) {
+      const performDeletabilityCheck = async () => {
+        try {
+          setCanBeDeleted(await ProviderHelper.canIndexBeDeleted(chapterId));
+        } catch (error) {
+          console.error("Error checking deletability:", error);
+          enqueueSnackbar("Could not verify if chapter can be deleted.", {
+            variant: "error",
+          });
+          setCanBeDeleted(false);
+        } finally {
+          setIsCheckingDeletability(false); // Mark the check as complete
+        }
+      };
+
+      performDeletabilityCheck();
+    }
+    // This effect depends on the dialog's open state and the standardId
+  }, [isDeleteDialogOpen, chapterId, enqueueSnackbar]);
+
+  const initiateDeleteSubject = () => {
+    handleCloseMenu();
+    setIsCheckingDeletability(true);
+    setCanBeDeleted(false);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    if (isDeleting) return;
+    setDeleteDialogOpen(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    await deleteChapter(chapterId, chapterLabel);
+    setDeleteDialogOpen(false);
+    setIsDeleting(false);
   };
 
   return (
@@ -203,19 +280,16 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
             }
             onClick={async () => {
               setConceptsOpened(!conceptsOpened);
-              setConceptsLoading(true);
-              if (
-                !conceptsOpened &&
-                chapterData.concepts.loadedOnce === false
-              ) {
+              if (!conceptsOpened && chapterData.concepts.length === 0) {
+                setConceptsLoading(true);
                 await loadConcept(standardId, subjectId, chapterId);
+                setConceptsLoading(false);
               }
-              setConceptsLoading(false);
             }}
             onContextMenu={handleOpenMenu}
-            loading={refreshing}
+            loading={labelLoading}
           >
-            {chapterData.chapter}
+            {chapterLabel}
           </LoadingButton>
         )}
 
@@ -226,15 +300,6 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
             </ListItemIcon>
             <ListItemText>Create a Concept</ListItemText>
           </MenuItem>
-
-          {isAdminOrFounder && (
-            <MenuItem onClick={initiateEditChapter}>
-              <ListItemIcon>
-                <EditIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Edit Chapter Name</ListItemText>
-            </MenuItem>
-          )}
 
           <MenuItem onClick={createMockTest} disabled={mockTestCreating}>
             <ListItemIcon>
@@ -263,16 +328,23 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
 
           <Divider />
 
-          <MenuItem onClick={refreshChapter}>
-            <ListItemIcon>
-              <RefreshIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Sync</ListItemText>
-          </MenuItem>
+          {isAdminOrFounder && (
+            <MenuItem onClick={initiateEditChapter}>
+              <ListItemIcon>
+                <EditIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Edit Chapter Name</ListItemText>
+            </MenuItem>
+          )}
 
-          <MenuItem disabled>
-            {timeAgo.format(Date.parse(chapterData.lastSynced))}
-          </MenuItem>
+          {isFounder && (
+            <MenuItem onClick={initiateDeleteSubject} sx={{ color: "red" }}>
+              <ListItemIcon>
+                <Iconify icon="mdi:delete" color="red" />
+              </ListItemIcon>
+              <ListItemText>Delete</ListItemText>
+            </MenuItem>
+          )}
         </Menu>
       </Fragment>
 
@@ -323,19 +395,18 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
             />
           )}
 
-          {Object.keys(chapterData.concepts.documents).map((id, index) => (
+          {chapterData.concepts.map((concept) => (
             <ConceptBar
-              key={index}
+              key={concept.$id}
               standardId={standardId}
               subjectId={subjectId}
               chapterId={chapterId}
-              conceptId={id}
+              conceptId={concept.$id}
             />
           ))}
 
           {(conceptsLoading ||
-            chapterData.concepts.total !==
-              Object.keys(chapterData.concepts.documents).length) && (
+            chapterData.total !== chapterData.concepts.length) && (
             <LoadingButton
               fullWidth
               variant="contained"
@@ -358,6 +429,71 @@ export default function ChapterBar({ standardId, subjectId, chapterId }) {
           )}
         </Fragment>
       )}
+
+      <Dialog
+        open={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {isCheckingDeletability
+            ? "Checking Deletability..."
+            : canBeDeleted
+            ? "Confirm Deletion"
+            : "Deletion Not Allowed"}
+        </DialogTitle>
+        <DialogContent sx={{ minWidth: "400px" }}>
+          {isCheckingDeletability ? (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                my: 3,
+              }}
+            >
+              <CircularProgress size={24} />
+              <DialogContentText sx={{ ml: 2 }}>
+                Checking for associated items...
+              </DialogContentText>
+            </Box>
+          ) : (
+            <DialogContentText id="alert-dialog-description">
+              {canBeDeleted
+                ? `Are you sure you want to delete the chapter "${chapterLabel}"? This action cannot be undone.`
+                : `This chapter cannot be deleted because it contains associated items (e.g., subjects, questions, mock tests, products). Please remove all items from this chapter before trying again.`}
+            </DialogContentText>
+          )}
+        </DialogContent>
+        <DialogActions>
+          {/* Only show buttons after the check is complete */}
+          {!isCheckingDeletability && (
+            <>
+              {canBeDeleted ? (
+                <>
+                  <Button
+                    onClick={handleCloseDeleteDialog}
+                    disabled={isDeleting}
+                  >
+                    Cancel
+                  </Button>
+                  <LoadingButton
+                    variant="contained"
+                    color="error"
+                    onClick={handleConfirmDelete}
+                    loading={isDeleting}
+                  >
+                    Delete
+                  </LoadingButton>
+                </>
+              ) : (
+                <Button onClick={handleCloseDeleteDialog}>OK</Button>
+              )}
+            </>
+          )}
+        </DialogActions>
+      </Dialog>
     </Fragment>
   );
 }

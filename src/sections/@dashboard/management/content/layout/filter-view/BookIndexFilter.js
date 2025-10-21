@@ -5,6 +5,7 @@ import {
   MenuList,
   Skeleton,
   TextField,
+  Typography,
 } from "@mui/material";
 import { Fragment, useState } from "react";
 import IndexView from "sections/@dashboard/management/content/common/IndexView";
@@ -64,6 +65,8 @@ export default function BookIndexFilter({ onChange }) {
               Query.contains("concept", tem),
               Query.equal("$id", tem),
             ]),
+            Query.select("$id"),
+            Query.limit(100),
           ]
         )
       ).documents.map((doc) => doc.$id);
@@ -91,6 +94,13 @@ export default function BookIndexFilter({ onChange }) {
           }}
           label="Select Index"
         />
+        {inEditMode && (
+          <Typography sx={{ m: 1 }} variant="caption">
+            Press Enter to Serach Index. In one list, we will show only 100
+            indeces. If you do not find your index, narrow down your search to
+            find your index
+          </Typography>
+        )}
 
         {isIndexLoading ? (
           <LoadingButton

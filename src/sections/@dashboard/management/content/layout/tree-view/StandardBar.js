@@ -1,4 +1,12 @@
 import {
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   IconButton,
   InputAdornment,
@@ -15,16 +23,11 @@ import SubjectBar from "sections/@dashboard/management/content/layout/tree-view/
 import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 import { LoadingButton } from "@mui/lab";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import AddToQueueIcon from "@mui/icons-material/AddToQueue";
 import EditIcon from "@mui/icons-material/Edit";
-import {
-  appwriteAccount,
-  appwriteDatabases,
-  timeAgo,
-} from "auth/AppwriteContext";
+import { appwriteAccount, appwriteDatabases } from "auth/AppwriteContext";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
@@ -37,19 +40,39 @@ import { ID } from "appwrite";
 import { useSnackbar } from "components/snackbar";
 import { useAuthContext } from "auth/useAuthContext";
 import { labels } from "assets/data/labels";
+import Iconify from "components/iconify";
+import { ProviderHelper } from "sections/@dashboard/management/content/hook/ProviderHelper";
 
 export default function StandardBar({ standardId }) {
-  const { standardsData, loadSubject, refreshSubject, addSubject } =
-    useContent();
+  const {
+    bookIndexList,
+    loadSubject,
+    addSubject,
+    deleteStandard,
+    getBookIndex,
+  } = useContent();
+  const standardIndex = bookIndexList.standards.findIndex(
+    (standard) => standard.$id === standardId
+  );
+  const standardData = bookIndexList.standards[standardIndex];
+
   const { user } = useAuthContext();
-  const standardData = standardsData.documents[standardId];
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
   const isAdminOrFounder = user?.labels?.some(
     (label) => label === labels.admin || label === labels.founder
   );
+  const isFounder = user?.labels?.some((label) => label === labels.founder);
 
+  const [standardLabel, setStandardLabel] = useState(
+    localStorage.getItem(`bookIndex_${standardId}`)
+      ? JSON.parse(localStorage.getItem(`bookIndex_${standardId}`)).standard
+      : ""
+  );
+  const [labelLoading, setLabelLoading] = useState(
+    localStorage.getItem(`bookIndex_${standardId}`) ? false : true
+  );
   const [subjectsOpened, setSubjectsOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpened = Boolean(anchorEl);
@@ -60,7 +83,6 @@ export default function StandardBar({ standardId }) {
     setAnchorEl(null);
   };
   const [subjectsLoading, setSubjectsLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const [creatingNew, setCreatingNew] = useState(false);
   const [submittingNew, setSubmittingNew] = useState(false);
   const [newSubject, setNewSubject] = useState("");
@@ -69,8 +91,20 @@ export default function StandardBar({ standardId }) {
   const [editingStandard, setEditingStandard] = useState(false);
   const [editedStandardName, setEditedStandardName] = useState("");
   const [updatingStandard, setUpdatingStandard] = useState(false);
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [canBeDeleted, setCanBeDeleted] = useState(false);
+  const [isCheckingDeletability, setIsCheckingDeletability] = useState(true);
 
   useEffect(() => {
+    const fetchData = async () => {
+      const x = await getBookIndex(standardId);
+      setStandardLabel(x.standard);
+      setLabelLoading(false);
+    };
+    fetchData()
+      .then((_) => {})
+      .catch((err) => console.log(err));
     function handleContextMenu(e) {
       e.preventDefault();
     }
@@ -78,12 +112,13 @@ export default function StandardBar({ standardId }) {
     return () => {
       document.removeEventListener("contextmenu", handleContextMenu);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [standardId]);
 
   const initiateCreateSubject = async () => {
     setSubjectsOpened(true);
     handleCloseMenu();
-    if (!subjectsOpened && standardData.subjects.loadedOnce === false) {
+    if (!subjectsOpened && standardData.subjects.length === 0) {
       setSubjectsLoading(true);
       await loadSubject(standardId);
       setSubjectsLoading(false);
@@ -91,16 +126,59 @@ export default function StandardBar({ standardId }) {
     setCreatingNew(true);
   };
 
-  const refreshStandard = async () => {
+  const createMockTest = async () => {
+    setMockTestCreating(true);
+    const mockTest = await appwriteDatabases.createDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.mockTest,
+      ID.unique(),
+      {
+        standardId: standardId,
+        bookIndexId: standardId,
+        creator: (await appwriteAccount.get()).$id,
+        updater: (await appwriteAccount.get()).$id,
+      }
+    );
+    setMockTestCreating(false);
     handleCloseMenu();
-    setSubjectsOpened(false);
-    setRefreshing(true);
-    await refreshSubject(standardId);
-    setRefreshing(false);
+    navigate(PATH_DASHBOARD.mockTest.edit(mockTest.$id), { replace: true });
+  };
+
+  const createProduct = async () => {
+    setProductCreating(true);
+    const product = await appwriteDatabases.createDocument(
+      APPWRITE_API.databaseId,
+      APPWRITE_API.collections.products,
+      ID.unique(),
+      {
+        standardId: standardId,
+        bookIndexId: standardId,
+        creator: (await appwriteAccount.get()).$id,
+        updater: (await appwriteAccount.get()).$id,
+      }
+    );
+    setProductCreating(false);
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.product.edit(product.$id), { replace: true });
+  };
+
+  const openQuestion = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + standardId);
+  };
+
+  const openMockTest = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.mockTest.list + "?bookIndex=" + standardId);
+  };
+
+  const openProduct = () => {
+    handleCloseMenu();
+    navigate(PATH_DASHBOARD.product.list + "?bookIndex=" + standardId);
   };
 
   const initiateEditStandard = () => {
-    setEditedStandardName(standardData.standard);
+    setEditedStandardName(standardLabel);
     setEditingStandard(true);
     handleCloseMenu();
   };
@@ -116,7 +194,9 @@ export default function StandardBar({ standardId }) {
           standard: editedStandardName,
         }
       );
-      await refreshStandard();
+      const x = await getBookIndex(standardId);
+      setStandardLabel(x.standard);
+      setLabelLoading(false);
       setEditingStandard(false);
       setEditedStandardName("");
       enqueueSnackbar("Standard name updated successfully");
@@ -127,55 +207,45 @@ export default function StandardBar({ standardId }) {
     }
   };
 
-  const openQuestion = () => {
+  useEffect(() => {
+    // Only run the check when the dialog is opened
+    if (isDeleteDialogOpen) {
+      const performDeletabilityCheck = async () => {
+        try {
+          setCanBeDeleted(await ProviderHelper.canIndexBeDeleted(standardId));
+        } catch (error) {
+          console.error("Error checking deletability:", error);
+          enqueueSnackbar("Could not verify if standard can be deleted.", {
+            variant: "error",
+          });
+          setCanBeDeleted(false);
+        } finally {
+          setIsCheckingDeletability(false); // Mark the check as complete
+        }
+      };
+
+      performDeletabilityCheck();
+    }
+    // This effect depends on the dialog's open state and the standardId
+  }, [isDeleteDialogOpen, standardId, enqueueSnackbar]);
+
+  const initiateDeleteStandard = () => {
     handleCloseMenu();
-    navigate(PATH_DASHBOARD.question.list + "?bookIndex=" + standardId);
+    setIsCheckingDeletability(true);
+    setCanBeDeleted(false);
+    setDeleteDialogOpen(true);
   };
 
-  const createMockTest = async () => {
-    setMockTestCreating(true);
-    const mockTest = await appwriteDatabases.createDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.mockTest,
-      ID.unique(),
-      {
-        standard: standardId,
-        bookIndex: standardId,
-        creator: (await appwriteAccount.get()).$id,
-        updater: (await appwriteAccount.get()).$id,
-      }
-    );
-    setMockTestCreating(false);
-    handleCloseMenu();
-    navigate(PATH_DASHBOARD.mockTest.edit(mockTest.$id), { replace: true });
+  const handleCloseDeleteDialog = () => {
+    if (isDeleting) return;
+    setDeleteDialogOpen(false);
   };
 
-  const openMockTest = () => {
-    handleCloseMenu();
-    navigate(PATH_DASHBOARD.mockTest.list + "?bookIndex=" + standardId);
-  };
-
-  const createProduct = async () => {
-    setProductCreating(true);
-    const mockTest = await appwriteDatabases.createDocument(
-      APPWRITE_API.databaseId,
-      APPWRITE_API.collections.products,
-      ID.unique(),
-      {
-        standard: standardId,
-        bookIndex: standardId,
-        creator: (await appwriteAccount.get()).$id,
-        updater: (await appwriteAccount.get()).$id,
-      }
-    );
-    setProductCreating(false);
-    handleCloseMenu();
-    navigate(PATH_DASHBOARD.product.edit(mockTest.$id), { replace: true });
-  };
-
-  const openProduct = () => {
-    handleCloseMenu();
-    navigate(PATH_DASHBOARD.product.list + "?bookIndex=" + standardId);
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    await deleteStandard(standardId, standardLabel);
+    setDeleteDialogOpen(false);
+    setIsDeleting(false);
   };
 
   return (
@@ -225,19 +295,16 @@ export default function StandardBar({ standardId }) {
             }
             onClick={async () => {
               setSubjectsOpened(!subjectsOpened);
-              setSubjectsLoading(true);
-              if (
-                !subjectsOpened &&
-                standardData.subjects.loadedOnce === false
-              ) {
+              if (!subjectsOpened && standardData.subjects.length === 0) {
+                setSubjectsLoading(true);
                 await loadSubject(standardId);
+                setSubjectsLoading(false);
               }
-              setSubjectsLoading(false);
             }}
             onContextMenu={handleOpenMenu}
-            loading={refreshing}
+            loading={labelLoading}
           >
-            {standardData.standard}
+            {standardLabel}
           </LoadingButton>
         )}
 
@@ -248,15 +315,6 @@ export default function StandardBar({ standardId }) {
             </ListItemIcon>
             <ListItemText>Create a Subject</ListItemText>
           </MenuItem>
-
-          {isAdminOrFounder && (
-            <MenuItem onClick={initiateEditStandard}>
-              <ListItemIcon>
-                <EditIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Edit Standard Name</ListItemText>
-            </MenuItem>
-          )}
 
           <MenuItem onClick={createMockTest} disabled={mockTestCreating}>
             <ListItemIcon>
@@ -301,16 +359,23 @@ export default function StandardBar({ standardId }) {
 
           <Divider />
 
-          <MenuItem onClick={refreshStandard}>
-            <ListItemIcon>
-              <RefreshIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Sync</ListItemText>
-          </MenuItem>
+          {isAdminOrFounder && (
+            <MenuItem onClick={initiateEditStandard}>
+              <ListItemIcon>
+                <EditIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Edit Standard Name</ListItemText>
+            </MenuItem>
+          )}
 
-          <MenuItem disabled>
-            {timeAgo.format(Date.parse(standardData.lastSynced))}
-          </MenuItem>
+          {isFounder && (
+            <MenuItem onClick={initiateDeleteStandard} sx={{ color: "red" }}>
+              <ListItemIcon>
+                <Iconify icon="mdi:delete" color="red" />
+              </ListItemIcon>
+              <ListItemText>Delete</ListItemText>
+            </MenuItem>
+          )}
         </Menu>
       </Fragment>
 
@@ -356,13 +421,16 @@ export default function StandardBar({ standardId }) {
             />
           )}
 
-          {Object.keys(standardData.subjects.documents).map((id, index) => (
-            <SubjectBar key={index} subjectId={id} standardId={standardId} />
+          {standardData.subjects.map((subject) => (
+            <SubjectBar
+              key={subject.$id}
+              subjectId={subject.$id}
+              standardId={standardId}
+            />
           ))}
 
           {(subjectsLoading ||
-            standardData.subjects.total !==
-              Object.keys(standardData.subjects.documents).length) && (
+            standardData.total !== standardData.subjects.length) && (
             <LoadingButton
               fullWidth
               variant="contained"
@@ -385,6 +453,71 @@ export default function StandardBar({ standardId }) {
           )}
         </Fragment>
       )}
+
+      <Dialog
+        open={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {isCheckingDeletability
+            ? "Checking Deletability..."
+            : canBeDeleted
+            ? "Confirm Deletion"
+            : "Deletion Not Allowed"}
+        </DialogTitle>
+        <DialogContent sx={{ minWidth: "400px" }}>
+          {isCheckingDeletability ? (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                my: 3,
+              }}
+            >
+              <CircularProgress size={24} />
+              <DialogContentText sx={{ ml: 2 }}>
+                Checking for associated items...
+              </DialogContentText>
+            </Box>
+          ) : (
+            <DialogContentText id="alert-dialog-description">
+              {canBeDeleted
+                ? `Are you sure you want to delete the standard "${standardLabel}"? This action cannot be undone.`
+                : `This standard cannot be deleted because it contains associated items (e.g., subjects, questions, mock tests, products). Please remove all items from this standard before trying again.`}
+            </DialogContentText>
+          )}
+        </DialogContent>
+        <DialogActions>
+          {/* Only show buttons after the check is complete */}
+          {!isCheckingDeletability && (
+            <>
+              {canBeDeleted ? (
+                <>
+                  <Button
+                    onClick={handleCloseDeleteDialog}
+                    disabled={isDeleting}
+                  >
+                    Cancel
+                  </Button>
+                  <LoadingButton
+                    variant="contained"
+                    color="error"
+                    onClick={handleConfirmDelete}
+                    loading={isDeleting}
+                  >
+                    Delete
+                  </LoadingButton>
+                </>
+              ) : (
+                <Button onClick={handleCloseDeleteDialog}>OK</Button>
+              )}
+            </>
+          )}
+        </DialogActions>
+      </Dialog>
     </Fragment>
   );
 }

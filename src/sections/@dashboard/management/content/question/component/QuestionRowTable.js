@@ -4,36 +4,34 @@ import { Marker } from "react-mark.js";
 import ReactKatex from "@pkasila/react-katex";
 import Label from "components/label";
 import { useEffect, useState } from "react";
-import { appwriteDatabases } from "auth/AppwriteContext";
-import { APPWRITE_API } from "config-global";
-import { Query } from "appwrite";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 
 export default function QuestionRowTable({ id, searchId }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { getQuestion } = useContent();
 
   const content = searchParams.get("content")
     ? decodeURIComponent(searchParams.get("content"))
     : "";
 
-  const [row, setRow] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [row, setRow] = useState(
+    localStorage.getItem(`question_${id}`)
+      ? JSON.parse(localStorage.getItem(`question_${id}`))
+      : {}
+  );
+  const [loading, setLoading] = useState(
+    localStorage.getItem(`question_${id}`) ? false : true
+  );
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-      setRow(
-        await appwriteDatabases.getDocument(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.collections.questions,
-          id,
-          [Query.select(["qnId", "contentQuestion", "creator", "published"])]
-        )
-      );
+      setRow(await getQuestion(id));
       setLoading(false);
     };
     fetchData().then(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (loading) {

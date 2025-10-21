@@ -10,7 +10,6 @@ import { ID, Query } from "appwrite";
 import {
   Alert,
   Box,
-  Breadcrumbs,
   Button,
   Checkbox,
   Chip,
@@ -19,11 +18,17 @@ import {
   Fab,
   Grid,
   IconButton,
-  Link,
   Skeleton,
   Stack,
   TextField,
   Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Card,
+  CardHeader,
+  CardContent,
 } from "@mui/material";
 import { PATH_DASHBOARD } from "routes/paths";
 import Iconify from "components/iconify";
@@ -35,16 +40,23 @@ import Image from "components/image";
 import IndexView from "sections/@dashboard/management/content/common/IndexView";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
+import { lang } from "assets/data/lang";
 
 export default function ProductEditForm({ productId }) {
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const theme = useTheme();
-  const { productsData, updateProduct } = useContent();
+  const { getProduct } = useContent();
   const { user } = useAuthContext();
 
   const [dragStarted, setDragStarted] = useState(false);
-  const [product, setProduct] = useState(productsData[productId]);
+  const [product, setProduct] = useState(
+    localStorage.getItem(`product_${productId}`)
+      ? JSON.parse(localStorage.getItem(`product_${productId}`))
+      : {}
+  );
+  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [availableLangEntries, setAvailableLangEntries] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [allMockTests, setAllMockTests] = useState({
     loadedOnce: false,
@@ -62,31 +74,25 @@ export default function ProductEditForm({ productId }) {
   const [deletedImage, setDeletedImage] = useState([]);
 
   useEffect(() => {
-    const update = async () => {
-      let x = product;
-      setIsDataLoading(true);
-      if (x === undefined) {
-        x = await updateProduct(productId);
-      } else {
-        const isChanged =
-          (
-            await appwriteDatabases.getDocument(
-              APPWRITE_API.databaseId,
-              APPWRITE_API.collections.products,
-              productId,
-              [Query.select("$updatedAt")]
-            )
-          ).$updatedAt !== product.$updatedAt;
-        if (isChanged) {
-          x = await updateProduct(productId);
-        }
+    const fetchData = async () => {
+      try {
+        setIsDataLoading(true);
+        const x = await getProduct(productId);
+        setProduct(x);
+        setSavedImages(x?.images || []);
+        setSelectedMockTests(x?.mockTest || []);
+        setSelectedLanguage(x?.lang || "");
+        setAvailableLangEntries(
+          Object.entries(require("assets/data/lang").lang).filter(
+            ([code]) => !(x?.translatedLang || []).includes(code)
+          )
+        );
+      } catch (error) {
+        console.log(error);
       }
-      setProduct(x);
-      setSavedImages(x?.images);
-      setSelectedMockTests(x.mockTest);
       setIsDataLoading(false);
     };
-    update().then(() => {});
+    fetchData().then(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
@@ -96,15 +102,15 @@ export default function ProductEditForm({ productId }) {
     if (lastSyncId !== null) {
       query.push(Query.cursorAfter(lastSyncId));
     }
-    query.push(Query.limit(100));
+    query.push(Query.limit(10));
     query.push(Query.select("$id"));
     query.push(Query.orderDesc("$createdAt"));
     query.push(Query.equal("published", true));
     query.push(
       Query.or([
-        Query.equal("bookIndex", product?.bookIndex?.$id),
-        Query.equal("standard", product?.bookIndex?.$id),
-        Query.equal("subject", product?.bookIndex?.$id),
+        Query.equal("bookIndexId", product?.bookIndexId),
+        Query.equal("standardId", product?.bookIndexId),
+        Query.equal("subjectId", product?.bookIndexId),
       ])
     );
     const x = await appwriteDatabases.listDocuments(
@@ -112,29 +118,89 @@ export default function ProductEditForm({ productId }) {
       APPWRITE_API.collections.mockTest,
       query
     );
-    let tempAllMockTests = allMockTests.mockTests.concat(
-      x.documents.map((q) => q.$id)
-    );
-    let tempSelected = allMockTests.selected.concat(
-      new Array(x.documents.length).fill(false)
-    );
-    product.mockTest.forEach((question) => {
-      const x = tempAllMockTests.findIndex((q) => q === question);
-      if (x !== -1) {
-        tempSelected[x] = true;
-      }
-    });
-    setAllMockTests({
-      loadedOnce: true,
-      loading: false,
-      total: x.total,
-      mockTests: tempAllMockTests,
-      lastSyncId: x.documents[x.documents.length - 1].$id,
-      selected: tempSelected,
-    });
+    if (x.total !== 0) {
+      let tempAllMockTests = allMockTests.mockTests.concat(
+        x.documents.map((q) => q.$id)
+      );
+      let tempSelected = allMockTests.selected.concat(
+        new Array(x.documents.length).fill(false)
+      );
+      product.mockTest.forEach((question) => {
+        const x = tempAllMockTests.findIndex((q) => q === question);
+        if (x !== -1) {
+          tempSelected[x] = true;
+        }
+      });
+      setAllMockTests({
+        loadedOnce: true,
+        loading: false,
+        total: x.total,
+        mockTests: tempAllMockTests,
+        lastSyncId: x.documents[x.documents.length - 1].$id,
+        selected: tempSelected,
+      });
+    }
   };
 
   const saveProduct = async () => {
+    // Frontend validations
+    const name = (product?.name || "").toString().trim();
+    const description = (product?.description || "").toString().trim();
+    const mrp = parseFloat(product?.mrp);
+    const sellPrice = parseFloat(product?.sellPrice);
+    const langSelected = selectedLanguage || product?.lang || null;
+
+    if (!name) {
+      enqueueSnackbar("Please enter a name for the product", {
+        variant: "error",
+      });
+      return;
+    }
+
+    if (!description) {
+      enqueueSnackbar("Please enter a description for the product", {
+        variant: "error",
+      });
+      return;
+    }
+
+    if (!Number.isFinite(mrp) || mrp <= 0) {
+      enqueueSnackbar("Please enter a valid MRP", { variant: "error" });
+      return;
+    }
+
+    if (!Number.isFinite(sellPrice) || sellPrice < 0) {
+      enqueueSnackbar("Please enter a valid selling price", {
+        variant: "error",
+      });
+      return;
+    }
+
+    if (!langSelected) {
+      enqueueSnackbar("Please select a language for the product", {
+        variant: "error",
+      });
+      return;
+    }
+
+    // Images validation: either existing savedImages or newly added files
+    const totalImages = (savedImages || []).length + (files || []).length;
+    if (totalImages === 0) {
+      enqueueSnackbar("Please add at least one image for the product", {
+        variant: "error",
+      });
+      return;
+    }
+
+    // Mock tests validation: at least one mock test should be selected
+    const mockTests = Array.isArray(selectedMockTests) ? selectedMockTests : [];
+    if (mockTests.length === 0) {
+      enqueueSnackbar("Please add at least one mock test for the product", {
+        variant: "error",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       // Delete remove files
@@ -168,6 +234,7 @@ export default function ProductEditForm({ productId }) {
           mockTest: selectedMockTests,
           images: arrUploadedFiles,
           updater: user.$id,
+          lang: langSelected,
           mrp: parseFloat(product?.mrp),
           sellPrice: parseFloat(product?.sellPrice),
         }
@@ -220,7 +287,34 @@ export default function ProductEditForm({ productId }) {
   };
 
   if (isDataLoading) {
-    return <Skeleton height={150} />;
+    return (
+      <Fragment>
+        <Divider>
+          <Chip label={product?.productId || productId} color="info" />
+        </Divider>
+
+        <Card sx={{ m: 1 }}>
+          <CardHeader title="Product Details" />
+          <CardContent>
+            <Skeleton variant="rounded" height={100} />
+          </CardContent>
+        </Card>
+
+        <Card sx={{ m: 1 }}>
+          <CardHeader title="Images" />
+          <CardContent>
+            <Skeleton variant="rounded" height={120} />
+          </CardContent>
+        </Card>
+
+        <Card sx={{ m: 1 }}>
+          <CardHeader title="Mock Tests" />
+          <CardContent>
+            <Skeleton variant="rounded" height={150} />
+          </CardContent>
+        </Card>
+      </Fragment>
+    );
   }
 
   if (product?.published) {
@@ -230,22 +324,8 @@ export default function ProductEditForm({ productId }) {
   return (
     <Fragment>
       <Stack alignItems="center" justifyContent="space-between" direction="row">
-        <Breadcrumbs sx={{ mb: 1, mt: 1 }}>
-          <Link
-            underline="hover"
-            sx={{ display: "flex", alignItems: "center" }}
-            color="inherit"
-          >
-            {product?.standard?.standard}
-          </Link>
-          <Link
-            underline="hover"
-            sx={{ display: "flex", alignItems: "center" }}
-            color="inherit"
-          >
-            {product?.subject?.subject}
-          </Link>
-        </Breadcrumbs>
+        <IndexView id={product.bookIndexId} />
+
         <LoadingButton
           variant="contained"
           loading={isSaving}
@@ -258,6 +338,63 @@ export default function ProductEditForm({ productId }) {
       <Divider sx={{ mb: 3 }}>
         <Chip label={product?.productId} color="info" />
       </Divider>
+
+      {/* Language selection block */}
+      <Box component="section" sx={{ p: 2, border: "1px dashed grey", m: 2 }}>
+        <Fragment>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={2}
+            alignItems="center"
+          >
+            <Box sx={{ bgcolor: "secondary.lighter", borderRadius: 2, p: 1 }}>
+              <Iconify icon="mdi:translate" width={36} height={36} />
+            </Box>
+
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="h6">Select Language</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Select a language for this product.
+              </Typography>
+
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                alignItems="center"
+              >
+                <FormControl size="small" sx={{ minWidth: 220 }}>
+                  <InputLabel id="product-lang-select-label">
+                    Language
+                  </InputLabel>
+                  <Select
+                    labelId="product-lang-select-label"
+                    value={selectedLanguage}
+                    label="Language"
+                    onChange={(e) => setSelectedLanguage(e.target.value)}
+                  >
+                    <MenuItem value="">(None)</MenuItem>
+                    {availableLangEntries.map(([code, info]) => (
+                      <MenuItem key={code} value={code}>
+                        {info.level} ({code})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <Chip
+                  label={
+                    selectedLanguage
+                      ? `${lang[selectedLanguage]?.level} (${selectedLanguage})`
+                      : "No Language selected"
+                  }
+                  size="small"
+                  color={selectedLanguage ? "primary" : "default"}
+                />
+              </Stack>
+            </Box>
+          </Stack>
+        </Fragment>
+      </Box>
 
       <Grid container spacing={1}>
         <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -325,7 +462,7 @@ export default function ProductEditForm({ productId }) {
         <Grid item xs={12} sm={12} md={12} lg={12} xl={12}></Grid>
       </Grid>
 
-      <Divider sx={{ m: 1 }}>
+      <Divider sx={{ m: 2 }}>
         <Chip label="Images" />
       </Divider>
 
@@ -360,7 +497,7 @@ export default function ProductEditForm({ productId }) {
         onRemoveAll={handleRemoveAllFiles}
       />
 
-      <Divider sx={{ m: 1 }}>
+      <Divider sx={{ m: 2 }}>
         <Chip label="Mock Tests" />
       </Divider>
 
@@ -414,7 +551,7 @@ export default function ProductEditForm({ productId }) {
             <Typography sx={{ fontWeight: "bold" }}>
               {"All published mock tests under index  :-  "}
             </Typography>
-            <IndexView id={product.bookIndex.$id} />
+            <IndexView id={product.bookIndexId} />
           </Stack>
         </Alert>
 

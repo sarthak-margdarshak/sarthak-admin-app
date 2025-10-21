@@ -12,11 +12,14 @@ export const sarthakAPIPath = {
   },
   question: {
     publish: "/question/publish",
+    translate: "/question/translate",
   },
   mockTest: {
     publish: "/mockTest/publish",
+    translate: "/mockTest/translate",
   },
   product: {
     publish: "/product/publish",
+    translate: "/product/translate",
   },
 };
