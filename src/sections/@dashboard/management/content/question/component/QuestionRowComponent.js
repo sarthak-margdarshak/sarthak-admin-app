@@ -208,21 +208,23 @@ export default function QuestionRowComponent({
       return;
     }
     // Delete other language versions
-    if (question.translatedLang.length > 0) {
-      for (const langCode of question.translatedLang) {
-        // Get translated question document ID
-        const translatedQuestionDocs = await appwriteDatabases.listDocuments(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.collections.translatedQuestions,
-          [Query.equal("questionId", questionId), Query.equal("lang", langCode)]
-        );
-        // Delete translated question document
-        await appwriteDatabases.deleteDocument(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.collections.translatedQuestions,
-          translatedQuestionDocs.documents[0].$id
-        );
-      }
+    for (const langCode of question.translatedLang) {
+      // Get translated question document ID
+      const translatedQuestionDocs = await appwriteDatabases.listDocuments(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.translatedQuestions,
+        [
+          Query.equal("questionId", questionId),
+          Query.equal("lang", langCode),
+          Query.select(["$id"]),
+        ]
+      );
+      // Delete translated question document
+      await appwriteDatabases.deleteDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.translatedQuestions,
+        translatedQuestionDocs.documents[0].$id
+      );
     }
     await appwriteDatabases.deleteDocument(
       APPWRITE_API.databaseId,
@@ -440,7 +442,7 @@ export default function QuestionRowComponent({
         </CardContent>
 
         <CardActions disableSpacing>
-          {question?.published && (
+          {question?.published && defaultExpanded && (
             <>
               <Tooltip title="Published">
                 <Iconify icon="noto:locked" sx={{ m: 1 }} />
@@ -454,7 +456,7 @@ export default function QuestionRowComponent({
             </>
           )}
 
-          {!question?.published && (
+          {!question?.published && defaultExpanded && (
             <>
               <Tooltip title="Edit">
                 <IconButton
@@ -497,7 +499,10 @@ export default function QuestionRowComponent({
             <Tooltip title={"View"}>
               <IconButton
                 onClick={() =>
-                  navigate(PATH_DASHBOARD.question.view(questionId))
+                  window.open(
+                    PATH_DASHBOARD.question.view(questionId),
+                    "_blank"
+                  )
                 }
               >
                 <Iconify icon="mage:preview-fill" color="#287cff" />
@@ -505,24 +510,28 @@ export default function QuestionRowComponent({
             </Tooltip>
           )}
 
-          <Tooltip
-            title={hasLanguageAssigned() ? "View Languages" : "Assign Language"}
-          >
-            <IconButton
-              onClick={() => {
-                if (hasLanguageAssigned()) {
-                  setOpenLanguageDialog(true);
-                } else {
-                  setOpenLanguageAssignmentDialog(true);
-                }
-              }}
+          {defaultExpanded && (
+            <Tooltip
+              title={
+                hasLanguageAssigned() ? "View Languages" : "Assign Language"
+              }
             >
-              <Iconify
-                icon="mdi:translate"
-                color={hasLanguageAssigned() ? "#4caf50" : "#ff9800"}
-              />
-            </IconButton>
-          </Tooltip>
+              <IconButton
+                onClick={() => {
+                  if (hasLanguageAssigned()) {
+                    setOpenLanguageDialog(true);
+                  } else {
+                    setOpenLanguageAssignmentDialog(true);
+                  }
+                }}
+              >
+                <Iconify
+                  icon="mdi:translate"
+                  color={hasLanguageAssigned() ? "#4caf50" : "#ff9800"}
+                />
+              </IconButton>
+            </Tooltip>
+          )}
         </CardActions>
 
         {defaultExpanded && (
@@ -777,7 +786,10 @@ export default function QuestionRowComponent({
                           color="primary"
                           onClick={async () => {
                             navigate(
-                              `/dashboard/question/${questionId}/translate/${langCode}`
+                              PATH_DASHBOARD.question.translate(
+                                questionId,
+                                langCode
+                              )
                             );
                           }}
                           startIcon={<Iconify icon="mdi:eye-circle" />}
@@ -851,7 +863,10 @@ export default function QuestionRowComponent({
                             );
                             setTranslating(false);
                             navigate(
-                              `/dashboard/question/${questionId}/translate/${langCode}`
+                              PATH_DASHBOARD.question.translate(
+                                questionId,
+                                langCode
+                              )
                             );
                           }}
                           loading={translating}
