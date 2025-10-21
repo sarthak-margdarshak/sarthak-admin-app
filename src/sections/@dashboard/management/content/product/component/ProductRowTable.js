@@ -20,7 +20,9 @@ export default function ProductRowTable({ id, searchId }) {
       ? JSON.parse(localStorage.getItem(`product_${id}`))
       : {}
   );
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(
+    localStorage.getItem(`product_${id}`) ? false : true
+  );
 
   useEffect(() => {
     const fetchData = async () => {

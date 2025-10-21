@@ -4,6 +4,7 @@ import { Item } from "components/item/Item";
 import IndexView from "sections/@dashboard/management/content/common/IndexView";
 import { timeAgo } from "auth/AppwriteContext";
 import { Fragment } from "react";
+import { lang } from "assets/data";
 import {
   Accordion,
   AccordionDetails,
@@ -16,7 +17,7 @@ export default function ProductMetadata({ product }) {
       <AccordionSummary>
         <Chip
           label="Metadata"
-          color="error"
+          color="success"
           icon={<Iconify icon="fluent-color:calendar-data-bar-16" />}
         />
       </AccordionSummary>
@@ -26,8 +27,12 @@ export default function ProductMetadata({ product }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Index →</Typography>
-                <IndexView id={product?.bookIndex?.$id} />
+                <Typography fontWeight="bold" variant="h6">
+                  👉 Index ➜
+                </Typography>
+                <IndexView
+                  id={product?.bookIndexId || product?.bookIndex?.$id}
+                />
               </Stack>
             </Item>
           </Grid>
@@ -35,8 +40,10 @@ export default function ProductMetadata({ product }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">System Generated Id →</Typography>
-                <Typography variant="body2">{product?.$id}</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  🪪 System Generated Id ➜
+                </Typography>
+                <Typography>{product?.$id}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -44,8 +51,10 @@ export default function ProductMetadata({ product }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">MRP →</Typography>
-                <Typography variant="body2">{`₹ ${product?.mrp}`}</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  💸 MRP ➜
+                </Typography>
+                <Typography>{`₹ ${product?.mrp}`}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -53,9 +62,33 @@ export default function ProductMetadata({ product }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Selling Price →</Typography>
-                <Typography variant="body2">
-                  {`₹ ${product?.sellPrice}`}
+                <Typography fontWeight="bold" variant="h6">
+                  🛒 Selling Price ➜
+                </Typography>
+                <Typography>{`₹ ${product?.sellPrice}`}</Typography>
+              </Stack>
+            </Item>
+          </Grid>
+
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <Item>
+              <Stack direction="row" spacing={2}>
+                <Typography fontWeight="bold" variant="h6">
+                  🏷️ Sarthak Id ➜
+                </Typography>
+                <Typography>{product?.productId}</Typography>
+              </Stack>
+            </Item>
+          </Grid>
+
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <Item>
+              <Stack direction="row" spacing={2}>
+                <Typography fontWeight="bold" variant="h6">
+                  📊 Status ➜
+                </Typography>
+                <Typography>
+                  {product?.published ? "Published ✅" : "Draft❌"}
                 </Typography>
               </Stack>
             </Item>
@@ -64,8 +97,10 @@ export default function ProductMetadata({ product }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Sarthak Id →</Typography>
-                <Typography variant="body2">{product?.productId}</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  📌 Primary Language ➜
+                </Typography>
+                <Typography>{lang[product?.lang]?.level}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -73,9 +108,13 @@ export default function ProductMetadata({ product }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Status →</Typography>
-                <Typography variant="body2">
-                  {product?.published ? "Published" : "Draft"}
+                <Typography fontWeight="bold" variant="h6">
+                  🌎 Translated Language ➜
+                </Typography>
+                <Typography>
+                  {(product?.translatedLang || [])
+                    .map((x) => lang[x]?.level)
+                    .join(", ")}
                 </Typography>
               </Stack>
             </Item>
@@ -84,8 +123,10 @@ export default function ProductMetadata({ product }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Created By →</Typography>
-                <Typography variant="body2">{product?.creator}</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  ✍ Created By ➜
+                </Typography>
+                <Typography>{product?.creator}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -93,9 +134,13 @@ export default function ProductMetadata({ product }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Created At →</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  🕒 Created At ➜
+                </Typography>
                 <Tooltip title={product?.$createdAt}>
-                  <Typography variant="body2">
+                  <Typography
+                    sx={{ cursor: "pointer", textDecoration: "underline" }}
+                  >
                     {timeAgo.format(
                       Date.parse(
                         product?.$createdAt || "2000-01-01T00:00:00.000+00:00"
@@ -110,8 +155,10 @@ export default function ProductMetadata({ product }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Updated By →</Typography>
-                <Typography variant="body2">{product?.updater}</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  🧙🏼 Updated By ➜
+                </Typography>
+                <Typography>{product?.updater}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -119,9 +166,13 @@ export default function ProductMetadata({ product }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Updated At →</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  ⌛ Updated At ➜
+                </Typography>
                 <Tooltip title={product?.$updatedAt}>
-                  <Typography variant="body2">
+                  <Typography
+                    sx={{ cursor: "pointer", textDecoration: "underline" }}
+                  >
                     {timeAgo.format(
                       Date.parse(
                         product?.$updatedAt || "2000-01-01T00:00:00.000+00:00"
@@ -138,8 +189,10 @@ export default function ProductMetadata({ product }) {
               <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                 <Item>
                   <Stack direction="row" spacing={2}>
-                    <Typography variant="body1">Approved By →</Typography>
-                    <Typography variant="body2">{product?.approver}</Typography>
+                    <Typography fontWeight="bold" variant="h6">
+                      👨🏻‍💻 Approved By ➜
+                    </Typography>
+                    <Typography>{product?.approver}</Typography>
                   </Stack>
                 </Item>
               </Grid>
@@ -147,9 +200,13 @@ export default function ProductMetadata({ product }) {
               <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                 <Item>
                   <Stack direction="row" spacing={2}>
-                    <Typography variant="body1">Approved At →</Typography>
+                    <Typography fontWeight="bold" variant="h6">
+                      ⏲ Approved At ➜
+                    </Typography>
                     <Tooltip title={product?.approvedAt}>
-                      <Typography variant="body2">
+                      <Typography
+                        sx={{ cursor: "pointer", textDecoration: "underline" }}
+                      >
                         {timeAgo.format(
                           Date.parse(
                             product?.approvedAt ||
