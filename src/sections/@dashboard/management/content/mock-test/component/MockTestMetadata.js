@@ -4,6 +4,7 @@ import IndexView from "sections/@dashboard/management/content/common/IndexView";
 import { timeAgo } from "auth/AppwriteContext";
 import { Fragment } from "react";
 import { Item } from "components/item/Item";
+import { lang } from "assets/data";
 import {
   Accordion,
   AccordionDetails,
@@ -26,8 +27,12 @@ export default function MockTestMetadata({ mockTest }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Index →</Typography>
-                <IndexView id={mockTest?.bookIndex?.$id} />
+                <Typography fontWeight="bold" variant="h6">
+                  👉 Index ➜
+                </Typography>
+                <IndexView
+                  id={mockTest?.bookIndexId || mockTest?.bookIndex?.$id}
+                />
               </Stack>
             </Item>
           </Grid>
@@ -35,8 +40,10 @@ export default function MockTestMetadata({ mockTest }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">System Generated Id →</Typography>
-                <Typography variant="body2">{mockTest?.$id}</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  🪪 System Generated Id ➜
+                </Typography>
+                <Typography>{mockTest?.$id}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -44,8 +51,10 @@ export default function MockTestMetadata({ mockTest }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Duration →</Typography>
-                <Typography variant="body2">{`${mockTest?.duration} minutes`}</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  🕒 Duration ➜
+                </Typography>
+                <Typography>{`${mockTest?.duration} minutes`}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -53,8 +62,10 @@ export default function MockTestMetadata({ mockTest }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Level →</Typography>
-                <Typography variant="body2">{mockTest?.level}</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  🧭 Level ➜
+                </Typography>
+                <Typography>{mockTest?.level}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -62,8 +73,10 @@ export default function MockTestMetadata({ mockTest }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Sarthak Id →</Typography>
-                <Typography variant="body2">{mockTest?.mtId}</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  🏷️ Sarthak Id ➜
+                </Typography>
+                <Typography>{mockTest?.mtId}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -71,9 +84,11 @@ export default function MockTestMetadata({ mockTest }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Status →</Typography>
-                <Typography variant="body2">
-                  {mockTest?.published ? "Published" : "Draft"}
+                <Typography fontWeight="bold" variant="h6">
+                  📊 Status ➜
+                </Typography>
+                <Typography>
+                  {mockTest?.published ? "Published ✅" : "Draft❌"}
                 </Typography>
               </Stack>
             </Item>
@@ -82,8 +97,10 @@ export default function MockTestMetadata({ mockTest }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Created By →</Typography>
-                <Typography variant="body2">{mockTest?.creator}</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  📌 Primary Language ➜
+                </Typography>
+                <Typography>{lang[mockTest?.lang]?.level}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -91,9 +108,42 @@ export default function MockTestMetadata({ mockTest }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Created At →</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  🌎 Translated Language ➜
+                </Typography>
+                <Typography>
+                  {(mockTest?.translatedLang || [])
+                    .map((x) => lang[x]?.level)
+                    .join(", ")}
+                </Typography>
+              </Stack>
+            </Item>
+          </Grid>
+
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <Item>
+              <Stack direction="row" spacing={2}>
+                <Typography fontWeight="bold" variant="h6">
+                  ✍ Created By ➜
+                </Typography>
+                <Typography>{mockTest?.creator}</Typography>
+              </Stack>
+            </Item>
+          </Grid>
+
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <Item>
+              <Stack direction="row" spacing={2}>
+                <Typography fontWeight="bold" variant="h6">
+                  🕒 Created At ➜
+                </Typography>
                 <Tooltip title={mockTest?.$createdAt}>
-                  <Typography variant="body2">
+                  <Typography
+                    sx={{
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                    }}
+                  >
                     {timeAgo.format(
                       Date.parse(
                         mockTest?.$createdAt || "2000-01-01T00:00:00.000+00:00"
@@ -108,8 +158,10 @@ export default function MockTestMetadata({ mockTest }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Updated By →</Typography>
-                <Typography variant="body2">{mockTest?.updater}</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  🧙🏼 Updated By ➜
+                </Typography>
+                <Typography>{mockTest?.updater}</Typography>
               </Stack>
             </Item>
           </Grid>
@@ -117,9 +169,16 @@ export default function MockTestMetadata({ mockTest }) {
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <Item>
               <Stack direction="row" spacing={2}>
-                <Typography variant="body1">Updated At →</Typography>
+                <Typography fontWeight="bold" variant="h6">
+                  ⌛ Updated At ➜
+                </Typography>
                 <Tooltip title={mockTest?.$updatedAt}>
-                  <Typography variant="body2">
+                  <Typography
+                    sx={{
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                    }}
+                  >
                     {timeAgo.format(
                       Date.parse(
                         mockTest?.$updatedAt || "2000-01-01T00:00:00.000+00:00"
@@ -136,10 +195,10 @@ export default function MockTestMetadata({ mockTest }) {
               <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                 <Item>
                   <Stack direction="row" spacing={2}>
-                    <Typography variant="body1">Approved By →</Typography>
-                    <Typography variant="body2">
-                      {mockTest?.approver}
+                    <Typography fontWeight="bold" variant="h6">
+                      👨🏻‍💻 Approved By ➜
                     </Typography>
+                    <Typography>{mockTest?.approver}</Typography>
                   </Stack>
                 </Item>
               </Grid>
@@ -147,9 +206,16 @@ export default function MockTestMetadata({ mockTest }) {
               <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                 <Item>
                   <Stack direction="row" spacing={2}>
-                    <Typography variant="body1">Approved At →</Typography>
+                    <Typography fontWeight="bold" variant="h6">
+                      ⏲ Approved At ➜
+                    </Typography>
                     <Tooltip title={mockTest?.approvedAt}>
-                      <Typography variant="body2">
+                      <Typography
+                        sx={{
+                          cursor: "pointer",
+                          textDecoration: "underline",
+                        }}
+                      >
                         {timeAgo.format(
                           Date.parse(
                             mockTest?.approvedAt ||

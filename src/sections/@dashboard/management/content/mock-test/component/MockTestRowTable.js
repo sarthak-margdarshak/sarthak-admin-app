@@ -4,11 +4,10 @@ import { Marker } from "react-mark.js";
 import Label from "components/label";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { appwriteDatabases } from "auth/AppwriteContext";
-import { APPWRITE_API } from "config-global";
-import { Query } from "appwrite";
+import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 
 export default function MockTestRowTable({ id, searchId }) {
+  const { getMockTest } = useContent();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -16,24 +15,21 @@ export default function MockTestRowTable({ id, searchId }) {
     ? decodeURIComponent(searchParams.get("content"))
     : "";
 
-  const [row, setRow] = useState(null);
+  const [row, setRow] = useState(
+    localStorage.getItem(`mockTest_${id}`)
+      ? JSON.parse(localStorage.getItem(`mockTest_${id}`))
+      : {}
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-      setRow(
-        await appwriteDatabases.getDocument(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.collections.mockTest,
-          id,
-          [Query.select(["mtId", "name", "description", "published"])]
-        )
-      );
+      setRow(await getMockTest(id));
       setLoading(false);
     };
     fetchData().then(() => {});
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading) {
     return (

@@ -4,11 +4,10 @@ import { Marker } from "react-mark.js";
 import Label from "components/label";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { appwriteDatabases } from "auth/AppwriteContext";
-import { APPWRITE_API } from "config-global";
-import { Query } from "appwrite";
+import { useContent } from "sections/@dashboard/management/content/hook/useContent";
 
 export default function ProductRowTable({ id, searchId }) {
+  const { getProduct } = useContent();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -16,24 +15,21 @@ export default function ProductRowTable({ id, searchId }) {
     ? decodeURIComponent(searchParams.get("content"))
     : "";
 
-  const [row, setRow] = useState(null);
+  const [row, setRow] = useState(
+    localStorage.getItem(`product_${id}`)
+      ? JSON.parse(localStorage.getItem(`product_${id}`))
+      : {}
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-      setRow(
-        await appwriteDatabases.getDocument(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.collections.products,
-          id,
-          [Query.select(["productId", "name", "description", "published"])]
-        )
-      );
+      setRow(await getProduct(id));
       setLoading(false);
     };
     fetchData().then(() => {});
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading) {
     return (
@@ -71,7 +67,7 @@ export default function ProductRowTable({ id, searchId }) {
         cursor: "pointer",
       }}
     >
-      <TableCell>{row.productId}</TableCell>
+      <TableCell>{row?.productId}</TableCell>
       <TableCell>
         <Marker mark={content}>{row.name}</Marker>
       </TableCell>
