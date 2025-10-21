@@ -29,6 +29,7 @@ import {
   ProductViewPage,
   ProductEditPage,
   ProductListPage,
+  ProductTranslatePage,
   QuestionTranslatePage,
   MockTestTranslatePage,
 } from "./elements";
@@ -159,6 +160,10 @@ export default function Router() {
             },
             { path: ":id", element: <ProductViewPage /> },
             { path: ":id/edit", element: <ProductEditPage /> },
+            {
+              path: ":id/translate/:targetLang",
+              element: <ProductTranslatePage />,
+            },
             { path: "list", element: <ProductListPage /> },
           ],
         },

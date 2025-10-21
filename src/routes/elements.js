@@ -98,6 +98,11 @@ export const ProductEditPage = Loadable(
     import("pages/dashboard/management/content/product/ProductEditPage")
   )
 );
+export const ProductTranslatePage = Loadable(
+  lazy(() =>
+    import("pages/dashboard/management/content/product/ProductTranslatePage")
+  )
+);
 
 // -----------------< MAIN >-----------------
 export const Page500 = Loadable(lazy(() => import("pages/Page500")));

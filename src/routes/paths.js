@@ -53,5 +53,7 @@ export const PATH_DASHBOARD = {
     list: path(ROOTS_DASHBOARD, "/product/list"),
     view: (id) => path(ROOTS_DASHBOARD, `/product/${id}`),
     edit: (id) => path(ROOTS_DASHBOARD, `/product/${id}/edit`),
+    translate: (id, lang) =>
+      path(ROOTS_DASHBOARD, `/product/${id}/translate/${lang}`),
   },
 };
