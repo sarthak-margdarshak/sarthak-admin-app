@@ -219,16 +219,15 @@ export class ProviderHelper {
       const questionLocalKey = `question_${questionId}`;
       const localQuestion = JSON.parse(localStorage.getItem(questionLocalKey));
 
-      let x = (
-        await appwriteDatabases.getDocument(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.collections.questions,
-          questionId,
-          [Query.select("$updatedAt")]
-        )
-      ).$updatedAt;
+      const x = await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.questions,
+        questionId,
+        [Query.select("$updatedAt", "translatedLang")]
+      );
+      let latestUpdatedAt = x.$updatedAt;
 
-      for (let lang of localQuestion.translatedLang) {
+      for (let lang of x.translatedLang) {
         const langObj = await appwriteDatabases.listDocuments(
           APPWRITE_API.databaseId,
           APPWRITE_API.collections.translatedQuestions,
@@ -239,12 +238,12 @@ export class ProviderHelper {
           ]
         );
 
-        if (x < langObj.documents[0].$updatedAt) {
-          x = langObj.documents[0].$updatedAt;
+        if (latestUpdatedAt < langObj.documents[0].$updatedAt) {
+          latestUpdatedAt = langObj.documents[0].$updatedAt;
         }
       }
 
-      return x > localQuestion.$updatedAt;
+      return latestUpdatedAt > localQuestion.$updatedAt;
     } catch (error) {
       return true;
     }
@@ -297,16 +296,18 @@ export class ProviderHelper {
 
       // Add other language questions too
       for (let lang of question.translatedLang) {
-        const langObj = await appwriteDatabases.listDocuments(
-          APPWRITE_API.databaseId,
-          APPWRITE_API.collections.translatedQuestions,
-          [Query.equal("questionId", questionId), Query.equal("lang", lang)]
-        );
+        const langObj = (
+          await appwriteDatabases.listDocuments(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.translatedQuestions,
+            [Query.equal("questionId", questionId), Query.equal("lang", lang)]
+          )
+        ).documents[0];
 
         question[lang] = {
-          contentAnswer: langObj.documents[0].contentAnswer,
-          contentOptions: langObj.documents[0].contentOptions,
-          contentQuestion: langObj.documents[0].contentQuestion,
+          contentAnswer: langObj.contentAnswer,
+          contentOptions: langObj.contentOptions,
+          contentQuestion: langObj.contentQuestion,
         };
 
         if (question.$updatedAt < langObj.$updatedAt) {
@@ -467,5 +468,182 @@ export class ProviderHelper {
     );
 
     return totalAssociatedItems === 0;
+  }
+
+  static async detectChangeInMockTest(mockTestId) {
+    try {
+      const mockTestLocalKey = `mockTest_${mockTestId}`;
+      const localQuestion = JSON.parse(localStorage.getItem(mockTestLocalKey));
+
+      const x = await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.mockTest,
+        mockTestId[Query.select("$updatedAt", "translatedLang")]
+      );
+      let latestUpdatedAt = x.$updatedAt;
+
+      for (let lang of x.translatedLang) {
+        const langObj = await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.translatedMockTest,
+          [
+            Query.equal("mockTestId", mockTestId),
+            Query.equal("lang", lang),
+            Query.select("$updatedAt"),
+          ]
+        );
+
+        if (latestUpdatedAt < langObj.documents[0].$updatedAt) {
+          latestUpdatedAt = langObj.documents[0].$updatedAt;
+        }
+      }
+
+      return latestUpdatedAt > localQuestion.$updatedAt;
+    } catch (error) {
+      return true;
+    }
+  }
+
+  static async downloadMockTest(mockTestId) {
+    const mockTestLocalKey = `mockTest_${mockTestId}`;
+    try {
+      const mockTest = await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.mockTest,
+        mockTestId
+      );
+
+      delete mockTest.$collectionId;
+      delete mockTest.$databaseId;
+      delete mockTest.$permissions;
+      delete mockTest.$sequence;
+
+      // Add other language mockTests too
+      for (let lang of mockTest.translatedLang) {
+        const langObj = (
+          await appwriteDatabases.listDocuments(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.translatedMockTest,
+            [Query.equal("mockTestId", mockTestId), Query.equal("lang", lang)]
+          )
+        ).documents[0];
+
+        mockTest[lang] = {
+          name: langObj.name,
+          description: langObj.description,
+        };
+
+        if (mockTest.$updatedAt < langObj.$updatedAt) {
+          mockTest.$updatedAt = langObj.$updatedAt;
+        }
+      }
+
+      const y = JSON.stringify(mockTest);
+      localStorage.setItem(mockTestLocalKey, y);
+
+      return mockTest;
+    } catch (error) {
+      if (localStorage.getItem(mockTestLocalKey)) {
+        localStorage.removeItem(mockTestLocalKey);
+      }
+      return null;
+    }
+  }
+
+  static async detectChangeInProduct(productId) {
+    try {
+      const productLocalKey = `product_${productId}`;
+      const localProduct = JSON.parse(localStorage.getItem(productLocalKey));
+
+      const x = await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.products,
+        productId,
+        [Query.select("$updatedAt", "translatedLang")]
+      );
+      let latestUpdatedAt = x.$updatedAt;
+
+      for (let lang of x.translatedLang) {
+        const langObj = await appwriteDatabases.listDocuments(
+          APPWRITE_API.databaseId,
+          APPWRITE_API.collections.translatedProducts,
+          [
+            Query.equal("productId", productId),
+            Query.equal("lang", lang),
+            Query.select("$updatedAt"),
+          ]
+        );
+
+        if (latestUpdatedAt < langObj.documents[0].$updatedAt) {
+          latestUpdatedAt = langObj.documents[0].$updatedAt;
+        }
+      }
+
+      return latestUpdatedAt > localProduct?.$updatedAt;
+    } catch (error) {
+      return true;
+    }
+  }
+
+  static async downloadProduct(productId) {
+    const productLocalKey = `product_${productId}`;
+    try {
+      const product = await appwriteDatabases.getDocument(
+        APPWRITE_API.databaseId,
+        APPWRITE_API.collections.products,
+        productId
+      );
+
+      delete product.$collectionId;
+      delete product.$databaseId;
+      delete product.$permissions;
+      delete product.$sequence;
+
+      // Convert image ids to downloadable urls
+      const images = [];
+      for (let image of product.images) {
+        if (image !== null && image !== "") {
+          images.push(
+            appwriteStorage.getFileDownload(
+              APPWRITE_API.buckets.sarthakDatalakeBucket,
+              image
+            )
+          );
+        } else {
+          images.push(null);
+        }
+      }
+      product.images = images;
+
+      // Add other language product data if available and configured
+      for (let lang of product.translatedLang) {
+        const langObj = (
+          await appwriteDatabases.listDocuments(
+            APPWRITE_API.databaseId,
+            APPWRITE_API.collections.translatedProducts,
+            [Query.equal("productId", productId), Query.equal("lang", lang)]
+          )
+        ).documents[0];
+
+        product[lang] = {
+          name: langObj.name,
+          description: langObj.description,
+        };
+
+        if (product.$updatedAt < langObj.$updatedAt) {
+          product.$updatedAt = langObj.$updatedAt;
+        }
+      }
+
+      const y = JSON.stringify(product);
+      localStorage.setItem(productLocalKey, y);
+
+      return product;
+    } catch (error) {
+      if (localStorage.getItem(productLocalKey)) {
+        localStorage.removeItem(productLocalKey);
+      }
+      return null;
+    }
   }
 }

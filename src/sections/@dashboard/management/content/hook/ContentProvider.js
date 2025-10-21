@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { createContext, useCallback, useMemo, useReducer } from "react";
-import { appwriteDatabases, appwriteStorage } from "auth/AppwriteContext";
+import { appwriteDatabases } from "auth/AppwriteContext";
 import { APPWRITE_API } from "config-global";
 import { ProviderHelper } from "sections/@dashboard/management/content/hook/ProviderHelper";
 import { ID, Query } from "appwrite";
@@ -810,63 +810,44 @@ export function ContentProvider({ children }) {
     return question;
   }, []);
 
-  const getMockTest = useCallback(
-    async (mockTestId) => {
-      const mockTest = await appwriteDatabases.getDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.mockTest,
+  const getMockTest = useCallback(async (mockTestId) => {
+    let mockTest = null;
+    const mockTestLocalKey = `mockTest_${mockTestId}`;
+    if (localStorage.getItem(mockTestLocalKey)) {
+      let changeDetected = await ProviderHelper.detectChangeInMockTest(
         mockTestId
       );
+      if (changeDetected) {
+        mockTest = await ProviderHelper.downloadMockTest(mockTestId);
+      } else {
+        mockTest = JSON.parse(localStorage.getItem(mockTestLocalKey));
+      }
+    } else {
+      mockTest = await ProviderHelper.downloadMockTest(mockTestId);
+    }
 
-      state.mockTestsData[mockTestId] = {
-        ...mockTest,
-        lastSynced: new Date().toISOString(),
-      };
+    return mockTest;
+  }, []);
 
-      const y = JSON.stringify(state.mockTestsData);
-      localStorage.setItem("mockTestsData", y);
+  const getProduct = useCallback(async (productId) => {
+    let product = null;
+    const productLocalKey = `product_${productId}`;
 
-      return {
-        ...mockTest,
-        lastSynced: new Date().toISOString(),
-      };
-    },
-    [state.mockTestsData]
-  );
-
-  const getProduct = useCallback(
-    async (productId) => {
-      const product = await appwriteDatabases.getDocument(
-        APPWRITE_API.databaseId,
-        APPWRITE_API.collections.products,
+    if (localStorage.getItem(productLocalKey)) {
+      let changeDetected = await ProviderHelper.detectChangeInProduct(
         productId
       );
-
-      const tmpImages = [];
-      for (let image of product.images) {
-        const z = appwriteStorage.getFileDownload(
-          APPWRITE_API.buckets.sarthakDatalakeBucket,
-          image
-        );
-        tmpImages.push(z);
+      if (changeDetected) {
+        product = await ProviderHelper.downloadProduct(productId);
+      } else {
+        product = JSON.parse(localStorage.getItem(productLocalKey));
       }
+    } else {
+      product = await ProviderHelper.downloadProduct(productId);
+    }
 
-      state.productsData[productId] = {
-        ...product,
-        images: tmpImages,
-        lastSynced: new Date().toISOString(),
-      };
-
-      const y = JSON.stringify(state.productsData);
-      localStorage.setItem("productsData", y);
-
-      return {
-        ...product,
-        lastSynced: new Date().toISOString(),
-      };
-    },
-    [state.productsData]
-  );
+    return product;
+  }, []);
 
   const memoizedValue = useMemo(
     () => ({
