@@ -9,23 +9,34 @@ export default function IndexView({ id }) {
       ? JSON.parse(localStorage.getItem(`bookIndex_${id}`)).label
       : {}
   );
-  const [loading, setLoading] = useState(
+  const [isLoadingNew, setIsLoadingNew] = useState(
     localStorage.getItem(`bookIndex_${id}`) ? false : true
   );
+  const [isRefreshing, setIsRefreshing] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsRefreshing(true);
+      setIsLoadingNew(localStorage.getItem(`bookIndex_${id}`) ? false : true);
+      setLabel(
+        localStorage.getItem(`bookIndex_${id}`)
+          ? JSON.parse(localStorage.getItem(`bookIndex_${id}`)).label
+          : {}
+      );
       const x = await getBookIndex(id);
       setLabel(x.label);
-      setLoading(false);
+      setIsLoadingNew(false);
+      setIsRefreshing(false);
     };
     fetchData().then(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getBookIndex, id]);
+  }, [id]);
 
-  if (loading) {
+  if (isLoadingNew) {
     return <Skeleton variant="text" width={400} sx={{ fontSize: "1rem" }} />;
   }
 
-  return <Typography>{label}</Typography>;
+  return (
+    <Typography sx={{ opacity: isRefreshing ? 0.5 : 1 }}>{label}</Typography>
+  );
 }

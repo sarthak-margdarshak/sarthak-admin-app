@@ -60,9 +60,10 @@ export default function QuestionRowComponent({
     : "";
 
   const [publishing, setPublishing] = useState(false);
-  const [isDataLoading, setIsDataLoading] = useState(
+  const [isLoadingNew, setIsLoadingNew] = useState(
     localStorage.getItem(`question_${questionId}`) ? false : true
   );
+  const [isRefreshing, setIsRefreshing] = useState(true);
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openLanguageDialog, setOpenLanguageDialog] = useState(false);
@@ -147,6 +148,30 @@ export default function QuestionRowComponent({
 
   const fetchData = async () => {
     try {
+      setIsRefreshing(true);
+      setIsLoadingNew(
+        localStorage.getItem(`question_${questionId}`) ? false : true
+      );
+      setQuestion(
+        localStorage.getItem(`question_${questionId}`)
+          ? JSON.parse(localStorage.getItem(`question_${questionId}`))
+          : {}
+      );
+      setLangContent(
+        localStorage.getItem(`question_${questionId}`)
+          ? {
+              contentQuestion: JSON.parse(
+                localStorage.getItem(`question_${questionId}`)
+              )?.contentQuestion,
+              contentOptions: JSON.parse(
+                localStorage.getItem(`question_${questionId}`)
+              )?.contentOptions,
+              contentAnswer: JSON.parse(
+                localStorage.getItem(`question_${questionId}`)
+              )?.contentAnswer,
+            }
+          : {}
+      );
       const x = await getQuestion(questionId);
       if (x) {
         setLangContent({
@@ -157,7 +182,8 @@ export default function QuestionRowComponent({
         setCurrLang(x?.lang);
       }
       setQuestion(x);
-      setIsDataLoading(false);
+      setIsLoadingNew(false);
+      setIsRefreshing(false);
     } catch (error) {
       console.log(error);
     }
@@ -282,7 +308,7 @@ export default function QuestionRowComponent({
     navigate(PATH_DASHBOARD.question.list);
   };
 
-  if (isDataLoading) {
+  if (isLoadingNew) {
     return (
       <Fragment>
         <Card sx={{ m: 1 }}>
@@ -367,7 +393,7 @@ export default function QuestionRowComponent({
 
   return (
     <Fragment>
-      <Card sx={{ m: 1 }}>
+      <Card sx={{ m: 1, opacity: isRefreshing ? 0.5 : 1 }}>
         <CardHeader
           title={
             <Divider>

@@ -71,9 +71,10 @@ export default function ProductRowComponent({ productId }) {
     : "";
 
   const [publishing, setPublishing] = useState(false);
-  const [isDataLoading, setIsDataLoading] = useState(
+  const [isLoadingNew, setIsLoadingNew] = useState(
     localStorage.getItem(`product_${productId}`) ? false : true
   );
+  const [isRefreshing, setIsRefreshing] = useState(true);
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openLanguageDialog, setOpenLanguageDialog] = useState(false);
@@ -89,13 +90,34 @@ export default function ProductRowComponent({ productId }) {
 
   const fetchData = async () => {
     try {
+      setIsRefreshing(true);
+      setIsLoadingNew(
+        localStorage.getItem(`product_${productId}`) ? false : true
+      );
+      setProduct(
+        localStorage.getItem(`product_${productId}`)
+          ? JSON.parse(localStorage.getItem(`product_${productId}`))
+          : {}
+      );
+      setLangContent(
+        localStorage.getItem(`product_${productId}`)
+          ? {
+              name: JSON.parse(localStorage.getItem(`product_${productId}`))
+                ?.name,
+              description: JSON.parse(
+                localStorage.getItem(`product_${productId}`)
+              )?.description,
+            }
+          : {}
+      );
       const x = await getProduct(productId);
       if (x) {
         setLangContent({ name: x?.name, description: x?.description });
         setCurrLang(x?.lang);
       }
       setProduct(x);
-      setIsDataLoading(false);
+      setIsLoadingNew(false);
+      setIsRefreshing(false);
     } catch (error) {
       console.log(error);
     }
@@ -231,7 +253,7 @@ export default function ProductRowComponent({ productId }) {
     navigate(PATH_DASHBOARD.product.list);
   };
 
-  if (isDataLoading) {
+  if (isLoadingNew) {
     return (
       <Fragment>
         <Card sx={{ m: 1 }}>
@@ -259,9 +281,63 @@ export default function ProductRowComponent({ productId }) {
     );
   }
 
+  if (product === null) {
+    return (
+      <Fragment>
+        <Card sx={{ m: 1 }}>
+          <CardHeader
+            title={
+              <Divider>
+                <Chip
+                  label={productId}
+                  color="error"
+                  icon={<Iconify icon="fluent-emoji:money-bag" />}
+                />
+              </Divider>
+            }
+          />
+
+          <CardContent>
+            <Stack
+              alignItems="center"
+              spacing={2}
+              sx={{ textAlign: "center", py: 2 }}
+            >
+              <Iconify
+                icon="eva:alert-triangle-fill"
+                width={56}
+                height={56}
+                style={{ color: "#d32f2f" }}
+              />
+              <Typography variant="h6">Product Not Found</Typography>
+              <Chip label="Error: PNF-404" color="error" size="small" />
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ maxWidth: 680 }}
+              >
+                The requested product could not be found. It may have been
+                deleted, or the provided product ID is invalid. Please verify
+                the ID and try again.
+              </Typography>
+              <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => navigate(PATH_DASHBOARD.product.list)}
+                >
+                  Back to Products
+                </Button>
+              </Stack>
+            </Stack>
+          </CardContent>
+        </Card>
+      </Fragment>
+    );
+  }
+
   return (
     <Fragment>
-      <Card sx={{ m: 1 }}>
+      <Card sx={{ m: 1, opacity: isRefreshing ? 0.5 : 1 }}>
         <CardHeader
           title={
             <Divider>

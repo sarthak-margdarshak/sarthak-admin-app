@@ -21,20 +21,29 @@ export default function QuestionRowTable({ id, searchId }) {
       ? JSON.parse(localStorage.getItem(`question_${id}`))
       : {}
   );
-  const [loading, setLoading] = useState(
+  const [isLoadingNew, setIsLoadingNew] = useState(
     localStorage.getItem(`question_${id}`) ? false : true
   );
+  const [isRefreshing, setIsRefreshing] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsRefreshing(true);
+      setIsLoadingNew(localStorage.getItem(`question_${id}`) ? false : true);
+      setRow(
+        localStorage.getItem(`question_${id}`)
+          ? JSON.parse(localStorage.getItem(`question_${id}`))
+          : {}
+      );
       setRow(await getQuestion(id));
-      setLoading(false);
+      setIsLoadingNew(false);
+      setIsRefreshing(false);
     };
     fetchData().then(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  if (loading) {
+  if (isLoadingNew) {
     return (
       <TableRow>
         <TableCell>
@@ -68,6 +77,7 @@ export default function QuestionRowTable({ id, searchId }) {
       tabIndex={-1}
       sx={{
         cursor: "pointer",
+        opacity: isRefreshing ? 0.5 : 1,
       }}
     >
       <TableCell>{row?.qnId}</TableCell>

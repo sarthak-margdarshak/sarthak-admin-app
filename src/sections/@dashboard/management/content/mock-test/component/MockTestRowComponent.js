@@ -79,9 +79,10 @@ export default function MockTestRowComponent({
     : "";
 
   const [publishing, setPublishing] = useState(false);
-  const [isDataLoading, setIsDataLoading] = useState(
+  const [isLoadingNew, setIsLoadingNew] = useState(
     localStorage.getItem(`mockTest_${mockTestId}`) ? false : true
   );
+  const [isRefreshing, setIsRefreshing] = useState(true);
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
 
   const { user } = useAuthContext();
@@ -90,6 +91,26 @@ export default function MockTestRowComponent({
 
   const fetchData = async () => {
     try {
+      setIsRefreshing(true);
+      setIsLoadingNew(
+        localStorage.getItem(`mockTest_${mockTestId}`) ? false : true
+      );
+      setMockTest(
+        localStorage.getItem(`mockTest_${mockTestId}`)
+          ? JSON.parse(localStorage.getItem(`mockTest_${mockTestId}`))
+          : {}
+      );
+      setLangContent(
+        localStorage.getItem(`mockTest_${mockTestId}`)
+          ? {
+              name: JSON.parse(localStorage.getItem(`mockTest_${mockTestId}`))
+                ?.name,
+              description: JSON.parse(
+                localStorage.getItem(`mockTest_${mockTestId}`)
+              )?.description,
+            }
+          : {}
+      );
       const x = await getMockTest(mockTestId);
       if (x) {
         setLangContent({
@@ -99,7 +120,8 @@ export default function MockTestRowComponent({
         setCurrLang(x?.lang);
       }
       setMockTest(x);
-      setIsDataLoading(false);
+      setIsLoadingNew(false);
+      setIsRefreshing(false);
     } catch (error) {
       console.log(error);
     }
@@ -232,7 +254,7 @@ export default function MockTestRowComponent({
     setPublishing(false);
   };
 
-  if (isDataLoading) {
+  if (isLoadingNew) {
     return (
       <Fragment>
         <Card sx={{ m: 1 }}>
@@ -256,9 +278,63 @@ export default function MockTestRowComponent({
     );
   }
 
+  if (mockTest === null) {
+    return (
+      <Fragment>
+        <Card sx={{ m: 1 }}>
+          <CardHeader
+            title={
+              <Divider>
+                <Chip
+                  label={mockTestId}
+                  color="error"
+                  icon={<Iconify icon="solar:test-tube-bold" color="#e81f1f" />}
+                />
+              </Divider>
+            }
+          />
+
+          <CardContent>
+            <Stack
+              alignItems="center"
+              spacing={2}
+              sx={{ textAlign: "center", py: 2 }}
+            >
+              <Iconify
+                icon="eva:alert-triangle-fill"
+                width={56}
+                height={56}
+                style={{ color: "#d32f2f" }}
+              />
+              <Typography variant="h6">Mock Test Not Found</Typography>
+              <Chip label="Error: MTNF-404" color="error" size="small" />
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ maxWidth: 680 }}
+              >
+                The requested mock test could not be found. It may have been
+                deleted, or the provided mock test ID is invalid. Please verify
+                the ID and try again.
+              </Typography>
+              <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => navigate(PATH_DASHBOARD.mockTest.list)}
+                >
+                  Back to Mock Tests
+                </Button>
+              </Stack>
+            </Stack>
+          </CardContent>
+        </Card>
+      </Fragment>
+    );
+  }
+
   return (
     <Fragment>
-      <Card sx={{ m: 1 }}>
+      <Card sx={{ m: 1, opacity: isRefreshing ? 0.5 : 1 }}>
         <CardHeader
           title={
             <Divider>
