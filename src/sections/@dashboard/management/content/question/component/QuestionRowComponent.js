@@ -555,6 +555,30 @@ export default function QuestionRowComponent({
               </Tooltip>
             )}
 
+          {/* Language Management */}
+          {defaultExpanded && (
+            <Tooltip
+              title={
+                hasLanguageAssigned() ? "View Languages" : "Assign Language"
+              }
+            >
+              <IconButton
+                onClick={() => {
+                  if (hasLanguageAssigned()) {
+                    setOpenLanguageDialog(true);
+                  } else {
+                    setOpenLanguageAssignmentDialog(true);
+                  }
+                }}
+              >
+                <Iconify
+                  icon="mdi:translate"
+                  color={hasLanguageAssigned() ? "#4caf50" : "#ff9800"}
+                />
+              </IconButton>
+            </Tooltip>
+          )}
+
           {/* Delete */}
           {!question?.published &&
             defaultExpanded &&
@@ -584,30 +608,6 @@ export default function QuestionRowComponent({
                 }
               >
                 <Iconify icon="mage:preview-fill" color="#287cff" />
-              </IconButton>
-            </Tooltip>
-          )}
-
-          {/* Language Management */}
-          {defaultExpanded && (
-            <Tooltip
-              title={
-                hasLanguageAssigned() ? "View Languages" : "Assign Language"
-              }
-            >
-              <IconButton
-                onClick={() => {
-                  if (hasLanguageAssigned()) {
-                    setOpenLanguageDialog(true);
-                  } else {
-                    setOpenLanguageAssignmentDialog(true);
-                  }
-                }}
-              >
-                <Iconify
-                  icon="mdi:translate"
-                  color={hasLanguageAssigned() ? "#4caf50" : "#ff9800"}
-                />
               </IconButton>
             </Tooltip>
           )}
