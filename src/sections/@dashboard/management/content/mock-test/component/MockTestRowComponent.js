@@ -79,11 +79,13 @@ export default function MockTestRowComponent({
     : "";
 
   const [publishing, setPublishing] = useState(false);
+  const [unpublishing, setUnpublishing] = useState(false);
   const [isLoadingNew, setIsLoadingNew] = useState(
     localStorage.getItem(`mockTest_${mockTestId}`) ? false : true
   );
   const [isRefreshing, setIsRefreshing] = useState(true);
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
+  const [openUnpublishDialog, setOpenUnpublishDialog] = useState(false);
 
   const { user } = useAuthContext();
 
@@ -254,6 +256,29 @@ export default function MockTestRowComponent({
     setPublishing(false);
   };
 
+  const unpublishMockTest = async () => {
+    setUnpublishing(true);
+    try {
+      const x = await appwriteFunctions.createExecution(
+        APPWRITE_API.functions.sarthakAPI,
+        JSON.stringify({ mockTestId: mockTestId }),
+        false,
+        sarthakAPIPath.mockTest.unpublish
+      );
+      const res = JSON.parse(x.responseBody);
+      if (res.status === "failed") {
+        enqueueSnackbar(res.error, { variant: "error" });
+      } else {
+        enqueueSnackbar("Unpublished Successfully");
+        await fetchData();
+      }
+      setOpenUnpublishDialog(false);
+    } catch (error) {
+      enqueueSnackbar(error.message, { variant: "error" });
+    }
+    setUnpublishing(false);
+  };
+
   if (isLoadingNew) {
     return (
       <Fragment>
@@ -395,6 +420,7 @@ export default function MockTestRowComponent({
           {/* Unpublish */}
           {mockTest?.published && defaultExpanded && (
             <Tooltip title="Unpublish">
+              {/* <IconButton onClick={() => setOpenUnpublishDialog(true)}> */}
               <IconButton onClick={() => {}}>
                 <Iconify icon="mdi:lock-open-outline" color="#ff2889" />
               </IconButton>
@@ -530,6 +556,50 @@ export default function MockTestRowComponent({
               <LoadingButton
                 loading={publishing}
                 onClick={publishMockTest}
+                autoFocus
+              >
+                Agree
+              </LoadingButton>
+            </DialogActions>
+          </Fragment>
+        ) : (
+          <DialogContent>
+            <PermissionDeniedComponent />
+          </DialogContent>
+        )}
+      </Dialog>
+
+      {/* Unpublish MockTest Dialog */}
+      <Dialog
+        open={openUnpublishDialog}
+        onClose={() => setOpenUnpublishDialog(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        {user.labels.findIndex(
+          (label) => label === labels.founder || label === labels.admin
+        ) !== -1 ? (
+          <Fragment>
+            <DialogTitle id="alert-dialog-title">
+              Are you sure to Unpublish it?
+            </DialogTitle>
+            <DialogContent dividers>
+              <DialogContentText id="alert-dialog-description">
+                If you click AGREE, mock test will be unpublished. After that
+                you will be able to edit it. You can click DISAGREE, if you feel
+                that the mock test should remain published.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                disabled={unpublishing}
+                onClick={() => setOpenUnpublishDialog(false)}
+              >
+                Disagree
+              </Button>
+              <LoadingButton
+                loading={unpublishing}
+                onClick={unpublishMockTest}
                 autoFocus
               >
                 Agree
