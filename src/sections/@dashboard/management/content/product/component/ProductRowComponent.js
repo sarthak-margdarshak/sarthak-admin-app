@@ -431,14 +431,16 @@ export default function ProductRowComponent({ productId }) {
           )}
 
           {/* Unpublish */}
-          {product?.published && (
-            <Tooltip title="Unpublish">
-              {/* <IconButton onClick={() => setOpenUnpublishDialog(true)}> */}
-              <IconButton onClick={() => {}}>
-                <Iconify icon="mdi:lock-open-outline" color="#ff2889" />
-              </IconButton>
-            </Tooltip>
-          )}
+          {product?.published &&
+            user.labels.findIndex((label) => label === labels.founder) !==
+              -1 && (
+              <Tooltip title="Unpublish">
+                {/* <IconButton onClick={() => setOpenUnpublishDialog(true)}> */}
+                <IconButton onClick={() => {}}>
+                  <Iconify icon="mdi:lock-open-outline" color="#ff2889" />
+                </IconButton>
+              </Tooltip>
+            )}
 
           {/* Edit */}
           {!product?.published && (

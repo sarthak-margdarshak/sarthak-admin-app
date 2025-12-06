@@ -418,14 +418,17 @@ export default function MockTestRowComponent({
           )}
 
           {/* Unpublish */}
-          {mockTest?.published && defaultExpanded && (
-            <Tooltip title="Unpublish">
-              {/* <IconButton onClick={() => setOpenUnpublishDialog(true)}> */}
-              <IconButton onClick={() => {}}>
-                <Iconify icon="mdi:lock-open-outline" color="#ff2889" />
-              </IconButton>
-            </Tooltip>
-          )}
+          {mockTest?.published &&
+            defaultExpanded &&
+            user.labels.findIndex((label) => label === labels.founder) !==
+              -1 && (
+              <Tooltip title="Unpublish">
+                {/* <IconButton onClick={() => setOpenUnpublishDialog(true)}> */}
+                <IconButton onClick={() => {}}>
+                  <Iconify icon="mdi:lock-open-outline" color="#ff2889" />
+                </IconButton>
+              </Tooltip>
+            )}
 
           {/* Edit */}
           {!mockTest?.published && defaultExpanded && (

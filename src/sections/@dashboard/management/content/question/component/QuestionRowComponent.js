@@ -571,9 +571,8 @@ export default function QuestionRowComponent({
           {/* Publish */}
           {!question?.published &&
             defaultExpanded &&
-            user.labels.findIndex(
-              (label) => label === labels.founder || label === labels.admin
-            ) !== -1 && (
+            user.labels.findIndex((label) => label === labels.founder) !==
+              -1 && (
               <Tooltip title="Publish">
                 <IconButton
                   disabled={question?.published}
