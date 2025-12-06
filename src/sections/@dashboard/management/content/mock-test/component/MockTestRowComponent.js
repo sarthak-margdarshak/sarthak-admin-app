@@ -423,8 +423,7 @@ export default function MockTestRowComponent({
             user.labels.findIndex((label) => label === labels.founder) !==
               -1 && (
               <Tooltip title="Unpublish">
-                {/* <IconButton onClick={() => setOpenUnpublishDialog(true)}> */}
-                <IconButton onClick={() => {}}>
+                <IconButton onClick={() => setOpenUnpublishDialog(true)}>
                   <Iconify icon="mdi:lock-open-outline" color="#ff2889" />
                 </IconButton>
               </Tooltip>
