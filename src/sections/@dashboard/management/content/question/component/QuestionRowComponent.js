@@ -543,13 +543,17 @@ export default function QuestionRowComponent({
           )}
 
           {/* Unpublish */}
-          {question?.published && defaultExpanded && (
-            <Tooltip title="Unpublish">
-              <IconButton onClick={() => setOpenUnpublishDialog(true)}>
-                <Iconify icon="mdi:lock-open-outline" color="#ff2889" />
-              </IconButton>
-            </Tooltip>
-          )}
+          {question?.published &&
+            defaultExpanded &&
+            user.labels.findIndex(
+              (label) => label === labels.founder || label === labels.admin
+            ) !== -1 && (
+              <Tooltip title="Unpublish">
+                <IconButton onClick={() => setOpenUnpublishDialog(true)}>
+                  <Iconify icon="mdi:lock-open-outline" color="#ff2889" />
+                </IconButton>
+              </Tooltip>
+            )}
 
           {/* Edit */}
           {!question?.published && defaultExpanded && (
