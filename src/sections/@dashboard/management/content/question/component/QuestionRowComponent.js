@@ -545,9 +545,8 @@ export default function QuestionRowComponent({
           {/* Unpublish */}
           {question?.published &&
             defaultExpanded &&
-            user.labels.findIndex(
-              (label) => label === labels.founder || label === labels.admin
-            ) !== -1 && (
+            user.labels.findIndex((label) => label === labels.founder) !==
+              -1 && (
               <Tooltip title="Unpublish">
                 <IconButton onClick={() => setOpenUnpublishDialog(true)}>
                   <Iconify icon="mdi:lock-open-outline" color="#ff2889" />
@@ -571,8 +570,9 @@ export default function QuestionRowComponent({
           {/* Publish */}
           {!question?.published &&
             defaultExpanded &&
-            user.labels.findIndex((label) => label === labels.founder) !==
-              -1 && (
+            user.labels.findIndex(
+              (label) => label === labels.founder || label === labels.admin
+            ) !== -1 && (
               <Tooltip title="Publish">
                 <IconButton
                   disabled={question?.published}
